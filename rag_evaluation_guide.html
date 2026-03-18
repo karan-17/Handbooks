@@ -20,6 +20,21 @@
             --code-bg: #f1f5f9;
         }
 
+        [data-theme="dark"] {
+            --primary-color: #60a5fa;
+            --secondary-color: #3b82f6;
+            --accent-color: #93c5fd;
+            --success-color: #34d399;
+            --warning-color: #fbbf24;
+            --error-color: #f87171;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --code-bg: #334155;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -31,6 +46,36 @@
             line-height: 1.6;
             color: var(--text-color);
             background-color: var(--bg-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            border-radius: 50px;
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.15);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: rgba(30, 41, 59, 0.9);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
         }
 
         .container {
@@ -547,6 +592,7 @@
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
     <header>
         <div class="container">
             <div class="hero">
@@ -2733,6 +2779,28 @@ tru.run_dashboard()
             });
             
             document.body.appendChild(searchInput);
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const button = document.querySelector('.theme-toggle');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            if (button) {
+                document.body.setAttribute('data-theme', savedTheme);
+                button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+            }
         });
     </script>
 </body>
