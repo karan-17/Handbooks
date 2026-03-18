@@ -1,0 +1,3879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Cloud Computing & DevOps Handbook - From Basics to Advanced</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8f9fa;
+            --text-color: #2c3e50;
+            --code-bg: #f4f4f4;
+            --border-color: #dee2e6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 400px;
+            flex: 1;
+            margin: 0 2rem;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.9);
+            color: var(--text-color);
+        }
+
+        #searchInput::placeholder {
+            color: #666;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .search-result-item:hover {
+            background: var(--light-bg);
+        }
+
+        /* Navigation Styles */
+        .main-nav {
+            background: var(--dark-bg);
+            padding: 1rem 0;
+            position: sticky;
+            top: 120px;
+            z-index: 999;
+        }
+
+        .nav-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .nav-item {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 300px;
+            height: 100vh;
+            background: var(--dark-bg);
+            color: white;
+            padding: 2rem;
+            transition: left 0.3s;
+            z-index: 2000;
+            overflow-y: auto;
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 2001;
+            font-size: 18px;
+        }
+
+        .sidebar h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #333;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar ul li a {
+            color: #ccc;
+            text-decoration: none;
+            padding: 0.3rem 0;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .sidebar ul li a:hover {
+            color: var(--secondary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 3rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .section-content {
+            padding: 2rem;
+        }
+
+        /* Typography */
+        h3 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        h4 {
+            color: var(--secondary-color);
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        h5 {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        /* Code Styles */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: -1.5rem -1.5rem 1rem -1.5rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--light-bg);
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+
+        .card h4 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Alerts and Callouts */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-color: var(--secondary-color);
+            color: #1565c0;
+        }
+
+        .alert-warning {
+            background: #fff3e0;
+            border-color: var(--warning-color);
+            color: #ef6c00;
+        }
+
+        .alert-success {
+            background: #e8f5e8;
+            border-color: var(--success-color);
+            color: #2e7d32;
+        }
+
+        .alert-danger {
+            background: #ffebee;
+            border-color: var(--accent-color);
+            color: #c62828;
+        }
+
+        /* Glossary */
+        .glossary {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .glossary-term {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .glossary-term:last-child {
+            border-bottom: none;
+        }
+
+        .glossary-term strong {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        /* Progress Indicators */
+        .progress-bar {
+            background: #e0e0e0;
+            height: 10px;
+            border-radius: 5px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--success-color), #229954);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .search-container {
+                margin: 1rem 0 0 0;
+                max-width: 100%;
+            }
+
+            .nav-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.8rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar,
+            .sidebar-toggle,
+            .main-nav,
+            .search-container {
+                display: none;
+            }
+
+            .section {
+                break-inside: avoid;
+                margin-bottom: 2rem;
+                box-shadow: none;
+                border: 1px solid #ccc;
+            }
+
+            .code-block {
+                break-inside: avoid;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .highlight {
+            background: yellow;
+            padding: 0.2rem;
+            border-radius: 3px;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">☰</button>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <h3>📚 Table of Contents</h3>
+        <ul>
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#linux-fundamentals">Linux Fundamentals</a></li>
+            <li><a href="#cloud-platforms">Cloud Platforms</a></li>
+            <li><a href="#aws-deep-dive">AWS Deep Dive</a></li>
+            <li><a href="#gcp-deep-dive">GCP Deep Dive</a></li>
+            <li><a href="#azure-deep-dive">Azure Deep Dive</a></li>
+            <li><a href="#containerization">Containerization</a></li>
+            <li><a href="#kubernetes">Kubernetes</a></li>
+            <li><a href="#cicd">CI/CD & Jenkins</a></li>
+            <li><a href="#infrastructure-as-code">Infrastructure as Code</a></li>
+            <li><a href="#monitoring-logging">Monitoring & Logging</a></li>
+            <li><a href="#security">Security Best Practices</a></li>
+            <li><a href="#case-studies">Case Studies</a></li>
+            <li><a href="#glossary">Glossary</a></li>
+        </ul>
+        
+        <h3>🔧 Quick Tools</h3>
+        <ul>
+            <li><a href="#command-reference">Command Reference</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#cheat-sheets">Cheat Sheets</a></li>
+            <li><a href="#demo-projects">Demo Projects</a></li>
+        </ul>
+    </nav>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>☁️ Cloud Computing & DevOps Handbook</h1>
+                    <p>Complete Guide from Basics to Advanced Implementation</p>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search topics, commands, services..." onkeyup="searchContent()">
+                    <div class="search-results" id="searchResults"></div>
+                </div>
+                <div class="progress-indicator">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <div class="nav-container">
+                <a href="#introduction" class="nav-item active">Introduction</a>
+                <a href="#linux-fundamentals" class="nav-item">Linux</a>
+                <a href="#cloud-platforms" class="nav-item">Cloud Platforms</a>
+                <a href="#containerization" class="nav-item">Docker</a>
+                <a href="#kubernetes" class="nav-item">Kubernetes</a>
+                <a href="#cicd" class="nav-item">CI/CD</a>
+                <a href="#infrastructure-as-code" class="nav-item">IaC</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            
+            <!-- Introduction Section -->
+            <section id="introduction" class="section fade-in">
+                <div class="section-header">
+                    <h2>🚀 Introduction to Cloud Computing & DevOps</h2>
+                    <p>Master the fundamentals and advanced concepts of modern cloud infrastructure and DevOps practices</p>
+                </div>
+                <div class="section-content">
+                    <h3>Learning Objectives</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-icon">☁️</div>
+                            <h4>Cloud Mastery</h4>
+                            <p>Understand AWS, GCP, and Azure services, architectures, and best practices for scalable cloud solutions.</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🔧</div>
+                            <h4>DevOps Excellence</h4>
+                            <p>Learn containerization, orchestration, CI/CD, and infrastructure automation tools and methodologies.</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">🛡️</div>
+                            <h4>Security & Compliance</h4>
+                            <p>Implement security best practices, monitoring, and compliance frameworks across cloud environments.</p>
+                        </div>
+                        <div class="card">
+                            <div class="card-icon">💰</div>
+                            <h4>Cost Optimization</h4>
+                            <p>Master cost management strategies, resource optimization, and financial operations (FinOps) principles.</p>
+                        </div>
+                    </div>
+
+                    <h3>Course Structure</h3>
+                    <p>This comprehensive handbook is structured to take you from absolute beginner to advanced practitioner in cloud computing and DevOps. Each section builds upon previous knowledge, with practical examples and hands-on demonstrations.</p>
+
+                    <div class="alert alert-info">
+                        <strong>💡 Pro Tip:</strong> Use the search functionality to quickly find specific topics, commands, or services. All code examples are copy-paste ready for immediate testing.
+                    </div>
+
+                    <h3>Prerequisites</h3>
+                    <ul>
+                        <li>Basic computer literacy and command-line familiarity</li>
+                        <li>Understanding of networking concepts (TCP/IP, DNS, HTTP/HTTPS)</li>
+                        <li>Programming experience in at least one language (Python, JavaScript, Java, etc.)</li>
+                        <li>Willingness to learn and experiment with new technologies</li>
+                    </ul>
+
+                    <h3>What You'll Build</h3>
+                    <p>Throughout this handbook, you'll work on practical projects including:</p>
+                    <ul>
+                        <li>Multi-tier web application deployment on cloud platforms</li>
+                        <li>Containerized microservices architecture</li>
+                        <li>Complete CI/CD pipeline implementation</li>
+                        <li>Infrastructure as Code templates for various scenarios</li>
+                        <li>Monitoring and logging solutions</li>
+                        <li>Security and compliance automation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Linux Fundamentals Section -->
+            <section id="linux-fundamentals" class="section fade-in">
+                <div class="section-header">
+                    <h2>🐧 Linux Fundamentals</h2>
+                    <p>Essential Linux skills for cloud computing and DevOps operations</p>
+                </div>
+                <div class="section-content">
+                    <h3>File System and Navigation</h3>
+                    
+                    <h4>Essential Commands</h4>
+                    <div class="code-block">
+                        <div class="code-header">Basic Navigation Commands</div>
+                        <pre># Directory operations
+ls -la                    # List files with details and hidden files
+cd /path/to/directory    # Change directory
+pwd                      # Print working directory
+mkdir -p dir1/dir2      # Create directory structure
+rmdir directory         # Remove empty directory
+rm -rf directory        # Remove directory and contents (be careful!)
+
+# File operations
+touch filename          # Create empty file or update timestamp
+cp source destination   # Copy file
+mv old_name new_name   # Move/rename file
+find /path -name "*.txt" # Find files by pattern
+locate filename        # Find files using database (faster)
+which command          # Find location of command</pre>
+                    </div>
+
+                    <h4>File Permissions and Ownership</h4>
+                    <div class="code-block">
+                        <div class="code-header">Permission Management</div>
+                        <pre># Understanding permissions: rwx rwx rwx (user group other)
+# r=4, w=2, x=1
+chmod 755 file          # rwxr-xr-x (common for executables)
+chmod 644 file          # rw-r--r-- (common for files)
+chmod +x script.sh      # Add execute permission
+chown user:group file   # Change ownership
+chgrp group file        # Change group
+
+# Advanced permissions
+chmod u+s file          # Set SUID bit
+chmod g+s file          # Set SGID bit
+chmod +t directory      # Set sticky bit
+umask 022              # Set default permissions</pre>
+                    </div>
+
+                    <h3>Text Processing and Manipulation</h3>
+                    <div class="code-block">
+                        <div class="code-header">Text Processing Commands</div>
+                        <pre># Viewing files
+cat file.txt           # Display entire file
+less file.txt          # View file page by page
+head -n 10 file.txt    # First 10 lines
+tail -n 10 file.txt    # Last 10 lines
+tail -f logfile        # Follow file changes (useful for logs)
+
+# Text manipulation
+grep "pattern" file    # Search for pattern
+grep -r "pattern" dir  # Recursive search
+sed 's/old/new/g' file # Replace text
+awk '{print $1}' file  # Print first column
+sort file.txt          # Sort lines
+uniq file.txt          # Remove duplicate lines
+wc -l file.txt         # Count lines
+
+# Advanced text processing
+cut -d',' -f1,3 file.csv        # Extract columns from CSV
+tr '[:lower:]' '[:upper:]' < file # Convert to uppercase
+paste file1 file2               # Merge files side by side</pre>
+                    </div>
+
+                    <h3>Process Management</h3>
+                    <div class="code-block">
+                        <div class="code-header">Process Control</div>
+                        <pre># Process information
+ps aux                 # List all processes
+ps aux | grep nginx    # Find specific process
+top                    # Real-time process monitor
+htop                   # Enhanced process monitor (if available)
+pstree                 # Process tree view
+
+# Process control
+kill PID               # Terminate process
+kill -9 PID           # Force kill process
+killall process_name   # Kill all processes by name
+nohup command &        # Run command immune to hangups
+jobs                   # List active jobs
+bg %1                  # Send job to background
+fg %1                  # Bring job to foreground
+
+# System monitoring
+iostat                 # I/O statistics
+vmstat                 # Virtual memory statistics
+free -h                # Memory usage
+df -h                  # Disk usage
+du -sh directory       # Directory size</pre>
+                    </div>
+
+                    <h3>Network Operations</h3>
+                    <div class="code-block">
+                        <div class="code-header">Network Commands</div>
+                        <pre># Network connectivity
+ping google.com        # Test connectivity
+traceroute google.com  # Trace network path
+wget URL               # Download file
+curl -X GET URL        # HTTP requests
+ssh user@hostname      # Secure shell connection
+scp file user@host:path # Secure copy
+
+# Network monitoring
+netstat -tuln          # List listening ports
+ss -tuln               # Modern netstat replacement
+lsof -i :80           # Processes using port 80
+iptables -L           # List firewall rules
+
+# DNS operations
+nslookup domain.com    # DNS lookup
+dig domain.com         # Detailed DNS information
+host domain.com        # Simple DNS lookup</pre>
+                    </div>
+
+                    <h3>System Administration</h3>
+                    <div class="code-block">
+                        <div class="code-header">System Management</div>
+                        <pre># Service management (systemd)
+systemctl start service     # Start service
+systemctl stop service      # Stop service
+systemctl restart service   # Restart service
+systemctl enable service    # Enable on boot
+systemctl disable service   # Disable on boot
+systemctl status service    # Service status
+journalctl -u service      # View service logs
+
+# Package management (Ubuntu/Debian)
+apt update                 # Update package list
+apt upgrade                # Upgrade packages
+apt install package       # Install package
+apt remove package        # Remove package
+apt search keyword         # Search packages
+
+# Package management (CentOS/RHEL)
+yum update                 # Update packages
+yum install package       # Install package
+yum remove package        # Remove package
+yum search keyword         # Search packages
+
+# File systems
+mount /dev/sdb1 /mnt      # Mount filesystem
+umount /mnt               # Unmount filesystem
+fdisk -l                  # List disks
+mkfs.ext4 /dev/sdb1      # Format filesystem</pre>
+                    </div>
+
+                    <h3>Shell Scripting Basics</h3>
+                    <div class="code-block">
+                        <div class="code-header">Basic Shell Script Example</div>
+                        <pre>#!/bin/bash
+
+# Variables
+NAME="DevOps"
+DATE=$(date +%Y-%m-%d)
+LOG_FILE="/var/log/script.log"
+
+# Functions
+log_message() {
+    echo "$(date): $1" >> $LOG_FILE
+}
+
+# Conditional statements
+if [ -f "$LOG_FILE" ]; then
+    log_message "Log file exists"
+else
+    touch "$LOG_FILE"
+    log_message "Created new log file"
+fi
+
+# Loops
+for i in {1..5}; do
+    echo "Processing item $i"
+    log_message "Processed item $i"
+done
+
+# Arrays
+SERVICES=("nginx" "docker" "postgresql")
+for service in "${SERVICES[@]}"; do
+    if systemctl is-active "$service" >/dev/null 2>&1; then
+        echo "$service is running"
+    else
+        echo "$service is not running"
+    fi
+done
+
+# Error handling
+set -e  # Exit on error
+trap 'echo "Script failed at line $LINENO"' ERR
+
+# Command line arguments
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 <environment>"
+    exit 1
+fi
+
+ENVIRONMENT=$1
+echo "Deploying to $ENVIRONMENT environment"</pre>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Important:</strong> Always test scripts in a safe environment before running in production. Use <code>bash -n script.sh</code> to check syntax without execution.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cloud Platforms Overview -->
+            <section id="cloud-platforms" class="section fade-in">
+                <div class="section-header">
+                    <h2>☁️ Cloud Platforms Overview</h2>
+                    <p>Comprehensive comparison and introduction to major cloud providers</p>
+                </div>
+                <div class="section-content">
+                    <h3>Cloud Service Models</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🏗️ Infrastructure as a Service (IaaS)</h4>
+                            <p><strong>What you manage:</strong> OS, runtime, middleware, applications, data</p>
+                            <p><strong>Provider manages:</strong> Virtualization, servers, storage, networking</p>
+                            <p><strong>Examples:</strong> AWS EC2, Google Compute Engine, Azure Virtual Machines</p>
+                        </div>
+                        <div class="card">
+                            <h4>🚀 Platform as a Service (PaaS)</h4>
+                            <p><strong>What you manage:</strong> Applications and data</p>
+                            <p><strong>Provider manages:</strong> Runtime, middleware, OS, virtualization, servers, storage, networking</p>
+                            <p><strong>Examples:</strong> AWS Elastic Beanstalk, Google App Engine, Azure App Service</p>
+                        </div>
+                        <div class="card">
+                            <h4>📱 Software as a Service (SaaS)</h4>
+                            <p><strong>What you manage:</strong> User access and data input</p>
+                            <p><strong>Provider manages:</strong> Everything else</p>
+                            <p><strong>Examples:</strong> Gmail, Salesforce, Microsoft 365, Slack</p>
+                        </div>
+                    </div>
+
+                    <h3>Major Cloud Providers Comparison</h3>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>AWS</th>
+                                <th>Google Cloud Platform</th>
+                                <th>Microsoft Azure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Market Share</strong></td>
+                                <td>~32% (Leader)</td>
+                                <td>~10% (Third)</td>
+                                <td>~20% (Second)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Regions</strong></td>
+                                <td>31 regions, 99 AZs</td>
+                                <td>28 regions, 85 zones</td>
+                                <td>60+ regions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Compute</strong></td>
+                                <td>EC2 (most instance types)</td>
+                                <td>Compute Engine (custom machine types)</td>
+                                <td>Virtual Machines (hybrid focus)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Storage</strong></td>
+                                <td>S3 (most mature)</td>
+                                <td>Cloud Storage (best performance)</td>
+                                <td>Blob Storage (enterprise integration)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Database</strong></td>
+                                <td>RDS, DynamoDB, Aurora</td>
+                                <td>Cloud SQL, Firestore, BigQuery</td>
+                                <td>SQL Database, Cosmos DB</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Containers</strong></td>
+                                <td>EKS, ECS, Fargate</td>
+                                <td>GKE (best Kubernetes)</td>
+                                <td>AKS, Container Instances</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Serverless</strong></td>
+                                <td>Lambda (most mature)</td>
+                                <td>Cloud Functions</td>
+                                <td>Azure Functions</td>
+                            </tr>
+                            <tr>
+                                <td><strong>AI/ML</strong></td>
+                                <td>SageMaker, Rekognition</td>
+                                <td>AI Platform, AutoML (best)</td>
+                                <td>Cognitive Services, ML Studio</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pricing</strong></td>
+                                <td>Complex but flexible</td>
+                                <td>Sustained use discounts</td>
+                                <td>Hybrid benefits</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Best For</strong></td>
+                                <td>Mature enterprises, startups</td>
+                                <td>Data analytics, AI/ML</td>
+                                <td>Microsoft ecosystem</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Cloud Adoption Strategy</h3>
+                    
+                    <h4>The 6 R's of Migration</h4>
+                    <div class="code-block">
+                        <div class="code-header">Migration Strategies</div>
+                        <pre>1. Rehost (Lift and Shift)
+   - Move applications as-is to cloud
+   - Fastest migration, minimal optimization
+   - Example: VM-to-VM migration
+
+2. Replatform (Lift, Tinker, and Shift)  
+   - Minor optimizations during migration
+   - Replace databases with managed services
+   - Example: Self-managed MySQL → Amazon RDS
+
+3. Refactor/Re-architect
+   - Redesign for cloud-native architecture
+   - Significant development effort
+   - Example: Monolith → Microservices
+
+4. Repurchase
+   - Move to different product (usually SaaS)
+   - Example: On-premises email → Office 365
+
+5. Retire
+   - Shut down unnecessary applications
+   - Reduce complexity and costs
+
+6. Retain
+   - Keep on-premises for now
+   - Revisit in future iterations</pre>
+                    </div>
+
+                    <h4>Multi-Cloud vs Hybrid Cloud</h4>
+                    <div class="alert alert-info">
+                        <strong>Multi-Cloud:</strong> Using multiple cloud providers simultaneously to avoid vendor lock-in and leverage best-of-breed services.<br><br>
+                        <strong>Hybrid Cloud:</strong> Combination of on-premises infrastructure with public cloud services, connected through dedicated networks.
+                    </div>
+
+                    <h3>Cloud Economics and Cost Models</h3>
+                    <div class="code-block">
+                        <div class="code-header">Cost Optimization Strategies</div>
+                        <pre># Right-sizing instances
+aws ec2 describe-instances --query 'Reservations[].Instances[].[InstanceId,InstanceType,State.Name]'
+
+# Reserved instances (up to 75% savings)
+aws ec2 describe-reserved-instances
+
+# Spot instances (up to 90% savings for fault-tolerant workloads)
+aws ec2 describe-spot-price-history
+
+# Auto-scaling for dynamic workloads
+aws autoscaling describe-auto-scaling-groups
+
+# Storage lifecycle policies
+aws s3api get-bucket-lifecycle-configuration --bucket my-bucket</pre>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>💰 Cost Optimization Tips:</strong>
+                        <ul>
+                            <li>Use reserved instances for predictable workloads (1-3 year commitments)</li>
+                            <li>Implement auto-scaling for variable demand</li>
+                            <li>Use spot instances for fault-tolerant batch processing</li>
+                            <li>Set up billing alerts and budgets</li>
+                            <li>Regular resource auditing and cleanup</li>
+                            <li>Use appropriate storage classes based on access patterns</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AWS Deep Dive -->
+            <section id="aws-deep-dive" class="section fade-in">
+                <div class="section-header">
+                    <h2>🟠 Amazon Web Services (AWS) Deep Dive</h2>
+                    <p>Comprehensive guide to AWS services and architectures</p>
+                </div>
+                <div class="section-content">
+                    <h3>Core AWS Services</h3>
+                    
+                    <h4>Amazon EC2 (Elastic Compute Cloud)</h4>
+                    <p>Virtual servers in the cloud with flexible compute capacity.</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">EC2 Instance Management</div>
+                        <pre># Launch an instance
+aws ec2 run-instances \
+    --image-id ami-0abcdef1234567890 \
+    --count 1 \
+    --instance-type t3.micro \
+    --key-name MyKeyPair \
+    --security-group-ids sg-903004f8 \
+    --subnet-id subnet-6e7f829e \
+    --user-data file://user-data.sh
+
+# List instances
+aws ec2 describe-instances \
+    --query 'Reservations[].Instances[].[InstanceId,State.Name,PublicIpAddress]' \
+    --output table
+
+# Start/Stop instances
+aws ec2 start-instances --instance-ids i-1234567890abcdef0
+aws ec2 stop-instances --instance-ids i-1234567890abcdef0
+
+# Create AMI from instance
+aws ec2 create-image \
+    --instance-id i-1234567890abcdef0 \
+    --name "My server backup" \
+    --description "Backup of production server"</pre>
+                    </div>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>Instance Types</h4>
+                            <ul>
+                                <li><strong>General Purpose:</strong> t3, m5 - Balanced compute, memory, network</li>
+                                <li><strong>Compute Optimized:</strong> c5 - High-performance processors</li>
+                                <li><strong>Memory Optimized:</strong> r5, x1 - Fast performance for memory-intensive</li>
+                                <li><strong>Storage Optimized:</strong> i3 - High sequential read/write</li>
+                                <li><strong>Accelerated Computing:</strong> p3, g4 - Hardware accelerators</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>Pricing Models</h4>
+                            <ul>
+                                <li><strong>On-Demand:</strong> Pay per hour/second, no commitments</li>
+                                <li><strong>Reserved Instances:</strong> 1-3 year commitment, up to 75% savings</li>
+                                <li><strong>Spot Instances:</strong> Bid for unused capacity, up to 90% savings</li>
+                                <li><strong>Savings Plans:</strong> Flexible pricing, 1-3 year commitments</li>
+                                <li><strong>Dedicated Hosts:</strong> Physical servers for compliance</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h4>Amazon S3 (Simple Storage Service)</h4>
+                    <p>Object storage service with industry-leading scalability, data availability, security, and performance.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">S3 Operations</div>
+                        <pre># Create bucket
+aws s3 mb s3://my-unique-bucket-name
+
+# List buckets
+aws s3 ls
+
+# Upload file
+aws s3 cp myfile.txt s3://my-bucket/
+aws s3 cp directory/ s3://my-bucket/directory/ --recursive
+
+# Download file
+aws s3 cp s3://my-bucket/myfile.txt ./
+aws s3 sync s3://my-bucket/ ./local-folder/
+
+# Set bucket policy
+aws s3api put-bucket-policy \
+    --bucket my-bucket \
+    --policy file://bucket-policy.json
+
+# Enable versioning
+aws s3api put-bucket-versioning \
+    --bucket my-bucket \
+    --versioning-configuration Status=Enabled
+
+# Configure lifecycle rules
+aws s3api put-bucket-lifecycle-configuration \
+    --bucket my-bucket \
+    --lifecycle-configuration file://lifecycle.json</pre>
+                    </div>
+
+                    <h5>S3 Storage Classes</h5>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Storage Class</th>
+                                <th>Use Case</th>
+                                <th>Availability</th>
+                                <th>Min Storage Duration</th>
+                                <th>Retrieval Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Standard</td>
+                                <td>Frequently accessed</td>
+                                <td>99.99%</td>
+                                <td>None</td>
+                                <td>Immediate</td>
+                            </tr>
+                            <tr>
+                                <td>Standard-IA</td>
+                                <td>Infrequently accessed</td>
+                                <td>99.9%</td>
+                                <td>30 days</td>
+                                <td>Immediate</td>
+                            </tr>
+                            <tr>
+                                <td>One Zone-IA</td>
+                                <td>Infrequent, non-critical</td>
+                                <td>99.5%</td>
+                                <td>30 days</td>
+                                <td>Immediate</td>
+                            </tr>
+                            <tr>
+                                <td>Glacier Instant Retrieval</td>
+                                <td>Archive with instant access</td>
+                                <td>99.9%</td>
+                                <td>90 days</td>
+                                <td>Milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>Glacier Flexible Retrieval</td>
+                                <td>Archive with flexible access</td>
+                                <td>99.9%</td>
+                                <td>90 days</td>
+                                <td>1-12 hours</td>
+                            </tr>
+                            <tr>
+                                <td>Glacier Deep Archive</td>
+                                <td>Long-term archive</td>
+                                <td>99.9%</td>
+                                <td>180 days</td>
+                                <td>12-48 hours</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Amazon RDS (Relational Database Service)</h4>
+                    <p>Managed relational database service supporting multiple database engines.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">RDS Management</div>
+                        <pre># Create MySQL database instance
+aws rds create-db-instance \
+    --db-instance-identifier myapp-prod-db \
+    --db-instance-class db.t3.medium \
+    --engine mysql \
+    --engine-version 8.0.28 \
+    --allocated-storage 100 \
+    --storage-type gp2 \
+    --master-username admin \
+    --master-user-password MySecurePassword123! \
+    --vpc-security-group-ids sg-12345678 \
+    --db-subnet-group-name my-db-subnet-group \
+    --backup-retention-period 7 \
+    --multi-az \
+    --publicly-accessible
+
+# Create read replica
+aws rds create-db-instance-read-replica \
+    --db-instance-identifier myapp-prod-db-replica \
+    --source-db-instance-identifier myapp-prod-db \
+    --db-instance-class db.t3.medium
+
+# Create snapshot
+aws rds create-db-snapshot \
+    --db-instance-identifier myapp-prod-db \
+    --db-snapshot-identifier myapp-prod-db-snapshot-$(date +%Y%m%d)
+
+# Monitor performance
+aws rds describe-db-instances \
+    --db-instance-identifier myapp-prod-db \
+    --query 'DBInstances[0].[DBInstanceStatus,MultiAZ,ReadReplicaDBInstanceIdentifiers]'</pre>
+                    </div>
+
+                    <h4>AWS Lambda (Serverless Computing)</h4>
+                    <p>Run code without provisioning or managing servers.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">Lambda Function Example</div>
+                        <pre># Python Lambda function for S3 event processing
+import json
+import boto3
+import urllib.parse
+
+def lambda_handler(event, context):
+    s3 = boto3.client('s3')
+    
+    # Get bucket and key from the event
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key = urllib.parse.unquote_plus(
+        event['Records'][0]['s3']['object']['key'], 
+        encoding='utf-8'
+    )
+    
+    try:
+        # Get object metadata
+        response = s3.head_object(Bucket=bucket, Key=key)
+        content_type = response.get('ContentType', 'unknown')
+        size = response.get('ContentLength', 0)
+        
+        print(f"Processing file: {key}")
+        print(f"Content Type: {content_type}")
+        print(f"Size: {size} bytes")
+        
+        # Add your processing logic here
+        if content_type.startswith('image/'):
+            process_image(bucket, key)
+        elif content_type.startswith('text/'):
+            process_text(bucket, key)
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': f'Successfully processed {key}',
+                'bucket': bucket,
+                'size': size
+            })
+        }
+        
+    except Exception as e:
+        print(f"Error processing object {key} from bucket {bucket}: {str(e)}")
+        raise e
+
+def process_image(bucket, key):
+    # Image processing logic
+    pass
+
+def process_text(bucket, key):
+    # Text processing logic
+    pass</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Deploy Lambda Function</div>
+                        <pre># Create deployment package
+zip function.zip lambda_function.py
+
+# Create Lambda function
+aws lambda create-function \
+    --function-name ProcessS3Objects \
+    --runtime python3.9 \
+    --role arn:aws:iam::123456789012:role/lambda-execution-role \
+    --handler lambda_function.lambda_handler \
+    --zip-file fileb://function.zip \
+    --timeout 60 \
+    --memory-size 256
+
+# Create S3 trigger
+aws lambda add-permission \
+    --function-name ProcessS3Objects \
+    --principal s3.amazonaws.com \
+    --statement-id s3-trigger \
+    --action lambda:InvokeFunction \
+    --source-arn arn:aws:s3:::my-bucket
+
+# Configure S3 event notification
+aws s3api put-bucket-notification-configuration \
+    --bucket my-bucket \
+    --notification-configuration file://s3-notification.json</pre>
+                    </div>
+
+                    <h4>Amazon EKS (Elastic Kubernetes Service)</h4>
+                    <p>Managed Kubernetes service for container orchestration.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">EKS Cluster Setup</div>
+                        <pre># Create EKS cluster
+aws eks create-cluster \
+    --name my-cluster \
+    --version 1.24 \
+    --role-arn arn:aws:iam::123456789012:role/eks-service-role \
+    --resources-vpc-config subnetIds=subnet-12345678,subnet-87654321,securityGroupIds=sg-12345678
+
+# Wait for cluster to be active
+aws eks wait cluster-active --name my-cluster
+
+# Update kubeconfig
+aws eks update-kubeconfig --region us-west-2 --name my-cluster
+
+# Create node group
+aws eks create-nodegroup \
+    --cluster-name my-cluster \
+    --nodegroup-name my-nodegroup \
+    --scaling-config minSize=1,maxSize=3,desiredSize=2 \
+    --disk-size 20 \
+    --subnets subnet-12345678 subnet-87654321 \
+    --instance-types t3.medium \
+    --ami-type AL2_x86_64 \
+    --node-role arn:aws:iam::123456789012:role/NodeInstanceRole</pre>
+                    </div>
+
+                    <h3>AWS Well-Architected Framework</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🛡️ Security</h4>
+                            <ul>
+                                <li>Implement strong identity foundation</li>
+                                <li>Apply security at all layers</li>
+                                <li>Enable traceability</li>
+                                <li>Automate security best practices</li>
+                                <li>Protect data in transit and at rest</li>
+                                <li>Prepare for security events</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🔄 Reliability</h4>
+                            <ul>
+                                <li>Automatically recover from failure</li>
+                                <li>Test recovery procedures</li>
+                                <li>Scale horizontally to increase system availability</li>
+                                <li>Stop guessing capacity</li>
+                                <li>Manage change through automation</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>⚡ Performance Efficiency</h4>
+                            <ul>
+                                <li>Democratize advanced technologies</li>
+                                <li>Go global in minutes</li>
+                                <li>Use serverless architectures</li>
+                                <li>Experiment more often</li>
+                                <li>Consider mechanical sympathy</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>💰 Cost Optimization</h4>
+                            <ul>
+                                <li>Adopt a consumption model</li>
+                                <li>Measure overall efficiency</li>
+                                <li>Stop spending on undifferentiated heavy lifting</li>
+                                <li>Analyze and attribute expenditure</li>
+                                <li>Use managed services</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>♻️ Operational Excellence</h4>
+                            <ul>
+                                <li>Perform operations as code</li>
+                                <li>Make frequent, small, reversible changes</li>
+                                <li>Refine operations procedures frequently</li>
+                                <li>Anticipate failure</li>
+                                <li>Learn from all operational failures</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🌱 Sustainability</h4>
+                            <ul>
+                                <li>Understand your impact</li>
+                                <li>Establish sustainability goals</li>
+                                <li>Maximize utilization</li>
+                                <li>Anticipate and adopt new hardware and software offerings</li>
+                                <li>Use managed services</li>
+                                <li>Reduce downstream impact</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>AWS Architecture Patterns</h3>
+                    
+                    <h4>Three-Tier Web Application</h4>
+                    <div class="code-block">
+                        <div class="code-header">CloudFormation Template - 3-Tier Architecture</div>
+                        <pre>AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Three-tier web application architecture'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    Description: EC2 instance type
+
+Resources:
+  # VPC and Networking
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MyVPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.4.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+
+  # Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
+  # Application Load Balancer
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Type: application
+      Scheme: internet-facing
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VPC
+      HealthCheckPath: /health
+      HealthCheckProtocol: HTTP
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+
+  # Auto Scaling Group
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: ami-0abcdef1234567890
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref WebServerSecurityGroup
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd
+            systemctl start httpd
+            systemctl enable httpd
+            echo "<h1>Web Server $(curl -s http://169.254.169.254/latest/meta-data/instance-id)</h1>" > /var/www/html/index.html
+
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      MinSize: 2
+      MaxSize: 6
+      DesiredCapacity: 2
+      TargetGroupARNs:
+        - !Ref ALBTargetGroup
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+
+  # RDS Database
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  Database:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: myapp-database
+      DBInstanceClass: db.t3.micro
+      Engine: mysql
+      EngineVersion: '8.0.28'
+      AllocatedStorage: 20
+      MasterUsername: admin
+      MasterUserPassword: ChangeMe123!
+      VPCSecurityGroups:
+        - !Ref DatabaseSecurityGroup
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      MultiAZ: true
+      BackupRetentionPeriod: 7
+
+  # Security Groups
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ALB Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
+  WebServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Web Server Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Database Security Group
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId: !Ref WebServerSecurityGroup
+
+Outputs:
+  ApplicationURL:
+    Description: URL of the application
+    Value: !Sub 'http://${ALB.DNSName}'</pre>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>🚀 AWS Best Practices:</strong>
+                        <ul>
+                            <li>Use IAM roles instead of access keys for applications</li>
+                            <li>Enable CloudTrail for all regions</li>
+                            <li>Use VPC for network isolation</li>
+                            <li>Encrypt data at rest and in transit</li>
+                            <li>Implement least privilege access</li>
+                            <li>Use multiple Availability Zones for high availability</li>
+                            <li>Tag all resources for cost allocation and management</li>
+                            <li>Set up monitoring and alerting with CloudWatch</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Containerization Section -->
+            <section id="containerization" class="section fade-in">
+                <div class="section-header">
+                    <h2>🐳 Containerization with Docker</h2>
+                    <p>Master containerization fundamentals and Docker best practices</p>
+                </div>
+                <div class="section-content">
+                    <h3>Docker Fundamentals</h3>
+                    
+                    <h4>What is Docker?</h4>
+                    <p>Docker is a platform that uses containerization to package applications and their dependencies into lightweight, portable containers that can run consistently across different environments.</p>
+
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🏗️ Containers vs VMs</h4>
+                            <ul>
+                                <li><strong>Containers:</strong> Share OS kernel, lightweight, fast startup</li>
+                                <li><strong>VMs:</strong> Full OS per instance, heavier, slower startup</li>
+                                <li><strong>Containers:</strong> Process-level isolation</li>
+                                <li><strong>VMs:</strong> Hardware-level isolation</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🎯 Docker Benefits</h4>
+                            <ul>
+                                <li>Consistent environments (dev/staging/prod)</li>
+                                <li>Faster deployment and scaling</li>
+                                <li>Resource efficiency</li>
+                                <li>Microservices architecture enablement</li>
+                                <li>Version control for infrastructure</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Docker Architecture</h3>
+                    <div class="code-block">
+                        <div class="code-header">Docker Components</div>
+                        <pre># Docker Daemon (dockerd)
+# - Manages Docker objects (images, containers, networks, volumes)
+# - Listens for Docker API requests
+
+# Docker Client (docker)  
+# - Primary interface to Docker
+# - Sends commands to dockerd
+
+# Docker Images
+# - Read-only templates for creating containers
+# - Built from Dockerfile instructions
+
+# Docker Containers
+# - Runnable instances of images
+# - Isolated processes with their own filesystem, network, process space
+
+# Docker Registry
+# - Storage and distribution system for Docker images
+# - Docker Hub is the default public registry</pre>
+                    </div>
+
+                    <h3>Essential Docker Commands</h3>
+                    <div class="code-block">
+                        <div class="code-header">Basic Docker Commands</div>
+                        <pre># Container lifecycle
+docker run ubuntu:20.04 echo "Hello World"    # Run container
+docker run -d nginx                            # Run in detached mode
+docker run -it ubuntu:20.04 bash             # Interactive mode
+docker run -p 8080:80 nginx                  # Port mapping
+docker run -v /host/path:/container/path nginx # Volume mounting
+docker run --name my-container nginx          # Named container
+
+# Container management
+docker ps                    # List running containers
+docker ps -a                 # List all containers
+docker stop container_id     # Stop container
+docker start container_id    # Start stopped container
+docker restart container_id  # Restart container
+docker rm container_id       # Remove container
+docker rm $(docker ps -aq)   # Remove all containers
+
+# Image management
+docker images                # List images
+docker pull ubuntu:20.04     # Pull image
+docker build -t my-app .     # Build image from Dockerfile
+docker tag my-app:latest my-app:v1.0    # Tag image
+docker push my-app:v1.0      # Push to registry
+docker rmi image_id          # Remove image
+
+# System information
+docker info                  # System-wide information
+docker version              # Docker version
+docker system df            # Disk usage
+docker system prune         # Clean up unused resources</pre>
+                    </div>
+
+                    <h3>Dockerfile Best Practices</h3>
+                    <div class="code-block">
+                        <div class="code-header">Optimized Dockerfile Example</div>
+                        <pre># Use specific version tags, not 'latest'
+FROM node:18.17.0-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files first (better layer caching)
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Production stage
+FROM node:18.17.0-alpine AS production
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD node dist/healthcheck.js || exit 1
+
+# Start application
+CMD ["node", "dist/server.js"]</pre>
+                    </div>
+
+                    <h4>Dockerfile Best Practices</h4>
+                    <div class="alert alert-info">
+                        <strong>🎯 Optimization Tips:</strong>
+                        <ul>
+                            <li><strong>Use multi-stage builds</strong> to reduce final image size</li>
+                            <li><strong>Order layers by frequency of change</strong> (least to most frequent)</li>
+                            <li><strong>Minimize number of RUN instructions</strong> by combining commands</li>
+                            <li><strong>Use .dockerignore</strong> to exclude unnecessary files</li>
+                            <li><strong>Don't run as root</strong> - create and use non-privileged user</li>
+                            <li><strong>Use specific base image versions</strong> for reproducible builds</li>
+                            <li><strong>Clean up package caches</strong> in the same RUN instruction</li>
+                        </ul>
+                    </div>
+
+                    <h3>Docker Networking</h3>
+                    <div class="code-block">
+                        <div class="code-header">Docker Network Commands</div>
+                        <pre># List networks
+docker network ls
+
+# Create custom network
+docker network create --driver bridge my-network
+docker network create --driver bridge --subnet=172.20.0.0/16 my-custom-network
+
+# Connect container to network
+docker run -d --name web --network my-network nginx
+docker run -d --name db --network my-network postgres:13
+
+# Inspect network
+docker network inspect my-network
+
+# Connect existing container to network
+docker network connect my-network existing-container
+
+# Remove network
+docker network rm my-network</pre>
+                    </div>
+
+                    <h4>Network Types</h4>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Network Type</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                                <th>Isolation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>bridge</strong></td>
+                                <td>Default network for containers</td>
+                                <td>Single host networking</td>
+                                <td>Container-to-container</td>
+                            </tr>
+                            <tr>
+                                <td><strong>host</strong></td>
+                                <td>Use host network stack</td>
+                                <td>Performance-critical applications</td>
+                                <td>No network isolation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>none</strong></td>
+                                <td>No networking</td>
+                                <td>Complete network isolation</td>
+                                <td>Maximum isolation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>overlay</strong></td>
+                                <td>Multi-host networking</td>
+                                <td>Docker Swarm clusters</td>
+                                <td>Cross-host communication</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Docker Volumes and Data Management</h3>
+                    <div class="code-block">
+                        <div class="code-header">Volume Management</div>
+                        <pre># Create named volume
+docker volume create my-data
+
+# List volumes
+docker volume ls
+
+# Inspect volume
+docker volume inspect my-data
+
+# Use volume with container
+docker run -d --name database -v my-data:/var/lib/mysql mysql:8.0
+
+# Bind mount (host directory)
+docker run -d --name web -v /host/web:/usr/share/nginx/html nginx
+
+# Anonymous volume
+docker run -d --name temp -v /app/data alpine
+
+# Remove volume
+docker volume rm my-data
+
+# Remove all unused volumes
+docker volume prune</pre>
+                    </div>
+
+                    <h3>Docker Compose</h3>
+                    <p>Tool for defining and running multi-container Docker applications using YAML files.</p>
+
+                    <div class="code-block">
+                        <div class="code-header">docker-compose.yml - LAMP Stack Example</div>
+                        <pre>version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: php-web
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./config/apache:/etc/apache2/sites-available
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    depends_on:
+      - database
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  database:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./config/mysql:/etc/mysql/conf.d
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+      - ./config/redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    depends_on:
+      - database
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Docker Compose Commands</div>
+                        <pre># Start services
+docker-compose up                    # Foreground
+docker-compose up -d                 # Background (detached)
+docker-compose up --build            # Rebuild images
+
+# Stop services
+docker-compose stop                  # Stop services
+docker-compose down                  # Stop and remove containers
+docker-compose down -v               # Stop and remove volumes
+
+# View services
+docker-compose ps                    # List running services
+docker-compose logs                  # View logs
+docker-compose logs -f web           # Follow logs for specific service
+
+# Scale services
+docker-compose up -d --scale web=3   # Scale web service to 3 instances
+
+# Execute commands
+docker-compose exec web bash         # Execute command in running container
+docker-compose run web bash          # Run one-off command
+
+# Validate configuration
+docker-compose config                # Validate and view config
+docker-compose config --services     # List services</pre>
+                    </div>
+
+                    <h3>Docker Security Best Practices</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🔒 Image Security</h4>
+                            <ul>
+                                <li>Use official base images from trusted registries</li>
+                                <li>Scan images for vulnerabilities</li>
+                                <li>Use specific image tags, not 'latest'</li>
+                                <li>Keep base images updated</li>
+                                <li>Use minimal base images (alpine, distroless)</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🛡️ Container Security</h4>
+                            <ul>
+                                <li>Run containers as non-root user</li>
+                                <li>Use read-only filesystems when possible</li>
+                                <li>Limit container capabilities</li>
+                                <li>Use security profiles (AppArmor, SELinux)</li>
+                                <li>Set resource limits (CPU, memory)</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🌐 Network Security</h4>
+                            <ul>
+                                <li>Use custom networks for isolation</li>
+                                <li>Don't expose unnecessary ports</li>
+                                <li>Use TLS for inter-service communication</li>
+                                <li>Implement network policies</li>
+                                <li>Monitor network traffic</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🔐 Secret Management</h4>
+                            <ul>
+                                <li>Never embed secrets in images</li>
+                                <li>Use Docker secrets or external secret managers</li>
+                                <li>Mount secrets as files, not environment variables</li>
+                                <li>Rotate secrets regularly</li>
+                                <li>Use least-privilege access to secrets</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Security-Hardened Container Example</div>
+                        <pre># Build secure container
+docker run -d \
+  --name secure-app \
+  --user 1000:1000 \              # Run as non-root user
+  --read-only \                    # Read-only filesystem
+  --tmpfs /tmp \                   # Writable tmpfs for temp files
+  --tmpfs /run \
+  --cap-drop ALL \                 # Drop all capabilities
+  --cap-add NET_BIND_SERVICE \     # Add only needed capabilities
+  --security-opt no-new-privileges \ # Prevent privilege escalation
+  --memory 512m \                  # Memory limit
+  --cpus 0.5 \                    # CPU limit
+  --pids-limit 100 \              # Process limit
+  --network my-secure-network \   # Custom network
+  -p 8080:8080 \
+  my-secure-app:latest
+
+# Scan image for vulnerabilities (using Trivy)
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasec/trivy:latest image my-app:latest</pre>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Security Reminder:</strong> Containers share the host kernel, so kernel vulnerabilities affect all containers. Keep your host system updated and use container security tools for vulnerability scanning and runtime protection.
+                    </div>
+
+                    <h3>Production Docker Deployment</h3>
+                    <div class="code-block">
+                        <div class="code-header">Production-Ready Dockerfile</div>
+                        <pre># Multi-stage build for production optimization
+FROM node:18-alpine AS dependencies
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build && npm run test
+
+FROM node:18-alpine AS runtime
+# Security: Create non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+WORKDIR /app
+USER nextjs
+
+# Copy only necessary files
+COPY --from=dependencies --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=build --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=build --chown=nextjs:nodejs /app/package*.json ./
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node dist/healthcheck.js
+
+EXPOSE 3000
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kubernetes Section -->
+            <section id="kubernetes" class="section fade-in">
+                <div class="section-header">
+                    <h2>⚓ Kubernetes Deep Dive</h2>
+                    <p>Master container orchestration with Kubernetes</p>
+                </div>
+                <div class="section-content">
+                    <h3>Kubernetes Architecture</h3>
+                    
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🏗️ Control Plane Components</h4>
+                            <ul>
+                                <li><strong>API Server:</strong> Frontend for Kubernetes control plane</li>
+                                <li><strong>etcd:</strong> Consistent key-value store for cluster data</li>
+                                <li><strong>Scheduler:</strong> Assigns pods to nodes</li>
+                                <li><strong>Controller Manager:</strong> Runs controller processes</li>
+                                <li><strong>Cloud Controller Manager:</strong> Links to cloud provider APIs</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🖥️ Node Components</h4>
+                            <ul>
+                                <li><strong>kubelet:</strong> Node agent that manages pods</li>
+                                <li><strong>kube-proxy:</strong> Network proxy for services</li>
+                                <li><strong>Container Runtime:</strong> Docker, containerd, CRI-O</li>
+                                <li><strong>Pod:</strong> Smallest deployable unit</li>
+                                <li><strong>CNI:</strong> Container network interface</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Core Kubernetes Objects</h3>
+                    
+                    <h4>Pods</h4>
+                    <div class="code-block">
+                        <div class="code-header">Pod Configuration</div>
+                        <pre>apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+    env: production
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21
+    ports:
+    - containerPort: 80
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    env:
+    - name: ENV_VAR
+      value: "production"
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/nginx/conf.d
+  volumes:
+  - name: config-volume
+    configMap:
+      name: nginx-config
+  restartPolicy: Always</pre>
+                    </div>
+
+                    <h4>Deployments</h4>
+                    <div class="code-block">
+                        <div class="code-header">Deployment with Rolling Update Strategy</div>
+                        <pre>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+        version: v1.0
+    spec:
+      containers:
+      - name: webapp
+        image: myapp:v1.0
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi</pre>
+                    </div>
+
+                    <h4>Services</h4>
+                    <div class="code-block">
+                        <div class="code-header">Service Types</div>
+                        <pre># ClusterIP Service (internal)
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  selector:
+    app: webapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: ClusterIP
+
+---
+# NodePort Service (external access)
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-nodeport
+spec:
+  selector:
+    app: webapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+    nodePort: 30080
+  type: NodePort
+
+---
+# LoadBalancer Service (cloud provider)
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-lb
+spec:
+  selector:
+    app: webapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: LoadBalancer</pre>
+                    </div>
+
+                    <h4>ConfigMaps and Secrets</h4>
+                    <div class="code-block">
+                        <div class="code-header">Configuration Management</div>
+                        <pre># ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  database_url: "postgresql://db:5432/myapp"
+  redis_url: "redis://redis:6379"
+  log_level: "info"
+  config.json: |
+    {
+      "server": {
+        "port": 8080,
+        "host": "0.0.0.0"
+      },
+      "database": {
+        "pool_size": 10
+      }
+    }
+
+---
+# Secret
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+type: Opaque
+data:
+  db_password: cGFzc3dvcmQxMjM=  # base64 encoded
+  api_key: YWJjZGVmZ2hpams=      # base64 encoded
+stringData:
+  jwt_secret: "my-jwt-secret-key"  # plain text (will be base64 encoded)
+
+---
+# Using ConfigMap and Secret in Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-with-config
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: myapp:latest
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: database_url
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: db_password
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        - name: secret-volume
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: config-volume
+        configMap:
+          name: app-config
+      - name: secret-volume
+        secret:
+          secretName: app-secrets</pre>
+                    </div>
+
+                    <h3>Advanced Kubernetes Concepts</h3>
+                    
+                    <h4>Ingress</h4>
+                    <div class="code-block">
+                        <div class="code-header">Ingress Configuration with TLS</div>
+                        <pre># Ingress Controller (NGINX example)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webapp-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - myapp.example.com
+    - api.example.com
+    secretName: webapp-tls
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: webapp-service
+            port:
+              number: 80
+  - host: api.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: api-service
+            port:
+              number: 8080</pre>
+                    </div>
+
+                    <h4>Persistent Volumes</h4>
+                    <div class="code-block">
+                        <div class="code-header">Storage Management</div>
+                        <pre># Persistent Volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: fast-ssd
+  awsElasticBlockStore:
+    volumeID: vol-1234567890abcdef0
+    fsType: ext4
+
+---
+# Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: fast-ssd
+
+---
+# StatefulSet using PVC
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: myapp
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc</pre>
+                    </div>
+
+                    <h3>kubectl Commands</h3>
+                    <div class="code-block">
+                        <div class="code-header">Essential kubectl Commands</div>
+                        <pre># Cluster information
+kubectl cluster-info
+kubectl get nodes
+kubectl describe node worker-1
+
+# Pod management
+kubectl get pods
+kubectl get pods -o wide
+kubectl describe pod nginx-pod
+kubectl logs nginx-pod
+kubectl logs -f nginx-pod  # Follow logs
+kubectl exec -it nginx-pod -- /bin/bash
+
+# Deployments
+kubectl get deployments
+kubectl scale deployment webapp --replicas=5
+kubectl rollout status deployment webapp
+kubectl rollout history deployment webapp
+kubectl rollout undo deployment webapp
+
+# Services and networking
+kubectl get services
+kubectl get ingress
+kubectl port-forward service/webapp 8080:80
+
+# ConfigMaps and Secrets
+kubectl create configmap app-config --from-file=config.properties
+kubectl create secret generic app-secret --from-literal=password=secret123
+
+# Debugging and troubleshooting
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl top nodes
+kubectl top pods
+kubectl describe pod problematic-pod
+
+# Apply and manage resources
+kubectl apply -f deployment.yaml
+kubectl delete -f deployment.yaml
+kubectl patch deployment webapp -p '{"spec":{"replicas":3}}'</pre>
+                    </div>
+
+                    <h3>Kubernetes Security</h3>
+                    <div class="code-block">
+                        <div class="code-header">RBAC Configuration</div>
+                        <pre># ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: webapp-service-account
+  namespace: default
+
+---
+# Role (namespace-scoped)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: webapp-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "create", "update", "patch", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create", "update", "patch"]
+
+---
+# RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: webapp-binding
+  namespace: default
+subjects:
+- kind: ServiceAccount
+  name: webapp-service-account
+  namespace: default
+roleRef:
+  kind: Role
+  name: webapp-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# ClusterRole (cluster-scoped)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes", "nodes/metrics", "pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-binding
+subjects:
+- kind: ServiceAccount
+  name: monitoring-service-account
+  namespace: monitoring
+roleRef:
+  kind: ClusterRole
+  name: monitoring-role
+  apiGroup: rbac.authorization.k8s.io</pre>
+                    </div>
+
+                    <h4>Network Policies</h4>
+                    <div class="code-block">
+                        <div class="code-header">Network Security</div>
+                        <pre># NetworkPolicy for micro-segmentation
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: webapp-network-policy
+  namespace: production
+spec:
+  podSelector:
+    matchLabels:
+      app: webapp
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to: []  # Allow DNS
+    ports:
+    - protocol: UDP
+      port: 53</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CI/CD Section -->
+            <section id="cicd" class="section fade-in">
+                <div class="section-header">
+                    <h2>🔄 CI/CD with Jenkins</h2>
+                    <p>Continuous Integration and Continuous Deployment pipelines</p>
+                </div>
+                <div class="section-content">
+                    <h3>Jenkins Fundamentals</h3>
+                    
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🏗️ CI/CD Benefits</h4>
+                            <ul>
+                                <li>Faster time to market</li>
+                                <li>Reduced manual errors</li>
+                                <li>Consistent deployments</li>
+                                <li>Early bug detection</li>
+                                <li>Improved code quality</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🔧 Jenkins Architecture</h4>
+                            <ul>
+                                <li><strong>Master:</strong> Orchestrates builds and manages UI</li>
+                                <li><strong>Agents:</strong> Execute build jobs</li>
+                                <li><strong>Plugins:</strong> Extend functionality</li>
+                                <li><strong>Pipelines:</strong> Define CI/CD workflows</li>
+                                <li><strong>Workspaces:</strong> Temporary build areas</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>Jenkins Pipeline as Code</h3>
+                    
+                    <div class="code-block">
+                        <div class="code-header">Declarative Pipeline - Web Application</div>
+                        <pre>// Jenkinsfile
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_REGISTRY = 'your-registry.com'
+        IMAGE_NAME = 'webapp'
+        KUBECONFIG = credentials('kubernetes-config')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.GIT_COMMIT_SHORT = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+        
+        stage('Build') {
+            parallel {
+                stage('Install Dependencies') {
+                    steps {
+                        sh 'npm ci'
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        sh 'npm audit --audit-level high'
+                        sh 'docker run --rm -v $(pwd):/app securecodewarrior/docker-security-scanner'
+                    }
+                }
+            }
+        }
+        
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'npm run test:unit'
+                    }
+                    post {
+                        always {
+                            publishTestResults testResultsPattern: 'test-results/unit/*.xml'
+                            publishCoverage adapters: [
+                                istanbulCoberturaAdapter('coverage/cobertura-coverage.xml')
+                            ], sourceFileResolver: sourceFiles('STORE_LAST_BUILD')
+                        }
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh 'docker-compose -f docker-compose.test.yml up --build --abort-on-container-exit'
+                    }
+                    post {
+                        always {
+                            sh 'docker-compose -f docker-compose.test.yml down -v'
+                        }
+                    }
+                }
+                stage('Code Quality') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh 'sonar-scanner'
+                        }
+                        timeout(time: 10, unit: 'MINUTES') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def image = docker.build("${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHORT}")
+                    docker.withRegistry("https://${env.DOCKER_REGISTRY}", 'docker-registry-creds') {
+                        image.push()
+                        image.push('latest')
+                    }
+                }
+            }
+        }
+        
+        stage('Security Scan Image') {
+            steps {
+                sh """
+                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy:latest image \
+                        --exit-code 1 --severity HIGH,CRITICAL \
+                        ${env.DOCKER_REGISTRY}/${env.IMAGE_NAME}:${env.GIT_COMMIT_SHORT}
+                """
+            }
+        }
+        
+        stage('Deploy') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
+            }
+            steps {
+                script {
+                    def environment = env.BRANCH_NAME == 'main' ? 'production' : 'staging'
+                    
+                    sh """
+                        helm upgrade --install ${env.IMAGE_NAME} ./helm-chart \
+                            --namespace ${environment} \
+                            --set image.repository=${env.DOCKER_REGISTRY}/${env.IMAGE_NAME} \
+                            --set image.tag=${env.GIT_COMMIT_SHORT} \
+                            --set environment=${environment} \
+                            --wait --timeout=600s
+                    """
+                }
+            }
+        }
+        
+        stage('Post-Deployment Tests') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'develop'
+                }
+            }
+            steps {
+                script {
+                    def environment = env.BRANCH_NAME == 'main' ? 'production' : 'staging'
+                    def appUrl = environment == 'production' ? 
+                        'https://myapp.com' : 'https://staging.myapp.com'
+                    
+                    sh """
+                        # Smoke tests
+                        curl -f ${appUrl}/health || exit 1
+                        
+                        # Run end-to-end tests
+                        npm run test:e2e -- --base-url=${appUrl}
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            slackSend(
+                channel: '#deployments',
+                color: 'good',
+                message: "✅ Pipeline succeeded for ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+            )
+        }
+        failure {
+            slackSend(
+                channel: '#alerts',
+                color: 'danger',
+                message: "❌ Pipeline failed for ${env.JOB_NAME} - ${env.BUILD_NUMBER}"
+            )
+            emailext(
+                subject: "Pipeline Failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}",
+                body: "Build failed. Check console output at ${env.BUILD_URL}",
+                to: env.CHANGE_AUTHOR_EMAIL
+            )
+        }
+    }
+}</pre>
+                    </div>
+
+                    <h3>GitOps with ArgoCD</h3>
+                    <div class="code-block">
+                        <div class="code-header">ArgoCD Application Configuration</div>
+                        <pre># argocd-app.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webapp
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/company/webapp-manifests
+    targetRevision: HEAD
+    path: overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: webapp-prod
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m</pre>
+                    </div>
+
+                    <h3>Advanced Pipeline Patterns</h3>
+                    
+                    <h4>Blue-Green Deployment</h4>
+                    <div class="code-block">
+                        <div class="code-header">Blue-Green Pipeline Stage</div>
+                        <pre>stage('Blue-Green Deployment') {
+    steps {
+        script {
+            // Get current active version
+            def currentVersion = sh(
+                script: "kubectl get service webapp -o jsonpath='{.spec.selector.version}'",
+                returnStdout: true
+            ).trim()
+            
+            def newVersion = currentVersion == 'blue' ? 'green' : 'blue'
+            
+            echo "Current version: ${currentVersion}, deploying to: ${newVersion}"
+            
+            // Deploy to inactive environment
+            sh """
+                helm upgrade --install webapp-${newVersion} ./helm-chart \
+                    --set image.tag=${env.GIT_COMMIT_SHORT} \
+                    --set version=${newVersion} \
+                    --set service.enabled=false
+            """
+            
+            // Wait for deployment to be ready
+            sh "kubectl wait --for=condition=available --timeout=300s deployment/webapp-${newVersion}"
+            
+            // Run smoke tests against new version
+            sh """
+                kubectl port-forward deployment/webapp-${newVersion} 8080:8080 &
+                PF_PID=\$!
+                sleep 5
+                curl -f http://localhost:8080/health || (kill \$PF_PID && exit 1)
+                kill \$PF_PID
+            """
+            
+            // Switch traffic to new version
+            sh """
+                kubectl patch service webapp -p '{"spec":{"selector":{"version":"${newVersion}"}}}'
+            """
+            
+            echo "Traffic switched to ${newVersion}"
+            
+            // Optional: Keep old version for quick rollback
+            timeout(time: 10, unit: 'MINUTES') {
+                input message: "Deployment successful. Delete old version?", ok: 'Yes'
+            }
+            
+            sh "kubectl delete deployment webapp-${currentVersion}"
+        }
+    }
+}</pre>
+                    </div>
+
+                    <h4>Canary Deployment with Flagger</h4>
+                    <div class="code-block">
+                        <div class="code-header">Canary Deployment Configuration</div>
+                        <pre>apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: webapp
+  namespace: production
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: webapp
+  progressDeadlineSeconds: 60
+  service:
+    port: 80
+    targetPort: 8080
+  analysis:
+    interval: 30s
+    threshold: 5
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      thresholdRange:
+        min: 99
+      interval: 1m
+    - name: request-duration
+      thresholdRange:
+        max: 500
+      interval: 30s
+    webhooks:
+    - name: acceptance-test
+      type: pre-rollout
+      url: http://flagger-loadtester.test/
+      timeout: 30s
+      metadata:
+        type: bash
+        cmd: "curl -sd 'test' http://webapp-canary/token | grep token"
+    - name: load-test
+      url: http://flagger-loadtester.test/
+      timeout: 5s
+      metadata:
+        cmd: "hey -z 1m -q 10 -c 2 http://webapp-canary/"</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Infrastructure as Code Section -->
+            <section id="infrastructure-as-code" class="section fade-in">
+                <div class="section-header">
+                    <h2>🏗️ Infrastructure as Code</h2>
+                    <p>Terraform, AWS CloudFormation, and Ansible automation</p>
+                </div>
+                <div class="section-content">
+                    <h3>Terraform Fundamentals</h3>
+                    
+                    <div class="card-grid">
+                        <div class="card">
+                            <h4>🎯 IaC Benefits</h4>
+                            <ul>
+                                <li>Version-controlled infrastructure</li>
+                                <li>Reproducible environments</li>
+                                <li>Reduced manual errors</li>
+                                <li>Faster provisioning</li>
+                                <li>Cost optimization through automation</li>
+                            </ul>
+                        </div>
+                        <div class="card">
+                            <h4>🔧 Terraform Workflow</h4>
+                            <ul>
+                                <li><strong>Write:</strong> Define infrastructure in HCL</li>
+                                <li><strong>Plan:</strong> Preview changes before applying</li>
+                                <li><strong>Apply:</strong> Provision infrastructure</li>
+                                <li><strong>Manage:</strong> Track state and make updates</li>
+                                <li><strong>Destroy:</strong> Clean up resources</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Complete AWS Infrastructure - main.tf</div>
+                        <pre># Configure Terraform and providers
+terraform {
+  required_version = ">= 1.0"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+  backend "s3" {
+    bucket = "mycompany-terraform-state"
+    key    = "infrastructure/terraform.tfstate"
+    region = "us-west-2"
+    dynamodb_table = "terraform-locks"
+    encrypt = true
+  }
+}
+
+# Configure AWS Provider
+provider "aws" {
+  region = var.aws_region
+  
+  default_tags {
+    tags = {
+      Project     = var.project_name
+      Environment = var.environment
+      ManagedBy   = "Terraform"
+      Owner       = var.owner
+    }
+  }
+}
+
+# Data sources
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
+# VPC
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+  
+  tags = {
+    Name = "${var.project_name}-vpc"
+  }
+}
+
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+  
+  tags = {
+    Name = "${var.project_name}-igw"
+  }
+}
+
+# Public Subnets
+resource "aws_subnet" "public" {
+  count = length(var.public_subnet_cidrs)
+  
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
+  
+  tags = {
+    Name = "${var.project_name}-public-subnet-${count.index + 1}"
+    Type = "public"
+  }
+}
+
+# Private Subnets
+resource "aws_subnet" "private" {
+  count = length(var.private_subnet_cidrs)
+  
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidrs[count.index]
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+  
+  tags = {
+    Name = "${var.project_name}-private-subnet-${count.index + 1}"
+    Type = "private"
+  }
+}
+
+# NAT Gateway
+resource "aws_eip" "nat" {
+  count = length(aws_subnet.public)
+  domain = "vpc"
+  
+  tags = {
+    Name = "${var.project_name}-nat-eip-${count.index + 1}"
+  }
+}
+
+resource "aws_nat_gateway" "main" {
+  count = length(aws_subnet.public)
+  
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
+  
+  tags = {
+    Name = "${var.project_name}-nat-${count.index + 1}"
+  }
+  
+  depends_on = [aws_internet_gateway.main]
+}
+
+# Route Tables
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+  
+  tags = {
+    Name = "${var.project_name}-public-rt"
+  }
+}
+
+resource "aws_route_table" "private" {
+  count = length(aws_subnet.private)
+  
+  vpc_id = aws_vpc.main.id
+  
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main[count.index].id
+  }
+  
+  tags = {
+    Name = "${var.project_name}-private-rt-${count.index + 1}"
+  }
+}
+
+# Route Table Associations
+resource "aws_route_table_association" "public" {
+  count = length(aws_subnet.public)
+  
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "private" {
+  count = length(aws_subnet.private)
+  
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
+}
+
+# Security Groups
+resource "aws_security_group" "alb" {
+  name_prefix = "${var.project_name}-alb"
+  vpc_id      = aws_vpc.main.id
+  
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags = {
+    Name = "${var.project_name}-alb-sg"
+  }
+}
+
+resource "aws_security_group" "app" {
+  name_prefix = "${var.project_name}-app"
+  vpc_id      = aws_vpc.main.id
+  
+  ingress {
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  tags = {
+    Name = "${var.project_name}-app-sg"
+  }
+}
+
+resource "aws_security_group" "database" {
+  name_prefix = "${var.project_name}-db"
+  vpc_id      = aws_vpc.main.id
+  
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+  }
+  
+  tags = {
+    Name = "${var.project_name}-db-sg"
+  }
+}
+
+# Application Load Balancer
+resource "aws_lb" "main" {
+  name               = "${var.project_name}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = aws_subnet.public[*].id
+  
+  enable_deletion_protection = var.environment == "production"
+  
+  tags = {
+    Name = "${var.project_name}-alb"
+  }
+}
+
+resource "aws_lb_target_group" "app" {
+  name     = "${var.project_name}-tg"
+  port     = var.app_port
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.main.id
+  
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
+  
+  tags = {
+    Name = "${var.project_name}-tg"
+  }
+}
+
+resource "aws_lb_listener" "app" {
+  load_balancer_arn = aws_lb.main.arn
+  port              = "80"
+  protocol          = "HTTP"
+  
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.app.arn
+  }
+}
+
+# Launch Template
+resource "aws_launch_template" "app" {
+  name_prefix   = "${var.project_name}-"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  
+  vpc_security_group_ids = [aws_security_group.app.id]
+  
+  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+    app_port = var.app_port
+    db_host  = aws_db_instance.main.endpoint
+  }))
+  
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${var.project_name}-instance"
+    }
+  }
+}
+
+# Auto Scaling Group
+resource "aws_autoscaling_group" "app" {
+  name                = "${var.project_name}-asg"
+  vpc_zone_identifier = aws_subnet.private[*].id
+  target_group_arns   = [aws_lb_target_group.app.arn]
+  health_check_type   = "ELB"
+  health_check_grace_period = 300
+  
+  min_size         = var.min_size
+  max_size         = var.max_size
+  desired_capacity = var.desired_capacity
+  
+  launch_template {
+    id      = aws_launch_template.app.id
+    version = "$Latest"
+  }
+  
+  tag {
+    key                 = "Name"
+    value               = "${var.project_name}-asg"
+    propagate_at_launch = true
+  }
+}
+
+# Database Subnet Group
+resource "aws_db_subnet_group" "main" {
+  name       = "${var.project_name}-db-subnet-group"
+  subnet_ids = aws_subnet.private[*].id
+  
+  tags = {
+    Name = "${var.project_name}-db-subnet-group"
+  }
+}
+
+# RDS Instance
+resource "aws_db_instance" "main" {
+  identifier     = "${var.project_name}-db"
+  engine         = "postgres"
+  engine_version = "13.7"
+  instance_class = var.db_instance_class
+  
+  allocated_storage     = var.db_allocated_storage
+  max_allocated_storage = var.db_max_allocated_storage
+  storage_type          = "gp2"
+  storage_encrypted     = true
+  
+  db_name  = var.db_name
+  username = var.db_username
+  password = var.db_password
+  
+  vpc_security_group_ids = [aws_security_group.database.id]
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+  
+  backup_retention_period = var.environment == "production" ? 7 : 1
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "sun:04:00-sun:05:00"
+  
+  multi_az               = var.environment == "production"
+  publicly_accessible    = false
+  
+  deletion_protection = var.environment == "production"
+  skip_final_snapshot = var.environment != "production"
+  
+  tags = {
+    Name = "${var.project_name}-db"
+  }
+}</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Terraform Variables - variables.tf</div>
+                        <pre># variables.tf
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-west-2"
+}
+
+variable "project_name" {
+  description = "Project name"
+  type        = string
+  default     = "webapp"
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+  validation {
+    condition     = contains(["dev", "staging", "production"], var.environment)
+    error_message = "Environment must be dev, staging, or production."
+  }
+}
+
+variable "owner" {
+  description = "Resource owner"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidrs" {
+  description = "CIDR blocks for public subnets"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24"]
+}
+
+variable "private_subnet_cidrs" {
+  description = "CIDR blocks for private subnets"
+  type        = list(string)
+  default     = ["10.0.11.0/24", "10.0.12.0/24"]
+}
+
+variable "ami_id" {
+  description = "AMI ID for instances"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "EC2 instance type"
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "key_name" {
+  description = "EC2 Key Pair name"
+  type        = string
+}
+
+variable "app_port" {
+  description = "Application port"
+  type        = number
+  default     = 8080
+}
+
+variable "min_size" {
+  description = "Minimum number of instances"
+  type        = number
+  default     = 2
+}
+
+variable "max_size" {
+  description = "Maximum number of instances"
+  type        = number
+  default     = 10
+}
+
+variable "desired_capacity" {
+  description = "Desired number of instances"
+  type        = number
+  default     = 3
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class"
+  type        = string
+  default     = "db.t3.micro"
+}
+
+variable "db_allocated_storage" {
+  description = "RDS allocated storage"
+  type        = number
+  default     = 20
+}
+
+variable "db_max_allocated_storage" {
+  description = "RDS max allocated storage"
+  type        = number
+  default     = 100
+}
+
+variable "db_name" {
+  description = "Database name"
+  type        = string
+  default     = "webapp"
+}
+
+variable "db_username" {
+  description = "Database username"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Terraform Outputs - outputs.tf</div>
+                        <pre># outputs.tf
+output "vpc_id" {
+  description = "ID of the VPC"
+  value       = aws_vpc.main.id
+}
+
+output "public_subnet_ids" {
+  description = "IDs of the public subnets"
+  value       = aws_subnet.public[*].id
+}
+
+output "private_subnet_ids" {
+  description = "IDs of the private subnets"
+  value       = aws_subnet.private[*].id
+}
+
+output "alb_dns_name" {
+  description = "DNS name of the load balancer"
+  value       = aws_lb.main.dns_name
+}
+
+output "alb_zone_id" {
+  description = "Zone ID of the load balancer"
+  value       = aws_lb.main.zone_id
+}
+
+output "database_endpoint" {
+  description = "RDS instance endpoint"
+  value       = aws_db_instance.main.endpoint
+  sensitive   = true
+}</pre>
+                    </div>
+
+                    <h3>Terraform Modules</h3>
+                    <div class="code-block">
+                        <div class="code-header">Module Usage - main.tf</div>
+                        <pre># Using custom modules
+module "vpc" {
+  source = "./modules/vpc"
+  
+  project_name = var.project_name
+  environment  = var.environment
+  vpc_cidr     = var.vpc_cidr
+  
+  public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
+}
+
+module "ecs_cluster" {
+  source = "./modules/ecs"
+  
+  project_name = var.project_name
+  environment  = var.environment
+  
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
+  
+  container_image = var.container_image
+  container_port  = var.container_port
+  
+  depends_on = [module.vpc]
+}
+
+# Using registry modules
+module "rds" {
+  source  = "terraform-aws-modules/rds/aws"
+  version = "~> 5.0"
+  
+  identifier = "${var.project_name}-${var.environment}-db"
+  
+  engine               = "postgres"
+  engine_version       = "13.7"
+  family               = "postgres13"
+  major_engine_version = "13"
+  instance_class       = "db.t3.micro"
+  
+  allocated_storage     = 20
+  max_allocated_storage = 100
+  storage_encrypted     = true
+  
+  db_name  = var.db_name
+  username = var.db_username
+  password = var.db_password
+  port     = 5432
+  
+  multi_az               = var.environment == "production"
+  publicly_accessible    = false
+  vpc_security_group_ids = [aws_security_group.database.id]
+  
+  db_subnet_group_name = module.vpc.database_subnet_group
+  
+  backup_retention_period = 7
+  backup_window          = "03:00-04:00"
+  maintenance_window     = "sun:04:00-sun:05:00"
+  
+  deletion_protection = var.environment == "production"
+  skip_final_snapshot = var.environment != "production"
+  
+  tags = local.common_tags
+}</pre>
+                    </div>
+
+                    <h3>Terraform Best Practices</h3>
+                    <div class="alert alert-info">
+                        <strong>🎯 Best Practices:</strong>
+                        <ul>
+                            <li><strong>Use remote state:</strong> Store state in S3 with DynamoDB locking</li>
+                            <li><strong>Version control:</strong> Always version your Terraform code</li>
+                            <li><strong>Plan before apply:</strong> Review changes with `terraform plan`</li>
+                            <li><strong>Use modules:</strong> Create reusable infrastructure components</li>
+                            <li><strong>Environment separation:</strong> Use workspaces or separate directories</li>
+                            <li><strong>Resource tagging:</strong> Tag all resources for cost allocation</li>
+                            <li><strong>Variable validation:</strong> Validate input variables</li>
+                            <li><strong>Sensitive data:</strong> Use Terraform Cloud or external secret managers</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">Terraform Commands</div>
+                        <pre># Initialize Terraform
+terraform init
+
+# Validate configuration
+terraform validate
+
+# Format code
+terraform fmt -recursive
+
+# Plan changes
+terraform plan -out=tfplan
+
+# Apply changes
+terraform apply tfplan
+
+# Show current state
+terraform show
+
+# List resources
+terraform state list
+
+# Import existing resource
+terraform import aws_instance.example i-1234567890abcdef0
+
+# Destroy infrastructure
+terraform destroy
+
+# Workspace management
+terraform workspace new production
+terraform workspace select production
+terraform workspace list</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Glossary Section -->
+            <section id="glossary" class="section fade-in">
+                <div class="section-header">
+                    <h2>📖 Glossary</h2>
+                    <p>Essential terms and definitions for cloud computing and DevOps</p>
+                </div>
+                <div class="section-content">
+                    <div class="glossary">
+                        <div class="glossary-term">
+                            <strong>API Gateway:</strong> A service that acts as an entry point for client requests to backend services, handling authentication, rate limiting, and request routing.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Auto Scaling:</strong> Automatically adjusting the number of compute resources based on demand to maintain performance and optimize costs.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Blue-Green Deployment:</strong> A deployment strategy using two identical production environments (blue and green) to minimize downtime and reduce risk.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Container Orchestration:</strong> Automated management of containerized applications, including deployment, scaling, networking, and availability.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>DevOps:</strong> A set of practices that combines software development (Dev) and IT operations (Ops) to shorten the development lifecycle and provide continuous delivery.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Immutable Infrastructure:</strong> Infrastructure components that are never modified after deployment; instead, they are replaced with new versions.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Load Balancer:</strong> Distributes incoming network traffic across multiple servers to ensure no single server becomes overwhelmed.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Microservices:</strong> An architectural approach where applications are built as a collection of loosely coupled, independently deployable services.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Serverless:</strong> A cloud computing execution model where the cloud provider dynamically manages the allocation and provisioning of servers.
+                        </div>
+                        <div class="glossary-term">
+                            <strong>Infrastructure as Code (IaC):</strong> Managing and provisioning computing infrastructure through machine-readable definition files rather than manual processes.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer style="background: var(--dark-bg); color: white; text-align: center; padding: 2rem; margin-top: 4rem;">
+        <div class="container">
+            <h3>🎓 Complete Cloud Computing & DevOps Handbook</h3>
+            <p>From Linux Fundamentals to Advanced Cloud Architecture</p>
+            <p style="opacity: 0.7; font-size: 0.9rem;">© 2025 - Comprehensive learning resource for cloud professionals</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation functionality
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Search functionality
+        function searchContent() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const searchResults = document.getElementById('searchResults');
+            
+            if (searchTerm.length < 2) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            // Simple search implementation
+            const allSections = document.querySelectorAll('section');
+            const results = [];
+            
+            allSections.forEach(section => {
+                const content = section.textContent.toLowerCase();
+                if (content.includes(searchTerm)) {
+                    const title = section.querySelector('h2').textContent;
+                    const id = section.id;
+                    results.push({ title, id, section });
+                }
+            });
+
+            // Display results
+            searchResults.innerHTML = '';
+            results.slice(0, 5).forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'search-result-item';
+                div.textContent = result.title;
+                div.onclick = () => {
+                    document.getElementById(result.id).scrollIntoView({ behavior: 'smooth' });
+                    searchResults.style.display = 'none';
+                    document.getElementById('searchInput').value = '';
+                };
+                searchResults.appendChild(div);
+            });
+
+            searchResults.style.display = results.length > 0 ? 'block' : 'none';
+        }
+
+        // Progress tracking
+        function updateProgress() {
+            const sections = document.querySelectorAll('section');
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = Math.min(Math.max(scrollTop / docHeight, 0), 1) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Active navigation highlighting
+        function updateActiveNav() {
+            const sections = document.querySelectorAll('section');
+            const navItems = document.querySelectorAll('.nav-item');
+            const scrollTop = window.pageYOffset + 200;
+
+            sections.forEach((section, index) => {
+                const top = section.offsetTop;
+                const bottom = top + section.offsetHeight;
+                
+                if (scrollTop >= top && scrollTop <= bottom) {
+                    navItems.forEach(item => item.classList.remove('active'));
+                    const correspondingNav = document.querySelector(`[href="#${section.id}"]`);
+                    if (correspondingNav) {
+                        correspondingNav.classList.add('active');
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        window.addEventListener('scroll', () => {
+            updateProgress();
+            updateActiveNav();
+        });
+
+        // Close search results when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', (e) => {
+            const sidebar = document.getElementById('sidebar');
+            const toggle = document.querySelector('.sidebar-toggle');
+            
+            if (!sidebar.contains(e.target) && !toggle.contains(e.target) && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close sidebar on mobile after navigation
+                    document.getElementById('sidebar').classList.remove('open');
+                }
+            });
+        });
+
+        // Add fade-in animation to sections when they come into view
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            updateActiveNav();
+            console.log('Cloud Computing & DevOps Handbook loaded successfully! 🚀');
+        });
+    </script>
+</body>
+</html>

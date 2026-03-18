@@ -1,0 +1,2880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Cloud & DevOps Handbook 2025</title>
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #2c5282;
+            --accent-color: #3182ce;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --error-color: #e53e3e;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --bg-dark: #2d3748;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* Header and Navigation */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--accent-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .nav-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .nav-list {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-item a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-item a:hover,
+        .nav-item a.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--text-primary);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+
+        .section h3 {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin: 3rem 0 1.5rem 0;
+            font-weight: 600;
+        }
+
+        .section h4 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin: 2rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        .section h5 {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin: 1.5rem 0 1rem 0;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        /* Statistics Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        /* Content Cards */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .content-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .content-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+        }
+
+        .content-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            border-left: 4px solid;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .alert-info {
+            border-left-color: var(--accent-color);
+            background-color: rgba(49, 130, 206, 0.1);
+        }
+
+        .alert-success {
+            border-left-color: var(--success-color);
+            background-color: rgba(56, 161, 105, 0.1);
+        }
+
+        .alert-warning {
+            border-left-color: var(--warning-color);
+            background-color: rgba(214, 158, 46, 0.1);
+        }
+
+        .alert-error {
+            border-left-color: var(--error-color);
+            background-color: rgba(229, 62, 62, 0.1);
+        }
+
+        .alert h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 700px;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .comparison-table th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        .comparison-table th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        .comparison-table td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .comparison-table tbody tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .comparison-table tbody tr:last-child td:first-child {
+            border-bottom-left-radius: 12px;
+        }
+
+        .comparison-table tbody tr:last-child td:last-child {
+            border-bottom-right-radius: 12px;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--bg-dark);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin: 2rem 0;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            line-height: 1.6;
+            box-shadow: var(--shadow-md);
+        }
+
+        .code-block pre {
+            margin: 0;
+        }
+
+        /* Lists */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            background: var(--success-color);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Resource Links */
+        .resource-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .resource-link {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .resource-link:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toc h3 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .toc li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toc li:last-child {
+            border-bottom: none;
+        }
+
+        .toc a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            display: block;
+            padding: 0.5rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: var(--accent-color);
+            padding-left: 1rem;
+        }
+
+        /* Case Studies */
+        .case-study {
+            background: linear-gradient(135deg, rgba(49, 130, 206, 0.1), rgba(44, 82, 130, 0.05));
+            border: 1px solid rgba(49, 130, 206, 0.2);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .case-study h4 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+
+        .case-study .company {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .case-study .metric {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        /* Scroll to Top Button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--bg-dark);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer p {
+            color: #a0aec0;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo h1 {
+                font-size: 2rem;
+            }
+
+            .nav-list {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(10px);
+                padding: 2rem;
+                box-shadow: var(--shadow-lg);
+                gap: 1rem;
+            }
+
+            .nav-list.show {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .section h2 {
+                font-size: 2.5rem;
+            }
+
+            .section {
+                padding: 3rem 0;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo h1 {
+                font-size: 1.8rem;
+            }
+
+            .section h2 {
+                font-size: 2rem;
+            }
+
+            .section h3 {
+                font-size: 1.6rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
+            .resource-link {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🚀 Cloud DevOps Handbook</h1>
+                <p>Enterprise Guide to Cloud Computing & DevOps Excellence - 2025 Edition</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <button class="hamburger" onclick="toggleMobileNav()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-list" id="navList">
+                <li class="nav-item"><a href="#introduction" onclick="scrollToSection('introduction')">Introduction</a></li>
+                <li class="nav-item"><a href="#aws-services" onclick="scrollToSection('aws-services')">AWS Services</a></li>
+                <li class="nav-item"><a href="#multi-cloud" onclick="scrollToSection('multi-cloud')">Multi-Cloud</a></li>
+                <li class="nav-item"><a href="#devops" onclick="scrollToSection('devops')">DevOps</a></li>
+                <li class="nav-item"><a href="#security" onclick="scrollToSection('security')">Security</a></li>
+                <li class="nav-item"><a href="#containers" onclick="scrollToSection('containers')">Containers</a></li>
+                <li class="nav-item"><a href="#finops" onclick="scrollToSection('finops')">FinOps</a></li>
+                <li class="nav-item"><a href="#resources" onclick="scrollToSection('resources')">Resources</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Introduction Section -->
+        <section id="introduction" class="section">
+            <div class="container">
+                <h2>📘 Introduction</h2>
+                
+                <div class="toc">
+                    <h3>Table of Contents</h3>
+                    <ul>
+                        <li><a href="#aws-services" onclick="scrollToSection('aws-services')">1. AWS Core Services & Real-World Applications</a></li>
+                        <li><a href="#multi-cloud" onclick="scrollToSection('multi-cloud')">2. Multi-Cloud Platforms & Strategies</a></li>
+                        <li><a href="#devops" onclick="scrollToSection('devops')">3. DevOps Concepts & Methodologies</a></li>
+                        <li><a href="#security" onclick="scrollToSection('security')">4. Cloud Security & Compliance</a></li>
+                        <li><a href="#containers" onclick="scrollToSection('containers')">5. Containerization & Orchestration</a></li>
+                        <li><a href="#finops" onclick="scrollToSection('finops')">6. FinOps & Cost Optimization</a></li>
+                        <li><a href="#resources" onclick="scrollToSection('resources')">7. Essential Resources & Documentation</a></li>
+                    </ul>
+                </div>
+
+                <p>Welcome to the most comprehensive Enterprise Cloud & DevOps Handbook for 2025. This guide provides detailed insights into cloud computing platforms, DevOps methodologies, security practices, and cost optimization strategies used by leading organizations worldwide.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">200+</span>
+                        <span class="stat-label">AWS Services Covered</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">5</span>
+                        <span class="stat-label">Major Cloud Platforms</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Real-World Case Studies</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Tools & Technologies</span>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <h4>🎯 What You'll Master</h4>
+                    <ul class="feature-list">
+                        <li><strong>AWS Expertise:</strong> Deep dive into 200+ AWS services with real-world implementations from Netflix and Airbnb</li>
+                        <li><strong>Multi-Cloud Mastery:</strong> Comprehensive comparison of AWS, Azure, GCP, and emerging platforms</li>
+                        <li><strong>DevOps Excellence:</strong> Modern CI/CD, Infrastructure as Code, and observability practices</li>
+                        <li><strong>Security Leadership:</strong> Zero-trust architecture, compliance frameworks, and incident response</li>
+                        <li><strong>Container Orchestration:</strong> Docker, Kubernetes, and service mesh technologies</li>
+                        <li><strong>Cost Optimization:</strong> FinOps strategies and AI workload cost management</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- AWS Services Section -->
+        <section id="aws-services" class="section">
+            <div class="container">
+                <h2>☁️ AWS Core Services & Real-World Applications</h2>
+
+                <p>Amazon Web Services leads the cloud market with over 200 services spanning compute, storage, networking, databases, and specialized solutions. This section provides comprehensive coverage of AWS core services with real-world implementations from industry leaders.</p>
+
+                <h3>🖥️ Compute Services</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>Amazon EC2 (Elastic Compute Cloud)</h4>
+                        <p>EC2 provides scalable virtual servers in the cloud with complete control over computing resources. Supports multiple instance families optimized for different workloads.</p>
+                        <ul class="feature-list">
+                            <li>40% better price-performance with Graviton3 processors</li>
+                            <li>Auto-scaling capabilities for variable demand</li>
+                            <li>Spot instances offering up to 90% cost savings</li>
+                            <li>Support for various operating systems</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>AWS Lambda (Serverless Computing)</h4>
+                        <p>Lambda enables running code without provisioning servers, automatically scaling from zero to thousands of concurrent executions.</p>
+                        <ul class="feature-list">
+                            <li>Pay-per-invocation pricing model</li>
+                            <li>Integration with 200+ AWS services</li>
+                            <li>Container image support up to 10GB</li>
+                            <li>Provisioned concurrency for latency-sensitive apps</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Amazon ECS & EKS</h4>
+                        <p>Fully managed container orchestration services that eliminate the complexity of setting up and managing container platforms.</p>
+                        <ul class="feature-list">
+                            <li>Native Docker and Kubernetes integration</li>
+                            <li>Fargate for serverless container compute</li>
+                            <li>Deep AWS service integration</li>
+                            <li>Enterprise-grade security and compliance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>🏢 Netflix: EC2 at Massive Scale</h4>
+                    <p><span class="company">Netflix</span> operates thousands of EC2 instances across multiple regions serving <span class="metric">300+ million subscribers</span>.</p>
+                    <p><strong>Architecture:</strong> 1000+ microservices handling <span class="metric">65 million concurrent streams</span> during peak events</p>
+                    <p><strong>Performance:</strong> Handles over <span class="metric">1 billion hours</span> of content streaming monthly with 99.9%+ availability</p>
+                    <p><strong>Cost Optimization:</strong> Achieved <span class="metric">30-50% cost savings</span> through cloud-native architecture and spot instance usage</p>
+                </div>
+
+                <h4>EC2 Instance Family Comparison</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Instance Family</th>
+                                <th>Use Cases</th>
+                                <th>Key Features</th>
+                                <th>Cost Optimization</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>General Purpose (M6i)</td>
+                                <td>Web servers, microservices</td>
+                                <td>Balanced CPU, memory, networking</td>
+                                <td>Reserved Instances for steady workloads</td>
+                            </tr>
+                            <tr>
+                                <td>Compute Optimized (C6i)</td>
+                                <td>HPC, batch processing</td>
+                                <td>High-performance processors</td>
+                                <td>Spot instances for fault-tolerant jobs</td>
+                            </tr>
+                            <tr>
+                                <td>Memory Optimized (R6i)</td>
+                                <td>Databases, in-memory analytics</td>
+                                <td>High memory-to-vCPU ratio</td>
+                                <td>Right-sizing based on memory usage</td>
+                            </tr>
+                            <tr>
+                                <td>Storage Optimized (I4i)</td>
+                                <td>NoSQL databases, data warehousing</td>
+                                <td>NVMe SSD storage</td>
+                                <td>Local storage for temporary data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Lambda Integration Patterns</h4>
+                <div class="code-block">
+                    <pre><code># API Gateway + Lambda Pattern
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:region:account:function:function-name"
+    }
+  ]
+}
+
+# S3 + Lambda Event Processing
+{
+  "Rules": [{
+    "Name": "S3ProcessRule",
+    "EventPattern": {
+      "source": ["aws.s3"],
+      "detail-type": ["Object Created"],
+      "detail": {
+        "bucket": {"name": ["my-processing-bucket"]}
+      }
+    },
+    "Targets": [{
+      "Id": "1",
+      "Arn": "arn:aws:lambda:region:account:function:process-s3-events"
+    }]
+  }]
+}</code></pre>
+                </div>
+
+                <h3>💾 Storage Services</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>Amazon S3 (Simple Storage Service)</h4>
+                        <p>Object storage with virtually unlimited capacity, designed for 11 9's durability and internet-scale applications.</p>
+                        <ul class="feature-list">
+                            <li>S3 Express One Zone for sub-millisecond latency</li>
+                            <li>Intelligent Tiering for automatic cost optimization</li>
+                            <li>Cross-region replication for disaster recovery</li>
+                            <li>Event notifications for automated workflows</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Amazon EBS (Elastic Block Store)</h4>
+                        <p>High-performance block storage for EC2 instances with multiple volume types optimized for different performance characteristics.</p>
+                        <ul class="feature-list">
+                            <li>Up to 256,000 IOPS performance</li>
+                            <li>4,000 MB/s throughput capability</li>
+                            <li>Encryption at rest and in transit</li>
+                            <li>Snapshot capabilities for backup</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h4>S3 Storage Classes Cost Comparison</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Storage Class</th>
+                                <th>Use Case</th>
+                                <th>Cost (per GB/month)</th>
+                                <th>Retrieval Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Standard</td>
+                                <td>Frequently accessed data</td>
+                                <td>$0.023</td>
+                                <td>Milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>Intelligent Tiering</td>
+                                <td>Automatic optimization</td>
+                                <td>$0.0125-$0.023</td>
+                                <td>Milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>Standard-IA</td>
+                                <td>Infrequent access</td>
+                                <td>$0.0125</td>
+                                <td>Milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>Glacier Flexible</td>
+                                <td>Archive with flexible retrieval</td>
+                                <td>$0.0036</td>
+                                <td>1-5 minutes</td>
+                            </tr>
+                            <tr>
+                                <td>Glacier Deep Archive</td>
+                                <td>Long-term archival</td>
+                                <td>$0.00099</td>
+                                <td>12 hours</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>🗄️ Database Services</h3>
+
+                <div class="case-study">
+                    <h4>🏢 Netflix: Aurora Migration Success</h4>
+                    <p><span class="company">Netflix</span> achieved remarkable results after migrating to Aurora:</p>
+                    <p><strong>Performance:</strong> <span class="metric">75% performance improvement</span> over previous RDS setup</p>
+                    <p><strong>Cost Savings:</strong> <span class="metric">28% cost reduction</span> while handling global traffic</p>
+                    <p><strong>Availability:</strong> Multi-AZ deployments ensuring <span class="metric">99.99% uptime</span></p>
+                    <p><strong>Scale:</strong> Consolidated relational databases supporting global content delivery</p>
+                </div>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>Amazon RDS (Relational Database Service)</h4>
+                        <p>Supports six database engines with automated administration tasks and high availability.</p>
+                        <ul class="feature-list">
+                            <li>Graviton3 processors as default (40% better price-performance)</li>
+                            <li>Enhanced Multi-AZ with two readable standbys</li>
+                            <li>Zero-ETL integration with Redshift</li>
+                            <li>AI-powered monitoring and tuning</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Amazon DynamoDB</h4>
+                        <p>Fully managed NoSQL database with single-digit millisecond performance at any scale.</p>
+                        <ul class="feature-list">
+                            <li>Automatic scaling based on demand</li>
+                            <li>Global tables for multi-region replication</li>
+                            <li>DynamoDB Streams for real-time processing</li>
+                            <li>On-demand and provisioned billing modes</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Amazon Aurora</h4>
+                        <p>Cloud-native relational database compatible with MySQL and PostgreSQL.</p>
+                        <ul class="feature-list">
+                            <li>Up to 5x faster than MySQL, 3x faster than PostgreSQL</li>
+                            <li>Storage auto-scaling up to 140TB</li>
+                            <li>Up to 15 read replicas</li>
+                            <li>Aurora Serverless for variable workloads</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🌐 Networking Services</h3>
+
+                <div class="alert alert-info">
+                    <h4>🚀 CloudFront 2025: VPC Origins</h4>
+                    <p><strong>Revolutionary Feature:</strong> Direct integration with private resources eliminates the need for public internet exposure, enhancing security posture and reducing attack surface while maintaining global performance.</p>
+                    <ul class="feature-list">
+                        <li>Direct integration with private resources</li>
+                        <li>Enhanced security with no public exposure</li>
+                        <li>Reduced attack surface area</li>
+                        <li>Maintained global performance</li>
+                    </ul>
+                </div>
+
+                <h3>🔐 Security & Identity Services</h3>
+
+                <div class="alert alert-success">
+                    <h4>🔒 IAM 2025 Best Practices</h4>
+                    <ul class="feature-list">
+                        <li><strong>Eliminate Long-term Users:</strong> Use federated identity providers for human access</li>
+                        <li><strong>Least Privilege:</strong> Apply minimal necessary permissions with regular reviews</li>
+                        <li><strong>Access Analyzer:</strong> Identify and remove unused permissions automatically</li>
+                        <li><strong>Temporary Credentials:</strong> Use STS for time-limited access tokens</li>
+                    </ul>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 AWS Documentation Links</h4>
+                    <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/compute-services.html" class="resource-link" target="_blank">AWS Compute Services</a>
+                    <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/storage-services.html" class="resource-link" target="_blank">AWS Storage Services</a>
+                    <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/database.html" class="resource-link" target="_blank">AWS Database Services</a>
+                    <a href="https://docs.aws.amazon.com/whitepapers/latest/aws-overview/networking-content-delivery.html" class="resource-link" target="_blank">AWS Networking</a>
+                    <a href="https://docs.aws.amazon.com/security/" class="resource-link" target="_blank">AWS Security Services</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multi-Cloud Section -->
+        <section id="multi-cloud" class="section">
+            <div class="container">
+                <h2>🌍 Multi-Cloud Platforms & Strategies</h2>
+
+                <p>Modern enterprises operate across multiple cloud platforms, with 78% of businesses using hybrid or multi-cloud approaches in 2025. This section provides comprehensive analysis of major cloud platforms and strategic implementation guidance.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">78%</span>
+                        <span class="stat-label">Businesses Using Multi-Cloud</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">3.4</span>
+                        <span class="stat-label">Average Public Clouds per Enterprise</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">65%</span>
+                        <span class="stat-label">Migrations Complete on Budget</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">54%</span>
+                        <span class="stat-label">Use AWS + Azure Combination</span>
+                    </div>
+                </div>
+
+                <h3>🔷 Microsoft Azure</h3>
+
+                <p>Azure holds approximately 21% of the cloud infrastructure market, excelling in hybrid cloud integration and enterprise Microsoft ecosystem compatibility.</p>
+
+                <div class="alert alert-info">
+                    <h4>🚀 Azure Arc: Revolutionary Hybrid Management</h4>
+                    <p>Azure Arc enables running Azure services on any Kubernetes cluster, including AWS, GCP, or on-premises environments.</p>
+                    <ul class="feature-list">
+                        <li><strong>Unified Governance:</strong> Consistent policies across hybrid environments</li>
+                        <li><strong>Flexible Deployment:</strong> Azure Logic Apps in partially connected environments</li>
+                        <li><strong>Security:</strong> Centralized security management regardless of location</li>
+                        <li><strong>Multi-Cloud Management:</strong> Unified view across cloud providers</li>
+                    </ul>
+                </div>
+
+                <h4>Azure vs AWS Service Comparison</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Azure Service</th>
+                                <th>AWS Equivalent</th>
+                                <th>Key Differentiator</th>
+                                <th>Best Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Azure Virtual Machines</td>
+                                <td>Amazon EC2</td>
+                                <td>Hybrid cloud integration, Azure Hybrid Benefit</td>
+                                <td>Windows-centric environments</td>
+                            </tr>
+                            <tr>
+                                <td>Azure App Service</td>
+                                <td>AWS Elastic Beanstalk</td>
+                                <td>Simplified deployment, integrated DevOps</td>
+                                <td>Rapid application deployment</td>
+                            </tr>
+                            <tr>
+                                <td>Azure Functions</td>
+                                <td>AWS Lambda</td>
+                                <td>Deep Visual Studio integration</td>
+                                <td>.NET development workflows</td>
+                            </tr>
+                            <tr>
+                                <td>Azure Blob Storage</td>
+                                <td>Amazon S3</td>
+                                <td>Office 365 ecosystem integration</td>
+                                <td>Microsoft-centric data workflows</td>
+                            </tr>
+                            <tr>
+                                <td>Azure SQL Database</td>
+                                <td>Amazon RDS</td>
+                                <td>Built-in AI assistance, 99.995% uptime</td>
+                                <td>SQL Server workloads</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>🌐 Google Cloud Platform (GCP)</h3>
+
+                <p>GCP holds approximately 12% of the cloud infrastructure market, positioning itself as the "innovation cloud" with deep AI/ML integration.</p>
+
+                <div class="case-study">
+                    <h4>🏢 GCP's AI-First Strategy</h4>
+                    <p><strong>Service Integration:</strong> Over <span class="metric">100 cloud products</span> with AI/ML at the core</p>
+                    <p><strong>Data Analytics:</strong> BigQuery provides serverless data warehouse with SQL-based ML</p>
+                    <p><strong>Container Leadership:</strong> Kubernetes heritage with advanced autopilot mode</p>
+                    <p><strong>Developer Focus:</strong> Open-source friendly architecture and custom machine types</p>
+                </div>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>BigQuery ML</h4>
+                        <p>Run machine learning models directly on data using SQL, making AI accessible to data analysts.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>Vertex AI</h4>
+                        <p>Unified AI platform providing access to foundation models and custom model training.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>Cloud Run</h4>
+                        <p>Fully managed serverless platform for containerized applications with automatic scaling.</p>
+                    </div>
+                </div>
+
+                <h3>🏢 Other Major Cloud Providers</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>IBM Cloud</h4>
+                        <p><strong>Focus:</strong> Hybrid cloud, enterprise compliance, regulated industries</p>
+                        <ul class="feature-list">
+                            <li>Mainframe integration and IBM Z support</li>
+                            <li>240+ services with strong AI capabilities</li>
+                            <li>Financial services and healthcare expertise</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Oracle Cloud Infrastructure</h4>
+                        <p><strong>Focus:</strong> Database workloads, enterprise applications</p>
+                        <ul class="feature-list">
+                            <li>30-50% lower costs for Oracle workloads</li>
+                            <li>Optimized for high-performance computing</li>
+                            <li>Growing enterprise traction</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>DigitalOcean</h4>
+                        <p><strong>Focus:</strong> Developer-friendly simplicity, transparent pricing</p>
+                        <ul class="feature-list">
+                            <li>Up to 80% lower TCO for AI inference workloads</li>
+                            <li>Strong developer community</li>
+                            <li>Expanding from SMB to enterprise</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🎯 Multi-Cloud Strategy Framework</h3>
+
+                <div class="alert alert-warning">
+                    <h4>⚠️ Multi-Cloud Challenges</h4>
+                    <ul class="feature-list">
+                        <li><strong>Management Overhead:</strong> $1.4M annually for large enterprises</li>
+                        <li><strong>Data Egress Costs:</strong> 6-12% of total migration costs</li>
+                        <li><strong>Skill Requirements:</strong> Need expertise across multiple platforms</li>
+                        <li><strong>Integration Complexity:</strong> Different APIs and service models</li>
+                    </ul>
+                </div>
+
+                <h4>Migration Frameworks (6 R's)</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>1. Rehost</h4>
+                        <p>Lift-and-shift for speed with minimal changes to existing architecture.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>2. Replatform</h4>
+                        <p>Selective optimization while maintaining core architecture.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>3. Refactor</h4>
+                        <p>Cloud-native redesign for maximum benefit and efficiency.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>4. Repurchase</h4>
+                        <p>Replace with Software-as-a-Service solutions.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>5. Retire</h4>
+                        <p>Eliminate unnecessary systems and applications.</p>
+                    </div>
+                    <div class="content-card">
+                        <h4>6. Retain</h4>
+                        <p>Keep on-premises for compliance or business reasons.</p>
+                    </div>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 Multi-Cloud Resources</h4>
+                    <a href="https://docs.microsoft.com/en-us/azure/" class="resource-link" target="_blank">Azure Documentation</a>
+                    <a href="https://cloud.google.com/docs" class="resource-link" target="_blank">Google Cloud Docs</a>
+                    <a href="https://cloud.ibm.com/docs" class="resource-link" target="_blank">IBM Cloud Docs</a>
+                    <a href="https://docs.oracle.com/en-us/iaas/" class="resource-link" target="_blank">Oracle Cloud Docs</a>
+                    <a href="https://docs.digitalocean.com/" class="resource-link" target="_blank">DigitalOcean Docs</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- DevOps Section -->
+        <section id="devops" class="section">
+            <div class="container">
+                <h2>⚙️ DevOps Concepts & Methodologies</h2>
+
+                <p>DevOps has evolved beyond basic automation to become more human-centric and AI-powered. This section covers modern DevOps practices, tools, and cultural transformation strategies for 2025.</p>
+
+                <h3>🤝 Core DevOps Principles</h3>
+
+                <div class="alert alert-success">
+                    <h4>🔑 CAMS Framework</h4>
+                    <p>Modern DevOps culture emphasizes the CAMS framework: <strong>Culture, Automation, Measurement, and Sharing</strong>.</p>
+                    <ul class="feature-list">
+                        <li><strong>Blameless Culture:</strong> Treating mistakes as organizational learning opportunities</li>
+                        <li><strong>Continuous Learning:</strong> Investing in skill development as systems become complex</li>
+                        <li><strong>Cross-functional Collaboration:</strong> Breaking down silos between teams</li>
+                        <li><strong>Shared Responsibility:</strong> System reliability and security owned by all</li>
+                    </ul>
+                </div>
+
+                <h4>Intelligent Automation in 2025</h4>
+                <p>86% of organizations plan to add or upgrade automation platforms with AI-powered capabilities.</p>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🤖 AIOps Integration</h4>
+                        <ul class="feature-list">
+                            <li>Predictive analytics to prevent failures</li>
+                            <li>Self-healing systems with automated remediation</li>
+                            <li>Intelligent routing for build optimization</li>
+                            <li>AI-powered root cause analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🚀 CI/CD Practices</h3>
+
+                <h4>Security-First CI in 2025</h4>
+                <p>Modern CI/CD pipelines integrate security checks from the first commit, implementing shift-left security practices.</p>
+
+                <div class="code-block">
+                    <pre><code># GitHub Actions Security-First Pipeline
+name: Secure CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: SAST Scan
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript, python
+    
+    - name: Secrets Detection
+      uses: gitguardian/ggshield-action@v1
+      env:
+        GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+  build-and-test:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Build Application
+      run: |
+        docker build -t app:${{ github.sha }} .
+        
+    - name: Run Tests
+      run: |
+        npm test
+        npm run test:integration
+        
+    - name: Container Security Scan
+      run: |
+        trivy image app:${{ github.sha }}</code></pre>
+                </div>
+
+                <h4>Testing Strategy - The Testing Pyramid</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Test Type</th>
+                                <th>Percentage</th>
+                                <th>Purpose</th>
+                                <th>Execution Speed</th>
+                                <th>Feedback Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Unit Tests</td>
+                                <td>70%</td>
+                                <td>Fast, isolated component tests</td>
+                                <td>Milliseconds</td>
+                                <td>Immediate</td>
+                            </tr>
+                            <tr>
+                                <td>Integration Tests</td>
+                                <td>20%</td>
+                                <td>Component interaction validation</td>
+                                <td>Seconds</td>
+                                <td>&lt; 1 minute</td>
+                            </tr>
+                            <tr>
+                                <td>End-to-End Tests</td>
+                                <td>10%</td>
+                                <td>Full user journey validation</td>
+                                <td>Minutes</td>
+                                <td>5-10 minutes</td>
+                            </tr>
+                            <tr>
+                                <td>Security Tests</td>
+                                <td>Continuous</td>
+                                <td>SAST, DAST, dependency scanning</td>
+                                <td>Minutes to Hours</td>
+                                <td>Variable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Deployment Strategies</h4>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🔄 Blue-Green Deployment</h4>
+                        <ul class="feature-list">
+                            <li>Two identical production environments</li>
+                            <li>Instant switchover between versions</li>
+                            <li>Zero-downtime deployments</li>
+                            <li>Easy rollback capability</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🐦 Canary Releases</h4>
+                        <ul class="feature-list">
+                            <li>Gradual rollout to subset of users</li>
+                            <li>Real-time metrics during rollout</li>
+                            <li>Automated rollback on anomalies</li>
+                            <li>Risk mitigation through controlled exposure</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🎯 Feature Flags</h4>
+                        <ul class="feature-list">
+                            <li>Decouple deployment from release</li>
+                            <li>A/B testing capabilities</li>
+                            <li>Instant feature toggling</li>
+                            <li>Reduced blast radius for new features</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🏗️ Infrastructure as Code (IaC)</h3>
+
+                <h4>Tool Landscape 2025</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Approach</th>
+                                <th>Strengths</th>
+                                <th>Best Use Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Terraform/OpenTofu</td>
+                                <td>Declarative HCL</td>
+                                <td>3,000+ providers, mature ecosystem</td>
+                                <td>Multi-cloud infrastructure</td>
+                            </tr>
+                            <tr>
+                                <td>CloudFormation</td>
+                                <td>Declarative JSON/YAML</td>
+                                <td>Native AWS integration</td>
+                                <td>AWS-specific deployments</td>
+                            </tr>
+                            <tr>
+                                <td>Pulumi</td>
+                                <td>Real programming languages</td>
+                                <td>Python, TypeScript, C#, Go support</td>
+                                <td>Developer-friendly infrastructure</td>
+                            </tr>
+                            <tr>
+                                <td>Ansible</td>
+                                <td>Imperative YAML</td>
+                                <td>Agentless, simple syntax</td>
+                                <td>Configuration management</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>GitOps Workflow Example</h4>
+                <div class="code-block">
+                    <pre><code># GitOps with ArgoCD
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: microservice-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/company/app-config
+    targetRevision: HEAD
+    path: manifests/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m</code></pre>
+                </div>
+
+                <h3>📊 Monitoring and Observability</h3>
+
+                <h4>Three Pillars Implementation</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>📈 Metrics</h4>
+                        <p><strong>Tools:</strong> Prometheus, Grafana</p>
+                        <ul class="feature-list">
+                            <li>Time-series data collection</li>
+                            <li>Real-time alerting</li>
+                            <li>Custom business metrics</li>
+                            <li>SLI/SLO tracking</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>📝 Logs</h4>
+                        <p><strong>Tools:</strong> ELK Stack, Loki, Fluentd</p>
+                        <ul class="feature-list">
+                            <li>Centralized log aggregation</li>
+                            <li>Structured logging with JSON</li>
+                            <li>Real-time log analysis</li>
+                            <li>Correlation with metrics</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🔍 Traces</h4>
+                        <p><strong>Tools:</strong> Jaeger, Zipkin, OpenTelemetry</p>
+                        <ul class="feature-list">
+                            <li>Distributed request tracing</li>
+                            <li>Performance bottleneck identification</li>
+                            <li>Service dependency mapping</li>
+                            <li>End-to-end visibility</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>🏢 Spotify: GitOps at Scale</h4>
+                    <p><span class="company">Spotify</span> operates one of the largest GitOps implementations globally:</p>
+                    <p><strong>Scale:</strong> <span class="metric">300+ microservices</span> across multiple teams and regions</p>
+                    <p><strong>Performance:</strong> <span class="metric">95% faster deployments</span> compared to traditional methods</p>
+                    <p><strong>Reliability:</strong> <span class="metric">99.95% deployment success rate</span> with automated rollbacks</p>
+                    <p><strong>Developer Experience:</strong> Self-service infrastructure with <span class="metric">10x faster</span> onboarding</p>
+                </div>
+
+                <h4>SLI/SLO Framework</h4>
+                <div class="code-block">
+                    <pre><code># Example SLI/SLO Configuration
+apiVersion: sloth.slok.dev/v1
+kind: PrometheusServiceLevel
+metadata:
+  name: api-availability
+spec:
+  service: "payment-api"
+  labels:
+    team: "payments"
+  slos:
+    - name: "availability"
+      objective: 99.9
+      description: "API availability measured by successful HTTP responses"
+      sli:
+        events:
+          error_query: |
+            sum(rate(http_requests_total{service="payment-api",code=~"5.."}[5m]))
+          total_query: |
+            sum(rate(http_requests_total{service="payment-api"}[5m]))
+      alerting:
+        name: PaymentAPIHighErrorRate
+        labels:
+          severity: warning
+        annotations:
+          summary: Payment API error rate is high</code></pre>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 DevOps Resources</h4>
+                    <a href="https://landscape.cncf.io/" class="resource-link" target="_blank">CNCF Landscape</a>
+                    <a href="https://devopsinstitute.com/" class="resource-link" target="_blank">DevOps Institute</a>
+                    <a href="https://owasp.org/www-project-devsecops-guideline/" class="resource-link" target="_blank">OWASP DevSecOps</a>
+                    <a href="https://kubernetes.io/docs/" class="resource-link" target="_blank">Kubernetes Docs</a>
+                    <a href="https://prometheus.io/docs/" class="resource-link" target="_blank">Prometheus Docs</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Section -->
+        <section id="security" class="section">
+            <div class="container">
+                <h2>🔐 Cloud Security & Compliance</h2>
+
+                <p>Cloud security has evolved to address multi-cloud complexities and AI workload challenges. This section covers comprehensive security frameworks, compliance requirements, and real-world implementation strategies for 2025.</p>
+
+                <h3>🛡️ Zero Trust Architecture</h3>
+
+                <div class="alert alert-info">
+                    <h4>🔑 Zero Trust Principles</h4>
+                    <p>Zero Trust has become the primary security model with "never trust, always verify" as the core principle.</p>
+                    <ul class="feature-list">
+                        <li><strong>Identity Verification:</strong> Continuous authentication and authorization</li>
+                        <li><strong>Least Privilege:</strong> Minimal access rights for users and systems</li>
+                        <li><strong>Micro-segmentation:</strong> Network isolation at granular levels</li>
+                        <li><strong>Continuous Validation:</strong> Real-time security posture assessment</li>
+                    </ul>
+                </div>
+
+                <h4>Security Services Comparison</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Provider</th>
+                                <th>Service</th>
+                                <th>Primary Function</th>
+                                <th>2025 Enhancements</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AWS</td>
+                                <td>Security Hub</td>
+                                <td>Unified security operations</td>
+                                <td>Multi-cloud environment support</td>
+                            </tr>
+                            <tr>
+                                <td>AWS</td>
+                                <td>GuardDuty</td>
+                                <td>ML-based threat detection</td>
+                                <td>Extended EKS, Lambda, RDS coverage</td>
+                            </tr>
+                            <tr>
+                                <td>Azure</td>
+                                <td>Defender for Cloud</td>
+                                <td>Multi-cloud security posture</td>
+                                <td>AI-powered threat protection</td>
+                            </tr>
+                            <tr>
+                                <td>Azure</td>
+                                <td>Sentinel</td>
+                                <td>Cloud-native SIEM/SOAR</td>
+                                <td>Enhanced automation and AI</td>
+                            </tr>
+                            <tr>
+                                <td>GCP</td>
+                                <td>Security Command Center</td>
+                                <td>Centralized risk management</td>
+                                <td>Advanced threat intelligence</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>📋 Compliance Frameworks</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>SOC 2 (2025 Focus)</h4>
+                        <ul class="feature-list">
+                            <li>AI-powered continuous compliance monitoring</li>
+                            <li>Automated evidence collection</li>
+                            <li>Real-time assessment vs. annual</li>
+                            <li>Five Trust Service Criteria coverage</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>ISO 27001</h4>
+                        <ul class="feature-list">
+                            <li>ISMS foundation for security management</li>
+                            <li>Risk-based continuous improvement</li>
+                            <li>2025 AI and cloud-native updates</li>
+                            <li>Mapping framework for other standards</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>GDPR</h4>
+                        <ul class="feature-list">
+                            <li>EU data protection with global impact</li>
+                            <li>Data subject rights management</li>
+                            <li>Privacy by design requirements</li>
+                            <li>AI system transparency mandates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>🚨 Real-World Security Incidents</h3>
+
+                <div class="case-study">
+                    <h4>📊 Major 2024-2025 Incident Analysis</h4>
+                    
+                    <h5>Snowflake Data Breach</h5>
+                    <p><strong>Attack Vector:</strong> Stolen credentials from third-party contractors lacking MFA</p>
+                    <p><strong>Impact:</strong> <span class="metric">560 million</span> Ticketmaster users affected</p>
+                    <p><strong>Lesson:</strong> Critical importance of MFA enforcement for all access</p>
+                    <p><strong>Remediation:</strong> Enhanced identity controls and mandatory MFA implementation</p>
+                    
+                    <h5>Change Healthcare Ransomware</h5>
+                    <p><strong>Attack Vector:</strong> Privilege escalation through compromised domain controller</p>
+                    <p><strong>Impact:</strong> Complete business shutdown requiring manual processes</p>
+                    <p><strong>Response:</strong> Infrastructure rebuilding from clean backups</p>
+                    <p><strong>Investment:</strong> Cloud-based redundancy and real-time threat detection</p>
+                </div>
+
+                <div class="alert alert-error">
+                    <h4>📈 2025 Security Statistics</h4>
+                    <ul class="feature-list">
+                        <li><strong>Identity Attacks:</strong> 87% of investigations involve identity weaknesses</li>
+                        <li><strong>SaaS Incidents:</strong> 23% of cases involve SaaS data (up from 6% in 2022)</li>
+                        <li><strong>Multi-Source Evidence:</strong> Complex cases require up to 10 data sources</li>
+                        <li><strong>OAuth Abuse:</strong> Increasing use of OAuth tokens for lateral movement</li>
+                    </ul>
+                </div>
+
+                <h3>🔍 Modern Security Assessment</h3>
+
+                <h4>AI-Powered Penetration Testing</h4>
+                <p>2025 brings AI-enhanced security assessment with autonomous penetration testing frameworks.</p>
+
+                <div class="code-block">
+                    <pre><code># AI-Enhanced Security Assessment Workflow
+security_assessment:
+  phases:
+    - reconnaissance:
+        tools: ["nmap", "masscan", "zen-ai-recon"]
+        ai_guidance: true
+        automated: 80%
+    
+    - vulnerability_discovery:
+        tools: ["nessus", "openvas", "nuclei"]
+        ai_correlation: true
+        false_positive_reduction: 90%
+    
+    - exploitation:
+        tools: ["metasploit", "cobalt_strike", "blacksmith-ai"]
+        risk_assessment: automated
+        blast_radius_calculation: true
+    
+    - reporting:
+        format: ["executive", "technical", "remediation"]
+        ai_generated_summary: true
+        risk_prioritization: business_impact</code></pre>
+                </div>
+
+                <h4>Compliance Automation</h4>
+                <div class="code-block">
+                    <pre><code># SOC 2 Automated Compliance Check
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: soc2-compliance-rules
+data:
+  security_controls: |
+    - name: "Access Control"
+      checks:
+        - mfa_enabled: required
+        - privileged_access_review: monthly
+        - access_provisioning: automated
+        - access_deprovisioning: automated
+    
+    - name: "System Operations"
+      checks:
+        - change_management: documented
+        - monitoring_enabled: 24x7
+        - incident_response: tested_quarterly
+        - backup_verification: automated
+    
+    - name: "Logical Access"
+      checks:
+        - network_segmentation: implemented
+        - encryption_at_rest: aes_256
+        - encryption_in_transit: tls_1_3
+        - vulnerability_scanning: weekly</code></pre>
+                </div>
+
+                <h3>🔒 Security Best Practices Implementation</h3>
+
+                <div class="alert alert-success">
+                    <h4>💳 MFA 2025 Standards</h4>
+                    <ul class="feature-list">
+                        <li><strong>Phishing-Resistant:</strong> Hardware tokens (FIDO2/WebAuthN) preferred</li>
+                        <li><strong>Risk-Based:</strong> Adaptive controls based on context and behavior</li>
+                        <li><strong>Zero Trust:</strong> Continuous verification for all access</li>
+                        <li><strong>Privileged Accounts:</strong> Mandatory for all administrative functions</li>
+                    </ul>
+                </div>
+
+                <h4>Container Security in 2025</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Security Layer</th>
+                                <th>Implementation</th>
+                                <th>Tools</th>
+                                <th>Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Image Scanning</td>
+                                <td>CI/CD Pipeline Integration</td>
+                                <td>Trivy, Docker Scout, Snyk</td>
+                                <td>Every Build</td>
+                            </tr>
+                            <tr>
+                                <td>Runtime Protection</td>
+                                <td>Behavioral Monitoring</td>
+                                <td>Falco, Aqua, Sysdig</td>
+                                <td>Continuous</td>
+                            </tr>
+                            <tr>
+                                <td>Network Policies</td>
+                                <td>Micro-segmentation</td>
+                                <td>Calico, Cilium, Istio</td>
+                                <td>Policy-driven</td>
+                            </tr>
+                            <tr>
+                                <td>Admission Control</td>
+                                <td>Policy Enforcement</td>
+                                <td>OPA, Kyverno, Gatekeeper</td>
+                                <td>Pre-deployment</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 Security Documentation</h4>
+                    <a href="https://www.nist.gov/cyberframework" class="resource-link" target="_blank">NIST CSF 2.0</a>
+                    <a href="https://docs.aws.amazon.com/securityhub/" class="resource-link" target="_blank">AWS Security Hub</a>
+                    <a href="https://docs.microsoft.com/en-us/security/" class="resource-link" target="_blank">Microsoft Security</a>
+                    <a href="https://cloud.google.com/security/" class="resource-link" target="_blank">Google Cloud Security</a>
+                    <a href="https://cloudsecurityalliance.org/" class="resource-link" target="_blank">Cloud Security Alliance</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Containers Section -->
+        <section id="containers" class="section">
+            <div class="container">
+                <h2>📦 Containerization & Orchestration</h2>
+
+                <p>Containerization has become the standard for modern application deployment, with 74% of organizations running stateful workloads in containers. This section covers Docker, Kubernetes, service mesh technologies, and security best practices.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">74%</span>
+                        <span class="stat-label">Organizations Running Stateful Workloads</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">75%</span>
+                        <span class="stat-label">Organizations Using Helm</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">70%</span>
+                        <span class="stat-label">Organizations Using Service Mesh</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">47%</span>
+                        <span class="stat-label">Increase in Container Security Incidents</span>
+                    </div>
+                </div>
+
+                <h3>🐳 Docker Technology Stack</h3>
+
+                <h4>Docker Security Best Practices (2025)</h4>
+                <div class="code-block">
+                    <pre><code># Multi-stage Docker Build with Security
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production && \
+    npm audit --audit-level high
+
+FROM node:18-alpine AS runtime
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+
+# Install security updates
+RUN apk update && apk upgrade && \
+    rm -rf /var/cache/apk/*
+
+WORKDIR /app
+COPY --from=builder --chown=nextjs:nodejs /app .
+
+# Security configurations
+USER nextjs
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Read-only root filesystem
+CMD ["node", "server.js"]</code></pre>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h4>⚠️ Container Security Threat Landscape</h4>
+                    <p>Container-related security incidents increased 47% year-over-year. Common attack vectors:</p>
+                    <ul class="feature-list">
+                        <li><strong>Vulnerable Base Images:</strong> 32% of security incidents</li>
+                        <li><strong>Root Containers:</strong> 28% of incidents from privileged containers</li>
+                        <li><strong>Exposed Docker Sockets:</strong> 18% of incidents from socket exposure</li>
+                        <li><strong>Misconfigurations:</strong> 22% from improper security contexts</li>
+                    </ul>
+                </div>
+
+                <h4>Container Security Tools Comparison</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Type</th>
+                                <th>Strengths</th>
+                                <th>Best Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Trivy</td>
+                                <td>Vulnerability Scanner</td>
+                                <td>Fast, comprehensive, SBOM generation</td>
+                                <td>CI/CD pipeline integration</td>
+                            </tr>
+                            <tr>
+                                <td>Docker Scout</td>
+                                <td>Native Security</td>
+                                <td>Docker ecosystem integration</td>
+                                <td>Docker Desktop workflows</td>
+                            </tr>
+                            <tr>
+                                <td>Falco</td>
+                                <td>Runtime Security</td>
+                                <td>Real-time threat detection</td>
+                                <td>Production monitoring</td>
+                            </tr>
+                            <tr>
+                                <td>Aqua Security</td>
+                                <td>Full Platform</td>
+                                <td>Complete container security suite</td>
+                                <td>Enterprise deployments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>☸️ Kubernetes Ecosystem</h3>
+
+                <h4>Kubernetes Architecture Overview</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🎛️ Control Plane</h4>
+                        <ul class="feature-list">
+                            <li><strong>API Server:</strong> Central management interface</li>
+                            <li><strong>Scheduler:</strong> Pod placement optimization</li>
+                            <li><strong>Controller Manager:</strong> State reconciliation</li>
+                            <li><strong>etcd:</strong> Distributed state storage</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🖥️ Worker Nodes</h4>
+                        <ul class="feature-list">
+                            <li><strong>Kubelet:</strong> Pod lifecycle management</li>
+                            <li><strong>Kube-proxy:</strong> Network routing</li>
+                            <li><strong>Container Runtime:</strong> containerd, CRI-O</li>
+                            <li><strong>CNI:</strong> Network plugin interface</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>🏢 Airbnb: Kubernetes at Scale</h4>
+                    <p><span class="company">Airbnb</span> operates one of the largest Kubernetes deployments:</p>
+                    <p><strong>Scale:</strong> <span class="metric">200+ EC2 instances</span> supporting 8+ million listings globally</p>
+                    <p><strong>Security:</strong> Multi-tenant security with AWS STS tokens and fine-grained RBAC</p>
+                    <p><strong>Data Processing:</strong> <span class="metric">50GB daily</span> processing via Kubernetes-orchestrated EMR</p>
+                    <p><strong>Availability:</strong> Global distribution across multiple regions for <span class="metric">99.9%+ uptime</span></p>
+                </div>
+
+                <h4>CNI Comparison for 2025</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>CNI</th>
+                                <th>Technology</th>
+                                <th>Performance</th>
+                                <th>Best Use Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Cilium</td>
+                                <td>eBPF-based</td>
+                                <td>High performance, minimal overhead</td>
+                                <td>Modern deployments, service mesh</td>
+                            </tr>
+                            <tr>
+                                <td>Calico</td>
+                                <td>BGP routing</td>
+                                <td>Proven stability, excellent security</td>
+                                <td>Compliance-heavy environments</td>
+                            </tr>
+                            <tr>
+                                <td>Flannel</td>
+                                <td>Overlay network</td>
+                                <td>Simple, lightweight</td>
+                                <td>Development environments</td>
+                            </tr>
+                            <tr>
+                                <td>Canal</td>
+                                <td>Flannel + Calico</td>
+                                <td>Balanced features and simplicity</td>
+                                <td>General-purpose deployments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Kubernetes Security Configuration</h4>
+                <div class="code-block">
+                    <pre><code># Pod Security Policy Example
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001
+    fsGroup: 1001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: myapp:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1001
+      capabilities:
+        drop:
+        - ALL
+        add:
+        - NET_BIND_SERVICE
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "256Mi"
+        cpu: "250m"
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10</code></pre>
+                </div>
+
+                <h3>🕸️ Service Mesh Technologies</h3>
+
+                <div class="alert alert-info">
+                    <h4>📈 Service Mesh Maturity (2025)</h4>
+                    <p>Service mesh adoption reached maturity with Istio graduating to CNCF in 2025:</p>
+                    <ul class="feature-list">
+                        <li><strong>Market Adoption:</strong> 70% of organizations use service mesh</li>
+                        <li><strong>Istio Graduation:</strong> CNCF graduation indicates production readiness</li>
+                        <li><strong>Ambient Mesh:</strong> Sidecar-less architecture reduces overhead</li>
+                        <li><strong>Performance:</strong> Modern implementations with sub-5ms latency impact</li>
+                    </ul>
+                </div>
+
+                <h4>Service Mesh Performance Benchmarks</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Service Mesh</th>
+                                <th>Network Overhead</th>
+                                <th>Memory Usage</th>
+                                <th>CPU Usage</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Istio</td>
+                                <td>3.8%</td>
+                                <td>50MB per pod</td>
+                                <td>100 mCPU</td>
+                                <td>Enterprise, complex microservices</td>
+                            </tr>
+                            <tr>
+                                <td>Linkerd</td>
+                                <td>1.2%</td>
+                                <td>10MB per pod</td>
+                                <td>100 mCPU</td>
+                                <td>Performance-critical applications</td>
+                            </tr>
+                            <tr>
+                                <td>Consul Connect</td>
+                                <td>Variable</td>
+                                <td>Depends on proxy</td>
+                                <td>Variable</td>
+                                <td>Hybrid VM + Kubernetes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Istio Service Mesh Configuration</h4>
+                <div class="code-block">
+                    <pre><code># Istio Traffic Management
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: reviews-route
+spec:
+  http:
+  - match:
+    - headers:
+        end-user:
+          exact: jason
+    route:
+    - destination:
+        host: reviews
+        subset: v2
+  - route:
+    - destination:
+        host: reviews
+        subset: v1
+      weight: 90
+    - destination:
+        host: reviews
+        subset: v3
+      weight: 10
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: reviews-destination
+spec:
+  host: reviews
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+  - name: v3
+    labels:
+      version: v3
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 9080
+        circuitBreaker:
+          consecutiveErrors: 3
+          interval: 30s
+          baseEjectionTime: 30s</code></pre>
+                </div>
+
+                <h3>📊 Monitoring and Observability</h3>
+
+                <h4>Prometheus + Grafana Stack</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>📈 Prometheus Configuration</h4>
+                        <ul class="feature-list">
+                            <li>5-15s scrape intervals for high-traffic apps</li>
+                            <li>30s-1m intervals for stable metrics</li>
+                            <li>Recording rules for frequent queries</li>
+                            <li>Federated architecture for scale</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>📊 Grafana 2025 Features</h4>
+                        <ul class="feature-list">
+                            <li>AI-driven anomaly detection</li>
+                            <li>Intelligent alerting with filtering</li>
+                            <li>Cost monitoring with Kubecost integration</li>
+                            <li>Unified metrics, logs, and traces view</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h4>OpenTelemetry Implementation</h4>
+                <div class="code-block">
+                    <pre><code># OpenTelemetry Collector Configuration
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  prometheus:
+    config:
+      scrape_configs:
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+        - role: pod
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  resource:
+    attributes:
+    - key: environment
+      value: production
+      action: upsert
+
+exporters:
+  jaeger:
+    endpoint: jaeger-collector:14250
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: "0.0.0.0:8889"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [jaeger]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [batch, resource]
+      exporters: [prometheus]</code></pre>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 Container Technology Resources</h4>
+                    <a href="https://kubernetes.io/docs/" class="resource-link" target="_blank">Kubernetes Documentation</a>
+                    <a href="https://docs.docker.com/" class="resource-link" target="_blank">Docker Documentation</a>
+                    <a href="https://helm.sh/docs/" class="resource-link" target="_blank">Helm Documentation</a>
+                    <a href="https://istio.io/latest/docs/" class="resource-link" target="_blank">Istio Documentation</a>
+                    <a href="https://prometheus.io/docs/" class="resource-link" target="_blank">Prometheus Documentation</a>
+                    <a href="https://github.com/cncf/tag-security" class="resource-link" target="_blank">CNCF Security Guidelines</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FinOps Section -->
+        <section id="finops" class="section">
+            <div class="container">
+                <h2>💰 FinOps & Cost Optimization</h2>
+
+                <p>FinOps has evolved from cloud-specific focus to comprehensive technology cost management. With 98% of organizations managing AI workloads and expanding technology landscapes, strategic cost optimization becomes critical for business success.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number">98%</span>
+                        <span class="stat-label">Organizations Managing AI Workloads</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">90%</span>
+                        <span class="stat-label">Organizations Managing SaaS Costs</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">25-30%</span>
+                        <span class="stat-label">Average Cost Reduction Achieved</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">37%</span>
+                        <span class="stat-label">Savings from Reserved Instances</span>
+                    </div>
+                </div>
+
+                <h3>💼 FinOps Framework Evolution</h3>
+
+                <div class="alert alert-info">
+                    <h4>🔄 2025 Framework Updates</h4>
+                    <p>The FinOps Framework has introduced "Scopes" to capture different technology cost domains:</p>
+                    <ul class="feature-list">
+                        <li><strong>SaaS Management:</strong> 90% of practitioners (up from 65%)</li>
+                        <li><strong>Software Licensing:</strong> 64% manage licensing (up 15%)</li>
+                        <li><strong>Private Cloud:</strong> 57% manage private cloud costs (up 18%)</li>
+                        <li><strong>AI Workloads:</strong> 98% manage AI-related costs (up from 63%)</li>
+                    </ul>
+                </div>
+
+                <h3>💡 Cost Optimization Strategies</h3>
+
+                <h4>Reserved Instances vs Savings Plans</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Commitment Type</th>
+                                <th>Flexibility</th>
+                                <th>Savings Potential</th>
+                                <th>Best For</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Reserved Instances</td>
+                                <td>Instance-specific</td>
+                                <td>Up to 72%</td>
+                                <td>Predictable workloads</td>
+                                <td>Medium</td>
+                            </tr>
+                            <tr>
+                                <td>Savings Plans</td>
+                                <td>Compute-flexible</td>
+                                <td>Up to 66%</td>
+                                <td>Variable compute needs</td>
+                                <td>Low</td>
+                            </tr>
+                            <tr>
+                                <td>Spot Instances</td>
+                                <td>Interruption tolerant</td>
+                                <td>Up to 90%</td>
+                                <td>Fault-tolerant applications</td>
+                                <td>High</td>
+                            </tr>
+                            <tr>
+                                <td>On-Demand</td>
+                                <td>Full flexibility</td>
+                                <td>0% (baseline)</td>
+                                <td>Unpredictable workloads</td>
+                                <td>Low</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>🤖 AI and ML Cost Management</h3>
+
+                <h4>GPU Cost Optimization (2025 Pricing)</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>GPU Type</th>
+                                <th>2024 Peak Price</th>
+                                <th>2025 Stabilized Price</th>
+                                <th>Savings Opportunity</th>
+                                <th>Best Use Cases</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>H100</td>
+                                <td>$7-8/hour</td>
+                                <td>$2.85-3.50/hour</td>
+                                <td>55-60%</td>
+                                <td>Large model training</td>
+                            </tr>
+                            <tr>
+                                <td>A100</td>
+                                <td>$3-4/hour</td>
+                                <td>$1.50-2.00/hour</td>
+                                <td>40-50%</td>
+                                <td>General AI workloads</td>
+                            </tr>
+                            <tr>
+                                <td>V100</td>
+                                <td>$2-3/hour</td>
+                                <td>$1.00-1.50/hour</td>
+                                <td>35-45%</td>
+                                <td>Development and testing</td>
+                            </tr>
+                            <tr>
+                                <td>T4</td>
+                                <td>$0.50-0.80/hour</td>
+                                <td>$0.30-0.50/hour</td>
+                                <td>30-40%</td>
+                                <td>Inference workloads</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h4>💸 AI Model Training Costs (2025)</h4>
+                    <p>Training costs vary dramatically by model size:</p>
+                    <ul class="feature-list">
+                        <li><strong>Small Models (1B parameters):</strong> $2K-15K</li>
+                        <li><strong>Medium Models (7B parameters):</strong> $50K-500K</li>
+                        <li><strong>Large Models (70B parameters):</strong> $1.2M-6M</li>
+                        <li><strong>Frontier Models (175B+):</strong> $25M-120M</li>
+                        <li><strong>Ultra-large Models (405B+):</strong> $80M-400M</li>
+                    </ul>
+                </div>
+
+                <h4>Model Optimization Techniques</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🧠 Model Compression</h4>
+                        <ul class="feature-list">
+                            <li><strong>Quantization:</strong> 60-70% cost reduction</li>
+                            <li><strong>Pruning:</strong> Remove unnecessary parameters</li>
+                            <li><strong>Distillation:</strong> Knowledge transfer to smaller models</li>
+                            <li><strong>Efficient Architectures:</strong> Transformer alternatives</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>⚡ Infrastructure Optimization</h4>
+                        <ul class="feature-list">
+                            <li><strong>Spot Instances:</strong> Up to 90% savings for training</li>
+                            <li><strong>GPU Pooling:</strong> Shared infrastructure</li>
+                            <li><strong>Batch Optimization:</strong> Maximize utilization</li>
+                            <li><strong>Multi-Cloud:</strong> Price arbitrage opportunities</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>🏢 OpenAI: Cost Optimization at Scale</h4>
+                    <p><span class="company">OpenAI</span> achieved significant cost reductions through optimization:</p>
+                    <p><strong>Infrastructure:</strong> <span class="metric">40% cost reduction</span> through model optimization and efficient serving</p>
+                    <p><strong>Inference:</strong> LLM inference costs declined <span class="metric">10x annually</span> industry-wide</p>
+                    <p><strong>GPT-4 Pricing:</strong> Down to <span class="metric">$0.40/million tokens</span> vs. $20 in late 2022</p>
+                    <p><strong>Scale:</strong> Processing billions of requests daily with optimized cost structure</p>
+                </div>
+
+                <h3>📊 Advanced Cost Monitoring</h3>
+
+                <h4>AI-Driven Anomaly Detection</h4>
+                <p>Modern anomaly detection catches spending spikes within 24 hours, 60% faster than manual monitoring.</p>
+
+                <div class="code-block">
+                    <pre><code># Cost Anomaly Detection Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cost-anomaly-detection
+data:
+  detection_config: |
+    anomaly_detection:
+      models:
+        - name: "seasonal_hybrid"
+          parameters:
+            seasonality: weekly
+            trend: enabled
+            holiday_effects: true
+        - name: "structural_break"
+          parameters:
+            sensitivity: medium
+            lookback_period: 30_days
+      
+      thresholds:
+        warning: 20%  # 20% above predicted
+        critical: 50% # 50% above predicted
+        emergency: 100% # 100% above predicted
+      
+      exclusions:
+        - known_scaling_events
+        - scheduled_batch_jobs
+        - disaster_recovery_tests
+      
+      notification:
+        channels: ["slack", "email", "pagerduty"]
+        escalation_matrix:
+          - level: 1
+            threshold: warning
+            recipients: ["finops-team"]
+          - level: 2
+            threshold: critical
+            recipients: ["engineering-leads", "finance"]
+          - level: 3
+            threshold: emergency
+            recipients: ["executives", "incident-response"]</code></pre>
+                </div>
+
+                <h3>🔧 Cost Management Tools</h3>
+
+                <h4>Native vs Third-Party Platforms</h4>
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Tool</th>
+                                <th>Strengths</th>
+                                <th>Limitations</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Native</td>
+                                <td>AWS Cost Explorer</td>
+                                <td>Deep AWS integration, detailed analytics</td>
+                                <td>AWS-only visibility</td>
+                                <td>AWS-centric organizations</td>
+                            </tr>
+                            <tr>
+                                <td>Native</td>
+                                <td>Azure Cost Management</td>
+                                <td>Comprehensive budgeting, Azure focus</td>
+                                <td>Limited multi-cloud support</td>
+                                <td>Microsoft-centric environments</td>
+                            </tr>
+                            <tr>
+                                <td>Enterprise</td>
+                                <td>IBM Apptio Cloudability</td>
+                                <td>Enterprise-grade, multi-cloud</td>
+                                <td>$1K-5K/month pricing</td>
+                                <td>Large enterprises</td>
+                            </tr>
+                            <tr>
+                                <td>Modern</td>
+                                <td>Vantage</td>
+                                <td>Developer-friendly, comprehensive</td>
+                                <td>Newer platform</td>
+                                <td>Engineering-focused teams</td>
+                            </tr>
+                            <tr>
+                                <td>Open Source</td>
+                                <td>Kubecost</td>
+                                <td>Kubernetes-native, real-time</td>
+                                <td>Container-focused only</td>
+                                <td>Container-heavy environments</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>FinOps Implementation Roadmap</h4>
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>Phase 1: Foundation (Months 1-3)</h4>
+                        <ul class="feature-list">
+                            <li>Implement comprehensive tagging strategy</li>
+                            <li>Establish cost visibility and baselines</li>
+                            <li>Identify quick wins and low-hanging fruit</li>
+                            <li>Set up basic budgets and alerts</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Phase 2: Optimization (Months 4-8)</h4>
+                        <ul class="feature-list">
+                            <li>Deploy automated cost optimization tools</li>
+                            <li>Implement reserved capacity strategies</li>
+                            <li>Establish chargeback/showback models</li>
+                            <li>Extend to multi-cloud environments</li>
+                        </ul>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>Phase 3: Maturation (Months 9-12)</h4>
+                        <ul class="feature-list">
+                            <li>Implement unit economics tracking</li>
+                            <li>Deploy AI-powered optimization</li>
+                            <li>Embed FinOps in all technology decisions</li>
+                            <li>Establish continuous improvement processes</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="resource-section">
+                    <h4>📚 FinOps Resources</h4>
+                    <a href="https://www.finops.org/framework/" class="resource-link" target="_blank">FinOps Framework</a>
+                    <a href="https://docs.aws.amazon.com/cost-management/" class="resource-link" target="_blank">AWS Cost Management</a>
+                    <a href="https://docs.microsoft.com/en-us/azure/cost-management-billing/" class="resource-link" target="_blank">Azure Cost Management</a>
+                    <a href="https://cloud.google.com/cost-management" class="resource-link" target="_blank">GCP Cost Management</a>
+                    <a href="https://www.kubecost.com/docs/" class="resource-link" target="_blank">Kubecost Documentation</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="section">
+            <div class="container">
+                <h2>📚 Essential Resources & Documentation</h2>
+
+                <p>This section provides comprehensive links to official documentation, training resources, community platforms, and tools mentioned throughout this handbook.</p>
+
+                <h3>🏢 Official Cloud Provider Documentation</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🟠 Amazon Web Services</h4>
+                        <div class="resource-section">
+                            <a href="https://docs.aws.amazon.com/" class="resource-link" target="_blank">AWS Documentation Hub</a>
+                            <a href="https://aws.amazon.com/architecture/well-architected/" class="resource-link" target="_blank">Well-Architected Framework</a>
+                            <a href="https://docs.aws.amazon.com/security/" class="resource-link" target="_blank">AWS Security Best Practices</a>
+                            <a href="https://aws.amazon.com/training/" class="resource-link" target="_blank">AWS Training & Certification</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🔷 Microsoft Azure</h4>
+                        <div class="resource-section">
+                            <a href="https://docs.microsoft.com/en-us/azure/" class="resource-link" target="_blank">Azure Documentation</a>
+                            <a href="https://docs.microsoft.com/en-us/azure/architecture/" class="resource-link" target="_blank">Azure Architecture Center</a>
+                            <a href="https://docs.microsoft.com/en-us/security/" class="resource-link" target="_blank">Microsoft Security Docs</a>
+                            <a href="https://docs.microsoft.com/en-us/learn/" class="resource-link" target="_blank">Microsoft Learn</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🌐 Google Cloud Platform</h4>
+                        <div class="resource-section">
+                            <a href="https://cloud.google.com/docs" class="resource-link" target="_blank">Google Cloud Documentation</a>
+                            <a href="https://cloud.google.com/architecture" class="resource-link" target="_blank">GCP Architecture Center</a>
+                            <a href="https://cloud.google.com/security/" class="resource-link" target="_blank">Google Cloud Security</a>
+                            <a href="https://cloud.google.com/training" class="resource-link" target="_blank">Google Cloud Training</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🛠️ DevOps and Container Technologies</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>☸️ Kubernetes Ecosystem</h4>
+                        <div class="resource-section">
+                            <a href="https://kubernetes.io/docs/" class="resource-link" target="_blank">Kubernetes Documentation</a>
+                            <a href="https://docs.docker.com/" class="resource-link" target="_blank">Docker Documentation</a>
+                            <a href="https://helm.sh/docs/" class="resource-link" target="_blank">Helm Documentation</a>
+                            <a href="https://istio.io/latest/docs/" class="resource-link" target="_blank">Istio Documentation</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🏗️ Infrastructure as Code</h4>
+                        <div class="resource-section">
+                            <a href="https://www.terraform.io/docs" class="resource-link" target="_blank">Terraform Documentation</a>
+                            <a href="https://opentofu.org/docs/" class="resource-link" target="_blank">OpenTofu Documentation</a>
+                            <a href="https://www.pulumi.com/docs/" class="resource-link" target="_blank">Pulumi Documentation</a>
+                            <a href="https://docs.ansible.com/" class="resource-link" target="_blank">Ansible Documentation</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>📊 Monitoring & Observability</h4>
+                        <div class="resource-section">
+                            <a href="https://prometheus.io/docs/" class="resource-link" target="_blank">Prometheus Documentation</a>
+                            <a href="https://grafana.com/docs/" class="resource-link" target="_blank">Grafana Documentation</a>
+                            <a href="https://opentelemetry.io/docs/" class="resource-link" target="_blank">OpenTelemetry Documentation</a>
+                            <a href="https://www.elastic.co/guide/" class="resource-link" target="_blank">Elastic Stack Documentation</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🔐 Security and Compliance Resources</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>📋 Security Frameworks</h4>
+                        <div class="resource-section">
+                            <a href="https://www.nist.gov/cyberframework" class="resource-link" target="_blank">NIST Cybersecurity Framework</a>
+                            <a href="https://www.iso.org/standard/27001" class="resource-link" target="_blank">ISO 27001 Standard</a>
+                            <a href="https://cloudsecurityalliance.org/" class="resource-link" target="_blank">Cloud Security Alliance</a>
+                            <a href="https://www.cisecurity.org/controls/" class="resource-link" target="_blank">CIS Controls v8</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>⚖️ Compliance Standards</h4>
+                        <div class="resource-section">
+                            <a href="https://www.aicpa.org/soc/" class="resource-link" target="_blank">SOC 2 Guidance</a>
+                            <a href="https://www.pcisecuritystandards.org/" class="resource-link" target="_blank">PCI DSS Requirements</a>
+                            <a href="https://gdpr-info.eu/" class="resource-link" target="_blank">GDPR Official Text</a>
+                            <a href="https://www.hhs.gov/hipaa/" class="resource-link" target="_blank">HIPAA Security Rule</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>📖 Training and Certification Paths</h3>
+
+                <div class="alert alert-success">
+                    <h4>🎓 Recommended Learning Paths</h4>
+                    <ul class="feature-list">
+                        <li><strong>Cloud Fundamentals:</strong> Start with AWS/Azure/GCP fundamentals certifications</li>
+                        <li><strong>DevOps Practices:</strong> Learn CI/CD, IaC, and monitoring through hands-on labs</li>
+                        <li><strong>Container Technologies:</strong> Progress from Docker basics to Kubernetes administration</li>
+                        <li><strong>Security Specialization:</strong> Focus on cloud security and compliance frameworks</li>
+                        <li><strong>FinOps Expertise:</strong> Understand cost optimization and financial operations</li>
+                    </ul>
+                </div>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>🏆 Professional Certifications</h4>
+                        <div class="resource-section">
+                            <a href="https://aws.amazon.com/certification/" class="resource-link" target="_blank">AWS Certifications</a>
+                            <a href="https://docs.microsoft.com/en-us/learn/certifications/" class="resource-link" target="_blank">Azure Certifications</a>
+                            <a href="https://cloud.google.com/certification" class="resource-link" target="_blank">GCP Certifications</a>
+                            <a href="https://www.cncf.io/training/certification/" class="resource-link" target="_blank">CNCF Certifications</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🎓 Training Platforms</h4>
+                        <div class="resource-section">
+                            <a href="https://training.linuxfoundation.org/" class="resource-link" target="_blank">Linux Foundation Training</a>
+                            <a href="https://www.docker.com/resources/" class="resource-link" target="_blank">Docker Training</a>
+                            <a href="https://devopsinstitute.com/certifications/" class="resource-link" target="_blank">DevOps Institute</a>
+                            <a href="https://www.finops.org/training/" class="resource-link" target="_blank">FinOps Foundation</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🌐 Community and Professional Networks</h3>
+
+                <div class="content-grid">
+                    <div class="content-card">
+                        <h4>💬 Online Communities</h4>
+                        <div class="resource-section">
+                            <a href="https://slack.cncf.io/" class="resource-link" target="_blank">CNCF Slack</a>
+                            <a href="https://reddit.com/r/devops" class="resource-link" target="_blank">Reddit r/DevOps</a>
+                            <a href="https://stackoverflow.com/questions/tagged/kubernetes" class="resource-link" target="_blank">Stack Overflow</a>
+                            <a href="https://discord.gg/kubernetes" class="resource-link" target="_blank">Kubernetes Discord</a>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <h4>🎪 Conferences and Events</h4>
+                        <div class="resource-section">
+                            <a href="https://devopsdays.org/" class="resource-link" target="_blank">DevOpsDays Global</a>
+                            <a href="https://events.linuxfoundation.org/" class="resource-link" target="_blank">KubeCon + CloudNativeCon</a>
+                            <a href="https://reinvent.awsevents.com/" class="resource-link" target="_blank">AWS re:Invent</a>
+                            <a href="https://build.microsoft.com/" class="resource-link" target="_blank">Microsoft Build</a>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🔧 Essential Tools and Utilities</h3>
+
+                <div class="table-container">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Tool</th>
+                                <th>Purpose</th>
+                                <th>Documentation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CI/CD</td>
+                                <td>GitHub Actions</td>
+                                <td>Automated workflows and pipelines</td>
+                                <td><a href="https://docs.github.com/actions" target="_blank">GitHub Actions Docs</a></td>
+                            </tr>
+                            <tr>
+                                <td>GitOps</td>
+                                <td>ArgoCD</td>
+                                <td>Declarative GitOps continuous delivery</td>
+                                <td><a href="https://argoproj.github.io/argo-cd/" target="_blank">ArgoCD Documentation</a></td>
+                            </tr>
+                            <tr>
+                                <td>Security</td>
+                                <td>Trivy</td>
+                                <td>Vulnerability scanner for containers</td>
+                                <td><a href="https://aquasecurity.github.io/trivy/" target="_blank">Trivy Documentation</a></td>
+                            </tr>
+                            <tr>
+                                <td>Policy</td>
+                                <td>Open Policy Agent</td>
+                                <td>Policy-based control for cloud native</td>
+                                <td><a href="https://www.openpolicyagent.org/docs/" target="_blank">OPA Documentation</a></td>
+                            </tr>
+                            <tr>
+                                <td>Cost Management</td>
+                                <td>Kubecost</td>
+                                <td>Kubernetes cost monitoring</td>
+                                <td><a href="https://www.kubecost.com/docs/" target="_blank">Kubecost Documentation</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-info">
+                    <h4>🚀 Staying Current in 2025</h4>
+                    <p>Cloud and DevOps technologies evolve rapidly. Stay updated with these strategies:</p>
+                    <ul class="feature-list">
+                        <li><strong>Official Blogs:</strong> Follow cloud provider engineering blogs for latest features</li>
+                        <li><strong>CNCF Landscape:</strong> Monitor emerging technologies and graduation announcements</li>
+                        <li><strong>Community Events:</strong> Attend virtual conferences and local meetups regularly</li>
+                        <li><strong>Hands-on Labs:</strong> Practice with new features in sandbox environments</li>
+                        <li><strong>Newsletter Subscriptions:</strong> DevOps Weekly, CNCF Newsletter, vendor updates</li>
+                        <li><strong>Social Learning:</strong> Follow cloud architects and DevOps leaders on LinkedIn</li>
+                    </ul>
+                </div>
+
+                <h3>📊 Industry Research and Benchmarks</h3>
+
+                <div class="resource-section">
+                    <h4>📈 Research Reports</h4>
+                    <a href="https://www.gartner.com/en/research/" class="resource-link" target="_blank">Gartner Research</a>
+                    <a href="https://www.forrester.com/research/" class="resource-link" target="_blank">Forrester Research</a>
+                    <a href="https://www.cncf.io/reports/" class="resource-link" target="_blank">CNCF Survey Reports</a>
+                    <a href="https://puppet.com/resources/state-of-devops-report" class="resource-link" target="_blank">State of DevOps Report</a>
+                    <a href="https://www.finops.org/projects/state-of-finops/" class="resource-link" target="_blank">State of FinOps Report</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Enterprise Cloud & DevOps Handbook. Created for educational and professional development purposes.</p>
+            <p>🚀 Empowering cloud and DevOps professionals worldwide with cutting-edge knowledge and best practices.</p>
+            <p>Last updated: March 2025 | Version 2.0</p>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()">↑</button>
+
+    <!-- JavaScript -->
+    <script>
+        // Navigation functionality
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                const headerOffset = 150;
+                const elementPosition = element.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+
+            // Close mobile nav if open
+            const navList = document.getElementById('navList');
+            navList.classList.remove('show');
+        }
+
+        // Mobile navigation toggle
+        function toggleMobileNav() {
+            const navList = document.getElementById('navList');
+            navList.classList.toggle('show');
+        }
+
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        // Active navigation highlighting
+        window.addEventListener('scroll', function() {
+            const sections = ['introduction', 'aws-services', 'multi-cloud', 'devops', 'security', 'containers', 'finops', 'resources'];
+            const navLinks = document.querySelectorAll('.nav-item a');
+            
+            let currentSection = '';
+            
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.top <= 200 && rect.bottom >= 200) {
+                        currentSection = section;
+                    }
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + currentSection) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling for all anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    scrollToSection(targetId);
+                });
+            });
+
+            // Initialize first section as active
+            const firstNavLink = document.querySelector('.nav-item a');
+            if (firstNavLink) {
+                firstNavLink.classList.add('active');
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const navList = document.getElementById('navList');
+                navList.classList.remove('show');
+            }
+        });
+
+        // Performance optimization: Intersection Observer for lazy loading
+        if ('IntersectionObserver' in window) {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '50px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all content cards for smooth animations
+            document.querySelectorAll('.content-card, .case-study, .alert').forEach(el => {
+                observer.observe(el);
+            });
+        }
+    </script>
+</body>
+</html>

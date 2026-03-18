@@ -1,0 +1,2739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Evaluation: RAGAS, DeepEval, and TruLens Comprehensive Guide</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --code-bg: #f1f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
+        }
+
+        .hero {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        nav {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+        }
+
+        main {
+            padding: 2rem 0;
+        }
+
+        .section {
+            margin-bottom: 4rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .section-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .framework-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .framework-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .framework-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .framework-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .framework-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .framework-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .framework-info .version {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success-color);
+            font-weight: 700;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+            background: none;
+            border: none;
+            overflow: visible;
+        }
+
+        .syntax-keyword { color: #d73a49; font-weight: 600; }
+        .syntax-string { color: #032f62; }
+        .syntax-comment { color: #6a737d; font-style: italic; }
+        .syntax-function { color: #6f42c1; }
+        .syntax-variable { color: #e36209; }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .comparison-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: var(--bg-color);
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-name {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .metric-score {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .score-excellent { color: var(--success-color); }
+        .score-good { color: #059669; }
+        .score-fair { color: var(--warning-color); }
+        .score-poor { color: var(--error-color); }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border-color: var(--primary-color);
+            color: #1e40af;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border-color: var(--error-color);
+            color: #991b1b;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .tabs {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-button {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        footer {
+            background: var(--text-color);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .framework-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        .toc {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .toc h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="hero">
+                <h1>RAG Evaluation Framework Guide</h1>
+                <p>Comprehensive comparison of RAGAS, DeepEval, and TruLens for evaluating Retrieval-Augmented Generation systems</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Frameworks</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">15+</span>
+                        <span class="stat-label">Metrics</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Code Examples</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <strong>RAG Evaluation Guide</strong>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#ragas">RAGAS</a></li>
+                    <li><a href="#deepeval">DeepEval</a></li>
+                    <li><a href="#trulens">TruLens</a></li>
+                    <li><a href="#comparison">Comparison</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="container">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>📋 Table of Contents</h3>
+                <ul>
+                    <li><a href="#overview">🎯 Overview & Introduction</a></li>
+                    <li><a href="#why-evaluate">❓ Why Evaluate RAG Systems</a></li>
+                    <li><a href="#ragas">📊 RAGAS Framework</a></li>
+                    <li><a href="#deepeval">🔍 DeepEval Framework</a></li>
+                    <li><a href="#trulens">🔬 TruLens Framework</a></li>
+                    <li><a href="#comparison">⚖️ Framework Comparison</a></li>
+                    <li><a href="#examples">💻 Practical Examples</a></li>
+                    <li><a href="#best-practices">✨ Best Practices</a></li>
+                    <li><a href="#decision-guide">🎯 Decision Guide</a></li>
+                </ul>
+            </div>
+
+            <!-- Overview Section -->
+            <section id="overview" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🎯 Overview & Introduction</h2>
+                    <p class="section-subtitle">Understanding RAG evaluation and why it's crucial for building reliable AI systems</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        🤖 What is RAG (Retrieval-Augmented Generation)?
+                    </div>
+                    <p>Retrieval-Augmented Generation (RAG) is an AI technique that combines the power of large language models with external knowledge retrieval. It addresses the limitations of LLMs by:</p>
+                    <ul class="feature-list">
+                        <li>Accessing up-to-date information beyond training data</li>
+                        <li>Reducing hallucinations through grounded responses</li>
+                        <li>Providing domain-specific knowledge</li>
+                        <li>Enabling citations and source attribution</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        📏 The RAG Evaluation Challenge
+                    </div>
+                    <p>Evaluating RAG systems is complex because you need to assess multiple components:</p>
+                    <div class="framework-grid">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-name">📚 Retrieval Quality</span>
+                            </div>
+                            <p>How well does the system find relevant documents?</p>
+                            <ul class="feature-list">
+                                <li>Context Relevance</li>
+                                <li>Context Precision</li>
+                                <li>Context Recall</li>
+                            </ul>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <span class="metric-name">⚙️ Generation Quality</span>
+                            </div>
+                            <p>How well does the model generate responses?</p>
+                            <ul class="feature-list">
+                                <li>Answer Relevance</li>
+                                <li>Faithfulness</li>
+                                <li>Answer Correctness</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Evaluate Section -->
+            <section id="why-evaluate" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">❓ Why Evaluate RAG Systems?</h2>
+                    <p class="section-subtitle">Understanding the critical importance of systematic RAG evaluation</p>
+                </div>
+
+                <div class="framework-grid">
+                    <div class="card">
+                        <div class="card-title">🎯 Quality Assurance</div>
+                        <p>Ensure your RAG system provides accurate, relevant, and reliable responses.</p>
+                        <div class="alert alert-info">
+                            <strong>Key Insight:</strong> Without proper evaluation, you can't know if your RAG system is actually helping or potentially providing misleading information.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🔧 System Optimization</div>
+                        <p>Identify bottlenecks and optimize different components of your RAG pipeline.</p>
+                        <ul class="feature-list">
+                            <li>Embedding model selection</li>
+                            <li>Chunking strategy optimization</li>
+                            <li>Retrieval parameter tuning</li>
+                            <li>Prompt engineering</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📊 Performance Monitoring</div>
+                        <p>Track system performance over time and detect degradation.</p>
+                        <div class="alert alert-warning">
+                            <strong>Production Reality:</strong> RAG systems can degrade over time due to data drift, model updates, or changing user patterns.
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🏆 Competitive Analysis</div>
+                        <p>Compare different approaches and architectures objectively.</p>
+                        <ul class="feature-list">
+                            <li>A/B testing different models</li>
+                            <li>Architecture comparison</li>
+                            <li>Cost-performance trade-offs</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RAGAS Section -->
+            <section id="ragas" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">📊 RAGAS Framework</h2>
+                    <p class="section-subtitle">Retrieval Augmented Generation Assessment - A comprehensive evaluation framework for RAG systems</p>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-header">
+                        <div class="framework-logo">R</div>
+                        <div class="framework-info">
+                            <h3>RAGAS</h3>
+                            <div class="version">Version 0.1+ | Hugging Face</div>
+                        </div>
+                    </div>
+                    
+                    <p><strong>RAGAS</strong> is a framework that provides reference-free evaluation metrics for RAG systems. It evaluates both retrieval and generation components without requiring ground truth answers.</p>
+                    
+                    <div class="alert alert-success">
+                        <strong>Key Advantage:</strong> RAGAS can evaluate your RAG system using only questions, contexts, and generated answers - no need for human-annotated ground truth!
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="ragas-metrics">Core Metrics</button>
+                        <button class="tab-button" data-tab="ragas-installation">Installation</button>
+                        <button class="tab-button" data-tab="ragas-examples">Examples</button>
+                        <button class="tab-button" data-tab="ragas-advanced">Advanced Usage</button>
+                    </div>
+                </div>
+
+                <div id="ragas-metrics" class="tab-content active">
+                    <div class="card">
+                        <div class="card-title">🎯 RAGAS Core Metrics</div>
+                        
+                        <div class="framework-grid">
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📚 Context Precision</span>
+                                    <span class="metric-score score-excellent">0.85</span>
+                                </div>
+                                <p>Measures how relevant the retrieved contexts are to the question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="85"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Context Precision = (Relevant contexts in top-k) / k</pre>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🔄 Context Recall</span>
+                                    <span class="metric-score score-good">0.78</span>
+                                </div>
+                                <p>Measures how well the retrieval system captures all relevant information.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="78"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Context Recall = (Retrieved relevant contexts) / (All relevant contexts)</pre>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">✨ Faithfulness</span>
+                                    <span class="metric-score score-excellent">0.92</span>
+                                </div>
+                                <p>Measures how factually accurate the answer is relative to the context.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="92"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Faithfulness = (Faithful statements) / (Total statements)</pre>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🎯 Answer Relevancy</span>
+                                    <span class="metric-score score-good">0.81</span>
+                                </div>
+                                <p>Measures how relevant the answer is to the question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="81"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Answer Relevancy = cosine_similarity(question_embedding, answer_embedding)</pre>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📝 Answer Semantic Similarity</span>
+                                    <span class="metric-score score-fair">0.73</span>
+                                </div>
+                                <p>Measures semantic similarity between generated and ground truth answers.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="73"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Semantic Similarity = cosine_similarity(answer_embedding, ground_truth_embedding)</pre>
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">✅ Answer Correctness</span>
+                                    <span class="metric-score score-good">0.79</span>
+                                </div>
+                                <p>Combines semantic similarity with factual correctness.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="79"></div>
+                                </div>
+                                <div class="code-block" data-lang="formula">
+<pre>Answer Correctness = w1 × Semantic_Similarity + w2 × Factual_Similarity</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ragas-installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">🛠️ RAGAS Installation & Setup</div>
+                        
+                        <div class="code-block" data-lang="bash">
+<pre><span class="syntax-comment"># Install RAGAS</span>
+<span class="syntax-keyword">pip</span> install ragas
+
+<span class="syntax-comment"># For development version</span>
+<span class="syntax-keyword">pip</span> install git+https://github.com/explodinggradients/ragas.git
+
+<span class="syntax-comment"># Install with optional dependencies</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"ragas[all]"</span></pre>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Requirements:</strong> Python 3.8+, OpenAI API key (or other LLM provider), and embedding model access.
+                        </div>
+
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-comment"># Basic setup</span>
+<span class="syntax-keyword">import</span> os
+<span class="syntax-keyword">from</span> ragas <span class="syntax-keyword">import</span> evaluate
+<span class="syntax-keyword">from</span> ragas.metrics <span class="syntax-keyword">import</span> (
+    faithfulness,
+    answer_relevancy,
+    context_precision,
+    context_recall,
+    answer_correctness,
+    answer_similarity
+)
+<span class="syntax-keyword">from</span> datasets <span class="syntax-keyword">import</span> Dataset
+
+<span class="syntax-comment"># Set your API keys</span>
+os.environ[<span class="syntax-string">"OPENAI_API_KEY"</span>] = <span class="syntax-string">"your-openai-api-key"</span></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ragas-examples" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">💻 RAGAS Practical Examples</div>
+                        
+                        <h4>📋 Basic RAG Evaluation Example</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> ragas <span class="syntax-keyword">import</span> evaluate
+<span class="syntax-keyword">from</span> ragas.metrics <span class="syntax-keyword">import</span> faithfulness, answer_relevancy, context_precision
+<span class="syntax-keyword">from</span> datasets <span class="syntax-keyword">import</span> Dataset
+
+<span class="syntax-comment"># Sample RAG evaluation data</span>
+<span class="syntax-variable">data</span> = {
+    <span class="syntax-string">"question"</span>: [
+        <span class="syntax-string">"What is the capital of France?"</span>,
+        <span class="syntax-string">"How does photosynthesis work?"</span>,
+        <span class="syntax-string">"What are the benefits of exercise?"</span>
+    ],
+    <span class="syntax-string">"contexts"</span>: [
+        [<span class="syntax-string">"Paris is the capital and most populous city of France."</span>],
+        [<span class="syntax-string">"Photosynthesis is the process by which plants convert light energy into chemical energy."</span>],
+        [<span class="syntax-string">"Regular exercise improves cardiovascular health and mental wellbeing."</span>]
+    ],
+    <span class="syntax-string">"answer"</span>: [
+        <span class="syntax-string">"The capital of France is Paris."</span>,
+        <span class="syntax-string">"Photosynthesis converts sunlight into energy for plants."</span>,
+        <span class="syntax-string">"Exercise benefits include better heart health and mood."</span>
+    ],
+    <span class="syntax-string">"ground_truth"</span>: [
+        <span class="syntax-string">"Paris"</span>,
+        <span class="syntax-string">"Photosynthesis converts light energy to chemical energy in plants"</span>,
+        <span class="syntax-string">"Exercise improves physical and mental health"</span>
+    ]
+}
+
+<span class="syntax-comment"># Create dataset</span>
+<span class="syntax-variable">dataset</span> = Dataset.from_dict(data)
+
+<span class="syntax-comment"># Evaluate</span>
+<span class="syntax-variable">result</span> = <span class="syntax-function">evaluate</span>(
+    dataset=dataset,
+    metrics=[faithfulness, answer_relevancy, context_precision]
+)
+
+<span class="syntax-function">print</span>(<span class="syntax-string">f"Faithfulness: {result['faithfulness']:.3f}"</span>)
+<span class="syntax-function">print</span>(<span class="syntax-string">f"Answer Relevancy: {result['answer_relevancy']:.3f}"</span>)
+<span class="syntax-function">print</span>(<span class="syntax-string">f"Context Precision: {result['context_precision']:.3f}"</span>)</pre>
+                        </div>
+
+                        <h4>🔧 Custom Evaluation Pipeline</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> asyncio
+<span class="syntax-keyword">from</span> ragas.evaluation <span class="syntax-keyword">import</span> EvaluationDataset, evaluate
+<span class="syntax-keyword">from</span> ragas.metrics <span class="syntax-keyword">import</span> faithfulness, context_precision
+
+<span class="syntax-keyword">async</span> <span class="syntax-keyword">def</span> <span class="syntax-function">custom_rag_evaluation</span>(questions, contexts, answers):
+    <span class="syntax-string">"""Custom RAG evaluation function"""</span>
+    
+    <span class="syntax-comment"># Create evaluation dataset</span>
+    <span class="syntax-variable">eval_data</span> = EvaluationDataset({
+        <span class="syntax-string">"question"</span>: questions,
+        <span class="syntax-string">"contexts"</span>: contexts,
+        <span class="syntax-string">"answer"</span>: answers
+    })
+    
+    <span class="syntax-comment"># Define custom metrics</span>
+    <span class="syntax-variable">metrics</span> = [
+        faithfulness,
+        context_precision,
+        answer_relevancy
+    ]
+    
+    <span class="syntax-comment"># Run evaluation</span>
+    <span class="syntax-variable">results</span> = <span class="syntax-keyword">await</span> <span class="syntax-function">evaluate</span>(
+        dataset=eval_data,
+        metrics=metrics,
+        llm=<span class="syntax-string">"gpt-3.5-turbo"</span>,
+        embeddings=<span class="syntax-string">"text-embedding-ada-002"</span>
+    )
+    
+    <span class="syntax-keyword">return</span> results
+
+<span class="syntax-comment"># Example usage</span>
+<span class="syntax-variable">questions</span> = [<span class="syntax-string">"What is machine learning?"</span>]
+<span class="syntax-variable">contexts</span> = [[<span class="syntax-string">"Machine learning is a subset of AI that learns from data."</span>]]
+<span class="syntax-variable">answers</span> = [<span class="syntax-string">"Machine learning is AI that learns patterns from data."</span>]
+
+<span class="syntax-variable">results</span> = asyncio.run(<span class="syntax-function">custom_rag_evaluation</span>(questions, contexts, answers))</pre>
+                        </div>
+
+                        <h4>📊 Batch Evaluation with Progress Tracking</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> tqdm <span class="syntax-keyword">import</span> tqdm
+<span class="syntax-keyword">import</span> pandas <span class="syntax-keyword">as</span> pd
+
+<span class="syntax-keyword">def</span> <span class="syntax-function">batch_evaluate_rag</span>(data_file, batch_size=10):
+    <span class="syntax-string">"""Evaluate RAG system in batches with progress tracking"""</span>
+    
+    <span class="syntax-comment"># Load data</span>
+    <span class="syntax-variable">df</span> = pd.read_csv(data_file)
+    <span class="syntax-variable">total_batches</span> = <span class="syntax-function">len</span>(df) // batch_size + 1
+    <span class="syntax-variable">results</span> = []
+    
+    <span class="syntax-keyword">for</span> <span class="syntax-variable">i</span> <span class="syntax-keyword">in</span> <span class="syntax-function">tqdm</span>(<span class="syntax-function">range</span>(0, <span class="syntax-function">len</span>(df), batch_size), 
+                     desc=<span class="syntax-string">"Evaluating RAG"</span>):
+        
+        <span class="syntax-comment"># Get batch</span>
+        <span class="syntax-variable">batch</span> = df[i:i+batch_size]
+        
+        <span class="syntax-comment"># Create dataset for this batch</span>
+        <span class="syntax-variable">batch_dataset</span> = Dataset.from_dict({
+            <span class="syntax-string">"question"</span>: batch[<span class="syntax-string">"question"</span>].tolist(),
+            <span class="syntax-string">"contexts"</span>: batch[<span class="syntax-string">"contexts"</span>].apply(<span class="syntax-keyword">lambda</span> x: [x]).tolist(),
+            <span class="syntax-string">"answer"</span>: batch[<span class="syntax-string">"answer"</span>].tolist(),
+            <span class="syntax-string">"ground_truth"</span>: batch[<span class="syntax-string">"ground_truth"</span>].tolist()
+        })
+        
+        <span class="syntax-comment"># Evaluate batch</span>
+        <span class="syntax-variable">batch_result</span> = <span class="syntax-function">evaluate</span>(
+            dataset=batch_dataset,
+            metrics=[faithfulness, answer_relevancy, context_precision, answer_correctness]
+        )
+        
+        results.append(batch_result)
+    
+    <span class="syntax-comment"># Aggregate results</span>
+    <span class="syntax-variable">final_results</span> = {
+        metric: <span class="syntax-function">sum</span>(r[metric] <span class="syntax-keyword">for</span> r <span class="syntax-keyword">in</span> results) / <span class="syntax-function">len</span>(results)
+        <span class="syntax-keyword">for</span> metric <span class="syntax-keyword">in</span> results[0].keys()
+    }
+    
+    <span class="syntax-keyword">return</span> final_results</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ragas-advanced" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">🚀 Advanced RAGAS Features</div>
+                        
+                        <h4>🔧 Custom Metrics Creation</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> ragas.metrics.base <span class="syntax-keyword">import</span> BaseMetric
+<span class="syntax-keyword">from</span> ragas.metrics._answer_similarity <span class="syntax-keyword">import</span> AnswerSimilarity
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">CustomContextRelevance</span>(BaseMetric):
+    <span class="syntax-string">"""Custom metric for context relevance"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__init__</span>(self):
+        self.name = <span class="syntax-string">"custom_context_relevance"</span>
+    
+    <span class="syntax-keyword">async</span> <span class="syntax-keyword">def</span> <span class="syntax-function">_ascore</span>(self, row):
+        question = row[<span class="syntax-string">"question"</span>]
+        contexts = row[<span class="syntax-string">"contexts"</span>]
+        
+        <span class="syntax-comment"># Your custom scoring logic here</span>
+        <span class="syntax-variable">relevance_scores</span> = []
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">context</span> <span class="syntax-keyword">in</span> contexts:
+            <span class="syntax-comment"># Calculate relevance score (0-1)</span>
+            <span class="syntax-variable">score</span> = <span class="syntax-function">calculate_relevance</span>(question, context)
+            relevance_scores.append(score)
+        
+        <span class="syntax-keyword">return</span> <span class="syntax-function">sum</span>(relevance_scores) / <span class="syntax-function">len</span>(relevance_scores)
+
+<span class="syntax-comment"># Use custom metric</span>
+<span class="syntax-variable">custom_metric</span> = CustomContextRelevance()
+<span class="syntax-variable">result</span> = <span class="syntax-function">evaluate</span>(
+    dataset=dataset,
+    metrics=[custom_metric, faithfulness, answer_relevancy]
+)</pre>
+                        </div>
+
+                        <h4>🔄 Integration with MLflow</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> mlflow
+<span class="syntax-keyword">import</span> mlflow.ragas
+<span class="syntax-keyword">from</span> ragas <span class="syntax-keyword">import</span> evaluate
+
+<span class="syntax-keyword">def</span> <span class="syntax-function">track_rag_evaluation</span>(dataset, model_name, version):
+    <span class="syntax-string">"""Track RAG evaluation with MLflow"""</span>
+    
+    <span class="syntax-keyword">with</span> mlflow.start_run():
+        <span class="syntax-comment"># Set tags</span>
+        mlflow.set_tag(<span class="syntax-string">"model_name"</span>, model_name)
+        mlflow.set_tag(<span class="syntax-string">"version"</span>, version)
+        mlflow.set_tag(<span class="syntax-string">"evaluation_type"</span>, <span class="syntax-string">"rag_assessment"</span>)
+        
+        <span class="syntax-comment"># Run evaluation</span>
+        <span class="syntax-variable">results</span> = <span class="syntax-function">evaluate</span>(
+            dataset=dataset,
+            metrics=[faithfulness, answer_relevancy, context_precision, context_recall]
+        )
+        
+        <span class="syntax-comment"># Log metrics</span>
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">metric_name</span>, <span class="syntax-variable">score</span> <span class="syntax-keyword">in</span> results.items():
+            mlflow.log_metric(metric_name, score)
+        
+        <span class="syntax-comment"># Log evaluation dataset</span>
+        mlflow.ragas.log_model(
+            results,
+            <span class="syntax-string">"rag_evaluation_results"</span>,
+            registered_model_name=<span class="syntax-string">f"rag_eval_{model_name}"</span>
+        )
+        
+        <span class="syntax-keyword">return</span> results</pre>
+                        </div>
+
+                        <h4>📈 Continuous Monitoring Setup</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> schedule
+<span class="syntax-keyword">import</span> time
+<span class="syntax-keyword">from</span> datetime <span class="syntax-keyword">import</span> datetime
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">RAGMonitor</span>:
+    <span class="syntax-string">"""Continuous monitoring for RAG systems"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__init__</span>(self, rag_system, evaluation_dataset):
+        self.rag_system = rag_system
+        self.evaluation_dataset = evaluation_dataset
+        self.history = []
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">evaluate_system</span>(self):
+        <span class="syntax-string">"""Run evaluation and store results"""</span>
+        <span class="syntax-variable">timestamp</span> = datetime.now()
+        
+        <span class="syntax-comment"># Generate fresh answers</span>
+        <span class="syntax-variable">fresh_answers</span> = []
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">question</span> <span class="syntax-keyword">in</span> self.evaluation_dataset[<span class="syntax-string">"question"</span>]:
+            <span class="syntax-variable">answer</span> = self.rag_system.generate_answer(question)
+            fresh_answers.append(answer)
+        
+        <span class="syntax-comment"># Create evaluation dataset</span>
+        <span class="syntax-variable">eval_data</span> = Dataset.from_dict({
+            <span class="syntax-string">"question"</span>: self.evaluation_dataset[<span class="syntax-string">"question"</span>],
+            <span class="syntax-string">"contexts"</span>: self.evaluation_dataset[<span class="syntax-string">"contexts"</span>],
+            <span class="syntax-string">"answer"</span>: fresh_answers,
+            <span class="syntax-string">"ground_truth"</span>: self.evaluation_dataset[<span class="syntax-string">"ground_truth"</span>]
+        })
+        
+        <span class="syntax-comment"># Evaluate</span>
+        <span class="syntax-variable">results</span> = <span class="syntax-function">evaluate</span>(
+            dataset=eval_data,
+            metrics=[faithfulness, answer_relevancy, context_precision]
+        )
+        
+        <span class="syntax-comment"># Store results with timestamp</span>
+        <span class="syntax-variable">results</span>[<span class="syntax-string">"timestamp"</span>] = timestamp
+        self.history.append(results)
+        
+        <span class="syntax-comment"># Check for degradation</span>
+        self.check_performance_degradation(results)
+        
+        <span class="syntax-keyword">return</span> results
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">check_performance_degradation</span>(self, current_results):
+        <span class="syntax-string">"""Alert if performance degrades significantly"""</span>
+        <span class="syntax-keyword">if</span> <span class="syntax-function">len</span>(self.history) < 2:
+            <span class="syntax-keyword">return</span>
+        
+        <span class="syntax-variable">previous</span> = self.history[-2]
+        <span class="syntax-variable">threshold</span> = 0.1  <span class="syntax-comment"># 10% degradation threshold</span>
+        
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">metric</span> <span class="syntax-keyword">in</span> [<span class="syntax-string">"faithfulness"</span>, <span class="syntax-string">"answer_relevancy"</span>, <span class="syntax-string">"context_precision"</span>]:
+            <span class="syntax-variable">degradation</span> = previous[metric] - current_results[metric]
+            <span class="syntax-keyword">if</span> degradation > threshold:
+                <span class="syntax-function">print</span>(<span class="syntax-string">f"⚠️ ALERT: {metric} degraded by {degradation:.3f}"</span>)
+
+<span class="syntax-comment"># Setup monitoring</span>
+<span class="syntax-variable">monitor</span> = RAGMonitor(your_rag_system, evaluation_dataset)
+schedule.every().hour.do(monitor.evaluate_system)
+
+<span class="syntax-comment"># Run monitoring</span>
+<span class="syntax-keyword">while</span> <span class="syntax-keyword">True</span>:
+    schedule.run_pending()
+    time.sleep(60)</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DeepEval Section -->
+            <section id="deepeval" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🔍 DeepEval Framework</h2>
+                    <p class="section-subtitle">A comprehensive evaluation framework for LLM applications with RAG-specific metrics</p>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-header">
+                        <div class="framework-logo">D</div>
+                        <div class="framework-info">
+                            <h3>DeepEval</h3>
+                            <div class="version">Version 0.20+ | Confident AI</div>
+                        </div>
+                    </div>
+                    
+                    <p><strong>DeepEval</strong> is a Python testing framework specifically designed for evaluating LLM applications. It provides comprehensive metrics for RAG systems and integrates seamlessly with testing workflows.</p>
+                    
+                    <div class="alert alert-success">
+                        <strong>Key Advantage:</strong> DeepEval treats evaluation like unit testing, making it perfect for CI/CD pipelines and systematic testing of LLM applications.
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="deepeval-metrics">Core Metrics</button>
+                        <button class="tab-button" data-tab="deepeval-installation">Installation</button>
+                        <button class="tab-button" data-tab="deepeval-examples">Examples</button>
+                        <button class="tab-button" data-tab="deepeval-testing">Testing Framework</button>
+                    </div>
+                </div>
+
+                <div id="deepeval-metrics" class="tab-content active">
+                    <div class="card">
+                        <div class="card-title">🎯 DeepEval Core Metrics</div>
+                        
+                        <div class="framework-grid">
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">✨ Faithfulness</span>
+                                    <span class="metric-score score-excellent">0.89</span>
+                                </div>
+                                <p>Measures factual accuracy of generated answers relative to retrieval context.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="89"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Claims extraction and verification</li>
+                                    <li>Context-based fact checking</li>
+                                    <li>Hallucination detection</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📊 Answer Relevancy</span>
+                                    <span class="metric-score score-good">0.84</span>
+                                </div>
+                                <p>Evaluates how well the answer addresses the original question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="84"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Question-answer alignment</li>
+                                    <li>Completeness assessment</li>
+                                    <li>Relevance scoring</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📚 Contextual Relevancy</span>
+                                    <span class="metric-score score-good">0.78</span>
+                                </div>
+                                <p>Measures how relevant retrieved contexts are to the question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="78"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Context-question relevance</li>
+                                    <li>Information sufficiency</li>
+                                    <li>Noise detection</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🔍 Contextual Precision</span>
+                                    <span class="metric-score score-fair">0.72</span>
+                                </div>
+                                <p>Evaluates precision of retrieved context ranking.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="72"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Ranking quality assessment</li>
+                                    <li>Irrelevant context detection</li>
+                                    <li>Precision@K evaluation</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🔄 Contextual Recall</span>
+                                    <span class="metric-score score-good">0.86</span>
+                                </div>
+                                <p>Measures recall of relevant information in retrieved contexts.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="86"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Information coverage</li>
+                                    <li>Missing context detection</li>
+                                    <li>Completeness measurement</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">⚡ Latency</span>
+                                    <span class="metric-score score-excellent">240ms</span>
+                                </div>
+                                <p>Measures response time and performance metrics.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="95"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>End-to-end response time</li>
+                                    <li>Component-level timing</li>
+                                    <li>Performance benchmarking</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deepeval-installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">🛠️ DeepEval Installation & Setup</div>
+                        
+                        <div class="code-block" data-lang="bash">
+<pre><span class="syntax-comment"># Install DeepEval</span>
+<span class="syntax-keyword">pip</span> install deepeval
+
+<span class="syntax-comment"># Install with specific providers</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"deepeval[openai]"</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"deepeval[anthropic]"</span>
+
+<span class="syntax-comment"># For development</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"deepeval[dev]"</span></pre>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Requirements:</strong> Python 3.9+, API keys for your chosen LLM provider.
+                        </div>
+
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-comment"># Basic configuration</span>
+<span class="syntax-keyword">import</span> os
+<span class="syntax-keyword">from</span> deepeval <span class="syntax-keyword">import</span> evaluate
+<span class="syntax-keyword">from</span> deepeval.metrics <span class="syntax-keyword">import</span> (
+    FaithfulnessMetric,
+    AnswerRelevancyMetric,
+    ContextualPrecisionMetric,
+    ContextualRecallMetric,
+    ContextualRelevancyMetric
+)
+<span class="syntax-keyword">from</span> deepeval.test_case <span class="syntax-keyword">import</span> LLMTestCase
+
+<span class="syntax-comment"># Configure your LLM</span>
+os.environ[<span class="syntax-string">"OPENAI_API_KEY"</span>] = <span class="syntax-string">"your-openai-api-key"</span>
+
+<span class="syntax-comment"># Optional: Configure custom model</span>
+<span class="syntax-keyword">from</span> deepeval.models <span class="syntax-keyword">import</span> OpenAIGPT
+<span class="syntax-variable">custom_model</span> = OpenAIGPT(model=<span class="syntax-string">"gpt-4"</span>)</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deepeval-examples" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">💻 DeepEval Practical Examples</div>
+                        
+                        <h4>📋 Basic RAG Evaluation</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> deepeval <span class="syntax-keyword">import</span> evaluate
+<span class="syntax-keyword">from</span> deepeval.metrics <span class="syntax-keyword">import</span> FaithfulnessMetric, AnswerRelevancyMetric
+<span class="syntax-keyword">from</span> deepeval.test_case <span class="syntax-keyword">import</span> LLMTestCase
+
+<span class="syntax-comment"># Define test cases</span>
+<span class="syntax-variable">test_cases</span> = [
+    LLMTestCase(
+        input=<span class="syntax-string">"What is the capital of France?"</span>,
+        actual_output=<span class="syntax-string">"The capital of France is Paris."</span>,
+        expected_output=<span class="syntax-string">"Paris"</span>,
+        retrieval_context=[<span class="syntax-string">"Paris is the capital and most populous city of France."</span>]
+    ),
+    LLMTestCase(
+        input=<span class="syntax-string">"How does machine learning work?"</span>,
+        actual_output=<span class="syntax-string">"Machine learning uses algorithms to learn patterns from data."</span>,
+        expected_output=<span class="syntax-string">"ML learns from data to make predictions"</span>,
+        retrieval_context=[<span class="syntax-string">"Machine learning is a subset of AI that learns from data."</span>]
+    )
+]
+
+<span class="syntax-comment"># Define metrics</span>
+<span class="syntax-variable">faithfulness_metric</span> = FaithfulnessMetric(threshold=0.7)
+<span class="syntax-variable">relevancy_metric</span> = AnswerRelevancyMetric(threshold=0.7)
+
+<span class="syntax-comment"># Evaluate</span>
+<span class="syntax-function">evaluate</span>(
+    test_cases=test_cases,
+    metrics=[faithfulness_metric, relevancy_metric]
+)</pre>
+                        </div>
+
+                        <h4>🔧 Comprehensive RAG Pipeline Evaluation</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> deepeval.metrics <span class="syntax-keyword">import</span> (
+    FaithfulnessMetric,
+    AnswerRelevancyMetric,
+    ContextualPrecisionMetric,
+    ContextualRecallMetric,
+    ContextualRelevancyMetric,
+    LatencyMetric
+)
+<span class="syntax-keyword">import</span> time
+
+<span class="syntax-keyword">def</span> <span class="syntax-function">evaluate_rag_pipeline</span>(questions, contexts, answers, expected_answers):
+    <span class="syntax-string">"""Comprehensive RAG pipeline evaluation"""</span>
+    
+    <span class="syntax-variable">test_cases</span> = []
+    <span class="syntax-keyword">for</span> <span class="syntax-variable">q</span>, <span class="syntax-variable">c</span>, <span class="syntax-variable">a</span>, <span class="syntax-variable">e</span> <span class="syntax-keyword">in</span> <span class="syntax-function">zip</span>(questions, contexts, answers, expected_answers):
+        <span class="syntax-comment"># Measure latency</span>
+        <span class="syntax-variable">start_time</span> = time.time()
+        <span class="syntax-comment"># Your RAG system call would go here</span>
+        <span class="syntax-variable">end_time</span> = time.time()
+        <span class="syntax-variable">latency</span> = end_time - start_time
+        
+        <span class="syntax-variable">test_case</span> = LLMTestCase(
+            input=q,
+            actual_output=a,
+            expected_output=e,
+            retrieval_context=c,
+            latency=latency
+        )
+        test_cases.append(test_case)
+    
+    <span class="syntax-comment"># Define comprehensive metrics</span>
+    <span class="syntax-variable">metrics</span> = [
+        FaithfulnessMetric(threshold=0.8),
+        AnswerRelevancyMetric(threshold=0.8),
+        ContextualPrecisionMetric(threshold=0.7),
+        ContextualRecallMetric(threshold=0.7),
+        ContextualRelevancyMetric(threshold=0.7),
+        LatencyMetric(max_latency=2000)  <span class="syntax-comment"># 2 second max</span>
+    ]
+    
+    <span class="syntax-comment"># Run evaluation</span>
+    <span class="syntax-variable">results</span> = <span class="syntax-function">evaluate</span>(
+        test_cases=test_cases,
+        metrics=metrics,
+        print_results=<span class="syntax-keyword">True</span>
+    )
+    
+    <span class="syntax-keyword">return</span> results
+
+<span class="syntax-comment"># Example usage</span>
+<span class="syntax-variable">questions</span> = [<span class="syntax-string">"What is Python?"</span>, <span class="syntax-string">"How does AI work?"</span>]
+<span class="syntax-variable">contexts</span> = [
+    [<span class="syntax-string">"Python is a high-level programming language."</span>],
+    [<span class="syntax-string">"AI uses algorithms to simulate human intelligence."</span>]
+]
+<span class="syntax-variable">answers</span> = [
+    <span class="syntax-string">"Python is a programming language used for development."</span>,
+    <span class="syntax-string">"AI simulates human intelligence using algorithms."</span>
+]
+<span class="syntax-variable">expected</span> = [
+    <span class="syntax-string">"Python is a programming language"</span>,
+    <span class="syntax-string">"AI simulates human intelligence"</span>
+]
+
+<span class="syntax-variable">results</span> = <span class="syntax-function">evaluate_rag_pipeline</span>(questions, contexts, answers, expected)</pre>
+                        </div>
+
+                        <h4>📊 Custom Metric Creation</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> deepeval.metrics <span class="syntax-keyword">import</span> BaseMetric
+<span class="syntax-keyword">from</span> deepeval.test_case <span class="syntax-keyword">import</span> LLMTestCase
+<span class="syntax-keyword">from</span> typing <span class="syntax-keyword">import</span> Optional
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">CustomRAGMetric</span>(BaseMetric):
+    <span class="syntax-string">"""Custom metric for domain-specific RAG evaluation"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__init__</span>(
+        self,
+        threshold: <span class="syntax-variable">float</span> = 0.5,
+        model: Optional[<span class="syntax-variable">str</span>] = <span class="syntax-keyword">None</span>,
+        include_reason: <span class="syntax-variable">bool</span> = <span class="syntax-keyword">True</span>
+    ):
+        self.threshold = threshold
+        self.model = model
+        self.include_reason = include_reason
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">measure</span>(self, test_case: LLMTestCase) -> <span class="syntax-variable">float</span>:
+        <span class="syntax-string">"""Implement custom measurement logic"""</span>
+        
+        <span class="syntax-comment"># Access test case components</span>
+        question = test_case.input
+        answer = test_case.actual_output
+        context = test_case.retrieval_context
+        
+        <span class="syntax-comment"># Implement your custom scoring logic</span>
+        <span class="syntax-variable">score</span> = self._calculate_domain_score(question, answer, context)
+        
+        <span class="syntax-comment"># Set score and reason</span>
+        self.score = score
+        self.reason = <span class="syntax-string">f"Domain-specific score: {score:.3f}"</span>
+        self.success = score >= self.threshold
+        
+        <span class="syntax-keyword">return</span> score
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">_calculate_domain_score</span>(self, question, answer, context):
+        <span class="syntax-string">"""Custom domain-specific scoring logic"""</span>
+        <span class="syntax-comment"># Example: Check for domain-specific keywords</span>
+        <span class="syntax-variable">domain_keywords</span> = [<span class="syntax-string">"technical"</span>, <span class="syntax-string">"specification"</span>, <span class="syntax-string">"implementation"</span>]
+        
+        <span class="syntax-variable">keyword_score</span> = <span class="syntax-function">sum</span>(
+            1 <span class="syntax-keyword">for</span> keyword <span class="syntax-keyword">in</span> domain_keywords 
+            <span class="syntax-keyword">if</span> keyword <span class="syntax-keyword">in</span> answer.lower()
+        ) / <span class="syntax-function">len</span>(domain_keywords)
+        
+        <span class="syntax-comment"># Add context relevance check</span>
+        <span class="syntax-variable">context_score</span> = <span class="syntax-function">len</span>(
+            <span class="syntax-function">set</span>(answer.lower().split()) & 
+            <span class="syntax-function">set</span>(<span class="syntax-string">" "</span>.join(context).lower().split())
+        ) / <span class="syntax-function">len</span>(answer.split())
+        
+        <span class="syntax-keyword">return</span> (keyword_score + context_score) / 2
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">is_successful</span>(self) -> <span class="syntax-variable">bool</span>:
+        <span class="syntax-keyword">return</span> self.success
+    
+    @property
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__name__</span>(self):
+        <span class="syntax-keyword">return</span> <span class="syntax-string">"Domain Relevance"</span>
+
+<span class="syntax-comment"># Use custom metric</span>
+<span class="syntax-variable">custom_metric</span> = CustomRAGMetric(threshold=0.7)
+<span class="syntax-variable">test_case</span> = LLMTestCase(
+    input=<span class="syntax-string">"Explain the technical implementation"</span>,
+    actual_output=<span class="syntax-string">"The technical implementation involves..."</span>,
+    retrieval_context=[<span class="syntax-string">"Technical specifications document..."</span>]
+)
+
+<span class="syntax-function">evaluate</span>(test_cases=[test_case], metrics=[custom_metric])</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="deepeval-testing" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">🧪 DeepEval Testing Framework</div>
+                        
+                        <h4>🔄 Unit Testing for RAG</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> pytest
+<span class="syntax-keyword">from</span> deepeval <span class="syntax-keyword">import</span> assert_test
+<span class="syntax-keyword">from</span> deepeval.test_case <span class="syntax-keyword">import</span> LLMTestCase
+<span class="syntax-keyword">from</span> deepeval.metrics <span class="syntax-keyword">import</span> FaithfulnessMetric, AnswerRelevancyMetric
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">TestRAGSystem</span>:
+    <span class="syntax-string">"""Unit tests for RAG system components"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">setup_method</span>(self):
+        <span class="syntax-string">"""Setup test fixtures"""</span>
+        self.faithfulness_metric = FaithfulnessMetric(threshold=0.8)
+        self.relevancy_metric = AnswerRelevancyMetric(threshold=0.7)
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">test_factual_accuracy</span>(self):
+        <span class="syntax-string">"""Test if RAG system maintains factual accuracy"""</span>
+        <span class="syntax-variable">test_case</span> = LLMTestCase(
+            input=<span class="syntax-string">"What is the boiling point of water?"</span>,
+            actual_output=<span class="syntax-string">"Water boils at 100°C or 212°F at standard atmospheric pressure."</span>,
+            retrieval_context=[
+                <span class="syntax-string">"The boiling point of water is 100 degrees Celsius (212 degrees Fahrenheit) at standard atmospheric pressure."</span>
+            ]
+        )
+        
+        <span class="syntax-function">assert_test</span>(test_case, [self.faithfulness_metric])
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">test_answer_relevancy</span>(self):
+        <span class="syntax-string">"""Test if answers are relevant to questions"""</span>
+        <span class="syntax-variable">test_case</span> = LLMTestCase(
+            input=<span class="syntax-string">"How do you make coffee?"</span>,
+            actual_output=<span class="syntax-string">"To make coffee, grind coffee beans, add hot water, and brew."</span>,
+            retrieval_context=[
+                <span class="syntax-string">"Coffee brewing involves extracting flavors from coffee grounds using hot water."</span>
+            ]
+        )
+        
+        <span class="syntax-function">assert_test</span>(test_case, [self.relevancy_metric])
+    
+    @pytest.mark.parametrize(<span class="syntax-string">"question,expected_context"</span>, [
+        (<span class="syntax-string">"What is Python?"</span>, <span class="syntax-string">"programming language"</span>),
+        (<span class="syntax-string">"How does AI work?"</span>, <span class="syntax-string">"artificial intelligence"</span>),
+    ])
+    <span class="syntax-keyword">def</span> <span class="syntax-function">test_context_retrieval</span>(self, question, expected_context):
+        <span class="syntax-string">"""Parametrized test for context retrieval"""</span>
+        <span class="syntax-comment"># Your RAG system call</span>
+        <span class="syntax-variable">contexts</span> = your_rag_system.retrieve_context(question)
+        
+        <span class="syntax-comment"># Assert expected context is retrieved</span>
+        <span class="syntax-keyword">assert</span> <span class="syntax-function">any</span>(
+            expected_context <span class="syntax-keyword">in</span> context.lower() 
+            <span class="syntax-keyword">for</span> context <span class="syntax-keyword">in</span> contexts
+        ), <span class="syntax-string">f"Expected '{expected_context}' in retrieved contexts"</span>
+
+<span class="syntax-comment"># Run tests</span>
+<span class="syntax-comment"># pytest test_rag_system.py -v</span></pre>
+                        </div>
+
+                        <h4>🔄 Continuous Integration Setup</h4>
+                        <div class="code-block" data-lang="yaml">
+<pre><span class="syntax-comment"># .github/workflows/rag-evaluation.yml</span>
+<span class="syntax-variable">name</span>: RAG System Evaluation
+
+<span class="syntax-variable">on</span>:
+  <span class="syntax-variable">push</span>:
+    <span class="syntax-variable">branches</span>: [ main, develop ]
+  <span class="syntax-variable">pull_request</span>:
+    <span class="syntax-variable">branches</span>: [ main ]
+
+<span class="syntax-variable">jobs</span>:
+  <span class="syntax-variable">evaluate-rag</span>:
+    <span class="syntax-variable">runs-on</span>: ubuntu-latest
+    
+    <span class="syntax-variable">steps</span>:
+    - <span class="syntax-variable">uses</span>: actions/checkout@v3
+    
+    - <span class="syntax-variable">name</span>: Set up Python
+      <span class="syntax-variable">uses</span>: actions/setup-python@v3
+      <span class="syntax-variable">with</span>:
+        <span class="syntax-variable">python-version</span>: <span class="syntax-string">'3.9'</span>
+    
+    - <span class="syntax-variable">name</span>: Install dependencies
+      <span class="syntax-variable">run</span>: |
+        <span class="syntax-variable">pip install deepeval pytest</span>
+        <span class="syntax-variable">pip install -r requirements.txt</span>
+    
+    - <span class="syntax-variable">name</span>: Run RAG evaluation tests
+      <span class="syntax-variable">env</span>:
+        <span class="syntax-variable">OPENAI_API_KEY</span>: ${{ secrets.OPENAI_API_KEY }}
+      <span class="syntax-variable">run</span>: |
+        <span class="syntax-variable">deepeval test run tests/test_rag_system.py</span>
+    
+    - <span class="syntax-variable">name</span>: Upload evaluation results
+      <span class="syntax-variable">uses</span>: actions/upload-artifact@v3
+      <span class="syntax-variable">with</span>:
+        <span class="syntax-variable">name</span>: rag-evaluation-results
+        <span class="syntax-variable">path</span>: ./results/</pre>
+                        </div>
+
+                        <h4>📊 Performance Regression Testing</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> json
+<span class="syntax-keyword">from</span> pathlib <span class="syntax-keyword">import</span> Path
+<span class="syntax-keyword">from</span> deepeval.dataset <span class="syntax-keyword">import</span> EvaluationDataset
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">RAGRegressionTester</span>:
+    <span class="syntax-string">"""Test for performance regression in RAG systems"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__init__</span>(self, baseline_file: <span class="syntax-variable">str</span> = <span class="syntax-string">"baseline_scores.json"</span>):
+        self.baseline_file = Path(baseline_file)
+        self.baseline_scores = self._load_baseline()
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">_load_baseline</span>(self):
+        <span class="syntax-string">"""Load baseline performance scores"""</span>
+        <span class="syntax-keyword">if</span> self.baseline_file.exists():
+            <span class="syntax-keyword">with</span> <span class="syntax-function">open</span>(self.baseline_file) <span class="syntax-keyword">as</span> f:
+                <span class="syntax-keyword">return</span> json.load(f)
+        <span class="syntax-keyword">return</span> {}
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">save_baseline</span>(self, scores: <span class="syntax-variable">dict</span>):
+        <span class="syntax-string">"""Save current scores as baseline"""</span>
+        <span class="syntax-keyword">with</span> <span class="syntax-function">open</span>(self.baseline_file, <span class="syntax-string">'w'</span>) <span class="syntax-keyword">as</span> f:
+            json.dump(scores, f, indent=2)
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">test_regression</span>(self, current_scores: <span class="syntax-variable">dict</span>, threshold: <span class="syntax-variable">float</span> = 0.05):
+        <span class="syntax-string">"""Test for performance regression"""</span>
+        <span class="syntax-variable">regressions</span> = []
+        
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">metric</span>, <span class="syntax-variable">current_score</span> <span class="syntax-keyword">in</span> current_scores.items():
+            <span class="syntax-keyword">if</span> metric <span class="syntax-keyword">in</span> self.baseline_scores:
+                <span class="syntax-variable">baseline_score</span> = self.baseline_scores[metric]
+                <span class="syntax-variable">degradation</span> = baseline_score - current_score
+                
+                <span class="syntax-keyword">if</span> degradation > threshold:
+                    regressions.append({
+                        <span class="syntax-string">"metric"</span>: metric,
+                        <span class="syntax-string">"baseline"</span>: baseline_score,
+                        <span class="syntax-string">"current"</span>: current_score,
+                        <span class="syntax-string">"degradation"</span>: degradation
+                    })
+        
+        <span class="syntax-keyword">return</span> regressions
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">run_regression_test</span>(self, dataset: EvaluationDataset):
+        <span class="syntax-string">"""Run full regression test"""</span>
+        <span class="syntax-comment"># Run current evaluation</span>
+        <span class="syntax-variable">current_results</span> = <span class="syntax-function">evaluate</span>(
+            test_cases=dataset.to_test_cases(),
+            metrics=[
+                FaithfulnessMetric(),
+                AnswerRelevancyMetric(),
+                ContextualPrecisionMetric()
+            ]
+        )
+        
+        <span class="syntax-comment"># Check for regressions</span>
+        <span class="syntax-variable">regressions</span> = self.test_regression(current_results)
+        
+        <span class="syntax-keyword">if</span> regressions:
+            <span class="syntax-variable">error_msg</span> = <span class="syntax-string">"Performance regression detected:\n"</span>
+            <span class="syntax-keyword">for</span> <span class="syntax-variable">reg</span> <span class="syntax-keyword">in</span> regressions:
+                error_msg += <span class="syntax-string">f"- {reg['metric']}: {reg['baseline']:.3f} → {reg['current']:.3f} (Δ{reg['degradation']:.3f})\n"</span>
+            
+            <span class="syntax-keyword">raise</span> <span class="syntax-function">AssertionError</span>(error_msg)
+        
+        <span class="syntax-keyword">return</span> current_results
+
+<span class="syntax-comment"># Usage in pytest</span>
+<span class="syntax-keyword">def</span> <span class="syntax-function">test_no_performance_regression</span>():
+    <span class="syntax-variable">tester</span> = RAGRegressionTester()
+    <span class="syntax-variable">dataset</span> = EvaluationDataset.from_json(<span class="syntax-string">"evaluation_dataset.json"</span>)
+    
+    <span class="syntax-comment"># This will fail if performance degrades significantly</span>
+    <span class="syntax-variable">results</span> = tester.run_regression_test(dataset)</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TruLens Section -->
+            <section id="trulens" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🔬 TruLens Framework</h2>
+                    <p class="section-subtitle">Evaluation and tracking for LLM experiments with advanced observability features</p>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-header">
+                        <div class="framework-logo">T</div>
+                        <div class="framework-info">
+                            <h3>TruLens</h3>
+                            <div class="version">Version 0.19+ | TruEra</div>
+                        </div>
+                    </div>
+                    
+                    <p><strong>TruLens</strong> provides comprehensive evaluation and observability for LLM applications, with special focus on tracking experiments, debugging, and production monitoring of RAG systems.</p>
+                    
+                    <div class="alert alert-success">
+                        <strong>Key Advantage:</strong> TruLens excels at tracking experiments over time and provides detailed observability into your RAG system's behavior in production.
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="trulens-metrics">Core Metrics</button>
+                        <button class="tab-button" data-tab="trulens-installation">Installation</button>
+                        <button class="tab-button" data-tab="trulens-examples">Examples</button>
+                        <button class="tab-button" data-tab="trulens-monitoring">Monitoring</button>
+                    </div>
+                </div>
+
+                <div id="trulens-metrics" class="tab-content active">
+                    <div class="card">
+                        <div class="card-title">🎯 TruLens Core Metrics</div>
+                        
+                        <div class="framework-grid">
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🏆 Answer Relevance</span>
+                                    <span class="metric-score score-excellent">0.91</span>
+                                </div>
+                                <p>Measures how well the answer addresses the question using LLM-based evaluation.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="91"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Question-answer semantic alignment</li>
+                                    <li>LLM-based relevance scoring</li>
+                                    <li>Multi-faceted relevance assessment</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📚 Context Relevance</span>
+                                    <span class="metric-score score-good">0.83</span>
+                                </div>
+                                <p>Evaluates how relevant retrieved context is to answering the question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="83"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Context-question relevance</li>
+                                    <li>Information quality assessment</li>
+                                    <li>Retrieval effectiveness measurement</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🔍 Groundedness</span>
+                                    <span class="metric-score score-excellent">0.94</span>
+                                </div>
+                                <p>Measures how well the answer is supported by the provided context.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="94"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Answer-context alignment</li>
+                                    <li>Hallucination detection</li>
+                                    <li>Factual grounding verification</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">📏 Comprehensiveness</span>
+                                    <span class="metric-score score-good">0.78</span>
+                                </div>
+                                <p>Evaluates whether the answer covers all aspects of the question.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="78"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Complete coverage assessment</li>
+                                    <li>Missing information detection</li>
+                                    <li>Answer completeness scoring</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">🎭 Sentiment</span>
+                                    <span class="metric-score score-excellent">0.88</span>
+                                </div>
+                                <p>Analyzes sentiment and emotional tone of generated responses.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="88"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Emotional tone analysis</li>
+                                    <li>Sentiment appropriateness</li>
+                                    <li>Response tone consistency</li>
+                                </ul>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="metric-header">
+                                    <span class="metric-name">💾 Moderation</span>
+                                    <span class="metric-score score-excellent">0.97</span>
+                                </div>
+                                <p>Checks for harmful, toxic, or inappropriate content in responses.</p>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" data-width="97"></div>
+                                </div>
+                                <ul class="feature-list">
+                                    <li>Content safety assessment</li>
+                                    <li>Toxicity detection</li>
+                                    <li>Harmful content filtering</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trulens-installation" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">🛠️ TruLens Installation & Setup</div>
+                        
+                        <div class="code-block" data-lang="bash">
+<pre><span class="syntax-comment"># Install TruLens</span>
+<span class="syntax-keyword">pip</span> install trulens-eval
+
+<span class="syntax-comment"># Install with specific providers</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"trulens-eval[openai]"</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"trulens-eval[langchain]"</span>
+
+<span class="syntax-comment"># Install all optional dependencies</span>
+<span class="syntax-keyword">pip</span> install <span class="syntax-string">"trulens-eval[all]"</span></pre>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Requirements:</strong> Python 3.8+, API keys for LLM providers, optional database for persistence.
+                        </div>
+
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-comment"># Basic setup</span>
+<span class="syntax-keyword">import</span> os
+<span class="syntax-keyword">from</span> trulens_eval <span class="syntax-keyword">import</span> TruLlama, Feedback, Tru, Select
+<span class="syntax-keyword">from</span> trulens_eval.feedback <span class="syntax-keyword">import</span> Groundedness, GroundTruthAgreement
+<span class="syntax-keyword">from</span> trulens_eval.feedback.provider.openai <span class="syntax-keyword">import</span> OpenAI
+
+<span class="syntax-comment"># Configure API keys</span>
+os.environ[<span class="syntax-string">"OPENAI_API_KEY"</span>] = <span class="syntax-string">"your-openai-api-key"</span>
+
+<span class="syntax-comment"># Initialize TruLens</span>
+<span class="syntax-variable">tru</span> = Tru()
+
+<span class="syntax-comment"># Initialize feedback provider</span>
+<span class="syntax-variable">openai</span> = OpenAI()
+
+<span class="syntax-comment"># Reset database (optional, for fresh start)</span>
+<span class="syntax-comment"># tru.reset_database()</span></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trulens-examples" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">💻 TruLens Practical Examples</div>
+                        
+                        <h4>📋 Basic RAG Evaluation Setup</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> trulens_eval <span class="syntax-keyword">import</span> TruLlama, Feedback, Tru
+<span class="syntax-keyword">from</span> trulens_eval.feedback <span class="syntax-keyword">import</span> Groundedness
+<span class="syntax-keyword">from</span> trulens_eval.feedback.provider.openai <span class="syntax-keyword">import</span> OpenAI
+<span class="syntax-keyword">import</span> numpy <span class="syntax-keyword">as</span> np
+
+<span class="syntax-comment"># Initialize provider</span>
+<span class="syntax-variable">openai</span> = OpenAI()
+
+<span class="syntax-comment"># Define feedback functions</span>
+<span class="syntax-variable">groundedness</span> = Groundedness(groundedness_provider=openai)
+
+<span class="syntax-comment"># Question/answer relevance</span>
+<span class="syntax-variable">qa_relevance</span> = Feedback(
+    openai.relevance_with_cot_reasons,
+    name=<span class="syntax-string">"Answer Relevance"</span>
+).on_input_output()
+
+<span class="syntax-comment"># Context relevance</span>
+<span class="syntax-variable">context_relevance</span> = Feedback(
+    openai.qs_relevance_with_cot_reasons,
+    name=<span class="syntax-string">"Context Relevance"</span>
+).on_input().on(
+    TruLlama.select_source_nodes().node.text
+).aggregate(np.mean)
+
+<span class="syntax-comment"># Groundedness between answer and context</span>
+<span class="syntax-variable">grounded</span> = Feedback(
+    groundedness.groundedness_measure_with_cot_reasons,
+    name=<span class="syntax-string">"Groundedness"</span>
+).on(
+    TruLlama.select_source_nodes().node.text.collect()
+).on_output()
+
+<span class="syntax-comment"># Combine all feedbacks</span>
+<span class="syntax-variable">feedbacks</span> = [qa_relevance, context_relevance, grounded]</pre>
+                        </div>
+
+                        <h4>🔧 Wrapping Your RAG Application</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> llama_index <span class="syntax-keyword">import</span> VectorStoreIndex, SimpleDirectoryReader
+<span class="syntax-keyword">from</span> trulens_eval <span class="syntax-keyword">import</span> TruLlama
+
+<span class="syntax-comment"># Your RAG setup (example with LlamaIndex)</span>
+<span class="syntax-variable">documents</span> = SimpleDirectoryReader(<span class="syntax-string">"./data"</span>).load_data()
+<span class="syntax-variable">index</span> = VectorStoreIndex.from_documents(documents)
+<span class="syntax-variable">chat_engine</span> = index.as_chat_engine()
+
+<span class="syntax-comment"># Wrap with TruLens</span>
+<span class="syntax-variable">tru_query_engine</span> = TruLlama(
+    chat_engine,
+    app_id=<span class="syntax-string">"RAG_v1"</span>,
+    feedbacks=feedbacks
+)
+
+<span class="syntax-comment"># Start tracking</span>
+<span class="syntax-keyword">with</span> tru_query_engine <span class="syntax-keyword">as</span> recording:
+    <span class="syntax-comment"># Query your RAG system</span>
+    <span class="syntax-variable">response</span> = chat_engine.chat(<span class="syntax-string">"What is machine learning?"</span>)
+    <span class="syntax-function">print</span>(response)
+
+<span class="syntax-comment"># View results in dashboard</span>
+tru.run_dashboard()</pre>
+                        </div>
+
+                        <h4>📊 Custom Feedback Functions</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> trulens_eval.feedback <span class="syntax-keyword">import</span> Feedback
+<span class="syntax-keyword">from</span> trulens_eval.feedback.provider.openai <span class="syntax-keyword">import</span> OpenAI
+<span class="syntax-keyword">import</span> re
+
+<span class="syntax-variable">openai</span> = OpenAI()
+
+<span class="syntax-comment"># Custom feedback for technical accuracy</span>
+<span class="syntax-keyword">def</span> <span class="syntax-function">technical_accuracy</span>(question: <span class="syntax-variable">str</span>, answer: <span class="syntax-variable">str</span>, context: <span class="syntax-variable">str</span>) -> <span class="syntax-variable">float</span>:
+    <span class="syntax-string">"""Custom function to assess technical accuracy"""</span>
+    
+    prompt = <span class="syntax-string">f"""
+    Assess the technical accuracy of this answer given the context.
+    
+    Question: {question}
+    Context: {context}
+    Answer: {answer}
+    
+    Rate the technical accuracy on a scale of 0.0 to 1.0 where:
+    - 1.0 = Completely technically accurate
+    - 0.8 = Mostly accurate with minor issues  
+    - 0.6 = Somewhat accurate but has some errors
+    - 0.4 = Limited accuracy, several errors
+    - 0.2 = Poor accuracy, many errors
+    - 0.0 = Completely inaccurate
+    
+    Provide only the numeric score.
+    """</span>
+    
+    <span class="syntax-variable">response</span> = openai.client.chat.completions.create(
+        model=<span class="syntax-string">"gpt-3.5-turbo"</span>,
+        messages=[{<span class="syntax-string">"role"</span>: <span class="syntax-string">"user"</span>, <span class="syntax-string">"content"</span>: prompt}],
+        temperature=0.0
+    )
+    
+    <span class="syntax-comment"># Extract numeric score</span>
+    <span class="syntax-variable">score_text</span> = response.choices[0].message.content.strip()
+    <span class="syntax-keyword">try</span>:
+        <span class="syntax-variable">score</span> = <span class="syntax-function">float</span>(re.findall(<span class="syntax-string">r'[0-9]*\.?[0-9]+'</span>, score_text)[0])
+        <span class="syntax-keyword">return</span> <span class="syntax-function">min</span>(<span class="syntax-function">max</span>(score, 0.0), 1.0)  <span class="syntax-comment"># Clamp to [0,1]</span>
+    <span class="syntax-keyword">except</span>:
+        <span class="syntax-keyword">return</span> 0.0
+
+<span class="syntax-comment"># Create custom feedback</span>
+<span class="syntax-variable">technical_feedback</span> = Feedback(
+    technical_accuracy,
+    name=<span class="syntax-string">"Technical Accuracy"</span>
+).on_input().on_output().on(
+    TruLlama.select_source_nodes().node.text.collect()
+)
+
+<span class="syntax-comment"># Length-based feedback</span>
+<span class="syntax-variable">answer_length</span> = Feedback(
+    <span class="syntax-keyword">lambda</span> output: <span class="syntax-function">min</span>(<span class="syntax-function">len</span>(output.split()) / 50, 1.0),  <span class="syntax-comment"># Normalize to ~50 words</span>
+    name=<span class="syntax-string">"Answer Length"</span>
+).on_output()
+
+<span class="syntax-comment"># Combine with standard feedbacks</span>
+<span class="syntax-variable">all_feedbacks</span> = feedbacks + [technical_feedback, answer_length]</pre>
+                        </div>
+
+                        <h4>🎯 Evaluation with Golden Dataset</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> trulens_eval.feedback <span class="syntax-keyword">import</span> GroundTruthAgreement
+<span class="syntax-keyword">import</span> pandas <span class="syntax-keyword">as</span> pd
+
+<span class="syntax-comment"># Load golden dataset</span>
+<span class="syntax-variable">golden_set</span> = pd.read_csv(<span class="syntax-string">"golden_dataset.csv"</span>)
+
+<span class="syntax-comment"># Create ground truth agreement feedback</span>
+<span class="syntax-variable">ground_truth</span> = GroundTruthAgreement(
+    golden_set,
+    provider=openai
+)
+
+<span class="syntax-variable">ground_truth_feedback</span> = Feedback(
+    ground_truth.agreement_measure,
+    name=<span class="syntax-string">"Ground Truth Agreement"</span>
+).on_input().on_output()
+
+<span class="syntax-comment"># Evaluation function</span>
+<span class="syntax-keyword">def</span> <span class="syntax-function">evaluate_rag_system</span>(questions, app_id=<span class="syntax-string">"RAG_evaluation"</span>):
+    <span class="syntax-string">"""Evaluate RAG system with predefined questions"""</span>
+    
+    <span class="syntax-comment"># Setup tracking</span>
+    <span class="syntax-variable">evaluation_feedbacks</span> = [
+        qa_relevance,
+        context_relevance, 
+        grounded,
+        ground_truth_feedback
+    ]
+    
+    <span class="syntax-variable">tru_app</span> = TruLlama(
+        chat_engine,
+        app_id=app_id,
+        feedbacks=evaluation_feedbacks
+    )
+    
+    <span class="syntax-comment"># Run evaluation</span>
+    <span class="syntax-keyword">with</span> tru_app <span class="syntax-keyword">as</span> recording:
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">question</span> <span class="syntax-keyword">in</span> questions:
+            <span class="syntax-variable">response</span> = chat_engine.chat(question)
+            <span class="syntax-function">print</span>(<span class="syntax-string">f"Q: {question}"</span>)
+            <span class="syntax-function">print</span>(<span class="syntax-string">f"A: {response}"</span>)
+            <span class="syntax-function">print</span>(<span class="syntax-string">"-" * 50</span>)
+    
+    <span class="syntax-keyword">return</span> tru_app
+
+<span class="syntax-comment"># Example evaluation</span>
+<span class="syntax-variable">eval_questions</span> = [
+    <span class="syntax-string">"What is artificial intelligence?"</span>,
+    <span class="syntax-string">"How does machine learning work?"</span>,
+    <span class="syntax-string">"What are neural networks?"</span>
+]
+
+<span class="syntax-variable">evaluated_app</span> = <span class="syntax-function">evaluate_rag_system</span>(eval_questions)</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="trulens-monitoring" class="tab-content">
+                    <div class="card">
+                        <div class="card-title">📊 TruLens Monitoring & Dashboard</div>
+                        
+                        <h4>🖥️ TruLens Dashboard</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">from</span> trulens_eval <span class="syntax-keyword">import</span> Tru
+
+<span class="syntax-comment"># Start the dashboard</span>
+<span class="syntax-variable">tru</span> = Tru()
+tru.run_dashboard()
+
+<span class="syntax-comment"># Dashboard will be available at http://localhost:8501</span>
+<span class="syntax-comment"># Features include:</span>
+<span class="syntax-comment"># - App performance comparison</span>
+<span class="syntax-comment"># - Individual record inspection</span>
+<span class="syntax-comment"># - Feedback score distributions</span>
+<span class="syntax-comment"># - Time-series performance tracking</span></pre>
+                        </div>
+
+                        <h4>📈 Programmatic Results Access</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-comment"># Get all records for an app</span>
+<span class="syntax-variable">records</span> = tru.get_records_and_feedback(app_ids=[<span class="syntax-string">"RAG_v1"</span>])
+
+<span class="syntax-comment"># Get summary statistics</span>
+<span class="syntax-variable">leaderboard</span> = tru.get_leaderboard(app_ids=[<span class="syntax-string">"RAG_v1"</span>])
+<span class="syntax-function">print</span>(leaderboard)
+
+<span class="syntax-comment"># Analyze feedback scores</span>
+<span class="syntax-keyword">import</span> pandas <span class="syntax-keyword">as</span> pd
+
+<span class="syntax-variable">df</span> = pd.DataFrame(records)
+<span class="syntax-function">print</span>(<span class="syntax-string">"Average Scores:"</span>)
+<span class="syntax-function">print</span>(df[[<span class="syntax-string">"Answer Relevance"</span>, <span class="syntax-string">"Context Relevance"</span>, <span class="syntax-string">"Groundedness"</span>]].mean())
+
+<span class="syntax-comment"># Filter low-performing examples</span>
+<span class="syntax-variable">low_scores</span> = df[df[<span class="syntax-string">"Groundedness"</span>] < 0.7]
+<span class="syntax-function">print</span>(<span class="syntax-string">f"Found {len(low_scores)} examples with low groundedness"</span>)</pre>
+                        </div>
+
+                        <h4>🔄 Continuous Monitoring Setup</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> schedule
+<span class="syntax-keyword">import</span> time
+<span class="syntax-keyword">from</span> datetime <span class="syntax-keyword">import</span> datetime
+<span class="syntax-keyword">import</span> logging
+
+<span class="syntax-keyword">class</span> <span class="syntax-function">TruLensMonitor</span>:
+    <span class="syntax-string">"""Continuous monitoring with TruLens"""</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">__init__</span>(self, app_name, alert_thresholds):
+        self.app_name = app_name
+        self.alert_thresholds = alert_thresholds
+        self.tru = Tru()
+        
+    <span class="syntax-keyword">def</span> <span class="syntax-function">check_performance</span>(self):
+        <span class="syntax-string">"""Check recent performance and send alerts if needed"""</span>
+        
+        <span class="syntax-comment"># Get recent records (last hour)</span>
+        <span class="syntax-variable">records</span> = self.tru.get_records_and_feedback(
+            app_ids=[self.app_name],
+            limit=100  <span class="syntax-comment"># Adjust based on traffic</span>
+        )
+        
+        <span class="syntax-keyword">if</span> <span class="syntax-keyword">not</span> records:
+            <span class="syntax-keyword">return</span>
+            
+        <span class="syntax-variable">df</span> = pd.DataFrame(records)
+        
+        <span class="syntax-comment"># Calculate recent averages</span>
+        <span class="syntax-variable">recent_scores</span> = {
+            <span class="syntax-string">"groundedness"</span>: df[<span class="syntax-string">"Groundedness"</span>].mean(),
+            <span class="syntax-string">"answer_relevance"</span>: df[<span class="syntax-string">"Answer Relevance"</span>].mean(),
+            <span class="syntax-string">"context_relevance"</span>: df[<span class="syntax-string">"Context Relevance"</span>].mean()
+        }
+        
+        <span class="syntax-comment"># Check for alerts</span>
+        <span class="syntax-keyword">for</span> <span class="syntax-variable">metric</span>, <span class="syntax-variable">score</span> <span class="syntax-keyword">in</span> recent_scores.items():
+            <span class="syntax-keyword">if</span> score < self.alert_thresholds.get(metric, 0.7):
+                self._send_alert(metric, score)
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">_send_alert</span>(self, metric, score):
+        <span class="syntax-string">"""Send performance alert"""</span>
+        <span class="syntax-variable">message</span> = <span class="syntax-string">f"⚠️ ALERT: {metric} dropped to {score:.3f} for app {self.app_name}"</span>
+        logging.warning(message)
+        <span class="syntax-comment"># Add your notification logic here (email, Slack, etc.)</span>
+    
+    <span class="syntax-keyword">def</span> <span class="syntax-function">start_monitoring</span>(self):
+        <span class="syntax-string">"""Start continuous monitoring"""</span>
+        schedule.every(15).minutes.do(self.check_performance)
+        
+        <span class="syntax-keyword">while</span> <span class="syntax-keyword">True</span>:
+            schedule.run_pending()
+            time.sleep(60)
+
+<span class="syntax-comment"># Setup monitoring</span>
+<span class="syntax-variable">monitor</span> = TruLensMonitor(
+    app_name=<span class="syntax-string">"RAG_v1"</span>,
+    alert_thresholds={
+        <span class="syntax-string">"groundedness"</span>: 0.8,
+        <span class="syntax-string">"answer_relevance"</span>: 0.75,
+        <span class="syntax-string">"context_relevance"</span>: 0.7
+    }
+)
+
+<span class="syntax-comment"># Start monitoring (in production)</span>
+<span class="syntax-comment"># monitor.start_monitoring()</span></pre>
+                        </div>
+
+                        <h4>📊 Advanced Analytics</h4>
+                        <div class="code-block" data-lang="python">
+<pre><span class="syntax-keyword">import</span> matplotlib.pyplot <span class="syntax-keyword">as</span> plt
+<span class="syntax-keyword">import</span> seaborn <span class="syntax-keyword">as</span> sns
+
+<span class="syntax-keyword">def</span> <span class="syntax-function">analyze_performance_trends</span>(app_name, days=7):
+    <span class="syntax-string">"""Analyze performance trends over time"""</span>
+    
+    <span class="syntax-comment"># Get records</span>
+    <span class="syntax-variable">tru</span> = Tru()
+    <span class="syntax-variable">records</span> = tru.get_records_and_feedback(app_ids=[app_name])
+    
+    <span class="syntax-variable">df</span> = pd.DataFrame(records)
+    <span class="syntax-variable">df</span>[<span class="syntax-string">"timestamp"</span>] = pd.to_datetime(df[<span class="syntax-string">"timestamp"</span>])
+    
+    <span class="syntax-comment"># Filter to last N days</span>
+    <span class="syntax-variable">cutoff</span> = datetime.now() - pd.Timedelta(days=days)
+    <span class="syntax-variable">recent_df</span> = df[df[<span class="syntax-string">"timestamp"</span>] >= cutoff]
+    
+    <span class="syntax-comment"># Resample to hourly averages</span>
+    <span class="syntax-variable">hourly_scores</span> = recent_df.set_index(<span class="syntax-string">"timestamp"</span>).resample(<span class="syntax-string">"H"</span>).agg({
+        <span class="syntax-string">"Groundedness"</span>: <span class="syntax-string">"mean"</span>,
+        <span class="syntax-string">"Answer Relevance"</span>: <span class="syntax-string">"mean"</span>,
+        <span class="syntax-string">"Context Relevance"</span>: <span class="syntax-string">"mean"</span>
+    })
+    
+    <span class="syntax-comment"># Plot trends</span>
+    plt.figure(figsize=(12, 8))
+    
+    <span class="syntax-keyword">for</span> <span class="syntax-variable">i</span>, <span class="syntax-variable">metric</span> <span class="syntax-keyword">in</span> <span class="syntax-function">enumerate</span>(hourly_scores.columns):
+        plt.subplot(2, 2, i+1)
+        plt.plot(hourly_scores.index, hourly_scores[metric])
+        plt.title(<span class="syntax-string">f"{metric} Over Time"</span>)
+        plt.ylabel(<span class="syntax-string">"Score"</span>)
+        plt.xticks(rotation=45)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    <span class="syntax-comment"># Performance summary</span>
+    <span class="syntax-function">print</span>(<span class="syntax-string">f"Performance Summary for {app_name} (Last {days} days):"</span>)
+    <span class="syntax-function">print</span>(hourly_scores.describe())
+    
+    <span class="syntax-keyword">return</span> hourly_scores
+
+<span class="syntax-comment"># Run analysis</span>
+<span class="syntax-variable">trends</span> = <span class="syntax-function">analyze_performance_trends</span>(<span class="syntax-string">"RAG_v1"</span>, days=7)</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison Section -->
+            <section id="comparison" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">⚖️ Framework Comparison</h2>
+                    <p class="section-subtitle">Detailed comparison of RAGAS, DeepEval, and TruLens to help you choose the right tool</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">📊 Feature Comparison Matrix</div>
+                    
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>RAGAS</th>
+                                <th>DeepEval</th>
+                                <th>TruLens</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Reference-free Evaluation</strong></td>
+                                <td>✅ Excellent</td>
+                                <td>✅ Good</td>
+                                <td>✅ Excellent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Testing Framework Integration</strong></td>
+                                <td>🔄 Limited</td>
+                                <td>✅ Excellent (pytest)</td>
+                                <td>🔄 Limited</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Dashboard & Visualization</strong></td>
+                                <td>❌ None</td>
+                                <td>✅ Web Dashboard</td>
+                                <td>✅ Rich Dashboard</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Experiment Tracking</strong></td>
+                                <td>🔄 Basic</td>
+                                <td>✅ Good</td>
+                                <td>✅ Excellent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Production Monitoring</strong></td>
+                                <td>❌ Limited</td>
+                                <td>✅ Good</td>
+                                <td>✅ Excellent</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Custom Metrics</strong></td>
+                                <td>✅ Good</td>
+                                <td>✅ Excellent</td>
+                                <td>✅ Good</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Batch Evaluation</strong></td>
+                                <td>✅ Excellent</td>
+                                <td>✅ Good</td>
+                                <td>✅ Good</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Multi-language Support</strong></td>
+                                <td>✅ Good</td>
+                                <td>🔄 Limited</td>
+                                <td>✅ Good</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Documentation Quality</strong></td>
+                                <td>✅ Good</td>
+                                <td>✅ Excellent</td>
+                                <td>✅ Good</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Learning Curve</strong></td>
+                                <td>🟡 Medium</td>
+                                <td>🟢 Easy</td>
+                                <td>🟡 Medium</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="framework-grid">
+                    <div class="card">
+                        <div class="card-title">📊 RAGAS Strengths & Use Cases</div>
+                        <div class="alert alert-success">
+                            <strong>Best for:</strong> Research, academic evaluation, and comprehensive RAG assessment
+                        </div>
+                        <ul class="feature-list">
+                            <li>Pioneered reference-free RAG evaluation</li>
+                            <li>Comprehensive metric suite</li>
+                            <li>Strong theoretical foundation</li>
+                            <li>Excellent for batch evaluation</li>
+                            <li>Active research community</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <strong>Limitations:</strong> Limited dashboard, basic tracking, minimal testing integration
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🔍 DeepEval Strengths & Use Cases</div>
+                        <div class="alert alert-success">
+                            <strong>Best for:</strong> Development teams, CI/CD integration, and systematic testing
+                        </div>
+                        <ul class="feature-list">
+                            <li>Excellent pytest integration</li>
+                            <li>Comprehensive testing framework</li>
+                            <li>Easy custom metric creation</li>
+                            <li>Good CI/CD support</li>
+                            <li>Developer-friendly API</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <strong>Limitations:</strong> Newer framework, smaller community, limited multi-language support
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🔬 TruLens Strengths & Use Cases</div>
+                        <div class="alert alert-success">
+                            <strong>Best for:</strong> Production monitoring, experiment tracking, and observability
+                        </div>
+                        <ul class="feature-list">
+                            <li>Excellent dashboard and visualization</li>
+                            <li>Comprehensive experiment tracking</li>
+                            <li>Production monitoring capabilities</li>
+                            <li>Rich observability features</li>
+                            <li>Good LLM app integration</li>
+                        </ul>
+                        <div class="alert alert-warning">
+                            <strong>Limitations:</strong> Complex setup, resource intensive, learning curve for advanced features
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Decision Guide -->
+            <section id="decision-guide" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">🎯 Decision Guide</h2>
+                    <p class="section-subtitle">Choose the right framework based on your specific needs and use case</p>
+                </div>
+
+                <div class="framework-grid">
+                    <div class="card">
+                        <div class="card-title">🏭 Production RAG System</div>
+                        <p><strong>Scenario:</strong> You have a RAG system in production and need continuous monitoring.</p>
+                        <div class="alert alert-info">
+                            <strong>Recommended:</strong> TruLens + DeepEval
+                        </div>
+                        <ul class="feature-list">
+                            <li>TruLens for production monitoring</li>
+                            <li>DeepEval for regression testing</li>
+                            <li>Continuous alerts and dashboards</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🔬 Research & Development</div>
+                        <p><strong>Scenario:</strong> You're researching RAG techniques or developing new approaches.</p>
+                        <div class="alert alert-info">
+                            <strong>Recommended:</strong> RAGAS + TruLens
+                        </div>
+                        <ul class="feature-list">
+                            <li>RAGAS for comprehensive evaluation</li>
+                            <li>TruLens for experiment tracking</li>
+                            <li>Academic-grade evaluation metrics</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">⚡ Rapid Prototyping</div>
+                        <p><strong>Scenario:</strong> You're building a POC or MVP and need quick evaluation setup.</p>
+                        <div class="alert alert-info">
+                            <strong>Recommended:</strong> DeepEval
+                        </div>
+                        <ul class="feature-list">
+                            <li>Quick setup and integration</li>
+                            <li>Familiar testing patterns</li>
+                            <li>Easy custom metrics</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🏢 Enterprise Deployment</div>
+                        <p><strong>Scenario:</strong> Large-scale deployment with multiple teams and strict requirements.</p>
+                        <div class="alert alert-info">
+                            <strong>Recommended:</strong> All Three (Layered Approach)
+                        </div>
+                        <ul class="feature-list">
+                            <li>RAGAS for comprehensive batch evaluation</li>
+                            <li>DeepEval for CI/CD and testing</li>
+                            <li>TruLens for production monitoring</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">🛤️ Implementation Roadmap</div>
+                    
+                    <div class="tabs">
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="phase1">Phase 1: Foundation</button>
+                            <button class="tab-button" data-tab="phase2">Phase 2: Testing</button>
+                            <button class="tab-button" data-tab="phase3">Phase 3: Production</button>
+                            <button class="tab-button" data-tab="phase4">Phase 4: Optimization</button>
+                        </div>
+                    </div>
+
+                    <div id="phase1" class="tab-content active">
+                        <h4>🏗️ Phase 1: Foundation (Week 1-2)</h4>
+                        <ul class="feature-list">
+                            <li>Set up basic RAG evaluation with RAGAS</li>
+                            <li>Create evaluation dataset</li>
+                            <li>Establish baseline metrics</li>
+                            <li>Document evaluation process</li>
+                        </ul>
+                        <div class="alert alert-info">
+                            <strong>Goal:</strong> Establish reliable evaluation baseline
+                        </div>
+                    </div>
+
+                    <div id="phase2" class="tab-content">
+                        <h4>🧪 Phase 2: Testing Integration (Week 3-4)</h4>
+                        <ul class="feature-list">
+                            <li>Integrate DeepEval for automated testing</li>
+                            <li>Set up CI/CD pipeline with evaluation</li>
+                            <li>Create regression test suite</li>
+                            <li>Establish performance thresholds</li>
+                        </ul>
+                        <div class="alert alert-info">
+                            <strong>Goal:</strong> Automated quality gates in development
+                        </div>
+                    </div>
+
+                    <div id="phase3" class="tab-content">
+                        <h4>📊 Phase 3: Production Monitoring (Week 5-6)</h4>
+                        <ul class="feature-list">
+                            <li>Deploy TruLens for production monitoring</li>
+                            <li>Set up alerts and dashboards</li>
+                            <li>Implement continuous evaluation</li>
+                            <li>Train team on monitoring tools</li>
+                        </ul>
+                        <div class="alert alert-info">
+                            <strong>Goal:</strong> Real-time production insights
+                        </div>
+                    </div>
+
+                    <div id="phase4" class="tab-content">
+                        <h4>🎯 Phase 4: Optimization (Ongoing)</h4>
+                        <ul class="feature-list">
+                            <li>Analyze performance trends</li>
+                            <li>Optimize based on evaluation insights</li>
+                            <li>Expand custom metrics</li>
+                            <li>Scale monitoring infrastructure</li>
+                        </ul>
+                        <div class="alert alert-info">
+                            <strong>Goal:</strong> Continuous improvement and optimization
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices" class="section">
+                <div class="section-header">
+                    <h2 class="section-title">✨ Best Practices</h2>
+                    <p class="section-subtitle">Expert recommendations for effective RAG evaluation</p>
+                </div>
+
+                <div class="framework-grid">
+                    <div class="card">
+                        <div class="card-title">📋 Evaluation Dataset Design</div>
+                        <ul class="feature-list">
+                            <li>Include diverse question types and complexity levels</li>
+                            <li>Test edge cases and failure modes</li>
+                            <li>Regular dataset updates with new scenarios</li>
+                            <li>Balance between synthetic and real user questions</li>
+                            <li>Include domain-specific examples</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">📊 Metric Selection</div>
+                        <ul class="feature-list">
+                            <li>Start with core metrics: faithfulness, relevance, groundedness</li>
+                            <li>Add custom metrics for domain requirements</li>
+                            <li>Balance automated and human evaluation</li>
+                            <li>Set realistic thresholds based on use case</li>
+                            <li>Track metrics trends, not just absolute values</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🔄 Continuous Evaluation</div>
+                        <ul class="feature-list">
+                            <li>Automate evaluation in CI/CD pipelines</li>
+                            <li>Set up alerts for performance degradation</li>
+                            <li>Regular evaluation of production data</li>
+                            <li>Version control for evaluation datasets</li>
+                            <li>Document evaluation methodology changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🎯 Performance Optimization</div>
+                        <ul class="feature-list">
+                            <li>Use evaluation insights to guide improvements</li>
+                            <li>A/B test different RAG configurations</li>
+                            <li>Focus on metrics most important to users</li>
+                            <li>Balance evaluation cost vs. insight value</li>
+                            <li>Iterate based on real user feedback</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <h3>📚 RAG Evaluation Framework Guide</h3>
+                <p>A comprehensive guide to evaluating Retrieval-Augmented Generation systems using RAGAS, DeepEval, and TruLens.</p>
+                <div style="margin-top: 2rem;">
+                    <p><strong>Created with ❤️ for the AI/ML community</strong></p>
+                    <p>Last updated: March 2026 | Version 1.0</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Tab functionality
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach((button) => {
+                button.addEventListener('click', (e) => {
+                    // Get the target tab from data attribute
+                    const targetTab = button.getAttribute('data-tab');
+                    
+                    // Remove active class from all buttons in this tab group
+                    const tabGroup = button.closest('.tabs');
+                    tabGroup.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Hide all tab contents in this section
+                    const section = button.closest('section');
+                    section.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the target tab content
+                    const targetContent = document.getElementById(targetTab);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Highlight active navigation item
+        function updateActiveNav() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            const sections = document.querySelectorAll('section[id]');
+            
+            let currentSection = '';
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= 100) {
+                    currentSection = section.id;
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${currentSection}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setupTabs();
+            
+            // Animate progress bars when they come into view
+            const progressBars = document.querySelectorAll('.progress-fill');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const width = entry.target.getAttribute('data-width');
+                        if (width) {
+                            setTimeout(() => {
+                                entry.target.style.width = width + '%';
+                            }, 200);
+                        }
+                    }
+                });
+            });
+
+            progressBars.forEach(bar => {
+                bar.style.width = '0%';
+                observer.observe(bar);
+            });
+
+            // Update navigation on scroll
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav(); // Initial call
+            
+            // Add copy button to code blocks
+            document.querySelectorAll('.code-block').forEach(block => {
+                const button = document.createElement('button');
+                button.innerHTML = '📋 Copy';
+                button.className = 'copy-button';
+                button.style.position = 'absolute';
+                button.style.top = '0.5rem';
+                button.style.right = '4rem';
+                button.style.background = 'var(--primary-color)';
+                button.style.color = 'white';
+                button.style.border = 'none';
+                button.style.padding = '0.25rem 0.5rem';
+                button.style.borderRadius = '0.25rem';
+                button.style.fontSize = '0.8rem';
+                button.style.cursor = 'pointer';
+                button.style.zIndex = '10';
+                
+                button.addEventListener('click', () => {
+                    const code = block.querySelector('pre').textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        button.innerHTML = '✅ Copied!';
+                        setTimeout(() => {
+                            button.innerHTML = '📋 Copy';
+                        }, 2000);
+                    });
+                });
+                
+                block.style.position = 'relative';
+                block.appendChild(button);
+            });
+        });
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to metric cards
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                    this.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                });
+            });
+            
+            // Add search functionality
+            const searchInput = document.createElement('input');
+            searchInput.type = 'text';
+            searchInput.placeholder = 'Search this guide...';
+            searchInput.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 10px 15px;
+                border: 2px solid var(--primary-color);
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 1000;
+                background: white;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            `;
+            
+            let searchTimeout;
+            searchInput.addEventListener('input', function(e) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    const query = e.target.value.toLowerCase();
+                    const sections = document.querySelectorAll('section');
+                    
+                    sections.forEach(section => {
+                        const text = section.textContent.toLowerCase();
+                        const shouldShow = query === '' || text.includes(query);
+                        section.style.display = shouldShow ? 'block' : 'none';
+                    });
+                }, 300);
+            });
+            
+            document.body.appendChild(searchInput);
+        });
+    </script>
+</body>
+</html>
