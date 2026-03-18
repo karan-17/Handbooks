@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Graphs Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 1;
+            color: #f8f9fa;
+        }
+
+        nav {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: #4c51bf;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: #4c51bf;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color: #2d3748;
+            border-bottom: 3px solid #4c51bf;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: #2d3748;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        h4 {
+            color: #4a5568;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+            background: none;
+            color: inherit;
+            font-family: inherit;
+            white-space: pre;
+            word-wrap: normal;
+            overflow-x: auto;
+        }
+        
+        .code-block code {
+            background: none;
+            color: inherit;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        .code-block::before {
+            content: attr(data-language);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            color: #a0aec0;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .inline-code {
+            background: #edf2f7;
+            color: #2d3748;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
+            border-left: 4px solid #d39e00;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            color: #856404;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #2b77e6 0%, #0056b3 100%);
+            color: #ffffff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #004494;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: #ffffff;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid #a71e2a;
+        }
+
+        .database-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .database-card {
+            background: linear-gradient(135deg, #e6fffa 0%, #f7fafc 100%);
+            border: 2px solid #38b2ac;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .database-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .database-card h4 {
+            color: #234e52;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        
+        .database-card p,
+        .database-card li {
+            color: #2d3748;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+
+        .toc ul {
+            margin-left: 1rem;
+        }
+
+        .toc a {
+            color: #4c51bf;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .database-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .setup-steps {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .setup-steps ol {
+            color: #2d3748;
+            margin-left: 1.5rem;
+        }
+
+        .setup-steps li {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .query-example {
+            margin: 1.5rem 0;
+        }
+
+        .query-title {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px 5px 0 0;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .query-description {
+            background: #e6fffa;
+            padding: 1rem;
+            border-left: 4px solid #38b2ac;
+            margin: 0;
+            border-radius: 0 0 5px 5px;
+            color: #234e52;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Knowledge Graphs Handbook</h1>
+            <p class="subtitle">A Comprehensive Guide to Knowledge Graphs, Context Preparation, and Database Solutions</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#concepts">Core Concepts</a></li>
+                <li><a href="#context">Context Preparation</a></li>
+                <li><a href="#data-storage">Data Storage</a></li>
+                <li><a href="#neo4j">Neo4j</a></li>
+                <li><a href="#arangodb">ArangoDB</a></li>
+                <li><a href="#other-databases">Other Databases</a></li>
+                <li><a href="#examples">Examples</a></li>
+            </ul>
+        </nav>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#introduction">1. Introduction to Knowledge Graphs</a></li>
+                <li><a href="#concepts">2. Core Concepts and Fundamentals</a></li>
+                <li><a href="#context">3. Preparing Context for Knowledge Graphs</a></li>
+                <li><a href="#data-storage">4. Saving Data in Knowledge Graphs</a></li>
+                <li><a href="#neo4j">5. Neo4j: Setup and Advanced Queries</a></li>
+                <li><a href="#arangodb">6. ArangoDB: Setup and Advanced Queries</a></li>
+                <li><a href="#other-databases">7. Other Knowledge Graph Databases</a></li>
+                <li><a href="#examples">8. Practical Examples and Use Cases</a></li>
+            </ul>
+        </div>
+
+        <section id="introduction" class="section">
+            <h2>1. Introduction to Knowledge Graphs</h2>
+            
+            <p>Knowledge graphs represent a revolutionary approach to organizing and connecting information in a way that mirrors how humans naturally think about relationships between concepts. Unlike traditional databases that store data in rigid tables, knowledge graphs use a flexible graph structure consisting of nodes (entities) and edges (relationships) to model complex interconnections.</p>
+
+            <div class="highlight-box">
+                <strong>Key Definition:</strong> A knowledge graph is a structured representation of knowledge that captures entities, their attributes, and the relationships between them in a graph format, enabling semantic understanding and inference.
+            </div>
+
+            <h3>What Makes Knowledge Graphs Powerful?</h3>
+            
+            <p>Knowledge graphs excel in several key areas that make them indispensable for modern data applications:</p>
+
+            <ul>
+                <li><strong>Semantic Understanding:</strong> They capture the meaning and context of data, not just raw information</li>
+                <li><strong>Relationship Modeling:</strong> Complex multi-dimensional relationships are naturally represented</li>
+                <li><strong>Inference Capabilities:</strong> New knowledge can be derived from existing connections</li>
+                <li><strong>Flexibility:</strong> Schema evolution and data integration become much easier</li>
+                <li><strong>Query Power:</strong> Graph traversal queries enable sophisticated data exploration</li>
+            </ul>
+
+            <h3>Historical Context and Evolution</h3>
+            
+            <p>The concept of knowledge graphs has evolved from early artificial intelligence research in semantic networks and expert systems. Google popularized the term "Knowledge Graph" in 2012 with their search enhancement initiative, but the underlying principles have been developing for decades:</p>
+
+            <ul>
+                <li><strong>1960s-70s:</strong> Semantic networks in AI research</li>
+                <li><strong>1980s-90s:</strong> Expert systems and knowledge bases</li>
+                <li><strong>2000s:</strong> Semantic Web and RDF standards</li>
+                <li><strong>2010s:</strong> Commercial knowledge graphs (Google, Facebook)</li>
+                <li><strong>2020s:</strong> Integration with machine learning and AI</li>
+            </ul>
+
+            <h3>Applications Across Industries</h3>
+            
+            <div class="database-grid">
+                <div class="database-card">
+                    <h4>Search Engines</h4>
+                    <p>Enhanced search results with semantic understanding, featured snippets, and contextual information display.</p>
+                </div>
+                <div class="database-card">
+                    <h4>Recommendation Systems</h4>
+                    <p>Sophisticated recommendations based on entity relationships, user behavior patterns, and content similarities.</p>
+                </div>
+                <div class="database-card">
+                    <h4>Drug Discovery</h4>
+                    <p>Mapping relationships between genes, proteins, diseases, and compounds to accelerate pharmaceutical research.</p>
+                </div>
+                <div class="database-card">
+                    <h4>Financial Services</h4>
+                    <p>Fraud detection, risk assessment, and regulatory compliance through relationship analysis.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="concepts" class="section">
+            <h2>2. Core Concepts and Fundamentals</h2>
+
+            <h3>Graph Theory Foundations</h3>
+            
+            <p>Understanding knowledge graphs requires familiarity with fundamental graph theory concepts:</p>
+
+            <h4>Nodes (Vertices)</h4>
+            <p>Nodes represent entities in your domain - people, places, concepts, objects, or any distinct item of interest. Each node typically has:</p>
+            <ul>
+                <li><strong>Identity:</strong> A unique identifier</li>
+                <li><strong>Type/Label:</strong> Classification of the entity</li>
+                <li><strong>Properties:</strong> Key-value attributes describing the entity</li>
+            </ul>
+
+            <div class="code-block" data-language="example">
+                <pre><code>Person Node:
+- ID: person_001
+- Label: Person
+- Properties: {name: &quot;Alice Johnson&quot;, age: 32, occupation: &quot;Data Scientist&quot;}</code></pre>
+            </div>
+
+            <h4>Edges (Relationships)</h4>
+            <p>Edges define connections between nodes, representing how entities relate to each other. Edges can be:</p>
+            <ul>
+                <li><strong>Directed:</strong> Having a specific direction (A → B)</li>
+                <li><strong>Undirected:</strong> Bidirectional relationships (A ↔ B)</li>
+                <li><strong>Weighted:</strong> Carrying strength or probability values</li>
+                <li><strong>Labeled:</strong> Having specific relationship types</li>
+            </ul>
+
+            <div class="code-block" data-language="example">
+                <pre><code>Relationship Example:
+Alice WORKS_AT Google
+- Source: Alice Johnson
+- Target: Google Inc.
+- Type: WORKS_AT
+- Properties: {start_date: &quot;2020-01-15&quot;, role: &quot;Senior Engineer&quot;}</code></pre>
+            </div>
+
+            <h3>Knowledge Representation Models</h3>
+
+            <h4>RDF (Resource Description Framework)</h4>
+            <p>RDF is a W3C standard for representing information using subject-predicate-object triples:</p>
+
+            <div class="code-block" data-language="turtle">
+                <pre><code>@prefix ex: &amp;lt;http://example.org/&amp;gt; .
+@prefix foaf: &amp;lt;http://xmlns.com/foaf/0.1/&amp;gt; .
+
+ex:Alice foaf:name &quot;Alice Johnson&quot; .
+ex:Alice foaf:age 32 .
+ex:Alice ex:worksAt ex:Google .</code></pre>
+            </div>
+
+            <h4>Property Graphs</h4>
+            <p>Property graphs allow both nodes and edges to have properties, making them more flexible for many applications:</p>
+
+            <div class="info-box">
+                <strong>Property Graph Advantages:</strong> Direct support for properties on relationships, intuitive modeling for developers, and efficient storage and querying in graph databases.
+            </div>
+
+            <h3>Ontologies and Schemas</h3>
+
+            <p>Ontologies define the structure and semantics of your knowledge graph:</p>
+
+            <ul>
+                <li><strong>Classes:</strong> Types of entities (Person, Organization, Location)</li>
+                <li><strong>Properties:</strong> Attributes and relationships</li>
+                <li><strong>Constraints:</strong> Rules and restrictions</li>
+                <li><strong>Hierarchies:</strong> Inheritance and specialization</li>
+            </ul>
+
+            <h4>Schema Design Best Practices</h4>
+            
+            <div class="setup-steps">
+                <ol>
+                    <li><strong>Start with Use Cases:</strong> Define what questions your graph needs to answer</li>
+                    <li><strong>Identify Core Entities:</strong> List the main types of things in your domain</li>
+                    <li><strong>Map Relationships:</strong> Understand how entities connect</li>
+                    <li><strong>Design for Growth:</strong> Anticipate future extensions</li>
+                    <li><strong>Consider Performance:</strong> Optimize for expected query patterns</li>
+                </ol>
+            </div>
+
+            <h3>Graph Algorithms and Analysis</h3>
+
+            <p>Knowledge graphs enable powerful analytical capabilities through graph algorithms:</p>
+
+            <h4>Path Finding</h4>
+            <ul>
+                <li><strong>Shortest Path:</strong> Finding minimal connections between entities</li>
+                <li><strong>All Paths:</strong> Discovering all possible connection routes</li>
+                <li><strong>Path Existence:</strong> Determining if entities are connected</li>
+            </ul>
+
+            <h4>Centrality Measures</h4>
+            <ul>
+                <li><strong>Degree Centrality:</strong> Importance based on number of connections</li>
+                <li><strong>Betweenness Centrality:</strong> Importance based on bridging different parts</li>
+                <li><strong>PageRank:</strong> Importance based on quality of incoming connections</li>
+            </ul>
+
+            <h4>Community Detection</h4>
+            <ul>
+                <li><strong>Clustering:</strong> Identifying tightly connected groups</li>
+                <li><strong>Community Structure:</strong> Understanding network organization</li>
+                <li><strong>Modularity:</strong> Measuring community strength</li>
+            </ul>
+        </section>
+
+        <section id="context" class="section">
+            <h2>3. Preparing Context for Knowledge Graphs</h2>
+
+            <h3>Data Sources and Integration</h3>
+            
+            <p>Building effective knowledge graphs requires careful consideration of data sources and integration strategies. Context preparation involves understanding your data landscape, cleaning and standardizing information, and establishing connections between disparate datasets.</p>
+
+            <h4>Common Data Source Types</h4>
+            
+            <div class="database-grid">
+                <div class="database-card">
+                    <h4>Structured Data</h4>
+                    <ul>
+                        <li>Relational databases</li>
+                        <li>CSV files</li>
+                        <li>API responses</li>
+                        <li>XML documents</li>
+                    </ul>
+                </div>
+                <div class="database-card">
+                    <h4>Semi-Structured Data</h4>
+                    <ul>
+                        <li>JSON documents</li>
+                        <li>Web scraping results</li>
+                        <li>Log files</li>
+                        <li>Email headers</li>
+                    </ul>
+                </div>
+                <div class="database-card">
+                    <h4>Unstructured Data</h4>
+                    <ul>
+                        <li>Text documents</li>
+                        <li>Images with metadata</li>
+                        <li>Social media posts</li>
+                        <li>Research papers</li>
+                    </ul>
+                </div>
+                <div class="database-card">
+                    <h4>External Knowledge</h4>
+                    <ul>
+                        <li>Wikipedia/DBpedia</li>
+                        <li>Wikidata</li>
+                        <li>Domain ontologies</li>
+                        <li>Industry standards</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Entity Resolution and Linking</h3>
+            
+            <p>One of the most critical aspects of context preparation is ensuring that the same real-world entities are properly identified and linked across different data sources.</p>
+
+            <h4>Entity Resolution Process</h4>
+            
+            <div class="setup-steps">
+                <ol>
+                    <li><strong>Entity Extraction:</strong> Identify potential entities in raw data</li>
+                    <li><strong>Candidate Generation:</strong> Find possible matches across sources</li>
+                    <li><strong>Feature Extraction:</strong> Extract comparable attributes</li>
+                    <li><strong>Similarity Computation:</strong> Calculate match probabilities</li>
+                    <li><strong>Clustering/Linking:</strong> Group matching entities</li>
+                    <li><strong>Validation:</strong> Review and confirm matches</li>
+                </ol>
+            </div>
+
+            <h4>Techniques for Entity Resolution</h4>
+            
+            <div class="code-block" data-language="python">
+                <pre><code># Example: String similarity for entity matching
+from fuzzywuzzy import fuzz
+import pandas as pd
+
+
+def calculate_entity_similarity(entity1, entity2):
+    """Calculate similarity between two entity names
+    
+    Args:
+        entity1 (dict): First entity with 'name' key
+        entity2 (dict): Second entity with 'name' key
+    
+    Returns:
+        float: Similarity score between 0 and 100
+    """
+    # Normalize strings
+    name1 = entity1.get('name', '').lower().strip()
+    name2 = entity2.get('name', '').lower().strip()
+    
+    # Calculate different similarity metrics
+    ratio = fuzz.ratio(name1, name2)
+    token_sort = fuzz.token_sort_ratio(name1, name2)
+    token_set = fuzz.token_set_ratio(name1, name2)
+    
+    # Weighted average for better accuracy
+    similarity = (ratio * 0.4 + token_sort * 0.3 + token_set * 0.3)
+    
+    return similarity
+
+
+def multi_attribute_matching(entity1, entity2, weights):
+    """Match entities based on multiple attributes with weighted scoring
+    
+    Args:
+        entity1 (dict): First entity dictionary
+        entity2 (dict): Second entity dictionary  
+        weights (dict): Attribute weights for scoring
+    
+    Returns:
+        float: Weighted similarity score
+    """
+    total_score = 0
+    total_weight = 0
+    
+    for attr, weight in weights.items():
+        if attr in entity1 and attr in entity2:
+            score = fuzz.ratio(
+                str(entity1[attr]).lower(),
+                str(entity2[attr]).lower()
+            )
+            total_score += score * weight
+            total_weight += weight
+    
+    return total_score / total_weight if total_weight > 0 else 0
+
+
+# Example usage
+if __name__ == "__main__":
+    entity_a = {"name": "Google Inc.", "location": "Mountain View"}
+    entity_b = {"name": "Google LLC", "location": "Mountain View"}
+    
+    weights = {"name": 0.7, "location": 0.3}
+    similarity = multi_attribute_matching(entity_a, entity_b, weights)
+    print(f"Similarity score: {similarity:.2f}")</code></pre>
+            </div>
+
+            <h3>Data Quality and Cleaning</h3>
+            
+            <p>High-quality knowledge graphs depend on clean, consistent data. Implement comprehensive data quality measures throughout your preparation pipeline.</p>
+
+            <h4>Data Quality Dimensions</h4>
+            
+            <ul>
+                <li><strong>Completeness:</strong> Ensuring all necessary attributes are present</li>
+                <li><strong>Accuracy:</strong> Verifying data correctness</li>
+                <li><strong>Consistency:</strong> Maintaining uniform formats and values</li>
+                <li><strong>Timeliness:</strong> Keeping data current and relevant</li>
+                <li><strong>Validity:</strong> Ensuring data conforms to business rules</li>
+                <li><strong>Uniqueness:</strong> Eliminating duplicate entities</li>
+            </ul>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Data cleaning pipeline example
+import re
+from datetime import datetime
+from typing import Optional, List
+import validators
+
+
+class DataCleaner:
+    &quot;&quot;&quot;Comprehensive data cleaning utility for knowledge graph preparation&quot;&quot;&quot;
+
+    def __init__(self):
+        &quot;&quot;&quot;Initialize the DataCleaner with default cleaning rules&quot;&quot;&quot;
+        self.cleaning_rules = {}
+        self.statistics = {
+            &#x27;cleaned_records&#x27;: 0,
+            &#x27;failed_validations&#x27;: 0,
+            &#x27;null_values_handled&#x27;: 0
+        }
+
+    def clean_name(self, name: Optional[str]) -&gt; Optional[str]:
+        &quot;&quot;&quot;Standardize name formatting for entities
+
+        Args:
+            name: Raw name string to clean
+
+        Returns:
+            Standardized name string or None if invalid
+        &quot;&quot;&quot;
+        if not name or not isinstance(name, str):
+            self.statistics[&#x27;null_values_handled&#x27;] += 1
+            return None
+
+        # Remove extra whitespace and normalize
+        name = re.sub(r&#x27;\s+&#x27;, &#x27; &#x27;, name.strip())
+
+        # Title case for proper names
+        name = name.title()
+
+        # Handle business entity suffixes
+        business_suffixes = r&#x27;\b(Llc|Inc|Corp|Ltd|Co|Company|Corporation)\b&#x27;
+        name = re.sub(business_suffixes, 
+                     lambda m: m.group(1).upper(), name)
+
+        # Remove special characters except hyphens and apostrophes
+        name = re.sub(r&#x27;[^a-zA-Z0-9\s\-\&#x27;\.]&#x27;, &#x27;&#x27;, name)
+
+        return name if len(name.strip()) &gt; 0 else None
+
+    def clean_email(self, email: Optional[str]) -&gt; Optional[str]:
+        &quot;&quot;&quot;Validate and standardize email addresses
+
+        Args:
+            email: Raw email string to validate
+
+        Returns:
+            Valid email address or None
+        &quot;&quot;&quot;
+        if not email or not isinstance(email, str):
+            return None
+
+        # Normalize email
+        email = email.lower().strip()
+
+        # Basic format validation
+        if &#x27;@&#x27; not in email or &#x27;.&#x27; not in email.split(&#x27;@&#x27;)[1]:
+            self.statistics[&#x27;failed_validations&#x27;] += 1
+            return None
+
+        # Use validators library for comprehensive validation
+        try:
+            if validators.email(email):
+                return email
+            else:
+                self.statistics[&#x27;failed_validations&#x27;] += 1
+                return None
+        except Exception:
+            self.statistics[&#x27;failed_validations&#x27;] += 1
+            return None
+
+    def clean_phone(self, phone: Optional[str]) -&gt; Optional[str]:
+        &quot;&quot;&quot;Standardize phone number format
+
+        Args:
+            phone: Raw phone number string
+
+        Returns:
+            Formatted phone number or None
+        &quot;&quot;&quot;
+        if not phone or not isinstance(phone, str):
+            return None
+
+        # Remove all non-digits
+        digits = re.sub(r&#x27;\D&#x27;, &#x27;&#x27;, phone)
+
+        # Handle different phone number formats
+        if len(digits) == 10:
+            # US domestic format
+            return f&quot;({digits[:3]}) {digits[3:6]}-{digits[6:]}&quot;
+        elif len(digits) == 11 and digits[0] == &#x27;1&#x27;:
+            # US international format
+            return f&quot;+1 ({digits[1:4]}) {digits[4:7]}-{digits[7:]}&quot;
+        elif len(digits) &gt;= 7:  # Minimum valid phone length
+            return digits  # Return cleaned digits for international numbers
+        else:
+            self.statistics[&#x27;failed_validations&#x27;] += 1
+            return None
+
+    def validate_date(self, date_str: Optional[str], 
+                     formats: List[str] = None) -&gt; Optional[datetime.date]:
+        &quot;&quot;&quot;Parse and validate date strings with multiple format support
+
+        Args:
+            date_str: Date string to parse
+            formats: List of date formats to try
+
+        Returns:
+            Parsed date object or None
+        &quot;&quot;&quot;
+        if not date_str or not isinstance(date_str, str):
+            return None
+
+        if formats is None:
+            formats = [&#x27;%Y-%m-%d&#x27;, &#x27;%m/%d/%Y&#x27;, &#x27;%d/%m/%Y&#x27;, &#x27;%Y-%m-%d %H:%M:%S&#x27;]
+
+        # Clean the date string
+        date_str = date_str.strip()
+
+        for fmt in formats:
+            try:
+                parsed_date = datetime.strptime(date_str, fmt)
+                # Validate reasonable date range (1900-2100)
+                if 1900 &lt;= parsed_date.year &lt;= 2100:
+                    return parsed_date.date()
+            except ValueError:
+                continue
+
+        self.statistics[&#x27;failed_validations&#x27;] += 1
+        return None
+
+    def get_cleaning_statistics(self) -&gt; dict:
+        &quot;&quot;&quot;Get statistics about the cleaning process
+
+        Returns:
+            Dictionary with cleaning statistics
+        &quot;&quot;&quot;
+        return self.statistics.copy()
+
+
+# Example usage and testing
+if __name__ == &quot;__main__&quot;:
+    cleaner = DataCleaner()
+
+    # Test data cleaning
+    test_data = {
+        &#x27;names&#x27;: [&#x27;  alice johnson  &#x27;, &#x27;GOOGLE INC.&#x27;, &#x27;bob@smith&#x27;, None],
+        &#x27;emails&#x27;: [&#x27;Alice@Example.COM&#x27;, &#x27;invalid-email&#x27;, &#x27;user@domain.co.uk&#x27;],
+        &#x27;phones&#x27;: [&#x27;(555) 123-4567&#x27;, &#x27;+1-555-987-6543&#x27;, &#x27;5551234&#x27;, &#x27;123&#x27;]
+    }
+
+    print(&quot;Data Cleaning Results:&quot;)
+    for name in test_data[&#x27;names&#x27;]:
+        print(f&quot;Name: &#x27;{name}&#x27; -&gt; &#x27;{cleaner.clean_name(name)}&#x27;&quot;)
+
+    for email in test_data[&#x27;emails&#x27;]:
+        print(f&quot;Email: &#x27;{email}&#x27; -&gt; &#x27;{cleaner.clean_email(email)}&#x27;&quot;)
+
+    for phone in test_data[&#x27;phones&#x27;]:
+        print(f&quot;Phone: &#x27;{phone}&#x27; -&gt; &#x27;{cleaner.clean_phone(phone)}&#x27;&quot;)
+
+    print(f&quot;\nCleaning Statistics: {cleaner.get_cleaning_statistics()}&quot;)</code></pre>
+            </div>
+
+            <h3>Schema Mapping and Transformation</h3>
+            
+            <p>Transform heterogeneous data into a unified graph schema that supports your analytical requirements.</p>
+
+            <h4>Mapping Strategy</h4>
+            
+            <div class="info-box">
+                <strong>Key Principle:</strong> Design your target schema based on your analytical needs, not just your source data structure. Focus on the relationships and patterns you want to discover.
+            </div>
+
+            <div class="code-block" data-language="yaml">
+                <pre><code># Example schema mapping configuration
+schema_mapping:
+  entities:
+    Person:
+      sources:
+        - employees_table
+        - customers_csv
+        - contacts_api
+      primary_key: [&quot;email&quot;, &quot;ssn&quot;]
+      attributes:
+        name:
+          sources: [&quot;full_name&quot;, &quot;customer_name&quot;, &quot;contact_name&quot;]
+          transform: &quot;clean_name&quot;
+        email:
+          sources: [&quot;email_address&quot;, &quot;email&quot;, &quot;contact_email&quot;]
+          transform: &quot;clean_email&quot;
+        phone:
+          sources: [&quot;phone_number&quot;, &quot;phone&quot;, &quot;contact_phone&quot;]
+          transform: &quot;clean_phone&quot;
+
+    Organization:
+      sources:
+        - companies_db
+        - vendors_list
+      primary_key: [&quot;tax_id&quot;, &quot;name&quot;]
+      attributes:
+        name:
+          sources: [&quot;company_name&quot;, &quot;vendor_name&quot;]
+          transform: &quot;clean_name&quot;
+        industry:
+          sources: [&quot;industry_code&quot;, &quot;sector&quot;]
+          transform: &quot;standardize_industry&quot;
+
+  relationships:
+    WORKS_FOR:
+      source_entity: Person
+      target_entity: Organization
+      sources:
+        - employees_table: [&quot;employee_id&quot;, &quot;company_id&quot;]
+        - contractors: [&quot;person_email&quot;, &quot;client_name&quot;]
+      attributes:
+        start_date:
+          sources: [&quot;hire_date&quot;, &quot;contract_start&quot;]
+          transform: &quot;parse_date&quot;
+        position:
+          sources: [&quot;job_title&quot;, &quot;role&quot;]</code></pre>
+            </div>
+
+            <h3>Incremental Updates and Change Detection</h3>
+            
+            <p>Design systems to handle evolving data while maintaining graph consistency and performance.</p>
+
+            <h4>Change Detection Strategies</h4>
+            
+            <ul>
+                <li><strong>Timestamp-based:</strong> Track last modified dates</li>
+                <li><strong>Version-based:</strong> Maintain version numbers</li>
+                <li><strong>Hash-based:</strong> Compare content hashes</li>
+                <li><strong>Event-driven:</strong> Process real-time changes</li>
+                <li><strong>Full comparison:</strong> Periodic complete reconciliation</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>Important:</strong> Always maintain data lineage information to track the source and transformation history of each entity and relationship in your knowledge graph.
+            </div>
+        </section>
+
+        <section id="data-storage" class="section">
+            <h2>4. Saving Data in Knowledge Graphs</h2>
+
+            <h3>Storage Models and Architectures</h3>
+            
+            <p>Understanding different storage approaches is crucial for building scalable and performant knowledge graph systems. The choice of storage model impacts query performance, scalability, and maintenance complexity.</p>
+
+            <h4>Native Graph Storage</h4>
+            
+            <p>Native graph databases store data in graph structures optimized for traversal operations:</p>
+
+            <div class="highlight-box">
+                <strong>Advantages:</strong> Optimal performance for graph queries, natural representation of relationships, efficient memory usage for traversals.
+                <br><br>
+                <strong>Use Cases:</strong> Social networks, recommendation engines, fraud detection, knowledge bases.
+            </div>
+
+            <h4>Triple Stores (RDF Storage)</h4>
+            
+            <p>Specialized databases for storing RDF triples, optimized for semantic web technologies:</p>
+
+            <div class="code-block" data-language="sparql">
+                <pre><code># Example RDF triples
+&amp;lt;http://example.org/person/alice&amp;gt; 
+    &amp;lt;http://xmlns.com/foaf/0.1/name&amp;gt; &quot;Alice Johnson&quot; ;
+    &amp;lt;http://example.org/worksFor&amp;gt; &amp;lt;http://example.org/company/google&amp;gt; ;
+    &amp;lt;http://example.org/age&amp;gt; &quot;32&quot;^^&amp;lt;http://www.w3.org/2001/XMLSchema#integer&amp;gt; .</code></pre>
+            </div>
+
+            <h4>Multi-Model Approaches</h4>
+            
+            <p>Some databases support multiple data models within a single system:</p>
+
+            <ul>
+                <li><strong>Document + Graph:</strong> Store documents with graph relationships</li>
+                <li><strong>Relational + Graph:</strong> Hybrid SQL and graph querying</li>
+                <li><strong>Key-Value + Graph:</strong> Fast lookups with relationship traversal</li>
+            </ul>
+
+            <h3>Data Modeling Strategies</h3>
+
+            <h4>Entity-Centric Modeling</h4>
+            
+            <p>Focus on entities as primary nodes with rich property sets:</p>
+
+            <div class="code-block" data-language="json">
+                <pre><code>{
+  &quot;id&quot;: &quot;person_001&quot;,
+  &quot;type&quot;: &quot;Person&quot;,
+  &quot;properties&quot;: {
+    &quot;name&quot;: &quot;Alice Johnson&quot;,
+    &quot;age&quot;: 32,
+    &quot;email&quot;: &quot;alice@example.com&quot;,
+    &quot;skills&quot;: [&quot;Python&quot;, &quot;Machine Learning&quot;, &quot;Data Science&quot;],
+    &quot;certifications&quot;: [
+      {
+        &quot;name&quot;: &quot;AWS Solutions Architect&quot;,
+        &quot;issueDate&quot;: &quot;2023-01-15&quot;,
+        &quot;expiryDate&quot;: &quot;2026-01-15&quot;
+      }
+    ]
+  },
+  &quot;relationships&quot;: [
+    {
+      &quot;type&quot;: &quot;WORKS_FOR&quot;,
+      &quot;target&quot;: &quot;company_001&quot;,
+      &quot;properties&quot;: {
+        &quot;startDate&quot;: &quot;2020-01-15&quot;,
+        &quot;position&quot;: &quot;Senior Data Scientist&quot;,
+        &quot;salary&quot;: 120000
+      }
+    }
+  ]
+}</code></pre>
+            </div>
+
+            <h4>Relationship-Centric Modeling</h4>
+            
+            <p>Emphasize relationships as first-class entities with detailed properties:</p>
+
+            <div class="code-block" data-language="json">
+                <pre><code>{
+  &quot;id&quot;: &quot;employment_001&quot;,
+  &quot;type&quot;: &quot;Employment&quot;,
+  &quot;from&quot;: &quot;person_001&quot;,
+  &quot;to&quot;: &quot;company_001&quot;,
+  &quot;properties&quot;: {
+    &quot;startDate&quot;: &quot;2020-01-15&quot;,
+    &quot;endDate&quot;: null,
+    &quot;position&quot;: &quot;Senior Data Scientist&quot;,
+    &quot;department&quot;: &quot;AI Research&quot;,
+    &quot;salary&quot;: 120000,
+    &quot;benefits&quot;: [&quot;Health Insurance&quot;, &quot;401k&quot;, &quot;Stock Options&quot;],
+    &quot;performance_reviews&quot;: [
+      {
+        &quot;date&quot;: &quot;2021-01-15&quot;,
+        &quot;rating&quot;: &quot;Exceeds Expectations&quot;,
+        &quot;reviewer&quot;: &quot;manager_001&quot;
+      }
+    ]
+  }
+}</code></pre>
+            </div>
+
+            <h3>Performance Optimization</h3>
+
+            <h4>Indexing Strategies</h4>
+            
+            <p>Proper indexing is crucial for graph database performance:</p>
+
+            <div class="setup-steps">
+                <ol>
+                    <li><strong>Property Indexes:</strong> Index frequently queried properties</li>
+                    <li><strong>Composite Indexes:</strong> Multi-property lookup optimization</li>
+                    <li><strong>Full-Text Indexes:</strong> Text search capabilities</li>
+                    <li><strong>Spatial Indexes:</strong> Geographic data queries</li>
+                    <li><strong>Label/Type Indexes:</strong> Entity type filtering</li>
+                </ol>
+            </div>
+
+            <h4>Query Optimization Techniques</h4>
+            
+            <ul>
+                <li><strong>Query Planning:</strong> Understand execution plans</li>
+                <li><strong>Selective Filtering:</strong> Apply filters early in queries</li>
+                <li><strong>Limit Traversal Depth:</strong> Prevent expensive deep searches</li>
+                <li><strong>Use Parameterized Queries:</strong> Improve query plan caching</li>
+                <li><strong>Batch Operations:</strong> Combine multiple updates</li>
+            </ul>
+
+            <h3>Data Versioning and Temporal Graphs</h3>
+            
+            <p>Managing changes over time is essential for many knowledge graph applications:</p>
+
+            <h4>Temporal Modeling Approaches</h4>
+            
+            <div class="database-grid">
+                <div class="database-card">
+                    <h4>Valid Time</h4>
+                    <p>When facts are true in the real world</p>
+                    <div class="code-block" data-language="example">
+                <pre><code>Alice WORKS_FOR Google
+valid_from: 2020-01-15
+valid_to: 2023-03-30</code></pre>
+                    </div>
+                </div>
+                <div class="database-card">
+                    <h4>Transaction Time</h4>
+                    <p>When facts are recorded in the database</p>
+                    <div class="code-block" data-language="example">
+                <pre><code>Alice WORKS_FOR Google
+recorded_at: 2020-01-16
+deleted_at: 2023-04-01</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <h4>Versioning Implementation</h4>
+            
+            <div class="code-block" data-language="python">
+                <pre><code># Example temporal graph implementation
+from datetime import datetime, date
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
+from enum import Enum
+
+
+class ChangeType(Enum):
+    &quot;&quot;&quot;Types of changes in temporal entities&quot;&quot;&quot;
+    CREATED = &quot;created&quot;
+    UPDATED = &quot;updated&quot;
+    DELETED = &quot;deleted&quot;
+    MERGED = &quot;merged&quot;
+
+
+@dataclass
+class VersionMetadata:
+    &quot;&quot;&quot;Metadata for entity versions&quot;&quot;&quot;
+    version_id: str
+    valid_from: date
+    valid_to: Optional[date]
+    created_at: datetime
+    created_by: str
+    change_type: ChangeType
+    change_reason: Optional[str] = None
+
+
+class TemporalEntity:
+    &quot;&quot;&quot;Entity that maintains historical versions of its properties&quot;&quot;&quot;
+
+    def __init__(self, entity_id: str, entity_type: str):
+        &quot;&quot;&quot;Initialize a temporal entity
+
+        Args:
+            entity_id: Unique identifier for the entity
+            entity_type: Type/class of the entity
+        &quot;&quot;&quot;
+        self.id = entity_id
+        self.type = entity_type
+        self.versions: Dict[str, Dict[str, Any]] = {}
+        self.metadata: Dict[str, VersionMetadata] = {}
+
+    def add_version(self, properties: Dict[str, Any], 
+                   valid_from: date, 
+                   valid_to: Optional[date] = None,
+                   created_by: str = &quot;system&quot;,
+                   change_type: ChangeType = ChangeType.UPDATED,
+                   change_reason: Optional[str] = None) -&gt; str:
+        &quot;&quot;&quot;Add a new version of the entity
+
+        Args:
+            properties: Entity properties for this version
+            valid_from: When this version becomes valid
+            valid_to: When this version stops being valid
+            created_by: Who created this version
+            change_type: Type of change
+            change_reason: Reason for the change
+
+        Returns:
+            Version ID for the created version
+        &quot;&quot;&quot;
+        # Generate version ID
+        version_id = f&quot;{valid_from.isoformat()}_{len(self.versions)}&quot;
+
+        # Store version data
+        version_data = {
+            &#x27;properties&#x27;: properties.copy(),
+            &#x27;valid_from&#x27;: valid_from,
+            &#x27;valid_to&#x27;: valid_to,
+            &#x27;created_at&#x27;: datetime.now()
+        }
+
+        # Store metadata
+        metadata = VersionMetadata(
+            version_id=version_id,
+            valid_from=valid_from,
+            valid_to=valid_to,
+            created_at=datetime.now(),
+            created_by=created_by,
+            change_type=change_type,
+            change_reason=change_reason
+        )
+
+        self.versions[version_id] = version_data
+        self.metadata[version_id] = metadata
+
+        return version_id
+
+    def get_properties_at(self, query_date: date) -&gt; Dict[str, Any]:
+        &quot;&quot;&quot;Get entity properties valid at a specific date
+
+        Args:
+            query_date: Date to query for
+
+        Returns:
+            Properties dict valid at the query date
+        &quot;&quot;&quot;
+        for version in self.versions.values():
+            if (version[&#x27;valid_from&#x27;] &lt;= query_date and 
+                (version[&#x27;valid_to&#x27;] is None or version[&#x27;valid_to&#x27;] &gt; query_date)):
+                return version[&#x27;properties&#x27;].copy()
+
+        return {}
+
+    def get_version_history(self) -&gt; List[Dict[str, Any]]:
+        &quot;&quot;&quot;Get complete version history
+
+        Returns:
+            List of all versions with metadata
+        &quot;&quot;&quot;
+        history = []
+        for version_id, version_data in self.versions.items():
+            metadata = self.metadata[version_id]
+            history.append({
+                &#x27;version_id&#x27;: version_id,
+                &#x27;properties&#x27;: version_data[&#x27;properties&#x27;],
+                &#x27;valid_period&#x27;: (metadata.valid_from, metadata.valid_to),
+                &#x27;metadata&#x27;: metadata
+            })
+
+        return sorted(history, key=lambda x: x[&#x27;metadata&#x27;].valid_from)
+
+
+class TemporalRelationship:
+    &quot;&quot;&quot;Relationship that can exist across multiple time periods&quot;&quot;&quot;
+
+    def __init__(self, rel_id: str, source_id: str, target_id: str, rel_type: str):
+        &quot;&quot;&quot;Initialize a temporal relationship
+
+        Args:
+            rel_id: Unique relationship identifier
+            source_id: Source entity ID
+            target_id: Target entity ID
+            rel_type: Type of relationship
+        &quot;&quot;&quot;
+        self.id = rel_id
+        self.source_id = source_id
+        self.target_id = target_id
+        self.type = rel_type
+        self.validity_periods: List[Dict[str, Any]] = []
+
+    def add_validity_period(self, properties: Dict[str, Any],
+                          valid_from: date, 
+                          valid_to: Optional[date] = None,
+                          created_by: str = &quot;system&quot;) -&gt; int:
+        &quot;&quot;&quot;Add a validity period for this relationship
+
+        Args:
+            properties: Relationship properties
+            valid_from: Start date of validity
+            valid_to: End date of validity
+            created_by: Who created this period
+
+        Returns:
+            Index of the created period
+        &quot;&quot;&quot;
+        period = {
+            &#x27;properties&#x27;: properties.copy(),
+            &#x27;valid_from&#x27;: valid_from,
+            &#x27;valid_to&#x27;: valid_to,
+            &#x27;created_at&#x27;: datetime.now(),
+            &#x27;created_by&#x27;: created_by
+        }
+        self.validity_periods.append(period)
+
+        # Sort by valid_from date
+        self.validity_periods.sort(key=lambda x: x[&#x27;valid_from&#x27;])
+
+        return len(self.validity_periods) - 1
+
+    def is_valid_at(self, query_date: date) -&gt; bool:
+        &quot;&quot;&quot;Check if relationship is valid at specific date
+
+        Args:
+            query_date: Date to check validity for
+
+        Returns:
+            True if relationship is valid at the query date
+        &quot;&quot;&quot;
+        for period in self.validity_periods:
+            if (period[&#x27;valid_from&#x27;] &lt;= query_date and 
+                (period[&#x27;valid_to&#x27;] is None or period[&#x27;valid_to&#x27;] &gt; query_date)):
+                return True
+        return False
+
+    def get_properties_at(self, query_date: date) -&gt; Dict[str, Any]:
+        &quot;&quot;&quot;Get relationship properties at a specific date
+
+        Args:
+            query_date: Date to query for
+
+        Returns:
+            Properties dict valid at the query date
+        &quot;&quot;&quot;
+        for period in self.validity_periods:
+            if (period[&#x27;valid_from&#x27;] &lt;= query_date and 
+                (period[&#x27;valid_to&#x27;] is None or period[&#x27;valid_to&#x27;] &gt; query_date)):
+                return period[&#x27;properties&#x27;].copy()
+
+        return {}
+
+
+# Example usage and testing
+if __name__ == &quot;__main__&quot;:
+    # Create a temporal entity (person)
+    person = TemporalEntity(&quot;person_001&quot;, &quot;Person&quot;)
+
+    # Add initial version
+    person.add_version(
+        properties={&quot;name&quot;: &quot;Alice Johnson&quot;, &quot;position&quot;: &quot;Junior Developer&quot;, &quot;salary&quot;: 60000},
+        valid_from=date(2020, 1, 1),
+        created_by=&quot;hr_system&quot;,
+        change_type=ChangeType.CREATED
+    )
+
+    # Add promotion version
+    person.add_version(
+        properties={&quot;name&quot;: &quot;Alice Johnson&quot;, &quot;position&quot;: &quot;Senior Developer&quot;, &quot;salary&quot;: 85000},
+        valid_from=date(2022, 6, 1),
+        valid_to=date(2024, 1, 1),
+        created_by=&quot;hr_manager&quot;,
+        change_type=ChangeType.UPDATED,
+        change_reason=&quot;Promotion after performance review&quot;
+    )
+
+    # Query at different dates
+    print(&quot;Properties in 2021:&quot;, person.get_properties_at(date(2021, 6, 1)))
+    print(&quot;Properties in 2023:&quot;, person.get_properties_at(date(2023, 6, 1)))
+    print(&quot;Properties in 2024:&quot;, person.get_properties_at(date(2024, 6, 1)))
+
+    # Create temporal relationship
+    employment = TemporalRelationship(&quot;emp_001&quot;, &quot;person_001&quot;, &quot;company_001&quot;, &quot;WORKS_FOR&quot;)
+
+    employment.add_validity_period(
+        properties={&quot;department&quot;: &quot;Engineering&quot;, &quot;start_date&quot;: &quot;2020-01-01&quot;},
+        valid_from=date(2020, 1, 1),
+        valid_to=date(2024, 1, 1)
+    )
+
+    print(&quot;\nEmployment valid in 2022:&quot;, employment.is_valid_at(date(2022, 6, 1)))
+    print(&quot;Employment valid in 2025:&quot;, employment.is_valid_at(date(2025, 6, 1)))</code></pre>
+            </div>
+
+            <h3>Consistency and Transactions</h3>
+            
+            <p>Maintaining data consistency in distributed graph systems requires careful transaction design:</p>
+
+            <h4>ACID Properties in Graph Databases</h4>
+            
+            <ul>
+                <li><strong>Atomicity:</strong> Graph updates succeed or fail as a unit</li>
+                <li><strong>Consistency:</strong> Graph maintains referential integrity</li>
+                <li><strong>Isolation:</strong> Concurrent operations don't interfere</li>
+                <li><strong>Durability:</strong> Committed changes persist</li>
+            </ul>
+
+            <div class="warning-box">
+                <strong>Distributed Challenges:</strong> CAP theorem applies to graph databases. Consider consistency requirements vs. availability and partition tolerance for your use case.
+            </div>
+
+            <h4>Transaction Patterns</h4>
+            
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Example: Atomic relationship creation
+BEGIN
+MATCH (person:Person {email: &#x27;alice@example.com&#x27;})
+MATCH (company:Company {name: &#x27;Google&#x27;})
+CREATE (person)-[:WORKS_FOR {
+    startDate: date(&#x27;2020-01-15&#x27;),
+    position: &#x27;Senior Engineer&#x27;,
+    salary: 120000
+}]-&gt;(company)
+COMMIT</code></pre>
+            </div>
+        </section>
+
+        <section id="neo4j" class="section">
+            <h2>5. Neo4j: Setup and Advanced Queries</h2>
+
+            <h3>Neo4j Overview and Architecture</h3>
+            
+            <p>Neo4j is the world's leading graph database, designed for storing and querying graph data at scale. It uses a property graph model and provides ACID transactions, making it suitable for enterprise applications requiring strong consistency guarantees.</p>
+
+            <div class="info-box">
+                <strong>Key Features:</strong> Native graph storage, Cypher query language, ACID transactions, clustering support, and extensive tooling ecosystem.
+            </div>
+
+            <h3>Installation and Setup</h3>
+
+            <h4>Docker Installation (Recommended for Development)</h4>
+            
+            <div class="setup-steps">
+                <ol>
+                    <li><strong>Pull Neo4j Docker Image:</strong></li>
+                </ol>
+            </div>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Pull the latest Neo4j image
+docker pull neo4j:latest
+
+# Run Neo4j with custom configuration
+docker run \
+    --name neo4j-dev \
+    -p 7474:7474 -p 7687:7687 \
+    -e NEO4J_AUTH=neo4j/password123 \
+    -e NEO4J_dbms_security_procedures_unrestricted=algo.*,apoc.* \
+    -e NEO4J_dbms_memory_heap_initial__size=512m \
+    -e NEO4J_dbms_memory_heap_max__size=2g \
+    -v $HOME/neo4j/data:/data \
+    -v $HOME/neo4j/logs:/logs \
+    -v $HOME/neo4j/conf:/var/lib/neo4j/conf \
+    -d neo4j:latest
+
+# Check container status
+docker ps | grep neo4j</code></pre>
+            </div>
+
+            <h4>Production Installation on Ubuntu/CentOS</h4>
+            
+            <div class="code-block" data-language="bash">
+                <pre><code># Ubuntu installation
+wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
+echo &#x27;deb https://debian.neo4j.com stable 4.4&#x27; | sudo tee /etc/apt/sources.list.d/neo4j.list
+sudo apt-get update
+sudo apt-get install neo4j=1:4.4.12
+
+# Configure Neo4j
+sudo nano /etc/neo4j/neo4j.conf
+
+# Key configuration settings
+dbms.default_listen_address=0.0.0.0
+dbms.connector.bolt.listen_address=0.0.0.0:7687
+dbms.connector.http.listen_address=0.0.0.0:7474
+dbms.memory.heap.initial_size=2g
+dbms.memory.heap.max_size=4g
+dbms.memory.pagecache.size=2g
+
+# Start Neo4j service
+sudo systemctl enable neo4j
+sudo systemctl start neo4j
+sudo systemctl status neo4j</code></pre>
+            </div>
+
+            <h3>Cypher Query Language Fundamentals</h3>
+
+            <h4>Basic Syntax and Patterns</h4>
+            
+            <p>Cypher uses ASCII art to represent graph patterns, making queries intuitive and readable:</p>
+
+            <div class="query-example">
+                <div class="query-title">Node Patterns</div>
+                <div class="query-description">Basic node selection and filtering</div>
+            </div>
+
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Create nodes
+CREATE (p:Person {name: &#x27;Alice&#x27;, age: 30, email: &#x27;alice@example.com&#x27;})
+CREATE (c:Company {name: &#x27;Google&#x27;, founded: 1998, industry: &#x27;Technology&#x27;})
+
+// Match nodes by label
+MATCH (p:Person) 
+RETURN p.name, p.age
+
+// Match nodes by properties
+MATCH (p:Person {name: &#x27;Alice&#x27;}) 
+RETURN p
+
+// Match with WHERE clause
+MATCH (p:Person) 
+WHERE p.age &gt; 25 AND p.email CONTAINS &#x27;example.com&#x27;
+RETURN p.name, p.age
+
+// Multiple labels
+MATCH (n:Person:Employee) 
+RETURN n</code></pre>
+            </div>
+
+            <div class="query-example">
+                <div class="query-title">Relationship Patterns</div>
+                <div class="query-description">Creating and querying relationships between nodes</div>
+            </div>
+
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Create relationships
+MATCH (p:Person {name: &#x27;Alice&#x27;})
+MATCH (c:Company {name: &#x27;Google&#x27;})
+CREATE (p)-[:WORKS_FOR {since: date(&#x27;2020-01-15&#x27;), position: &#x27;Engineer&#x27;}]-&gt;(c)
+
+// Query relationships
+MATCH (p:Person)-[r:WORKS_FOR]-&gt;(c:Company)
+RETURN p.name, r.position, c.name
+
+// Bidirectional relationships
+MATCH (p:Person)-[:WORKS_FOR]-(c:Company)
+RETURN p.name, c.name
+
+// Variable length paths
+MATCH (p1:Person)-[:KNOWS*1..3]-(p2:Person)
+WHERE p1.name = &#x27;Alice&#x27;
+RETURN p1.name, p2.name
+
+// Complex relationship patterns
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c1:Company),
+      (p)-[:PREVIOUSLY_WORKED_FOR]-&gt;(c2:Company)
+WHERE c1.industry = c2.industry
+RETURN p.name, c1.name, c2.name</code></pre>
+            </div>
+
+            <h3>Advanced Cypher Queries</h3>
+
+            <h4>Aggregations and Statistics</h4>
+            
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Basic aggregations
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c:Company)
+RETURN c.name, 
+       count(p) as employee_count,
+       avg(p.age) as average_age,
+       collect(p.name) as employees
+ORDER BY employee_count DESC
+
+// Advanced aggregations with CASE
+MATCH (p:Person)
+RETURN 
+  count(*) as total_people,
+  count(CASE WHEN p.age &lt; 30 THEN 1 END) as young_people,
+  count(CASE WHEN p.age &gt;= 30 THEN 1 END) as mature_people,
+  avg(p.age) as average_age,
+  percentileDisc(p.age, 0.5) as median_age
+
+// Grouping with multiple properties
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c:Company)
+RETURN c.industry, 
+       count(DISTINCT c) as companies_count,
+       count(p) as total_employees,
+       avg(p.age) as avg_employee_age
+ORDER BY companies_count DESC
+            &lt;/code&gt;
+
+            &lt;h4&gt;Path Finding and Graph Algorithms&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Shortest path between nodes
+MATCH path = shortestPath((p1:Person {name: &#x27;Alice&#x27;})-[*..6]-(p2:Person {name: &#x27;Bob&#x27;}))
+RETURN path, length(path) as path_length
+
+// All shortest paths
+MATCH paths = allShortestPaths((p1:Person {name: &#x27;Alice&#x27;})-[*..4]-(p2:Person {name: &#x27;Bob&#x27;}))
+RETURN paths
+
+// Find paths through specific relationship types
+MATCH path = (p1:Person {name: &#x27;Alice&#x27;})-[:KNOWS|:WORKS_WITH*1..3]-(p2:Person {name: &#x27;Bob&#x27;})
+RETURN path
+
+// Graph algorithms using APOC
+// PageRank
+CALL gds.pageRank.stream(&#x27;myGraph&#x27;)
+YIELD nodeId, score
+RETURN gds.util.asNode(nodeId).name AS name, score
+ORDER BY score DESC
+
+// Community detection (Louvain)
+CALL gds.louvain.stream(&#x27;myGraph&#x27;)
+YIELD nodeId, communityId
+RETURN gds.util.asNode(nodeId).name AS name, communityId
+ORDER BY communityId, name
+
+// Betweenness centrality
+CALL gds.betweenness.stream(&#x27;myGraph&#x27;)
+YIELD nodeId, score
+RETURN gds.util.asNode(nodeId).name AS name, score
+ORDER BY score DESC</code></pre>
+            </div>
+
+            <h4>Complex Analytical Queries</h4>
+            
+            <div class="query-example">
+                <div class="query-title">Network Analysis</div>
+                <div class="query-description">Analyzing social and professional networks</div>
+            </div>
+
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Find influential people (high degree centrality)
+MATCH (p:Person)
+OPTIONAL MATCH (p)-[r]-(connected)
+WITH p, count(r) as connections
+WHERE connections &gt; 5
+RETURN p.name, connections
+ORDER BY connections DESC
+LIMIT 10
+
+// Find potential collaborations
+MATCH (p1:Person)-[:WORKS_FOR]-&gt;(c1:Company),
+      (p2:Person)-[:WORKS_FOR]-&gt;(c2:Company)
+WHERE p1 &lt;&gt; p2 
+  AND c1 &lt;&gt; c2
+  AND c1.industry = c2.industry
+OPTIONAL MATCH (p1)-[existing:KNOWS]-(p2)
+WHERE existing IS NULL
+RETURN p1.name, p2.name, c1.name, c2.name
+LIMIT 20
+
+// Career path analysis
+MATCH (p:Person)
+OPTIONAL MATCH (p)-[:WORKS_FOR]-&gt;(current:Company)
+OPTIONAL MATCH (p)-[:PREVIOUSLY_WORKED_FOR]-&gt;(previous:Company)
+WITH p, current, collect(DISTINCT previous) as past_companies
+RETURN p.name, 
+       current.name as current_company,
+       size(past_companies) as companies_worked,
+       past_companies
+ORDER BY companies_worked DESC
+
+// Skills gap analysis
+MATCH (p:Person)-[:HAS_SKILL]-&gt;(s:Skill)
+WITH s, collect(p) as people_with_skill, count(p) as skill_count
+MATCH (j:Job)-[:REQUIRES_SKILL]-&gt;(s)
+WITH s, skill_count, count(j) as jobs_requiring_skill, people_with_skill
+WHERE jobs_requiring_skill &gt; skill_count
+RETURN s.name, 
+       jobs_requiring_skill, 
+       skill_count, 
+       (jobs_requiring_skill - skill_count) as skill_gap
+ORDER BY skill_gap DESC
+            &lt;/code&gt;
+
+            &lt;h3&gt;Performance Optimization&lt;/h3&gt;
+
+            &lt;h4&gt;Indexing Best Practices&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Create single property indexes
+CREATE INDEX person_email IF NOT EXISTS FOR (p:Person) ON (p.email)
+CREATE INDEX company_name IF NOT EXISTS FOR (c:Company) ON (c.name)
+CREATE INDEX skill_name IF NOT EXISTS FOR (s:Skill) ON (s.name)
+
+// Create composite indexes
+CREATE INDEX person_name_age IF NOT EXISTS FOR (p:Person) ON (p.name, p.age)
+
+// Create full-text indexes
+CREATE FULLTEXT INDEX company_description IF NOT EXISTS 
+FOR (c:Company) ON EACH [c.name, c.description]
+
+// Constraint indexes (automatically create unique indexes)
+CREATE CONSTRAINT person_email_unique IF NOT EXISTS 
+FOR (p:Person) REQUIRE p.email IS UNIQUE
+
+// Show indexes
+SHOW INDEXES
+            &lt;/code&gt;
+
+            &lt;h4&gt;Query Optimization Techniques&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Use EXPLAIN and PROFILE to analyze query performance
+EXPLAIN 
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c:Company)
+WHERE p.age &gt; 30
+RETURN p.name, c.name
+
+PROFILE
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c:Company)
+WHERE p.age &gt; 30
+RETURN p.name, c.name
+
+// Optimize with early filtering
+// Bad: Filter after traversal
+MATCH (p:Person)-[:WORKS_FOR]-&gt;(c:Company)
+WHERE p.age &gt; 30
+RETURN p.name, c.name
+
+// Good: Filter during match
+MATCH (p:Person {age: 30})-[:WORKS_FOR]-&gt;(c:Company)
+RETURN p.name, c.name
+
+// Use parameters for better query plan caching
+MATCH (p:Person)
+WHERE p.age &gt; $min_age
+RETURN p.name, p.age
+
+// Limit early when possible
+MATCH (p:Person)
+WHERE p.age &gt; 25
+RETURN p.name, p.age
+ORDER BY p.age DESC
+LIMIT 10
+            &lt;/code&gt;
+
+            &lt;h3&gt;Data Import and ETL&lt;/h3&gt;
+
+            &lt;h4&gt;CSV Import&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Import nodes from CSV
+LOAD CSV WITH HEADERS FROM &#x27;file:///people.csv&#x27; AS row
+CREATE (p:Person {
+  id: toInteger(row.id),
+  name: row.name,
+  email: row.email,
+  age: toInteger(row.age),
+  created_at: datetime()
+})
+
+// Import relationships from CSV with error handling
+LOAD CSV WITH HEADERS FROM &#x27;file:///relationships.csv&#x27; AS row
+MATCH (p1:Person {id: toInteger(row.person1_id)})
+MATCH (p2:Person {id: toInteger(row.person2_id)})
+WHERE p1 IS NOT NULL AND p2 IS NOT NULL
+CREATE (p1)-[:KNOWS {
+  since: date(row.since_date),
+  strength: toFloat(row.relationship_strength)
+}]-&gt;(p2)
+
+// Batch processing for large imports
+CALL apoc.periodic.iterate(
+  &quot;LOAD CSV WITH HEADERS FROM &#x27;file:///large_dataset.csv&#x27; AS row RETURN row&quot;,
+  &quot;CREATE (p:Person {
+    id: toInteger(row.id),
+    name: row.name,
+    email: row.email
+  })&quot;,
+  {batchSize: 1000, iterateList: true}
+)
+            &lt;/code&gt;
+
+            &lt;h4&gt;JSON Data Import using APOC&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Import from JSON file
+CALL apoc.load.json(&#x27;file:///data.json&#x27;) YIELD value
+UNWIND value.people as person
+CREATE (p:Person {
+  name: person.name,
+  age: person.age,
+  skills: person.skills
+})
+
+// Import from REST API
+CALL apoc.load.json(&#x27;https://api.example.com/users&#x27;) YIELD value
+UNWIND value.users as user
+MERGE (p:Person {id: user.id})
+SET p.name = user.name,
+    p.email = user.email,
+    p.updated_at = datetime()
+
+// Complex nested JSON processing
+CALL apoc.load.json(&#x27;file:///complex_data.json&#x27;) YIELD value
+UNWIND value.companies as company
+CREATE (c:Company {name: company.name})
+WITH c, company
+UNWIND company.employees as employee
+MATCH (p:Person {email: employee.email})
+CREATE (p)-[:WORKS_FOR {
+  position: employee.position,
+  department: employee.department
+}]-&gt;(c)
+            &lt;/code&gt;
+        &lt;/section&gt;
+
+        &lt;section id=&quot;arangodb&quot; class=&quot;section&quot;&gt;
+            &lt;h2&gt;6. ArangoDB: Setup and Advanced Queries&lt;/h2&gt;
+
+            &lt;h3&gt;ArangoDB Overview and Multi-Model Architecture&lt;/h3&gt;
+
+            &lt;p&gt;ArangoDB is a native multi-model database that combines the power of graphs, documents, and key-value pairs in a single engine. This unique architecture makes it ideal for applications that need to work with different data models simultaneously.&lt;/p&gt;
+
+            &lt;div class=&quot;info-box&quot;&gt;
+                &lt;strong&gt;Multi-Model Benefits:&lt;/strong&gt; Single database for diverse data types, unified query language (AQL), reduced complexity, and seamless data model transitions.</code></pre>
+            </div>
+
+            <h3>Installation and Setup</h3>
+
+            <h4>Docker Installation</h4>
+            
+            <div class="code-block" data-language="bash">
+# Pull ArangoDB Docker image
+docker pull arangodb:latest
+
+# Run ArangoDB with authentication
+docker run -d \
+  --name arangodb-instance \
+  -p 8529:8529 \
+  -e ARANGO_ROOT_PASSWORD=strongpassword \
+  -v arangodb_data:/var/lib/arangodb3 \
+  -v arangodb_apps:/var/lib/arangodb3-apps \
+  arangodb:latest
+
+# Access web interface at http://localhost:8529
+# Username: root, Password: strongpassword
+
+# Check container logs
+docker logs arangodb-instance
+            </code>
+
+            <h4>Linux Installation (Ubuntu/Debian)</h4>
+            
+            <div class="code-block" data-language="bash">
+# Add ArangoDB repository
+curl -OL https://download.arangodb.com/arangodb39/DEBIAN/Release.key
+sudo apt-key add - < Release.key
+
+echo 'deb https://download.arangodb.com/arangodb39/DEBIAN/ /' | sudo tee /etc/apt/sources.list.d/arangodb.list
+
+# Install ArangoDB
+sudo apt-get update
+sudo apt-get install arangodb3
+
+# Start ArangoDB service
+sudo systemctl enable arangodb3
+sudo systemctl start arangodb3
+
+# Configuration file location
+sudo nano /etc/arangodb3/arangod.conf
+            </code>
+
+            <h3>AQL (ArangoDB Query Language) Fundamentals</h3>
+
+            <h4>Document Operations</h4>
+            
+            <div class="query-example">
+                <div class="query-title">Creating and Managing Documents</div>
+                <div class="query-description">Basic CRUD operations for document collections</div>
+            </div>
+
+            <div class="code-block" data-language="aql">
+// Create collections (can be done via web interface or AQL)
+// Document collections for entities
+// Edge collections for relationships
+
+// Insert documents
+INSERT {
+  _key: "alice001",
+  name: "Alice Johnson", 
+  age: 30,
+  email: "alice@example.com",
+  skills: ["Python", "Machine Learning", "Neo4j"],
+  location: {
+    city: "San Francisco",
+    country: "USA",
+    coordinates: [-122.4194, 37.7749]
+  }
+} INTO persons
+
+INSERT {
+  _key: "google001",
+  name: "Google Inc.",
+  founded: 1998,
+  industry: "Technology",
+  employees: 150000,
+  headquarters: {
+    city: "Mountain View",
+    state: "California"
+  }
+} INTO companies
+
+// Query documents
+FOR person IN persons
+  FILTER person.age > 25
+  RETURN {
+    name: person.name,
+    age: person.age,
+    city: person.location.city
+  }
+
+// Update documents
+UPDATE "alice001" WITH {
+  age: 31,
+  skills: PUSH(person.skills, "ArangoDB")
+} IN persons
+
+// Replace documents
+REPLACE "alice001" WITH {
+  name: "Alice Johnson",
+  age: 31,
+  email: "alice.johnson@example.com",
+  department: "Engineering"
+} IN persons
+            </code>
+
+            <h4>Graph Operations</h4>
+            
+            <div class="query-example">
+                <div class="query-title">Creating Graph Relationships</div>
+                <div class="query-description">Working with edges and graph traversals</div>
+            </div>
+
+            <div class="code-block" data-language="aql">
+                <pre><code>// Create edge relationships
+INSERT {
+  _from: &quot;persons/alice001&quot;,
+  _to: &quot;companies/google001&quot;,
+  relationship: &quot;works_for&quot;,
+  startDate: &quot;2020-01-15&quot;,
+  position: &quot;Senior Engineer&quot;,
+  salary: 120000
+} INTO employment_edges
+
+INSERT {
+  _from: &quot;persons/alice001&quot;,
+  _to: &quot;persons/bob002&quot;, 
+  relationship: &quot;knows&quot;,
+  since: &quot;2019-06-10&quot;,
+  context: &quot;university&quot;
+} INTO social_edges
+
+// Graph traversal queries
+FOR vertex, edge, path IN 1..3 OUTBOUND &quot;persons/alice001&quot; 
+  employment_edges, social_edges
+  RETURN {
+    vertex: vertex,
+    relationship: edge.relationship,
+    pathLength: LENGTH(path)
+  }
+
+// Find all colleagues (people working at same company)
+FOR person IN persons
+  FOR company IN 1..1 OUTBOUND person employment_edges
+    FOR colleague IN 1..1 INBOUND company employment_edges
+      FILTER colleague._id != person._id
+      RETURN DISTINCT {
+        person: person.name,
+        colleague: colleague.name,
+        company: company.name
+      }
+
+// Shortest path between people
+FOR vertex IN OUTBOUND SHORTEST_PATH &quot;persons/alice001&quot; TO &quot;persons/bob002&quot;
+  social_edges, employment_edges
+  RETURN vertex.name
+            &lt;/code&gt;
+
+            &lt;h3&gt;Advanced AQL Queries&lt;/h3&gt;
+
+            &lt;h4&gt;Complex Aggregations and Analytics&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// Advanced aggregations with grouping
+FOR person IN persons
+  FOR company IN 1..1 OUTBOUND person employment_edges
+  COLLECT 
+    industry = company.industry,
+    city = company.headquarters.city
+    AGGREGATE
+    avgAge = AVERAGE(person.age),
+    minAge = MIN(person.age),
+    maxAge = MAX(person.age),
+    employeeCount = COUNT(person),
+    employees = UNIQUE(person.name)
+  SORT employeeCount DESC
+  RETURN {
+    industry: industry,
+    city: city,
+    statistics: {
+      averageAge: avgAge,
+      ageRange: [minAge, maxAge],
+      employeeCount: employeeCount
+    },
+    topEmployees: SLICE(employees, 0, 5)
+  }
+
+// Skills analysis across companies
+FOR person IN persons
+  FOR skill IN person.skills
+    FOR company IN 1..1 OUTBOUND person employment_edges
+    COLLECT 
+      companyName = company.name,
+      skillName = skill
+      AGGREGATE count = COUNT(1)
+    SORT count DESC
+    RETURN {
+      company: companyName,
+      skill: skillName,
+      skillCount: count
+    }
+
+// Network density analysis
+LET totalConnections = LENGTH(social_edges)
+LET totalPeople = LENGTH(persons)
+LET maxPossibleConnections = totalPeople * (totalPeople - 1) / 2
+LET networkDensity = totalConnections / maxPossibleConnections
+
+FOR person IN persons
+  LET connections = (
+    FOR edge IN social_edges
+      FILTER edge._from == person._id OR edge._to == person._id
+      RETURN 1
+  )
+  COLLECT AGGREGATE
+    avgConnections = AVERAGE(LENGTH(connections)),
+    maxConnections = MAX(LENGTH(connections)),
+    minConnections = MIN(LENGTH(connections))
+
+  RETURN {
+    networkStatistics: {
+      totalPeople: totalPeople,
+      totalConnections: totalConnections,
+      networkDensity: networkDensity,
+      averageConnections: avgConnections,
+      connectionRange: [minConnections, maxConnections]
+    }
+  }
+            &lt;/code&gt;
+
+            &lt;h4&gt;Advanced Graph Algorithms&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// PageRank algorithm implementation
+FOR i IN 1..10
+  FOR person IN persons
+    LET inboundEdges = (
+      FOR edge IN social_edges
+        FILTER edge._to == person._id
+        FOR source IN persons
+          FILTER source._id == edge._from
+          RETURN source.pagerank ? source.pagerank : 1
+    )
+    LET pagerank = 0.15 + 0.85 * SUM(inboundEdges)
+    UPDATE person WITH { pagerank: pagerank } IN persons
+
+// Find influential people (high PageRank)
+FOR person IN persons
+  SORT person.pagerank DESC
+  LIMIT 10
+  RETURN {
+    name: person.name,
+    influence: person.pagerank,
+    directConnections: LENGTH(
+      FOR edge IN social_edges
+        FILTER edge._from == person._id
+        RETURN 1
+    )
+  }
+
+// Community detection using label propagation
+FOR iteration IN 1..20
+  FOR person IN persons
+    LET neighbors = (
+      FOR edge IN social_edges
+        FILTER edge._from == person._id OR edge._to == person._id
+        LET neighborId = edge._from == person._id ? edge._to : edge._from
+        FOR neighbor IN persons
+          FILTER neighbor._id == neighborId
+          RETURN neighbor.community ? neighbor.community : neighbor._id
+    )
+    LET mostCommonCommunity = FIRST(
+      FOR community IN neighbors
+        COLLECT c = community WITH COUNT INTO count
+        SORT count DESC
+        RETURN c
+    )
+    UPDATE person WITH { 
+      community: mostCommonCommunity ? mostCommonCommunity : person._id 
+    } IN persons
+
+// Analyze communities
+FOR person IN persons
+  COLLECT community = person.community WITH COUNT INTO size
+  SORT size DESC
+  RETURN {
+    communityId: community,
+    memberCount: size,
+    members: (
+      FOR p IN persons
+        FILTER p.community == community
+        RETURN p.name
+    )
+  }
+            &lt;/code&gt;
+
+            &lt;h3&gt;Multi-Model Queries&lt;/h3&gt;
+
+            &lt;h4&gt;Combining Document and Graph Operations&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// Complex query combining documents, graphs, and geospatial
+FOR person IN persons
+  // Document filtering
+  FILTER person.age BETWEEN 25 AND 40
+
+  // Geospatial filtering (within 50km of San Francisco)
+  FILTER DISTANCE(
+    person.location.coordinates[1], 
+    person.location.coordinates[0],
+    37.7749, -122.4194
+  ) &lt;= 50000
+
+  // Graph traversal
+  FOR company IN 1..1 OUTBOUND person employment_edges
+    FILTER company.industry == &quot;Technology&quot;
+
+    // Find colleagues in same location
+    FOR colleague IN 1..1 INBOUND company employment_edges
+      FILTER colleague._id != person._id
+      FILTER colleague.location.city == person.location.city
+
+      // Check if they know each other
+      LET directConnection = FIRST(
+        FOR edge IN social_edges
+          FILTER (edge._from == person._id AND edge._to == colleague._id) OR
+                 (edge._from == colleague._id AND edge._to == person._id)
+          RETURN edge
+      )
+
+      RETURN {
+        person: person.name,
+        colleague: colleague.name,
+        company: company.name,
+        location: person.location.city,
+        alreadyConnected: directConnection ? true : false,
+        connectionStrength: directConnection ? directConnection.strength : null
+      }
+
+// Time-based analysis with document arrays
+FOR person IN persons
+  LET skillsOverTime = (
+    FOR skillEntry IN person.skillHistory ? person.skillHistory : []
+      RETURN {
+        skill: skillEntry.skill,
+        acquiredDate: skillEntry.date,
+        yearsExperience: DATE_DIFF(skillEntry.date, DATE_NOW(), &quot;year&quot;)
+      }
+  )
+
+  FOR company IN 1..1 OUTBOUND person employment_edges
+    LET requiredSkills = company.requiredSkills ? company.requiredSkills : []
+
+    LET matchingSkills = (
+      FOR skill IN skillsOverTime
+        FILTER skill.skill IN requiredSkills
+        RETURN skill
+    )
+
+    LET skillGaps = (
+      FOR required IN requiredSkills
+        FILTER required NOT IN skillsOverTime[*].skill
+        RETURN required
+    )
+
+    RETURN {
+      employee: person.name,
+      company: company.name,
+      matchingSkills: matchingSkills,
+      skillGaps: skillGaps,
+      matchPercentage: LENGTH(matchingSkills) / LENGTH(requiredSkills) * 100
+    }
+            &lt;/code&gt;
+
+            &lt;h3&gt;Performance Optimization&lt;/h3&gt;
+
+            &lt;h4&gt;Indexing Strategies&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;javascript&quot;&gt;
+// Create indexes via JavaScript (in ArangoDB shell or web interface)
+
+// Hash index for exact matches
+db.persons.ensureIndex({ 
+  type: &quot;hash&quot;, 
+  fields: [&quot;email&quot;],
+  unique: true 
+});
+
+// Skip list index for range queries
+db.persons.ensureIndex({ 
+  type: &quot;skiplist&quot;, 
+  fields: [&quot;age&quot;, &quot;location.city&quot;] 
+});
+
+// Full-text index for text search
+db.persons.ensureIndex({ 
+  type: &quot;fulltext&quot;, 
+  fields: [&quot;name&quot;],
+  minLength: 3 
+});
+
+// Geo index for spatial queries
+db.persons.ensureIndex({ 
+  type: &quot;geo&quot;, 
+  fields: [&quot;location.coordinates&quot;] 
+});
+
+// TTL index for automatic document expiration
+db.sessions.ensureIndex({ 
+  type: &quot;ttl&quot;, 
+  fields: [&quot;createdAt&quot;],
+  expireAfter: 3600  // 1 hour
+});
+
+// View available indexes
+db.persons.getIndexes();
+            &lt;/code&gt;
+
+            &lt;h4&gt;Query Optimization&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// Use EXPLAIN to analyze query performance
+EXPLAIN
+FOR person IN persons
+  FILTER person.age &gt; 30
+  FOR company IN 1..1 OUTBOUND person employment_edges
+  RETURN {name: person.name, company: company.name}
+
+// Optimize with early filtering
+// Bad: Filter after traversal
+FOR person IN persons
+  FOR company IN 1..1 OUTBOUND person employment_edges
+  FILTER person.age &gt; 30 AND company.industry == &quot;Technology&quot;
+  RETURN {name: person.name, company: company.name}
+
+// Good: Filter before traversal
+FOR person IN persons
+  FILTER person.age &gt; 30
+  FOR company IN 1..1 OUTBOUND person employment_edges
+    FILTER company.industry == &quot;Technology&quot;
+    RETURN {name: person.name, company: company.name}
+
+// Use indexes effectively
+FOR person IN persons
+  FILTER person.email == &quot;alice@example.com&quot;  // Uses hash index
+  RETURN person
+
+FOR person IN persons
+  FILTER person.age &gt;= 25 AND person.age &lt;= 35  // Uses skiplist index
+  RETURN person
+
+// Optimize aggregation queries
+FOR person IN persons
+  COLLECT age = person.age WITH COUNT INTO count
+  SORT count DESC
+  LIMIT 10
+  RETURN {age: age, count: count}
+            &lt;/code&gt;
+
+            &lt;h3&gt;Data Migration and ETL&lt;/h3&gt;
+
+            &lt;h4&gt;Import from JSON&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;bash&quot;&gt;
+# Import JSON data using arangoimp
+arangoimp \
+  --server.endpoint tcp://localhost:8529 \
+  --server.database mydb \
+  --server.username root \
+  --server.password strongpassword \
+  --collection persons \
+  --file persons.json \
+  --type json
+
+# Import CSV data
+arangoimp \
+  --server.endpoint tcp://localhost:8529 \
+  --server.database mydb \
+  --server.username root \
+  --server.password strongpassword \
+  --collection companies \
+  --file companies.csv \
+  --type csv \
+  --headers-file headers.txt
+            &lt;/code&gt;
+
+            &lt;h4&gt;Custom ETL with AQL&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// Transform and load data from external source
+FOR record IN (
+  // Simulate external data source
+  [
+    {id: 1, full_name: &quot;Alice Johnson&quot;, birth_year: 1990},
+    {id: 2, full_name: &quot;Bob Smith&quot;, birth_year: 1985}
+  ]
+)
+
+INSERT {
+  _key: TO_STRING(record.id),
+  name: record.full_name,
+  age: DATE_YEAR(DATE_NOW()) - record.birth_year,
+  imported_at: DATE_NOW()
+} INTO persons
+
+// Batch processing for large datasets
+FOR batch IN RANGE(0, 9)
+  LET startId = batch * 1000
+  LET endId = startId + 999
+
+  FOR record IN external_data_source
+    FILTER record.id &gt;= startId AND record.id &lt;= endId
+
+    INSERT {
+      _key: TO_STRING(record.id),
+      name: record.name,
+      processed_batch: batch
+    } INTO persons
+            &lt;/code&gt;
+        &lt;/section&gt;
+
+        &lt;section id=&quot;other-databases&quot; class=&quot;section&quot;&gt;
+            &lt;h2&gt;7. Other Knowledge Graph Databases&lt;/h2&gt;
+
+            &lt;h3&gt;FalkorDB (Redis Graph)&lt;/h3&gt;
+
+            &lt;p&gt;FalkorDB is a fast graph database built as a Redis module, offering ultra-low latency graph operations with the simplicity of Redis deployment.&lt;/p&gt;
+
+            &lt;div class=&quot;database-card&quot;&gt;
+                &lt;h4&gt;Key Features&lt;/h4&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Matrix-based graph representation for high performance&lt;/li&gt;
+                    &lt;li&gt;OpenCypher query language support&lt;/li&gt;
+                    &lt;li&gt;In-memory processing with Redis persistence&lt;/li&gt;
+                    &lt;li&gt;Minimal operational overhead&lt;/li&gt;
+                &lt;/ul&gt;</code></pre>
+            </div>
+
+            <h4>Installation and Setup</h4>
+            
+            <div class="code-block" data-language="bash">
+                <pre><code># Install via Docker
+docker run -p 6379:6379 -it --rm falkordb/falkordb:latest
+
+# Connect using Redis CLI
+redis-cli
+
+# Create a graph
+GRAPH.QUERY social &quot;CREATE (:Person {name:&#x27;Alice&#x27;, age:30})&quot;
+
+# Query the graph  
+GRAPH.QUERY social &quot;MATCH (p:Person) RETURN p.name, p.age&quot;
+            &lt;/code&gt;
+
+            &lt;h4&gt;FalkorDB Query Examples&lt;/h4&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Create nodes and relationships
+GRAPH.QUERY social &quot;CREATE (:Person {name:&#x27;Alice&#x27;, age:30})-[:KNOWS]-&gt;(:Person {name:&#x27;Bob&#x27;, age:25})&quot;
+
+// Complex traversal
+GRAPH.QUERY social &quot;
+  MATCH (p1:Person)-[:KNOWS*1..3]-(p2:Person) 
+  WHERE p1.name = &#x27;Alice&#x27; 
+  RETURN p2.name, p2.age
+&quot;
+
+// Aggregation query
+GRAPH.QUERY social &quot;
+  MATCH (p:Person) 
+  RETURN AVG(p.age) as average_age, COUNT(p) as total_people
+&quot;
+            &lt;/code&gt;
+
+            &lt;h3&gt;Amazon Neptune&lt;/h3&gt;
+
+            &lt;p&gt;Amazon Neptune is a fully managed graph database service supporting both property graphs (Gremlin) and RDF (SPARQL).&lt;/p&gt;
+
+            &lt;div class=&quot;database-card&quot;&gt;
+                &lt;h4&gt;Key Features&lt;/h4&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Fully managed service with automatic scaling&lt;/li&gt;
+                    &lt;li&gt;Support for both Gremlin and SPARQL&lt;/li&gt;
+                    &lt;li&gt;High availability with read replicas&lt;/li&gt;
+                    &lt;li&gt;Integration with AWS ecosystem&lt;/li&gt;
+                &lt;/ul&gt;</code></pre>
+            </div>
+
+            <h4>Gremlin Query Examples</h4>
+            
+            <div class="code-block" data-language="groovy">
+                <pre><code>// Connect to Neptune (using Gremlin Console)
+:remote connect tinkerpop.server conf/neptune-remote.yaml
+:remote console
+
+// Create vertices
+g.addV(&#x27;person&#x27;).property(&#x27;name&#x27;, &#x27;Alice&#x27;).property(&#x27;age&#x27;, 30)
+g.addV(&#x27;person&#x27;).property(&#x27;name&#x27;, &#x27;Bob&#x27;).property(&#x27;age&#x27;, 25)
+
+// Create edge
+g.V().has(&#x27;name&#x27;, &#x27;Alice&#x27;).addE(&#x27;knows&#x27;).to(V().has(&#x27;name&#x27;, &#x27;Bob&#x27;))
+
+// Traversal queries
+g.V().has(&#x27;person&#x27;, &#x27;name&#x27;, &#x27;Alice&#x27;).out(&#x27;knows&#x27;).values(&#x27;name&#x27;)
+
+// Complex traversal with filtering
+g.V().hasLabel(&#x27;person&#x27;).
+  where(values(&#x27;age&#x27;).is(gt(25))).
+  out(&#x27;knows&#x27;).
+  groupCount().by(&#x27;name&#x27;)
+            &lt;/code&gt;
+
+            &lt;h3&gt;OrientDB&lt;/h3&gt;
+
+            &lt;p&gt;OrientDB is a multi-model database that supports documents, graphs, objects, and key-value pairs with ACID transactions.&lt;/p&gt;
+
+            &lt;div class=&quot;database-card&quot;&gt;
+                &lt;h4&gt;Key Features&lt;/h4&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Multi-model: Document, Graph, Object, Key-Value&lt;/li&gt;
+                    &lt;li&gt;SQL extended for graph operations&lt;/li&gt;
+                    &lt;li&gt;ACID transactions&lt;/li&gt;
+                    &lt;li&gt;Distributed architecture support&lt;/li&gt;
+                &lt;/ul&gt;</code></pre>
+            </div>
+
+            <h4>OrientDB SQL Examples</h4>
+            
+            <div class="code-block" data-language="sql">
+                <pre><code>-- Create vertex classes
+CREATE CLASS Person EXTENDS V
+CREATE CLASS Company EXTENDS V
+CREATE CLASS WorksFor EXTENDS E
+
+-- Insert vertices
+INSERT INTO Person SET name = &#x27;Alice&#x27;, age = 30
+INSERT INTO Company SET name = &#x27;Google&#x27;, industry = &#x27;Technology&#x27;
+
+-- Create edge
+CREATE EDGE WorksFor FROM (SELECT FROM Person WHERE name = &#x27;Alice&#x27;) 
+TO (SELECT FROM Company WHERE name = &#x27;Google&#x27;) SET position = &#x27;Engineer&#x27;
+
+-- Graph traversal
+SELECT expand(out(&#x27;WorksFor&#x27;)) FROM Person WHERE name = &#x27;Alice&#x27;
+
+-- Complex query with path
+SELECT expand(outE(&#x27;WorksFor&#x27;).inV()) FROM Person WHERE name = &#x27;Alice&#x27;
+            &lt;/code&gt;
+
+            &lt;h3&gt;TigerGraph&lt;/h3&gt;
+
+            &lt;p&gt;TigerGraph is designed for large-scale graph analytics and real-time deep link analysis.&lt;/p&gt;
+
+            &lt;div class=&quot;database-card&quot;&gt;
+                &lt;h4&gt;Key Features&lt;/h4&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Native parallel graph processing&lt;/li&gt;
+                    &lt;li&gt;GSQL query language&lt;/li&gt;
+                    &lt;li&gt;Real-time analytics capabilities&lt;/li&gt;
+                    &lt;li&gt;Machine learning integration&lt;/li&gt;
+                &lt;/ul&gt;</code></pre>
+            </div>
+
+            <h4>GSQL Query Examples</h4>
+            
+            <div class="code-block" data-language="gsql">
+                <pre><code>// Create schema
+CREATE VERTEX Person (PRIMARY_ID id STRING, name STRING, age INT)
+CREATE VERTEX Company (PRIMARY_ID id STRING, name STRING, industry STRING)  
+CREATE DIRECTED EDGE WorksFor (FROM Person, TO Company, position STRING)
+
+// Load data
+INSERT INTO Person VALUES (&quot;p1&quot;, &quot;Alice&quot;, 30)
+INSERT INTO Company VALUES (&quot;c1&quot;, &quot;Google&quot;, &quot;Technology&quot;)
+INSERT INTO WorksFor VALUES (&quot;p1&quot;, &quot;c1&quot;, &quot;Engineer&quot;)
+
+// Query
+SELECT p.name, c.name, e.position 
+FROM Person p -(WorksFor:e)- Company c
+WHERE p.age &gt; 25
+            &lt;/code&gt;
+
+            &lt;h3&gt;Comparison Matrix&lt;/h3&gt;
+
+            &lt;div class=&quot;database-grid&quot;&gt;
+                &lt;div class=&quot;database-card&quot;&gt;
+                    &lt;h4&gt;Neo4j&lt;/h4&gt;
+                    &lt;p&gt;&lt;strong&gt;Best for:&lt;/strong&gt; Complex graph analytics, ACID transactions&lt;/p&gt;
+                    &lt;p&gt;&lt;strong&gt;Query Language:&lt;/strong&gt; Cypher&lt;/p&gt;
+                    &lt;p&gt;&lt;strong&gt;Deployment:&lt;/strong&gt; On-premise, cloud, managed&lt;/p&gt;</code></pre>
+                </div>
+                <div class="database-card">
+                    <h4>ArangoDB</h4>
+                    <p><strong>Best for:</strong> Multi-model applications</p>
+                    <p><strong>Query Language:</strong> AQL</p>
+                    <p><strong>Deployment:</strong> On-premise, cloud</p>
+                </div>
+                <div class="database-card">
+                    <h4>FalkorDB</h4>
+                    <p><strong>Best for:</strong> Low latency, real-time applications</p>
+                    <p><strong>Query Language:</strong> OpenCypher</p>
+                    <p><strong>Deployment:</strong> Redis-based</p>
+                </div>
+                <div class="database-card">
+                    <h4>Amazon Neptune</h4>
+                    <p><strong>Best for:</strong> AWS ecosystems, managed service</p>
+                    <p><strong>Query Language:</strong> Gremlin, SPARQL</p>
+                    <p><strong>Deployment:</strong> Fully managed AWS</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples" class="section">
+            <h2>8. Practical Examples and Use Cases</h2>
+
+            <h3>Social Network Analysis</h3>
+            
+            <p>Build a comprehensive social network analysis system to understand relationships, influence patterns, and community structures.</p>
+
+            <div class="query-example">
+                <div class="query-title">Friend Recommendation System</div>
+                <div class="query-description">Find potential friends based on mutual connections and shared interests</div>
+            </div>
+
+            <div class="code-block" data-language="cypher">
+                <pre><code>// Neo4j implementation
+MATCH (user:Person {name: &#x27;Alice&#x27;})-[:FRIEND]-(mutualFriend:Person)-[:FRIEND]-(suggested:Person)
+WHERE user &lt;&gt; suggested 
+  AND NOT (user)-[:FRIEND]-(suggested)
+WITH suggested, count(mutualFriend) as mutualConnections, 
+     collect(mutualFriend.name) as mutualFriends
+MATCH (user:Person {name: &#x27;Alice&#x27;})-[:HAS_INTEREST]-&gt;(interest)&lt;-[:HAS_INTEREST]-(suggested)
+WITH suggested, mutualConnections, mutualFriends, 
+     count(interest) as sharedInterests, collect(interest.name) as commonInterests
+RETURN suggested.name, 
+       mutualConnections,
+       sharedInterests,
+       (mutualConnections * 2 + sharedInterests) as recommendationScore,
+       mutualFriends[0..3] as topMutualFriends,
+       commonInterests
+ORDER BY recommendationScore DESC
+LIMIT 5
+            &lt;/code&gt;
+
+            &lt;h3&gt;Fraud Detection Network&lt;/h3&gt;
+
+            &lt;p&gt;Implement a fraud detection system using graph patterns to identify suspicious activities and relationships.&lt;/p&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Detect suspicious transaction patterns
+MATCH (account1:Account)-[t1:TRANSFER]-&gt;(intermediary:Account)-[t2:TRANSFER]-&gt;(account2:Account)
+WHERE t1.timestamp &lt; t2.timestamp 
+  AND duration.between(t1.timestamp, t2.timestamp).minutes &lt; 10
+  AND t1.amount = t2.amount
+  AND account1 &lt;&gt; account2
+WITH account1, account2, intermediary, t1, t2,
+     count(*) as rapidTransferCount
+WHERE rapidTransferCount &gt; 1
+
+OPTIONAL MATCH (account1)-[:SIMILAR_DEVICE]-(account2)
+OPTIONAL MATCH (account1)-[:SAME_IP]-(account2)
+
+RETURN account1.id, account2.id, intermediary.id,
+       rapidTransferCount,
+       exists((account1)-[:SIMILAR_DEVICE]-(account2)) as sameDevice,
+       exists((account1)-[:SAME_IP]-(account2)) as sameIP,
+       (rapidTransferCount * 10 + 
+        (CASE WHEN exists((account1)-[:SIMILAR_DEVICE]-(account2)) THEN 20 ELSE 0 END) +
+        (CASE WHEN exists((account1)-[:SAME_IP]-(account2)) THEN 30 ELSE 0 END)) as fraudScore
+ORDER BY fraudScore DESC
+            &lt;/code&gt;
+
+            &lt;h3&gt;Supply Chain Optimization&lt;/h3&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// ArangoDB: Analyze supply chain vulnerabilities
+FOR supplier IN suppliers
+  LET dependentProducts = (
+    FOR product IN 1..3 OUTBOUND supplier supplies_edges
+      RETURN DISTINCT product
+  )
+
+  LET riskFactors = (
+    FOR factor IN supplier.riskFactors ? supplier.riskFactors : []
+      RETURN factor
+  )
+
+  LET alternativeSuppliers = (
+    FOR product IN dependentProducts
+      FOR altSupplier IN 1..1 INBOUND product supplies_edges
+        FILTER altSupplier._id != supplier._id
+        RETURN DISTINCT {
+          product: product.name,
+          alternative: altSupplier.name,
+          location: altSupplier.location,
+          reliability: altSupplier.reliabilityScore
+        }
+  )
+
+  LET criticalityScore = LENGTH(dependentProducts) * 
+                        (supplier.deliveryReliability ? (1 - supplier.deliveryReliability) : 0.5) *
+                        LENGTH(riskFactors)
+
+  FILTER criticalityScore &gt; 5
+
+  RETURN {
+    supplier: supplier.name,
+    location: supplier.location,
+    dependentProducts: dependentProducts[*].name,
+    riskFactors: riskFactors,
+    criticalityScore: criticalityScore,
+    alternativeOptions: LENGTH(alternativeSuppliers),
+    alternatives: alternativeSuppliers
+  }
+
+SORT criticalityScore DESC
+            &lt;/code&gt;
+
+            &lt;h3&gt;Knowledge Discovery in Research&lt;/h3&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;cypher&quot;&gt;
+// Discover research collaboration opportunities
+MATCH (researcher1:Researcher)-[:PUBLISHED]-&gt;(paper1:Paper)-[:CITES]-&gt;(paper2:Paper)&lt;-[:PUBLISHED]-(researcher2:Researcher)
+WHERE researcher1 &lt;&gt; researcher2
+WITH researcher1, researcher2, count(paper2) as citationConnections
+
+MATCH (researcher1)-[:EXPERTISE_IN]-&gt;(field)&lt;-[:EXPERTISE_IN]-(researcher2)
+WITH researcher1, researcher2, citationConnections, 
+     count(field) as sharedFields, collect(field.name) as commonAreas
+
+OPTIONAL MATCH (researcher1)-[:COLLABORATED_WITH]-(researcher2)
+WITH researcher1, researcher2, citationConnections, sharedFields, commonAreas,
+     CASE WHEN exists((researcher1)-[:COLLABORATED_WITH]-(researcher2)) 
+          THEN true ELSE false END as hasCollaborated
+
+WHERE sharedFields &gt; 2 AND citationConnections &gt; 5 AND NOT hasCollaborated
+
+MATCH (researcher1)-[:AFFILIATED_WITH]-&gt;(inst1:Institution)
+MATCH (researcher2)-[:AFFILIATED_WITH]-&gt;(inst2:Institution)
+
+RETURN researcher1.name, researcher2.name,
+       inst1.name as institution1, inst2.name as institution2,
+       sharedFields, commonAreas,
+       citationConnections,
+       (sharedFields * 2 + citationConnections * 0.5) as collaborationPotential
+ORDER BY collaborationPotential DESC
+LIMIT 10
+            &lt;/code&gt;
+
+            &lt;h3&gt;Recommendation Engine&lt;/h3&gt;
+
+            &lt;div class=&quot;code-block&quot; data-language=&quot;aql&quot;&gt;
+// Multi-dimensional recommendation system
+FOR user IN users
+  FILTER user._key == @userId
+
+  // Content-based recommendations
+  LET userPreferences = (
+    FOR item IN 1..1 OUTBOUND user user_liked_edges
+      FOR category IN item.categories
+        RETURN category
+  )
+
+  LET contentRecs = (
+    FOR item IN items
+      FILTER item._key NOT IN (
+        FOR liked IN 1..1 OUTBOUND user user_liked_edges
+          RETURN liked._key
+      )
+      LET matchingCategories = INTERSECTION(item.categories, userPreferences)
+      FILTER LENGTH(matchingCategories) &gt; 0
+      RETURN {
+        item: item,
+        score: LENGTH(matchingCategories) / LENGTH(item.categories),
+        type: &quot;content&quot;
+      }
+  )
+
+  // Collaborative filtering recommendations  
+  LET similarUsers = (
+    FOR item IN 1..1 OUTBOUND user user_liked_edges
+      FOR otherUser IN 1..1 INBOUND item user_liked_edges
+        FILTER otherUser._key != user._key
+        COLLECT similarUser = otherUser WITH COUNT INTO commonItems
+        SORT commonItems DESC
+        LIMIT 20
+        RETURN {user: similarUser, similarity: commonItems}
+  )
+
+  LET collaborativeRecs = (
+    FOR simUser IN similarUsers
+      FILTER simUser.similarity &gt; 2
+      FOR item IN 1..1 OUTBOUND simUser.user user_liked_edges
+        FILTER item._key NOT IN (
+          FOR liked IN 1..1 OUTBOUND user user_liked_edges
+            RETURN liked._key
+        )
+        COLLECT recommendation = item WITH COUNT INTO frequency
+        RETURN {
+          item: recommendation,
+          score: frequency * AVG(similarUsers[*].similarity),
+          type: &quot;collaborative&quot;
+        }
+  )
+
+  // Combine recommendations
+  LET allRecs = UNION(contentRecs, collaborativeRecs)
+
+  FOR rec IN allRecs
+    COLLECT item = rec.item 
+    AGGREGATE totalScore = SUM(rec.score),
+              methods = UNIQUE(rec.type)
+    SORT totalScore DESC
+    LIMIT 10
+
+    RETURN {
+      item: {
+        id: item._key,
+        name: item.name,
+        categories: item.categories
+      },
+      score: totalScore,
+      recommendationMethods: methods
+    }
+            &lt;/code&gt;
+
+            &lt;div class=&quot;info-box&quot;&gt;
+                &lt;strong&gt;Best Practices Summary:&lt;/strong&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Design schemas around your query patterns, not just your data structure&lt;/li&gt;
+                    &lt;li&gt;Use appropriate indexes for performance optimization&lt;/li&gt;
+                    &lt;li&gt;Implement proper data validation and consistency checks&lt;/li&gt;
+                    &lt;li&gt;Consider graph algorithms for advanced analytics&lt;/li&gt;
+                    &lt;li&gt;Monitor query performance and optimize bottlenecks&lt;/li&gt;
+                    &lt;li&gt;Plan for data growth and scalability requirements&lt;/li&gt;
+                &lt;/ul&gt;</code></pre>
+            </div>
+        </section>
+
+        <footer style="text-align: center; padding: 2rem; color: #4a5568; border-top: 1px solid #e2e8f0; margin-top: 3rem;">
+            <p>Knowledge Graphs Handbook - Created with detailed insights into modern graph database technologies</p>
+            <p style="font-size: 0.9rem;">Last Updated: March 2026</p>
+        </footer>
+    </div>
+</body>
+</html>
