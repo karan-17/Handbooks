@@ -5,6 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knowledge Graphs Handbook</title>
     <style>
+        :root {
+            /* Light Theme Colors */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f7fafc;
+            --bg-card: #ffffff;
+            --bg-code: #2d3748;
+            --bg-highlight: #fff3cd;
+            --bg-info: #2b77e6;
+            --bg-warning: #dc3545;
+            --bg-database-card: #e6fffa;
+            
+            --text-primary: #333333;
+            --text-secondary: #2d3748;
+            --text-tertiary: #4a5568;
+            --text-muted: #6b7280;
+            --text-code: #e2e8f0;
+            --text-highlight: #856404;
+            --text-info: #ffffff;
+            --text-warning: #ffffff;
+            --text-database-card: #234e52;
+            
+            --border-primary: #e2e8f0;
+            --border-secondary: #dee2e6;
+            --border-accent: #4c51bf;
+            --border-highlight: #d39e00;
+            --border-info: #004494;
+            --border-warning: #a71e2a;
+            --border-database-card: #38b2ac;
+            
+            --link-primary: #4c51bf;
+            --link-hover: #ffffff;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.08);
+            
+            --gradient-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-info: linear-gradient(135deg, #2b77e6 0%, #0056b3 100%);
+            --gradient-warning: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            --gradient-database-card: linear-gradient(135deg, #e6fffa 0%, #f7fafc 100%);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-code: #0f172a;
+            --bg-highlight: #422006;
+            --bg-info: #1e3a8a;
+            --bg-warning: #7f1d1d;
+            --bg-database-card: #064e3b;
+            
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-code: #e2e8f0;
+            --text-highlight: #fbbf24;
+            --text-info: #93c5fd;
+            --text-warning: #fca5a5;
+            --text-database-card: #6ee7b7;
+            
+            --border-primary: #334155;
+            --border-secondary: #475569;
+            --border-accent: #6366f1;
+            --border-highlight: #f59e0b;
+            --border-info: #3b82f6;
+            --border-warning: #ef4444;
+            --border-database-card: #10b981;
+            
+            --link-primary: #6366f1;
+            --link-hover: #1e293b;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.4);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.3);
+            
+            --gradient-header: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --gradient-info: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+            --gradient-warning: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            --gradient-database-card: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,8 +100,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .container {
@@ -25,13 +112,14 @@
         }
 
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--gradient-header);
             color: white;
             text-align: center;
             padding: 3rem 0;
             margin-bottom: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-medium);
+            position: relative;
         }
 
         h1 {
@@ -45,16 +133,49 @@
             opacity: 1;
             color: #f8f9fa;
         }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .theme-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle:hover .theme-icon {
+            transform: rotate(180deg);
+        }
 
         nav {
-            background: white;
+            background: var(--bg-secondary);
             padding: 1rem;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-light);
             margin-bottom: 2rem;
             position: sticky;
             top: 20px;
             z-index: 100;
+            transition: background-color 0.3s ease;
         }
 
         nav ul {
@@ -66,7 +187,7 @@
         }
 
         nav a {
-            color: #4c51bf;
+            color: var(--link-primary);
             text-decoration: none;
             font-weight: 500;
             padding: 0.5rem 1rem;
@@ -75,22 +196,23 @@
         }
 
         nav a:hover {
-            background-color: #4c51bf;
-            color: white;
+            background-color: var(--link-primary);
+            color: var(--link-hover);
             transform: translateY(-2px);
         }
 
         .section {
-            background: white;
+            background: var(--bg-secondary);
             margin-bottom: 2rem;
             padding: 2rem;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-heavy);
+            transition: background-color 0.3s ease;
         }
 
         h2 {
-            color: #2d3748;
-            border-bottom: 3px solid #4c51bf;
+            color: var(--text-secondary);
+            border-bottom: 3px solid var(--border-accent);
             padding-bottom: 0.5rem;
             margin-bottom: 1.5rem;
             font-size: 2rem;
@@ -98,7 +220,7 @@
         }
 
         h3 {
-            color: #2d3748;
+            color: var(--text-secondary);
             margin-top: 2rem;
             margin-bottom: 1rem;
             font-size: 1.5rem;
@@ -106,7 +228,7 @@
         }
 
         h4 {
-            color: #4a5568;
+            color: var(--text-tertiary);
             margin-top: 1.5rem;
             margin-bottom: 0.8rem;
             font-size: 1.2rem;
@@ -118,14 +240,15 @@
         }
 
         .code-block {
-            background: #2d3748;
-            color: #e2e8f0;
+            background: var(--bg-code);
+            color: var(--text-code);
             padding: 1.5rem;
             border-radius: 8px;
             margin: 1rem 0;
             overflow-x: auto;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             position: relative;
+            transition: background-color 0.3s ease;
         }
         
         .code-block pre {
@@ -151,14 +274,14 @@
             position: absolute;
             top: 0.5rem;
             right: 1rem;
-            color: #a0aec0;
+            color: var(--text-muted);
             font-size: 0.8rem;
             text-transform: uppercase;
         }
 
         .inline-code {
-            background: #edf2f7;
-            color: #2d3748;
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
@@ -166,30 +289,33 @@
         }
 
         .highlight-box {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
-            border-left: 4px solid #d39e00;
+            background: var(--bg-highlight);
+            border-left: 4px solid var(--border-highlight);
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 5px;
-            color: #856404;
+            color: var(--text-highlight);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .info-box {
-            background: linear-gradient(135deg, #2b77e6 0%, #0056b3 100%);
-            color: #ffffff;
+            background: var(--gradient-info);
+            color: var(--text-info);
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 5px;
-            border-left: 4px solid #004494;
+            border-left: 4px solid var(--border-info);
+            transition: background 0.3s ease;
         }
 
         .warning-box {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            color: #ffffff;
+            background: var(--gradient-warning);
+            color: var(--text-warning);
             padding: 1rem;
             margin: 1rem 0;
             border-radius: 5px;
-            border-left: 4px solid #a71e2a;
+            border-left: 4px solid var(--border-warning);
+            transition: background 0.3s ease;
         }
 
         .database-grid {
@@ -200,12 +326,12 @@
         }
 
         .database-card {
-            background: linear-gradient(135deg, #e6fffa 0%, #f7fafc 100%);
-            border: 2px solid #38b2ac;
+            background: var(--gradient-database-card);
+            border: 2px solid var(--border-database-card);
             padding: 1.5rem;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-medium);
+            transition: transform 0.3s ease, background 0.3s ease;
         }
 
         .database-card:hover {
@@ -213,14 +339,14 @@
         }
 
         .database-card h4 {
-            color: #234e52;
+            color: var(--text-database-card);
             margin-bottom: 1rem;
             font-weight: 600;
         }
         
         .database-card p,
         .database-card li {
-            color: #2d3748;
+            color: var(--text-database-card);
         }
 
         ul {
@@ -233,16 +359,17 @@
         }
 
         .toc {
-            background: #f7fafc;
-            border: 1px solid #e2e8f0;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
         }
 
         .toc h3 {
             margin-top: 0;
-            color: #2d3748;
+            color: var(--text-secondary);
         }
 
         .toc ul {
@@ -250,7 +377,7 @@
         }
 
         .toc a {
-            color: #4c51bf;
+            color: var(--link-primary);
             text-decoration: none;
         }
 
@@ -275,18 +402,34 @@
             .database-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .theme-toggle {
+                top: 0.5rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .theme-toggle .theme-text {
+                display: none;
+            }
+            
+            header {
+                padding: 2.5rem 0;
+            }
         }
 
         .setup-steps {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-secondary);
             border-radius: 8px;
             padding: 1.5rem;
             margin: 1rem 0;
+            transition: background-color 0.3s ease;
         }
         
         .setup-steps ol {
-            color: #2d3748;
+            color: var(--text-secondary);
             margin-left: 1.5rem;
         }
 
@@ -300,7 +443,7 @@
         }
 
         .query-title {
-            background: #667eea;
+            background: var(--link-primary);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 5px 5px 0 0;
@@ -309,18 +452,23 @@
         }
 
         .query-description {
-            background: #e6fffa;
+            background: var(--bg-database-card);
             padding: 1rem;
-            border-left: 4px solid #38b2ac;
+            border-left: 4px solid var(--border-database-card);
             margin: 0;
             border-radius: 0 0 5px 5px;
-            color: #234e52;
+            color: var(--text-database-card);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
+            <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light theme">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-text">Dark</span>
+            </div>
             <h1>Knowledge Graphs Handbook</h1>
             <p class="subtitle">A Comprehensive Guide to Knowledge Graphs, Context Preparation, and Database Solutions</p>
         </header>
@@ -2690,10 +2838,145 @@ FOR user IN users
             </div>
         </section>
 
-        <footer style="text-align: center; padding: 2rem; color: #4a5568; border-top: 1px solid #e2e8f0; margin-top: 3rem;">
+        <footer style="text-align: center; padding: 2rem; color: var(--text-tertiary); border-top: 1px solid var(--border-primary); margin-top: 3rem; transition: color 0.3s ease, border-color 0.3s ease;">
             <p>Knowledge Graphs Handbook - Created with detailed insights into modern graph database technologies</p>
             <p style="font-size: 0.9rem;">Last Updated: March 2026</p>
         </footer>
     </div>
+    
+    <script>
+        // Theme management functionality
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = localStorage.getItem('kg-handbook-theme') || 'light';
+                this.themeToggleBtn = document.querySelector('.theme-toggle');
+                this.themeIcon = document.querySelector('.theme-icon');
+                this.themeText = document.querySelector('.theme-text');
+                
+                this.init();
+            }
+            
+            init() {
+                // Apply saved theme on page load
+                this.applyTheme(this.currentTheme);
+                this.updateToggleButton();
+                
+                // Add smooth transition after initial load
+                setTimeout(() => {
+                    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                }, 100);
+            }
+            
+            applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                this.currentTheme = theme;
+                localStorage.setItem('kg-handbook-theme', theme);
+            }
+            
+            updateToggleButton() {
+                if (this.currentTheme === 'dark') {
+                    this.themeIcon.textContent = '☀️';
+                    this.themeText.textContent = 'Light';
+                } else {
+                    this.themeIcon.textContent = '🌙';
+                    this.themeText.textContent = 'Dark';
+                }
+            }
+            
+            toggle() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.applyTheme(newTheme);
+                this.updateToggleButton();
+                
+                // Add a subtle animation effect
+                this.themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Save user preference
+                this.trackThemeChange(newTheme);
+            }
+            
+            trackThemeChange(theme) {
+                // Analytics/tracking can be added here
+                console.log(`Theme changed to: ${theme}`);
+            }
+            
+            // Detect system theme preference
+            detectSystemTheme() {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            }
+            
+            // Auto-apply system theme if no preference is saved
+            autoApplySystemTheme() {
+                if (!localStorage.getItem('kg-handbook-theme')) {
+                    const systemTheme = this.detectSystemTheme();
+                    this.applyTheme(systemTheme);
+                    this.updateToggleButton();
+                }
+            }
+        }
+        
+        // Initialize theme manager
+        const themeManager = new ThemeManager();
+        
+        // Global function for the onclick handler
+        function toggleTheme() {
+            themeManager.toggle();
+        }
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+                // Only auto-switch if user hasn't set a manual preference
+                if (!localStorage.getItem('kg-handbook-theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    themeManager.applyTheme(newTheme);
+                    themeManager.updateToggleButton();
+                }
+            });
+        }
+        
+        // Apply system theme on first visit
+        document.addEventListener('DOMContentLoaded', () => {
+            themeManager.autoApplySystemTheme();
+        });
+        
+        // Add keyboard shortcut for theme toggle (Ctrl/Cmd + Shift + T)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+        
+        // Add subtle animations to code blocks on theme switch
+        function animateCodeBlocks() {
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach((block, index) => {
+                setTimeout(() => {
+                    block.style.opacity = '0.7';
+                    setTimeout(() => {
+                        block.style.opacity = '1';
+                    }, 100);
+                }, index * 20);
+            });
+        }
+        
+        // Enhanced theme toggle with code block animation
+        const originalToggle = themeManager.toggle.bind(themeManager);
+        themeManager.toggle = function() {
+            originalToggle();
+            animateCodeBlocks();
+        };
+    </script>
 </body>
 </html>
