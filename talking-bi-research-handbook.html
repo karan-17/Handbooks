@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talking BI Project Research Handbook</title>
+    <style>
+        :root {
+            /* Light Theme Colors */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f7fafc;
+            --bg-card: #ffffff;
+            --bg-code: #2d3748;
+            --bg-highlight: #fff3cd;
+            --bg-info: #2b77e6;
+            --bg-warning: #dc3545;
+            --bg-research-card: #e6fffa;
+            --bg-not-found: #fef2f2;
+            
+            --text-primary: #333333;
+            --text-secondary: #2d3748;
+            --text-tertiary: #4a5568;
+            --text-muted: #6b7280;
+            --text-code: #e2e8f0;
+            --text-highlight: #856404;
+            --text-info: #ffffff;
+            --text-warning: #ffffff;
+            --text-research-card: #234e52;
+            --text-not-found: #7f1d1d;
+            
+            --border-primary: #e2e8f0;
+            --border-secondary: #dee2e6;
+            --border-accent: #4c51bf;
+            --border-highlight: #d39e00;
+            --border-info: #004494;
+            --border-warning: #a71e2a;
+            --border-research-card: #38b2ac;
+            --border-not-found: #dc2626;
+            
+            --link-primary: #4c51bf;
+            --link-hover: #ffffff;
+            --link-external: #059669;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.08);
+            
+            --gradient-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-info: linear-gradient(135deg, #2b77e6 0%, #0056b3 100%);
+            --gradient-warning: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            --gradient-research-card: linear-gradient(135deg, #e6fffa 0%, #f7fafc 100%);
+            --gradient-not-found: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-code: #0f172a;
+            --bg-highlight: #422006;
+            --bg-info: #1e3a8a;
+            --bg-warning: #7f1d1d;
+            --bg-research-card: #064e3b;
+            --bg-not-found: #450a0a;
+            
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-code: #e2e8f0;
+            --text-highlight: #fbbf24;
+            --text-info: #93c5fd;
+            --text-warning: #fca5a5;
+            --text-research-card: #6ee7b7;
+            --text-not-found: #fca5a5;
+            
+            --border-primary: #334155;
+            --border-secondary: #475569;
+            --border-accent: #6366f1;
+            --border-highlight: #f59e0b;
+            --border-info: #3b82f6;
+            --border-warning: #ef4444;
+            --border-research-card: #10b981;
+            --border-not-found: #ef4444;
+            
+            --link-primary: #6366f1;
+            --link-hover: #1e293b;
+            --link-external: #34d399;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.4);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.3);
+            
+            --gradient-header: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --gradient-info: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+            --gradient-warning: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            --gradient-research-card: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+            --gradient-not-found: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--gradient-header);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 1;
+            color: #f8f9fa;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .theme-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle:hover .theme-icon {
+            transform: rotate(180deg);
+        }
+
+        nav {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--link-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: var(--link-primary);
+            color: var(--link-hover);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-heavy);
+            transition: background-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--text-secondary);
+            border-bottom: 3px solid var(--border-accent);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        h4 {
+            color: var(--text-tertiary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        h5 {
+            color: var(--text-tertiary);
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .research-paper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .research-paper-card {
+            background: var(--gradient-research-card);
+            border: 2px solid var(--border-research-card);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-medium);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .research-paper-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .research-paper-card h4 {
+            color: var(--text-research-card);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            margin-top: 0;
+        }
+        
+        .research-paper-card p,
+        .research-paper-card li {
+            color: var(--text-research-card);
+        }
+
+        .not-found-card {
+            background: var(--gradient-not-found);
+            border: 2px solid var(--border-not-found);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-medium);
+            transition: background 0.3s ease;
+        }
+
+        .not-found-card h4 {
+            color: var(--text-not-found);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            margin-top: 0;
+        }
+        
+        .not-found-card p,
+        .not-found-card li {
+            color: var(--text-not-found);
+        }
+
+        .arxiv-link {
+            display: inline-block;
+            background: var(--link-external);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 0.5rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .arxiv-link:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        .paper-meta {
+            background: var(--bg-tertiary);
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--border-accent);
+            transition: background-color 0.3s ease;
+        }
+
+        .paper-meta strong {
+            color: var(--text-secondary);
+        }
+
+        .highlight-box {
+            background: var(--bg-highlight);
+            border-left: 4px solid var(--border-highlight);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            color: var(--text-highlight);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .info-box {
+            background: var(--gradient-info);
+            color: var(--text-info);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--border-info);
+            transition: background 0.3s ease;
+        }
+
+        .warning-box {
+            background: var(--gradient-warning);
+            color: var(--text-warning);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--border-warning);
+            transition: background 0.3s ease;
+        }
+
+        .toc {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: var(--text-secondary);
+        }
+
+        .toc ul {
+            margin-left: 1rem;
+        }
+
+        .toc a {
+            color: var(--link-primary);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .paper-summary {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: var(--bg-tertiary);
+            border-left: 4px solid var(--border-accent);
+            transition: background-color 0.3s ease;
+        }
+
+        .bi-relevance {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            color: #0c4a6e;
+        }
+
+        [data-theme="dark"] .bi-relevance {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: #0ea5e9;
+            color: #7dd3fc;
+        }
+
+        .key-findings {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 2px solid #16a34a;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            color: #14532d;
+        }
+
+        [data-theme="dark"] .key-findings {
+            background: linear-gradient(135deg, #1a2e05 0%, #14532d 100%);
+            border-color: #16a34a;
+            color: #86efac;
+        }
+
+        .takeaways {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border: 2px solid #ca8a04;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            color: #713f12;
+        }
+
+        [data-theme="dark"] .takeaways {
+            background: linear-gradient(135deg, #451a03 0%, #713f12 100%);
+            border-color: #ca8a04;
+            color: #fcd34d;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .research-paper-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-toggle {
+                top: 0.5rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .theme-toggle .theme-text {
+                display: none;
+            }
+            
+            header {
+                padding: 2.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light theme">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-text">Dark</span>
+            </div>
+            <h1>Talking BI Project Research Handbook</h1>
+            <p class="subtitle">Comprehensive Analysis of Conversational Business Intelligence Research Papers</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#overview">Project Overview</a></li>
+                <li><a href="#paper1">Doc2Chart</a></li>
+                <li><a href="#paper2">InsightEval</a></li>
+                <li><a href="#paper3">Paper 3 Analysis</a></li>
+                <li><a href="#paper4">DeepPrep</a></li>
+                <li><a href="#synthesis">Research Synthesis</a></li>
+                <li><a href="#applications">Applications</a></li>
+            </ul>
+        </nav>
+
+        <div class="toc">
+            <h3>Research Papers Index</h3>
+            <ul>
+                <li><a href="#paper1">1. Doc2Chart: Intent-Driven Zero-Shot Chart Generation from Documents</a></li>
+                <li><a href="#paper2">2. InsightEval: An Expert-Curated Benchmark for Assessing Insight Discovery</a></li>
+                <li><a href="#paper3">3. Research Paper Analysis (ID: 2602.01952)</a></li>
+                <li><a href="#paper4">4. DeepPrep: An LLM-Powered Agentic System for Autonomous Data Preparation</a></li>
+                <li><a href="#synthesis">5. Cross-Paper Research Synthesis</a></li>
+                <li><a href="#applications">6. Practical Applications for Talking BI</a></li>
+            </ul>
+        </div>
+
+        <section id="overview" class="section">
+            <h2>Talking BI Project Overview</h2>
+            
+            <p>The Talking BI (Business Intelligence) project represents a cutting-edge initiative focused on developing conversational artificial intelligence systems that can understand, analyze, and communicate business data insights through natural language interactions. This handbook compiles and analyzes key research papers that form the foundation of this project.</p>
+
+            <div class="highlight-box">
+                <strong>Project Vision:</strong> To create intelligent systems that can transform business data into actionable insights through natural, conversational interactions, making business intelligence accessible to users regardless of their technical expertise.
+            </div>
+
+            <h3>Research Paper Collection</h3>
+            
+            <div class="research-paper-grid">
+                <div class="research-paper-card">
+                    <h4>Doc2Chart (2507.14819)</h4>
+                    <p><strong>Focus:</strong> Intent-driven chart generation from documents</p>
+                    <p><strong>Relevance:</strong> Enables conversational visualization requests from business documents</p>
+                    <a href="https://arxiv.org/pdf/2507.14819" class="arxiv-link" target="_blank">📄 View Paper</a>
+                </div>
+                <div class="research-paper-card">
+                    <h4>InsightEval (2511.22884)</h4>
+                    <p><strong>Focus:</strong> Benchmarking insight discovery in LLM-driven data agents</p>
+                    <p><strong>Relevance:</strong> Provides evaluation framework for conversational BI systems</p>
+                    <a href="https://arxiv.org/pdf/2511.22884" class="arxiv-link" target="_blank">📄 View Paper</a>
+                </div>
+                <div class="not-found-card">
+                    <h4>Paper ID: 2602.01952</h4>
+                    <p><strong>Status:</strong> Paper not found in arXiv database</p>
+                    <p><strong>Note:</strong> May be a future submission or incorrect identifier</p>
+                </div>
+                <div class="research-paper-card">
+                    <h4>DeepPrep (2602.07371)</h4>
+                    <p><strong>Focus:</strong> Autonomous data preparation using LLM agents</p>
+                    <p><strong>Relevance:</strong> Enables automated data preprocessing for conversational BI</p>
+                    <a href="https://arxiv.org/pdf/2602.07371" class="arxiv-link" target="_blank">📄 View Paper</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="paper1" class="section">
+            <h2>Doc2Chart: Intent-Driven Zero-Shot Chart Generation</h2>
+            
+            <div class="paper-meta">
+                <strong>arXiv ID:</strong> 2507.14819<br>
+                <strong>Authors:</strong> Akriti Jain, Pritika Ramu, Aparna Garimella, Apoorv Saxena<br>
+                <strong>Publication:</strong> EMNLP 2025<br>
+                <strong>Date:</strong> July 20, 2025 (v1), August 27, 2025 (v2)
+            </div>
+
+            <h3>Research Contribution</h3>
+            <p>Doc2Chart introduces the novel task of intent-based chart generation from documents, addressing the challenge of applying Large Language Models (LLMs) to visualize data from long documents based on user-specified intents in a zero-shot setting.</p>
+
+            <div class="key-findings">
+                <h4>Key Innovation</h4>
+                <p>The first work to address document-to-chart generation based on intent in a zero-shot setting, proposing an unsupervised, two-staged framework that generates charts adhering to user intent and grounded in document content without requiring manual data pre-selection.</p>
+            </div>
+
+            <h4>Technical Framework</h4>
+            
+            <h5>Two-Stage Architecture:</h5>
+            <ul>
+                <li><strong>Information Extraction Stage:</strong> Intent decomposition using LLMs, iterative data extraction and refinement process, validation mechanisms to ensure data fidelity</li>
+                <li><strong>Chart Generation Stage:</strong> Heuristic-guided chart type selection, predefined visualization heuristics, final chart code generation</li>
+            </ul>
+
+            <h5>Novel Evaluation Methodology:</h5>
+            <ul>
+                <li><strong>Attribution-based evaluation metric:</strong> Uses structured text representation of generated charts</li>
+                <li><strong>Attention-based heat map analysis:</strong> Detects spans of data values not captured in reference charts</li>
+                <li><strong>Reference-free evaluation:</strong> Assesses chart faithfulness against source documents directly</li>
+            </ul>
+
+            <div class="bi-relevance">
+                <h4>Relevance to Talking BI</h4>
+                <ul>
+                    <li><strong>Automated insight generation:</strong> Enables financial reports, business documents analysis</li>
+                    <li><strong>Natural language interface:</strong> Users can request specific charts using conversational intent</li>
+                    <li><strong>Document-grounded responses:</strong> Charts are factually grounded in source business documents</li>
+                    <li><strong>Zero-shot capability:</strong> No training required for new document types or domains</li>
+                </ul>
+            </div>
+
+            <h4>Performance Results</h4>
+            <p>Tested on 4 LLMs (GPT-4o, Gemini-2.0, LLaMA-3.1-8B-Instruct, Claude-3.5-Sonnet) with a dataset of 1,242 validated tuples, showing significant improvements over baselines in appropriate chart type selection, chart data accuracy, and intent adherence.</p>
+
+            <div class="takeaways">
+                <h4>Key Takeaways for Practitioners</h4>
+                <ul>
+                    <li>Multi-stage processing is crucial for accurate document-to-chart generation</li>
+                    <li>Intent decomposition is essential for handling complex user requests</li>
+                    <li>Validation and refinement loops significantly improve output quality</li>
+                    <li>Attribution mechanisms are necessary for ensuring data faithfulness</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="paper2" class="section">
+            <h2>InsightEval: Expert-Curated Benchmark for Insight Discovery</h2>
+            
+            <div class="paper-meta">
+                <strong>arXiv ID:</strong> 2511.22884<br>
+                <strong>Authors:</strong> Zhenghao Zhu, Yuanfeng Song, Xin Chen, Chengzhong Liu, Yakun Cui, Caleb Chen Cao, Sirui Han, Yike Guo<br>
+                <strong>Publication Date:</strong> November 28, 2025
+            </div>
+
+            <h3>Research Problem</h3>
+            <p>The paper addresses a critical gap in evaluating LLM-driven data analysis systems, noting that while "more and more researchers are making use of LLMs and multi-agent systems for insight discovery," there are insufficient benchmarks for evaluating these capabilities.</p>
+
+            <div class="key-findings">
+                <h4>Main Contribution</h4>
+                <p>Development of InsightEval, an expert-curated benchmark that provides a more robust evaluation framework than existing tools like InsightBench, which suffered from "format inconsistencies, poorly conceived objectives, and redundant insights."</p>
+            </div>
+
+            <h4>Methodological Innovations</h4>
+            
+            <h5>Data Curation Pipeline:</h5>
+            <ul>
+                <li>Comprehensive data-curation pipeline to construct the InsightEval dataset</li>
+                <li>Expert curation to ensure high-quality evaluation standards</li>
+                <li>Structured taxonomy development for table-driven insight generation</li>
+            </ul>
+
+            <h5>Novel Evaluation Metrics:</h5>
+            <ul>
+                <li>Novel metrics to measure exploratory performance of agents</li>
+                <li>Revised evaluation criteria addressing identified shortcomings</li>
+                <li>Integration of refined goals, tabular schema, questions, and answers</li>
+            </ul>
+
+            <h4>Performance Analysis</h4>
+            <div class="paper-summary">
+                <ul>
+                    <li><strong>Insights F1 Scores:</strong> Consistently exceeded Insight Recall Scores across all tested agents</li>
+                    <li><strong>Human Alignment:</strong> F1 scores demonstrated closer alignment with Human Evaluation Scores</li>
+                    <li><strong>Agent Comparison:</strong> Agent Poirot (Claude 3.7 Sonnet) substantially outperformed other agents in G-Eval assessments</li>
+                </ul>
+            </div>
+
+            <div class="bi-relevance">
+                <h4>Business Intelligence Applications</h4>
+                <ul>
+                    <li><strong>Automated Insight Generation:</strong> Framework applies to BI systems that automatically discover insights from business data</li>
+                    <li><strong>Multi-Agent Analytics:</strong> Supports development of sophisticated BI systems using multiple specialized agents</li>
+                    <li><strong>Conversational Analytics:</strong> Enables evaluation of conversational AI systems providing business insights through natural language</li>
+                    <li><strong>Decision-making Support:</strong> Facilitates agentic workflows that are visible, editable, and explainable</li>
+                </ul>
+            </div>
+
+            <h4>Technical Innovations</h4>
+            <ul>
+                <li><strong>Comprehensive Assessment Protocol:</strong> Standardized methodology for evaluating LLM-driven data agents</li>
+                <li><strong>Multi-dimensional Evaluation:</strong> Assessment across accuracy, relevance, and novelty criteria</li>
+                <li><strong>Human-AI Alignment:</strong> Metrics designed to align with human judgment in insight quality assessment</li>
+                <li><strong>Cross-Agent Validation:</strong> Testing across multiple agent architectures and language models</li>
+            </ul>
+
+            <div class="takeaways">
+                <h4>Practitioner Recommendations</h4>
+                <ul>
+                    <li>Use InsightEval as a benchmark for developing and evaluating conversational BI systems</li>
+                    <li>Consider implementing specialized agents for different analytical tasks</li>
+                    <li>Prioritize metrics that align with human judgment rather than purely algorithmic measures</li>
+                    <li>Account for the subjective nature of insights when designing evaluation criteria</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="paper3" class="section">
+            <h2>Research Paper Analysis - arXiv ID: 2602.01952</h2>
+            
+            <div class="not-found-card">
+                <h4>⚠️ Paper Not Found</h4>
+                <p>The research paper with arXiv identifier <strong>2602.01952</strong> could not be located in the arXiv database.</p>
+            </div>
+
+            <h3>Search Analysis</h3>
+            <p>Comprehensive searches were conducted across multiple approaches, but no paper was found with the specified identifier.</p>
+
+            <h4>Possible Explanations</h4>
+            <ul>
+                <li><strong>Future Date Issue:</strong> The identifier 2602.01952 would correspond to February 2026, which may be beyond current submission patterns</li>
+                <li><strong>Typographical Error:</strong> The identifier may contain a transcription error</li>
+                <li><strong>Paper Not Yet Available:</strong> The paper may not have been submitted or made publicly available yet</li>
+                <li><strong>Alternative Repository:</strong> The paper may be hosted elsewhere or under a different identifier</li>
+            </ul>
+
+            <div class="warning-box">
+                <h4>Alternative Papers Found</h4>
+                <p>During the search, several related papers were identified that might be relevant to conversational BI research:</p>
+                <ul>
+                    <li><strong>arXiv:2601.01952</strong> - Context-Adaptive Requirements Defect Prediction (human-LLM collaboration)</li>
+                    <li><strong>arXiv:2603.01952</strong> - LiveCultureBench Multi-Agent Benchmark (multi-agent conversational systems)</li>
+                </ul>
+            </div>
+
+            <h3>Recommendation for Project Continuation</h3>
+            <p>To maintain the integrity of the Talking BI research handbook, consider:</p>
+            <ol>
+                <li><strong>Verification:</strong> Double-check the provided arXiv identifier</li>
+                <li><strong>Alternative Search:</strong> If you have the paper title, authors, or keywords, search using those terms</li>
+                <li><strong>Placeholder Maintenance:</strong> Keep this section as a placeholder for when the correct paper is identified</li>
+                <li><strong>Research Continuity:</strong> Proceed with analysis of the confirmed papers while awaiting clarification</li>
+            </ol>
+        </section>
+
+        <section id="paper4" class="section">
+            <h2>DeepPrep: LLM-Powered Autonomous Data Preparation</h2>
+            
+            <div class="paper-meta">
+                <strong>arXiv ID:</strong> 2602.07371<br>
+                <strong>Authors:</strong> Meihao Fan, Ju Fan, Yuxin Zhang, Shaolei Zhang, Xiaoyong Du, Jie Song, Peng Li, Fuxin Jiang, Tieying Zhang, Jianjun Chen<br>
+                <strong>Publication Date:</strong> February 7, 2026<br>
+                <strong>Category:</strong> Computer Science - Artificial Intelligence
+            </div>
+
+            <h3>Problem Statement</h3>
+            <p>Data preparation remains a major bottleneck in data science, requiring transformation of heterogeneous and noisy raw tables into analysis-ready data. Existing LLM-powered methods have two key limitations: they make decisions without grounding in intermediate execution results, and they rely on linear interaction processes that offer limited support for revising earlier decisions.</p>
+
+            <div class="key-findings">
+                <h4>Core Innovation</h4>
+                <p>DeepPrep introduces an LLM-powered agentic system that constructs data preparation pipelines through iterative, execution-grounded interaction with an environment that materializes intermediate table states and returns runtime feedback.</p>
+            </div>
+
+            <h4>Technical Architecture</h4>
+            
+            <h5>Tree-Based Agentic Reasoning:</h5>
+            <ul>
+                <li>Organizes pipeline construction using tree-based reasoning rather than linear approaches</li>
+                <li>Enables structured exploration and non-local revision based on execution feedback</li>
+                <li>Maintains explicit tree of materialized execution states during pipeline construction</li>
+            </ul>
+
+            <h5>Execution-Grounded Interaction:</h5>
+            <ul>
+                <li>Iterative interaction with environment that materializes intermediate table states</li>
+                <li>Returns runtime feedback for decision-making</li>
+                <li>Enables precise attribution of execution feedback to earlier decision points</li>
+            </ul>
+
+            <h4>Process Flow</h4>
+            <ol>
+                <li><strong>Planning:</strong> Observing current execution state and synthesizing high-level plans</li>
+                <li><strong>Execution:</strong> Applying operator pipelines and materializing intermediate results</li>
+                <li><strong>Feedback Integration:</strong> Using execution results to guide future decisions and enable backtracking</li>
+            </ol>
+
+            <h4>Performance Results</h4>
+            <div class="paper-summary">
+                <ul>
+                    <li><strong>Accuracy:</strong> Comparable to strong closed-source models (e.g., GPT-5)</li>
+                    <li><strong>Cost Efficiency:</strong> 15x lower inference cost compared to closed-source alternatives</li>
+                    <li><strong>Open Source Performance:</strong> State-of-the-art among open-source baselines</li>
+                    <li><strong>Generalization:</strong> Effective across diverse datasets</li>
+                </ul>
+            </div>
+
+            <div class="bi-relevance">
+                <h4>Talking BI Integration</h4>
+                <ul>
+                    <li><strong>Conversational Data Preparation:</strong> Accepts natural language specifications for data transformation tasks</li>
+                    <li><strong>Interactive Refinement:</strong> Enables business users to specify requirements without technical expertise</li>
+                    <li><strong>Autonomous Quality Management:</strong> Automatically detects and corrects data quality issues</li>
+                    <li><strong>Transparent Processing:</strong> Provides explanations for transformation decisions and maintains audit trails</li>
+                </ul>
+            </div>
+
+            <h4>Technical Innovations</h4>
+            <ul>
+                <li><strong>Tree-Based Pipeline Construction:</strong> First system to organize data preparation as tree search</li>
+                <li><strong>Execution-Grounded Decision Making:</strong> Grounds decisions in actual execution results</li>
+                <li><strong>Progressive Agentic Training:</strong> Novel training approach for autonomous data preparation</li>
+                <li><strong>State Materialization:</strong> Explicit representation of intermediate execution states</li>
+            </ul>
+
+            <h4>Limitations and Future Work</h4>
+            <ul>
+                <li><strong>Scalability:</strong> Tree-based approach may face challenges with very large datasets</li>
+                <li><strong>Domain Specificity:</strong> Current focus on tabular data preparation</li>
+                <li><strong>Future Directions:</strong> Extension to non-tabular data formats, enhanced reasoning capabilities</li>
+            </ul>
+
+            <div class="takeaways">
+                <h4>Business Value for Talking BI</h4>
+                <ul>
+                    <li><strong>Cost-Effective Solution:</strong> 15x cost reduction while maintaining accuracy</li>
+                    <li><strong>Reduced Technical Barriers:</strong> Enables natural language data preparation specifications</li>
+                    <li><strong>Quality Assurance:</strong> Systematic error detection and transparent audit trails</li>
+                    <li><strong>Reproducible Pipelines:</strong> Enables consistent, repeatable data preparation processes</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="synthesis" class="section">
+            <h2>Cross-Paper Research Synthesis</h2>
+            
+            <p>The analyzed research papers collectively form a comprehensive foundation for conversational business intelligence systems. This synthesis identifies key themes, complementary approaches, and integrated solutions for the Talking BI project.</p>
+
+            <h3>Unified Architecture Vision</h3>
+            
+            <div class="info-box">
+                <h4>Integrated Talking BI Pipeline</h4>
+                <p>The three confirmed papers provide complementary capabilities that can be integrated into a unified conversational BI system:</p>
+                <ul>
+                    <li><strong>Data Preparation (DeepPrep):</strong> Autonomous preprocessing of raw business data</li>
+                    <li><strong>Insight Discovery (InsightEval Framework):</strong> Systematic insight generation and evaluation</li>
+                    <li><strong>Visualization Generation (Doc2Chart):</strong> Intent-driven chart creation from documents</li>
+                </ul>
+            </div>
+
+            <h4>Common Technical Themes</h4>
+            
+            <h5>1. Multi-Stage Processing Architectures</h5>
+            <ul>
+                <li><strong>Doc2Chart:</strong> Two-stage framework (information extraction → chart generation)</li>
+                <li><strong>DeepPrep:</strong> Three-stage process (planning → execution → feedback integration)</li>
+                <li><strong>InsightEval:</strong> Multi-dimensional evaluation across accuracy, relevance, novelty</li>
+            </ul>
+
+            <h5>2. Execution-Grounded Decision Making</h5>
+            <ul>
+                <li><strong>DeepPrep:</strong> Decisions grounded in intermediate execution results</li>
+                <li><strong>Doc2Chart:</strong> Iterative data extraction and refinement with validation</li>
+                <li><strong>InsightEval:</strong> Reference-free evaluation against source documents</li>
+            </ul>
+
+            <h5>3. Intent-Driven Natural Language Interfaces</h5>
+            <ul>
+                <li><strong>Doc2Chart:</strong> Intent decomposition for chart generation requests</li>
+                <li><strong>DeepPrep:</strong> Natural language specifications for data transformation</li>
+                <li><strong>InsightEval:</strong> Conversational AI evaluation for insight discovery</li>
+            </ul>
+
+            <h3>Complementary Capabilities Matrix</h3>
+            
+            <div class="research-paper-grid">
+                <div class="research-paper-card">
+                    <h4>Data Layer (DeepPrep)</h4>
+                    <ul>
+                        <li>Autonomous data preparation</li>
+                        <li>Tree-based pipeline construction</li>
+                        <li>Execution feedback loops</li>
+                        <li>Cost-efficient processing</li>
+                    </ul>
+                </div>
+                <div class="research-paper-card">
+                    <h4>Analysis Layer (InsightEval)</h4>
+                    <ul>
+                        <li>Insight discovery benchmarking</li>
+                        <li>Multi-agent analytics</li>
+                        <li>Human-AI alignment metrics</li>
+                        <li>Quality assessment frameworks</li>
+                    </ul>
+                </div>
+                <div class="research-paper-card">
+                    <h4>Presentation Layer (Doc2Chart)</h4>
+                    <ul>
+                        <li>Intent-driven visualizations</li>
+                        <li>Document-grounded charts</li>
+                        <li>Zero-shot chart generation</li>
+                        <li>Attribution-based validation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Research Gaps and Opportunities</h3>
+            
+            <h4>Integration Challenges</h4>
+            <ul>
+                <li><strong>End-to-End Pipeline:</strong> Need for seamless integration between data preparation, analysis, and visualization</li>
+                <li><strong>Consistent Evaluation:</strong> Unified evaluation metrics across different system components</li>
+                <li><strong>User Experience:</strong> Coherent conversational interface spanning all capabilities</li>
+                <li><strong>Performance Optimization:</strong> Balancing accuracy, cost, and response time across the pipeline</li>
+            </ul>
+
+            <h4>Future Research Directions</h4>
+            <ul>
+                <li><strong>Multi-Modal Integration:</strong> Extending beyond tabular data to images, text, and multimedia</li>
+                <li><strong>Real-Time Processing:</strong> Streaming data analysis and dynamic insight generation</li>
+                <li><strong>Personalization:</strong> User-specific insight discovery and visualization preferences</li>
+                <li><strong>Collaborative Intelligence:</strong> Human-AI collaborative analysis workflows</li>
+            </ul>
+        </section>
+
+        <section id="applications" class="section">
+            <h2>Practical Applications for Talking BI</h2>
+            
+            <p>This section outlines concrete applications of the research findings for developing practical conversational business intelligence systems.</p>
+
+            <h3>Use Case Scenarios</h3>
+            
+            <div class="bi-relevance">
+                <h4>1. Executive Dashboard Conversations</h4>
+                <p><strong>Scenario:</strong> "Show me sales trends by region for the last quarter, highlighting any unusual patterns."</p>
+                <ul>
+                    <li><strong>DeepPrep:</strong> Automatically preprocesses sales data from multiple sources</li>
+                    <li><strong>InsightEval Framework:</strong> Identifies statistically significant trends and anomalies</li>
+                    <li><strong>Doc2Chart:</strong> Generates appropriate visualizations based on executive intent</li>
+                </ul>
+            </div>
+
+            <div class="key-findings">
+                <h4>2. Financial Report Analysis</h4>
+                <p><strong>Scenario:</strong> "Analyze our quarterly earnings report and create charts showing key performance indicators."</p>
+                <ul>
+                    <li><strong>Doc2Chart:</strong> Extracts financial data from documents based on user intent</li>
+                    <li><strong>DeepPrep:</strong> Cleans and standardizes financial metrics</li>
+                    <li><strong>InsightEval:</strong> Validates the relevance and accuracy of generated insights</li>
+                </ul>
+            </div>
+
+            <div class="takeaways">
+                <h4>3. Operational Analytics</h4>
+                <p><strong>Scenario:</strong> "What patterns can you find in our customer service data that might indicate improvement opportunities?"</p>
+                <ul>
+                    <li><strong>DeepPrep:</strong> Processes heterogeneous customer service logs and metrics</li>
+                    <li><strong>InsightEval:</strong> Discovers actionable insights about service patterns</li>
+                    <li><strong>Doc2Chart:</strong> Creates visualizations highlighting improvement opportunities</li>
+                </ul>
+            </div>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <h4>Phase 1: Foundation (Months 1-3)</h4>
+            <ul>
+                <li>Implement DeepPrep-based data preparation pipeline</li>
+                <li>Establish InsightEval benchmarking framework</li>
+                <li>Create basic natural language interface</li>
+                <li>Develop initial system integration architecture</li>
+            </ul>
+
+            <h4>Phase 2: Integration (Months 4-6)</h4>
+            <ul>
+                <li>Integrate Doc2Chart visualization capabilities</li>
+                <li>Develop unified conversational interface</li>
+                <li>Implement cross-component evaluation metrics</li>
+                <li>Create user feedback and refinement mechanisms</li>
+            </ul>
+
+            <h4>Phase 3: Enhancement (Months 7-9)</h4>
+            <ul>
+                <li>Add multi-modal data support</li>
+                <li>Implement advanced insight discovery algorithms</li>
+                <li>Develop personalization capabilities</li>
+                <li>Create collaborative analysis features</li>
+            </ul>
+
+            <h4>Phase 4: Optimization (Months 10-12)</h4>
+            <ul>
+                <li>Performance optimization and scalability improvements</li>
+                <li>Advanced evaluation and quality assurance</li>
+                <li>Enterprise integration and deployment</li>
+                <li>Comprehensive user experience testing</li>
+            </ul>
+
+            <h3>Technology Stack Recommendations</h3>
+            
+            <div class="paper-summary">
+                <h4>Core Components</h4>
+                <ul>
+                    <li><strong>LLM Foundation:</strong> Claude 3.5 Sonnet (as shown to perform well in InsightEval)</li>
+                    <li><strong>Data Processing:</strong> DeepPrep architecture with tree-based reasoning</li>
+                    <li><strong>Visualization Engine:</strong> Doc2Chart framework with intent decomposition</li>
+                    <li><strong>Evaluation Framework:</strong> InsightEval benchmarking and metrics</li>
+                </ul>
+            </div>
+
+            <h4>Supporting Infrastructure</h4>
+            <ul>
+                <li><strong>Vector Database:</strong> For document embedding and retrieval</li>
+                <li><strong>Graph Database:</strong> For maintaining execution state trees</li>
+                <li><strong>Streaming Platform:</strong> For real-time data processing</li>
+                <li><strong>API Gateway:</strong> For conversational interface management</li>
+            </ul>
+
+            <h3>Success Metrics</h3>
+            
+            <h4>Technical Performance</h4>
+            <ul>
+                <li><strong>Accuracy:</strong> Comparable to GPT-4o across all components</li>
+                <li><strong>Cost Efficiency:</strong> 15x reduction compared to closed-source alternatives</li>
+                <li><strong>Response Time:</strong> <30 seconds for complex analytical queries</li>
+                <li><strong>User Satisfaction:</strong> >85% accuracy in intent understanding</li>
+            </ul>
+
+            <h4>Business Impact</h4>
+            <ul>
+                <li><strong>Productivity Gain:</strong> 70% reduction in manual data analysis time</li>
+                <li><strong>Accessibility:</strong> 90% of business users able to generate insights independently</li>
+                <li><strong>Decision Speed:</strong> 50% faster time-to-insight for business decisions</li>
+                <li><strong>Quality Improvement:</strong> Consistent, reproducible analytical outputs</li>
+            </ul>
+
+            <div class="info-box">
+                <h4>Next Steps for Implementation</h4>
+                <p>Based on this research synthesis, the Talking BI project should focus on:</p>
+                <ol>
+                    <li>Developing prototype implementations of each research component</li>
+                    <li>Creating integration frameworks that leverage the complementary strengths</li>
+                    <li>Establishing evaluation benchmarks based on InsightEval principles</li>
+                    <li>Designing user experience workflows that incorporate all capabilities</li>
+                    <li>Building scalable infrastructure to support enterprise deployment</li>
+                </ol>
+            </div>
+        </section>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--text-tertiary); border-top: 1px solid var(--border-primary); margin-top: 3rem; transition: color 0.3s ease, border-color 0.3s ease;">
+            <p>Talking BI Project Research Handbook - Comprehensive Analysis of Conversational Business Intelligence Research</p>
+            <p style="font-size: 0.9rem;">Research Analysis Completed: March 2026</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Theme management functionality
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = localStorage.getItem('talking-bi-theme') || 'light';
+                this.themeToggleBtn = document.querySelector('.theme-toggle');
+                this.themeIcon = document.querySelector('.theme-icon');
+                this.themeText = document.querySelector('.theme-text');
+                
+                this.init();
+            }
+            
+            init() {
+                // Apply saved theme on page load
+                this.applyTheme(this.currentTheme);
+                this.updateToggleButton();
+                
+                // Add smooth transition after initial load
+                setTimeout(() => {
+                    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                }, 100);
+            }
+            
+            applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                this.currentTheme = theme;
+                localStorage.setItem('talking-bi-theme', theme);
+            }
+            
+            updateToggleButton() {
+                if (this.currentTheme === 'dark') {
+                    this.themeIcon.textContent = '☀️';
+                    this.themeText.textContent = 'Light';
+                } else {
+                    this.themeIcon.textContent = '🌙';
+                    this.themeText.textContent = 'Dark';
+                }
+            }
+            
+            toggle() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.applyTheme(newTheme);
+                this.updateToggleButton();
+                
+                // Add a subtle animation effect
+                this.themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Save user preference
+                this.trackThemeChange(newTheme);
+            }
+            
+            trackThemeChange(theme) {
+                console.log(`Talking BI theme changed to: ${theme}`);
+            }
+            
+            // Detect system theme preference
+            detectSystemTheme() {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            }
+            
+            // Auto-apply system theme if no preference is saved
+            autoApplySystemTheme() {
+                if (!localStorage.getItem('talking-bi-theme')) {
+                    const systemTheme = this.detectSystemTheme();
+                    this.applyTheme(systemTheme);
+                    this.updateToggleButton();
+                }
+            }
+        }
+        
+        // Initialize theme manager
+        const themeManager = new ThemeManager();
+        
+        // Global function for the onclick handler
+        function toggleTheme() {
+            themeManager.toggle();
+        }
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+                if (!localStorage.getItem('talking-bi-theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    themeManager.applyTheme(newTheme);
+                    themeManager.updateToggleButton();
+                }
+            });
+        }
+        
+        // Apply system theme on first visit
+        document.addEventListener('DOMContentLoaded', () => {
+            themeManager.autoApplySystemTheme();
+        });
+        
+        // Add keyboard shortcut for theme toggle (Ctrl/Cmd + Shift + T)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+    </script>
+</body>
+</html>
