@@ -1,0 +1,2280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Systems Handbook</title>
+    <style>
+        :root {
+            /* Light Theme Colors */
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f7fafc;
+            --bg-card: #ffffff;
+            --bg-code: #2d3748;
+            --bg-highlight: #fff3cd;
+            --bg-info: #2b77e6;
+            --bg-warning: #dc3545;
+            --bg-crewai: #e6f3ff;
+            --bg-msagent: #fff0e6;
+            --bg-autogen: #f0f8e6;
+            
+            --text-primary: #333333;
+            --text-secondary: #2d3748;
+            --text-tertiary: #4a5568;
+            --text-muted: #6b7280;
+            --text-code: #e2e8f0;
+            --text-highlight: #856404;
+            --text-info: #ffffff;
+            --text-warning: #ffffff;
+            --text-crewai: #1e40af;
+            --text-msagent: #ea580c;
+            --text-autogen: #166534;
+            
+            --border-primary: #e2e8f0;
+            --border-secondary: #dee2e6;
+            --border-accent: #4c51bf;
+            --border-highlight: #d39e00;
+            --border-info: #004494;
+            --border-warning: #a71e2a;
+            --border-crewai: #3b82f6;
+            --border-msagent: #ea580c;
+            --border-autogen: #059669;
+            
+            --link-primary: #4c51bf;
+            --link-hover: #ffffff;
+            --link-external: #059669;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.08);
+            
+            --gradient-header: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-info: linear-gradient(135deg, #2b77e6 0%, #0056b3 100%);
+            --gradient-warning: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            --gradient-crewai: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            --gradient-msagent: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+            --gradient-autogen: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-code: #0f172a;
+            --bg-highlight: #422006;
+            --bg-info: #1e3a8a;
+            --bg-warning: #7f1d1d;
+            --bg-crewai: #1e3a8a;
+            --bg-msagent: #7c2d12;
+            --bg-autogen: #14532d;
+            
+            --text-primary: #f1f5f9;
+            --text-secondary: #e2e8f0;
+            --text-tertiary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-code: #e2e8f0;
+            --text-highlight: #fbbf24;
+            --text-info: #93c5fd;
+            --text-warning: #fca5a5;
+            --text-crewai: #93c5fd;
+            --text-msagent: #fdba74;
+            --text-autogen: #86efac;
+            
+            --border-primary: #334155;
+            --border-secondary: #475569;
+            --border-accent: #6366f1;
+            --border-highlight: #f59e0b;
+            --border-info: #3b82f6;
+            --border-warning: #ef4444;
+            --border-crewai: #3b82f6;
+            --border-msagent: #ea580c;
+            --border-autogen: #10b981;
+            
+            --link-primary: #6366f1;
+            --link-hover: #1e293b;
+            --link-external: #34d399;
+            
+            --shadow-light: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.4);
+            --shadow-heavy: 0 4px 15px rgba(0,0,0,0.3);
+            
+            --gradient-header: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --gradient-info: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+            --gradient-warning: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            --gradient-crewai: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            --gradient-msagent: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%);
+            --gradient-autogen: linear-gradient(135deg, #14532d 0%, #166534 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--gradient-header);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 1;
+            color: #f8f9fa;
+        }
+        
+        .theme-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .theme-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle:hover .theme-icon {
+            transform: rotate(180deg);
+        }
+
+        nav {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: var(--link-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background-color: var(--link-primary);
+            color: var(--link-hover);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-heavy);
+            transition: background-color 0.3s ease;
+        }
+
+        h2 {
+            color: var(--text-secondary);
+            border-bottom: 3px solid var(--border-accent);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        h3 {
+            color: var(--text-secondary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        h4 {
+            color: var(--text-tertiary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.2rem;
+        }
+
+        h5 {
+            color: var(--text-tertiary);
+            margin-top: 1rem;
+            margin-bottom: 0.6rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-code);
+            color: var(--text-code);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            padding: 0;
+            background: none;
+            color: inherit;
+            font-family: inherit;
+            white-space: pre;
+            word-wrap: normal;
+            overflow-x: auto;
+        }
+        
+        .code-block code {
+            background: none;
+            color: inherit;
+            font-family: inherit;
+            padding: 0;
+        }
+
+        .code-block::before {
+            content: attr(data-language);
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .framework-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .framework-card {
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow-medium);
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 2px solid;
+        }
+
+        .framework-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .crewai-card {
+            background: var(--gradient-crewai);
+            border-color: var(--border-crewai);
+        }
+
+        .crewai-card h4,
+        .crewai-card p,
+        .crewai-card li {
+            color: var(--text-crewai);
+        }
+
+        .msagent-card {
+            background: var(--gradient-msagent);
+            border-color: var(--border-msagent);
+        }
+
+        .msagent-card h4,
+        .msagent-card p,
+        .msagent-card li {
+            color: var(--text-msagent);
+        }
+
+        .autogen-card {
+            background: var(--gradient-autogen);
+            border-color: var(--border-autogen);
+        }
+
+        .autogen-card h4,
+        .autogen-card p,
+        .autogen-card li {
+            color: var(--text-autogen);
+        }
+
+        .framework-card h4 {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            margin-top: 0;
+        }
+
+        .highlight-box {
+            background: var(--bg-highlight);
+            border-left: 4px solid var(--border-highlight);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            color: var(--text-highlight);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .info-box {
+            background: var(--gradient-info);
+            color: var(--text-info);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--border-info);
+            transition: background 0.3s ease;
+        }
+
+        .warning-box {
+            background: var(--gradient-warning);
+            color: var(--text-warning);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            border-left: 4px solid var(--border-warning);
+            transition: background 0.3s ease;
+        }
+
+        .toc {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-primary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: var(--text-secondary);
+        }
+
+        .toc ul {
+            margin-left: 1rem;
+        }
+
+        .toc a {
+            color: var(--link-primary);
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .installation-steps {
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .installation-steps ol {
+            color: var(--text-secondary);
+            margin-left: 1.5rem;
+        }
+
+        .installation-steps li {
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-primary);
+        }
+
+        .comparison-table th {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .framework-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .theme-toggle {
+                top: 0.5rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .theme-toggle .theme-text {
+                display: none;
+            }
+            
+            header {
+                padding: 2.5rem 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light theme">
+                <span class="theme-icon">🌙</span>
+                <span class="theme-text">Dark</span>
+            </div>
+            <h1>Multi-Agent Systems Handbook</h1>
+            <p class="subtitle">Comprehensive Guide to CrewAI, Microsoft Agent Framework, and AutoGen</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#crewai">CrewAI</a></li>
+                <li><a href="#msagent">Microsoft Agent Framework</a></li>
+                <li><a href="#autogen">AutoGen</a></li>
+                <li><a href="#comparison">Comparison</a></li>
+                <li><a href="#examples">Practical Examples</a></li>
+                <li><a href="#migration">Migration Guide</a></li>
+            </ul>
+        </nav>
+
+        <div class="toc">
+            <h3>Framework Navigation</h3>
+            <ul>
+                <li><a href="#overview">1. Multi-Agent Systems Overview</a></li>
+                <li><a href="#crewai">2. CrewAI: Role-Playing Autonomous AI Agents</a></li>
+                <li><a href="#msagent">3. Microsoft Agent Framework: Enterprise Multi-Agent Orchestration</a></li>
+                <li><a href="#autogen">4. AutoGen: Multi-Agent Conversation Systems</a></li>
+                <li><a href="#comparison">5. Framework Comparison and Selection Guide</a></li>
+                <li><a href="#examples">6. Practical Implementation Examples</a></li>
+                <li><a href="#migration">7. Migration Paths and Best Practices</a></li>
+            </ul>
+        </div>
+
+        <section id="overview" class="section">
+            <h2>1. Multi-Agent Systems Overview</h2>
+            
+            <p>Multi-agent systems represent a paradigm shift in AI development, moving from single, monolithic AI models to collaborative networks of specialized agents. This handbook covers three leading frameworks that enable the creation, orchestration, and deployment of multi-agent systems for various use cases.</p>
+
+            <div class="highlight-box">
+                <strong>Key Benefits of Multi-Agent Systems:</strong> Specialized expertise, scalable collaboration, fault tolerance, human-like problem-solving approaches, and the ability to handle complex, multi-step workflows that exceed the capabilities of single agents.
+            </div>
+
+            <h3>Framework Overview</h3>
+            
+            <div class="framework-grid">
+                <div class="framework-card crewai-card">
+                    <h4>🚀 CrewAI</h4>
+                    <p><strong>Focus:</strong> Role-playing autonomous AI agents</p>
+                    <p><strong>Best For:</strong> Structured workflows, role-based collaboration, rapid prototyping</p>
+                    <p><strong>Key Features:</strong> YAML configuration, dual architecture (Crews & Flows), extensive tooling</p>
+                </div>
+                <div class="framework-card msagent-card">
+                    <h4>🏢 Microsoft Agent Framework</h4>
+                    <p><strong>Focus:</strong> Enterprise-grade multi-agent orchestration</p>
+                    <p><strong>Best For:</strong> Production deployments, Azure integration, enterprise compliance</p>
+                    <p><strong>Key Features:</strong> Observability, security, cross-platform, Azure ecosystem</p>
+                </div>
+                <div class="framework-card autogen-card">
+                    <h4>🤖 AutoGen</h4>
+                    <p><strong>Focus:</strong> Multi-agent conversation systems</p>
+                    <p><strong>Best For:</strong> Research, experimentation, conversation flows</p>
+                    <p><strong>Key Features:</strong> Group chat, code execution, flexible conversation patterns</p>
+                    <p><strong>Status:</strong> ⚠️ Entering maintenance mode - migrating to Agent Framework</p>
+                </div>
+            </div>
+
+            <h3>When to Use Multi-Agent Systems</h3>
+            
+            <ul>
+                <li><strong>Complex Problem Solving:</strong> Tasks requiring multiple specialized skill sets</li>
+                <li><strong>Workflow Automation:</strong> Multi-step business processes with decision points</li>
+                <li><strong>Research and Analysis:</strong> Information gathering, synthesis, and reporting</li>
+                <li><strong>Creative Collaboration:</strong> Content creation, brainstorming, and iterative refinement</li>
+                <li><strong>Enterprise Integration:</strong> Connecting AI capabilities across organizational silos</li>
+            </ul>
+        </section>
+
+        <section id="crewai" class="section">
+            <h2>2. CrewAI: Role-Playing Autonomous AI Agents</h2>
+            
+            <p>CrewAI is an open-source framework designed for orchestrating role-playing, autonomous AI agents. Built from scratch with no dependencies on LangChain, CrewAI offers faster execution and lighter resource demands while enabling collaborative intelligence through structured, role-based workflows.</p>
+
+            <h3>Core Concepts</h3>
+
+            <h4>Agents</h4>
+            <p>Specialized team members with specific skills, expertise, and responsibilities. Each agent has:</p>
+            <ul>
+                <li><strong>Role:</strong> What the agent does (e.g., "Senior Research Analyst")</li>
+                <li><strong>Goal:</strong> What the agent optimizes for (e.g., "Uncover cutting-edge developments")</li>
+                <li><strong>Backstory:</strong> Context that shapes behavior and expertise</li>
+                <li><strong>Tools:</strong> Skills and functions the agent can utilize</li>
+            </ul>
+
+            <h4>Tasks</h4>
+            <p>Individual assignments with clear descriptions, expected outputs, and assigned agents. Tasks support structured outputs using Pydantic and can reference outputs from previous tasks for complex workflows.</p>
+
+            <h4>Crews</h4>
+            <p>Collaborative groups of agents working together to achieve tasks. Crews define execution strategy, collaboration patterns, and overall workflow orchestration.</p>
+
+            <h3>Installation and Setup</h3>
+
+            <div class="installation-steps">
+                <h4>Prerequisites</h4>
+                <ul>
+                    <li>Python ≥3.10 and <3.14</li>
+                    <li>OpenAI API key or compatible LLM access</li>
+                    <li>Recommended: UV package manager for faster installation</li>
+                </ul>
+            </div>
+
+            <h4>Installation Methods</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Standard Installation
+pip install crewai
+
+# With additional tools
+pip install 'crewai[tools]'
+
+# Using UV (Recommended for 2025)
+uv add crewai
+
+# Create new project
+crewai create crew project_name
+cd project_name
+crewai install</code></pre>
+            </div>
+
+            <h4>Environment Configuration</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># .env file
+OPENAI_API_KEY=your_openai_key
+SERPER_API_KEY=your_serper_key
+
+# Virtual environment setup
+python -m venv crewenv
+source crewenv/bin/activate  # Linux/Mac
+crewenv\Scripts\activate     # Windows</code></pre>
+            </div>
+
+            <h3>Creating Crews and Workflows</h3>
+
+            <h4>YAML Configuration (Recommended)</h4>
+
+            <div class="code-block" data-language="yaml">
+                <pre><code># config/agents.yaml
+researcher:
+  role: >
+    Senior Research Analyst
+  goal: >
+    Uncover cutting-edge developments in AI and data science
+  backstory: >
+    You're a seasoned researcher with a knack for uncovering the latest
+    developments in AI and data science. You have extensive experience in
+    analysis and reporting.
+  verbose: true
+  allow_delegation: false
+
+writer:
+  role: >
+    Tech Content Strategist
+  goal: >
+    Craft compelling content on tech advancements
+  backstory: >
+    You're a well-known content strategist, known for creating engaging content
+    on technology and startups.
+  verbose: true</code></pre>
+            </div>
+
+            <div class="code-block" data-language="yaml">
+                <pre><code># config/tasks.yaml
+research_task:
+  description: >
+    Conduct a comprehensive analysis of the latest advancements in {topic}.
+    Identify key trends, breakthrough technologies, and potential industry impacts.
+  expected_output: >
+    A comprehensive 3 paragraph report on the latest AI advancements
+  agent: researcher
+
+writing_task:
+  description: >
+    Using the research analysis, create compelling blog post about {topic}.
+    Focus on the most significant advancements and their implications.
+  expected_output: >
+    A well-written 4 paragraph blog post in markdown format
+  agent: writer</code></pre>
+            </div>
+
+            <h4>Python Implementation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from crewai import Agent, Task, Crew, Process
+from crewai_tools import SerperDevTool
+import os
+
+# Set up environment
+os.environ['OPENAI_API_KEY'] = 'your-api-key'
+
+# Initialize tools
+search_tool = SerperDevTool()
+
+# Create agents
+researcher = Agent(
+    role='Senior Research Analyst',
+    goal='Research and analyze information about given topics',
+    backstory='Expert researcher with years of experience in data analysis',
+    verbose=True,
+    allow_delegation=False,
+    tools=[search_tool]
+)
+
+writer = Agent(
+    role='Content Writer',
+    goal='Create engaging and informative content',
+    backstory='Skilled writer who can transform research into compelling narratives',
+    verbose=True
+)
+
+# Define tasks
+research_task = Task(
+    description='Research the latest trends in {topic}',
+    expected_output='A detailed research report with key findings',
+    agent=researcher
+)
+
+writing_task = Task(
+    description='Write a blog post based on the research about {topic}',
+    expected_output='A well-structured blog post in markdown format',
+    agent=writer,
+    context=[research_task]
+)
+
+# Create and run crew
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, writing_task],
+    process=Process.sequential,
+    verbose=True
+)
+
+result = crew.kickoff(inputs={'topic': 'artificial intelligence'})
+print(result)</code></pre>
+            </div>
+
+            <h3>Advanced Features</h3>
+
+            <h4>CrewAI 2025: Flows Architecture</h4>
+            <p>CrewAI 2025 introduced Flows for enterprise and production architecture:</p>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from crewai import Flow, Agent, Task, Crew
+from crewai.flow.flow import listen, router, start
+from pydantic import BaseModel
+
+class ProjectState(BaseModel):
+    requirements: str = ""
+    analysis: dict = {}
+    implementation: str = ""
+    status: str = "pending"
+
+class SoftwareDevelopmentFlow(Flow[ProjectState]):
+    
+    @start()
+    def gather_requirements(self) -> str:
+        return "analyze_requirements"
+    
+    @listen(gather_requirements)
+    def analyze_requirements(self, state: ProjectState) -> str:
+        # Analysis crew
+        analyst = Agent(
+            role='Business Analyst',
+            goal='Analyze and document requirements',
+            backstory='Expert in requirement analysis'
+        )
+        
+        analysis_task = Task(
+            description='Analyze the requirements: {requirements}',
+            expected_output='Detailed analysis with recommendations',
+            agent=analyst
+        )
+        
+        crew = Crew(agents=[analyst], tasks=[analysis_task])
+        result = crew.kickoff(inputs={'requirements': state.requirements})
+        state.analysis = result
+        return "implementation_planning"
+    
+    @router(analyze_requirements)
+    def decide_implementation(self, state: ProjectState) -> str:
+        if state.analysis.get('complexity') == 'high':
+            return "detailed_planning"
+        return "direct_implementation"
+
+# Usage
+flow = SoftwareDevelopmentFlow()
+result = flow.kickoff({"requirements": "Build a web application"})</code></pre>
+            </div>
+
+            <h4>Custom Tool Development</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from crewai.tools import BaseTool
+from typing import Type
+from pydantic import BaseModel, Field
+import requests
+
+class WeatherInput(BaseModel):
+    city: str = Field(..., description="City name to get weather for")
+
+class WeatherTool(BaseTool):
+    name: str = "Weather Tool"
+    description: str = "Get current weather information for a city"
+    args_schema: Type[BaseModel] = WeatherInput
+    
+    def _run(self, city: str) -> str:
+        try:
+            # Replace with actual weather API
+            api_key = "your-weather-api-key"
+            url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+            response = requests.get(url)
+            data = response.json()
+            
+            if response.status_code == 200:
+                temp = data['main']['temp']
+                description = data['weather'][0]['description']
+                return f"Weather in {city}: {description}, Temperature: {temp}K"
+            else:
+                return f"Could not get weather for {city}"
+        except Exception as e:
+            return f"Error getting weather: {str(e)}"
+
+# Use custom tool with agent
+weather_agent = Agent(
+    role='Weather Analyst',
+    goal='Provide accurate weather information',
+    backstory='Expert meteorologist',
+    tools=[WeatherTool()],
+    verbose=True
+)</code></pre>
+            </div>
+
+            <h4>Memory and State Management</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Memory Configuration
+crew = Crew(
+    agents=[researcher, writer],
+    tasks=[research_task, writing_task],
+    memory=True,
+    memory_config={
+        'provider': 'postgres',  # or 'redis', 'chroma'
+        'config': {
+            'host': 'localhost',
+            'port': 5432,
+            'database': 'crewai_memory'
+        }
+    }
+)</code></pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Best Practices for CrewAI</h4>
+                <ul>
+                    <li><strong>Start with YAML:</strong> Use YAML configurations for maintainability</li>
+                    <li><strong>Use GPT-4:</strong> Optimal agent performance with GPT-4 or GPT-4o</li>
+                    <li><strong>Memory Optimization:</strong> Choose appropriate storage backends for production</li>
+                    <li><strong>Tool Selection:</strong> Only provide necessary tools to agents</li>
+                    <li><strong>Structured Outputs:</strong> Use Pydantic for consistent results</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="msagent" class="section">
+            <h2>3. Microsoft Agent Framework: Enterprise Multi-Agent Orchestration</h2>
+            
+            <p>Microsoft Agent Framework is an enterprise-grade, open-source SDK and runtime that simplifies the orchestration of multi-agent systems. It represents the convergence of AutoGen and Semantic Kernel into a unified, commercial-grade framework for building, orchestrating, and deploying AI agents.</p>
+
+            <h3>Core Architecture</h3>
+
+            <h4>Multi-Agent Orchestration</h4>
+            <ul>
+                <li><strong>Graph-Based Workflows:</strong> Streaming, checkpointing, human-in-the-loop capabilities</li>
+                <li><strong>Enterprise Foundation:</strong> Session-based state management, type safety, middleware</li>
+                <li><strong>Cross-Platform Support:</strong> Consistent APIs for Python and C#/.NET</li>
+                <li><strong>Built-in Observability:</strong> OpenTelemetry integration for monitoring and debugging</li>
+            </ul>
+
+            <h4>Azure Integration</h4>
+            <ul>
+                <li><strong>Azure AI Foundry:</strong> Seamless cloud deployment with compliance</li>
+                <li><strong>Microsoft 365:</strong> Integration with Copilot and Office platforms</li>
+                <li><strong>Teams Integration:</strong> Build agents for Microsoft Teams collaboration</li>
+                <li><strong>Azure Services:</strong> Native integration with AI services and Graph API</li>
+            </ul>
+
+            <h3>Installation and Setup</h3>
+
+            <h4>Python Installation</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Install the complete framework
+pip install agent-framework --pre
+
+# Install specific Azure AI package
+pip install agent-framework-azure-ai --pre</code></pre>
+            </div>
+
+            <h4>C#/.NET Installation</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Core packages
+dotnet add package Azure.Identity
+dotnet add package Microsoft.Agents.AI.AzureAI.Persistent --prerelease
+dotnet add package Microsoft.Agents.AI.OpenAI --prerelease</code></pre>
+            </div>
+
+            <h4>Azure Environment Setup</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Environment Variables
+export AZURE_AI_PROJECT_ENDPOINT="https://your-project.services.ai.azure.com/api/projects/project-id"
+export AZURE_AI_MODEL_DEPLOYMENT_NAME="gpt-4o-mini"
+
+# API Versions
+# GA API version: 2025-05-01
+# Latest preview API version: 2025-05-15-preview</code></pre>
+            </div>
+
+            <h4>Authentication Setup</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Azure CLI login
+az login
+
+# Container deployment (must specify Linux AMD64)
+docker build --platform linux/amd64 -t your-image:tag .</code></pre>
+            </div>
+
+            <h3>Agent Types and Creation</h3>
+
+            <h4>Three Agent Types in Azure AI Foundry</h4>
+
+            <div class="framework-grid">
+                <div class="framework-card msagent-card">
+                    <h4>Prompt Agents</h4>
+                    <p>Configuration-defined agents with instructions, model selection, and tools</p>
+                    <ul>
+                        <li>No-code agent creation</li>
+                        <li>Visual configuration</li>
+                        <li>Rapid prototyping</li>
+                    </ul>
+                </div>
+                <div class="framework-card msagent-card">
+                    <h4>Hosted Agents</h4>
+                    <p>Code-based agents deployed as containers with custom orchestration logic</p>
+                    <ul>
+                        <li>Full programming control</li>
+                        <li>Custom business logic</li>
+                        <li>Container deployment</li>
+                    </ul>
+                </div>
+                <div class="framework-card msagent-card">
+                    <h4>Workflow Agents</h4>
+                    <p>Multi-step business process coordination with visual designer or code-first API</p>
+                    <ul>
+                        <li>Long-running processes</li>
+                        <li>Stateful collaboration</li>
+                        <li>Recovery and debugging</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h4>Python SDK Implementation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from agent_framework.azure_ai import AzureAIAgent
+from azure.identity import DefaultAzureCredential
+import os
+
+# Create Azure AI Agent
+agent = AzureAIAgent(
+    endpoint=os.getenv("AZURE_AI_PROJECT_ENDPOINT"),
+    credential=DefaultAzureCredential(),
+    model_deployment_name="gpt-4o-mini"
+)
+
+# Example: Teams bot with agent framework
+from agent_framework import Agent
+
+teams_agent = Agent(
+    name="TeamsAssistant",
+    instructions="Help with meeting scheduling and document analysis",
+    tools=["calendar", "sharepoint_search"],
+    credential=DefaultAzureCredential()
+)</code></pre>
+            </div>
+
+            <h4>.NET SDK Implementation</h4>
+
+            <div class="code-block" data-language="csharp">
+                <pre><code>using Microsoft.Agents.AI.AzureAI;
+using Azure.Identity;
+
+var agent = new AzureAIAgent(
+    endpoint: Environment.GetEnvironmentVariable("AZURE_AI_PROJECT_ENDPOINT"),
+    credential: new DefaultAzureCredential(),
+    modelDeploymentName: "gpt-4o-mini"
+);</code></pre>
+            </div>
+
+            <h3>Multi-Agent Workflows</h3>
+
+            <h4>Workflow Orchestration (Public Preview)</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Multi-Agent Workflow Example
+workflow = MultiAgentWorkflow([
+    ticket_classifier_agent,
+    technical_support_agent,
+    escalation_agent
+])
+
+# Graph-based orchestration with features:
+# - Streaming capabilities
+# - Checkpointing for state management
+# - Human-in-the-loop integration
+# - Time-travel debugging</code></pre>
+            </div>
+
+            <h4>Model Context Protocol (MCP)</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Universal API for agent tool discovery and interaction
+# Dynamic tool connections without custom-built connectors
+# Standard protocol for external tool and service integration
+
+# Example MCP Implementation
+class CustomMCPEndpoint:
+    def expose_tools(self):
+        return {
+            "weather": self.get_weather,
+            "calendar": self.check_calendar,
+            "email": self.send_email
+        }
+    
+    def get_weather(self, location):
+        # Weather service integration
+        pass</code></pre>
+            </div>
+
+            <h3>Enterprise Features</h3>
+
+            <h4>Microsoft Entra Agent ID</h4>
+            <ul>
+                <li><strong>Unique Identity:</strong> Agent identities similar to users, apps, devices</li>
+                <li><strong>Governance Policies:</strong> Permissions, roles, and access control</li>
+                <li><strong>Conditional Access:</strong> Risk-based blocking and security policies</li>
+                <li><strong>Identity Protection:</strong> Threat detection and response</li>
+            </ul>
+
+            <h4>Observability and Monitoring</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Built-in Observability
+from opentelemetry import trace
+
+# OpenTelemetry standard compliance
+tracer = trace.get_tracer(__name__)
+
+with tracer.start_as_current_span("agent_interaction"):
+    # Agent workflow with automatic tracing
+    result = agent.process_request(user_input)
+
+# Foundry Control Plane features:
+# - Out-of-the-box and custom evaluators
+# - Quality, groundedness, safety, and risk measurement
+# - Continuous monitoring across AI development lifecycle
+# - Enhanced multi-agent observability</code></pre>
+            </div>
+
+            <h4>Scaling and Deployment</h4>
+
+            <div class="installation-steps">
+                <h5>Deployment Options</h5>
+                <ol>
+                    <li><strong>Local Development:</strong> Testing and debugging with development UI</li>
+                    <li><strong>Azure Deployment:</strong> Managed environment with auto-scaling</li>
+                    <li><strong>Hybrid Scenarios:</strong> On-premises to cloud migration support</li>
+                    <li><strong>Container Orchestration:</strong> Multi-region deployment capabilities</li>
+                </ol>
+            </div>
+
+            <div class="highlight-box">
+                <h4>BMW Case Study Success</h4>
+                <p>BMW implemented a multi-agent system for test-fleet data analysis, achieving <strong>12× acceleration</strong> in telemetry analysis, processing terabytes of data to insights in minutes instead of days.</p>
+            </div>
+
+            <div class="info-box">
+                <h4>2025 Key Features</h4>
+                <ul>
+                    <li><strong>Enhanced Observability:</strong> Improved multi-agent workflow monitoring</li>
+                    <li><strong>Microsoft Graph API:</strong> Integration for agent inventory management</li>
+                    <li><strong>Responsible AI:</strong> Advanced safety and compliance features</li>
+                    <li><strong>Enterprise Governance:</strong> Expanded organizational control capabilities</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="autogen" class="section">
+            <h2>4. AutoGen: Multi-Agent Conversation Systems</h2>
+            
+            <div class="warning-box">
+                <h4>⚠️ Important: AutoGen Migration Notice</h4>
+                <p><strong>AutoGen is entering maintenance mode</strong> and will only receive bug fixes and security patches. Microsoft recommends migrating to <strong>Microsoft Agent Framework</strong> for new projects. Existing AutoGen projects should plan migration within 6-12 months.</p>
+            </div>
+
+            <p>Microsoft AutoGen is a programming framework for agentic AI that enables multi-agent conversation systems. AutoGen v0.4 features an asynchronous, event-driven architecture where agents communicate through asynchronous messages.</p>
+
+            <h3>Core Concepts</h3>
+
+            <h4>Multi-Agent Conversation Frameworks</h4>
+            <ul>
+                <li><strong>Dynamic Conversations:</strong> Agent topology adapts based on conversation flow</li>
+                <li><strong>Static Conversations:</strong> Adhere to predefined topology for structured workflows</li>
+                <li><strong>Group Chat:</strong> Multiple agents in single conversation thread with shared context</li>
+                <li><strong>Hierarchical Patterns:</strong> Support for nested chats and complex orchestration</li>
+            </ul>
+
+            <h4>Agent Types</h4>
+
+            <div class="framework-grid">
+                <div class="framework-card autogen-card">
+                    <h4>AssistantAgent</h4>
+                    <p>General-purpose agent for prototyping and education</p>
+                    <ul>
+                        <li>Language model integration</li>
+                        <li>Tool capabilities</li>
+                        <li>Multi-modal support</li>
+                    </ul>
+                </div>
+                <div class="framework-card autogen-card">
+                    <h4>UserProxyAgent</h4>
+                    <p>Simulates human behavior with configurable intervention</p>
+                    <ul>
+                        <li>User input handling</li>
+                        <li>Autonomous or interactive modes</li>
+                        <li>Code execution capabilities</li>
+                    </ul>
+                </div>
+                <div class="framework-card autogen-card">
+                    <h4>Specialized Agents</h4>
+                    <p>Domain-specific agents for particular tasks</p>
+                    <ul>
+                        <li>CodeExecutorAgent</li>
+                        <li>MultimodalWebSurfer</li>
+                        <li>FileSurfer, VideoSurfer</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Installation and Setup</h3>
+
+            <h4>Installation Methods</h4>
+
+            <div class="code-block" data-language="bash">
+                <pre><code># Basic installation
+pip install autogen
+
+# From GitHub (Development)
+pip install git+https://github.com/microsoft/autogen.git
+
+# Prerequisites
+# - Python 3.8 or higher
+# - OpenAI API key or compatible LLM access
+# - Optional: Docker for code execution</code></pre>
+            </div>
+
+            <h4>Configuration Setup</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>import os
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+# Basic OpenAI Configuration
+model_client = OpenAIChatCompletionClient(
+    model="gpt-4-turbo",
+    api_key=os.environ["OPENAI_API_KEY"]
+)
+
+# Configuration with parameters
+llm_config = {
+    "model": "gpt-4",
+    "api_key": "your_openai_api_key",
+    "api_rate_limit": 30.0,
+    "base_url": "https://api.openai.com/v1",
+    "temperature": 0.7,
+    "max_tokens": 1000
+}</code></pre>
+            </div>
+
+            <h4>Azure OpenAI Configuration</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
+from autogen_ext.auth.azure import AzureTokenProvider
+from azure.identity import DefaultAzureCredential
+
+# Azure OpenAI with API Key
+az_model_client = AzureOpenAIChatCompletionClient(
+    azure_deployment="your-deployment-name",
+    model="gpt-4",
+    api_version="2024-06-01",
+    azure_endpoint="https://your-endpoint.openai.azure.com/",
+    api_key=os.environ["AZURE_OPENAI_API_KEY"]
+)
+
+# Azure AAD Authentication
+token_provider = AzureTokenProvider(
+    DefaultAzureCredential(),
+    "https://cognitiveservices.azure.com/.default"
+)
+
+az_model_client = AzureOpenAIChatCompletionClient(
+    azure_deployment="your-deployment",
+    model="gpt-4",
+    api_version="2024-06-01",
+    azure_endpoint="https://your-endpoint.openai.azure.com/",
+    azure_ad_token_provider=token_provider
+)</code></pre>
+            </div>
+
+            <h3>Creating Multi-Agent Conversations</h3>
+
+            <h4>Simple Two-Agent Conversation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>import autogen
+from autogen import AssistantAgent, UserProxyAgent
+
+# LLM configuration
+llm_config = {"model": "gpt-4", "api_key": os.environ["OPENAI_API_KEY"]}
+
+# Create agents
+assistant = AssistantAgent("assistant", llm_config=llm_config)
+
+user_proxy = UserProxyAgent(
+    "user_proxy", 
+    code_execution_config={
+        "executor": autogen.coding.LocalCommandLineCodeExecutor(work_dir="coding")
+    }
+)
+
+# Initiate conversation
+user_proxy.initiate_chat(
+    assistant, 
+    message="Plot a chart of NVDA and TESLA stock price change YTD."
+)</code></pre>
+            </div>
+
+            <h4>Group Chat Setup</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+
+# Create multiple specialized agents
+researcher = AssistantAgent(
+    "researcher",
+    system_message="You are a research assistant specializing in data analysis.",
+    llm_config=llm_config
+)
+
+coder = AssistantAgent(
+    "coder", 
+    system_message="You are a code writer focusing on data visualization.",
+    llm_config=llm_config
+)
+
+user_proxy = UserProxyAgent(
+    "user_proxy", 
+    code_execution_config={"executor": "local"}
+)
+
+# Setup group chat
+group_chat = GroupChat(
+    agents=[user_proxy, researcher, coder],
+    messages=[],
+    max_round=10
+)
+
+manager = GroupChatManager(groupchat=group_chat, llm_config=llm_config)
+
+# Start group conversation
+user_proxy.initiate_chat(
+    manager, 
+    message="Research and create a data visualization for climate change trends."
+)</code></pre>
+            </div>
+
+            <h4>Advanced Group Chat with State Transitions</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Custom speaker selection logic
+def state_transition(last_speaker, groupchat):
+    messages = groupchat.messages
+    
+    if last_speaker is researcher:
+        return coder  # Researcher passes to coder
+    elif last_speaker is coder:
+        return user_proxy  # Coder passes to user for execution
+    else:
+        return researcher  # User passes back to researcher
+
+group_chat = GroupChat(
+    agents=[user_proxy, researcher, coder],
+    messages=[],
+    max_round=15,
+    speaker_selection_method=state_transition
+)</code></pre>
+            </div>
+
+            <h3>Advanced Features</h3>
+
+            <h4>Tool Integration and Function Calling</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from autogen_agentchat.tools import AgentTool
+
+# Create specialized agents as tools
+math_agent = AssistantAgent(
+    "math_expert",
+    model_client=model_client,
+    system_message="You are a math expert specializing in statistical analysis.",
+    description="A math expert assistant for complex calculations."
+)
+
+# Convert agent to tool
+math_tool = AgentTool(math_agent, return_value_as_last_message=True)
+
+# Use in another agent
+assistant = AssistantAgent(
+    "assistant",
+    model_client=model_client,
+    tools=[math_tool]
+)</code></pre>
+            </div>
+
+            <h4>Memory and Context Management</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from autogen_agentchat.memory import ListMemory, MemoryContent
+
+# Create memory with initial content
+memory = ListMemory([
+    MemoryContent(
+        content="Previous conversation about project requirements", 
+        metadata={"timestamp": "2024-01-01", "topic": "requirements"}
+    )
+])
+
+# Agent with memory
+agent = AssistantAgent(
+    "assistant",
+    model_client=model_client,
+    memory=memory
+)</code></pre>
+            </div>
+
+            <h4>Human-in-the-Loop Patterns</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Interactive configuration
+user_proxy = UserProxyAgent(
+    "user_proxy",
+    human_input_mode="ALWAYS",  # Requires human input for each step
+    max_consecutive_auto_reply=3,
+    is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE")
+)
+
+# Autonomous configuration
+autonomous_proxy = UserProxyAgent(
+    "autonomous_executor",
+    human_input_mode="NEVER",  # Fully autonomous operation
+    code_execution_config={
+        "executor": autogen.coding.DockerCommandLineCodeExecutor(
+            work_dir="./workspace"
+        )
+    }
+)</code></pre>
+            </div>
+
+            <h4>Multi-Modal Integration</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code>from autogen_agentchat.messages import MultiModalMessage
+from autogen_core import Image
+
+# Multi-modal message with image
+message = MultiModalMessage(
+    content=["Analyze this chart and provide insights:", Image.from_file("chart.png")],
+    source="user"
+)
+
+# Agent capable of processing multi-modal inputs
+vision_agent = AssistantAgent(
+    "vision_analyst",
+    model_client=model_client,  # Model must support vision
+    system_message="You analyze images and provide detailed insights."
+)</code></pre>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Migration Timeline for AutoGen Users</h4>
+                <p><strong>Immediate:</strong> Continue using AutoGen for existing projects with maintenance support</p>
+                <p><strong>Next 6 months:</strong> Evaluate Microsoft Agent Framework for new requirements</p>
+                <p><strong>6-12 months:</strong> Plan and execute migration to Agent Framework</p>
+                <p><strong>Beyond 12 months:</strong> Complete transition to avoid technical debt accumulation</p>
+            </div>
+        </section>
+
+        <section id="comparison" class="section">
+            <h2>5. Framework Comparison and Selection Guide</h2>
+            
+            <p>Choosing the right multi-agent framework depends on your specific use case, technical requirements, and organizational context. This comparison helps you make an informed decision.</p>
+
+            <h3>Feature Comparison Matrix</h3>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>CrewAI</th>
+                        <th>Microsoft Agent Framework</th>
+                        <th>AutoGen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Primary Focus</strong></td>
+                        <td>Role-based collaboration</td>
+                        <td>Enterprise orchestration</td>
+                        <td>Conversation systems</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Learning Curve</strong></td>
+                        <td>Low to Medium</td>
+                        <td>Medium to High</td>
+                        <td>Medium</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Configuration</strong></td>
+                        <td>YAML + Python</td>
+                        <td>Code + Azure Portal</td>
+                        <td>Python only</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deployment</strong></td>
+                        <td>Local, Cloud</td>
+                        <td>Azure-optimized</td>
+                        <td>Local, Custom cloud</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Enterprise Features</strong></td>
+                        <td>Basic</td>
+                        <td>Advanced</td>
+                        <td>Basic</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Observability</strong></td>
+                        <td>Built-in logging</td>
+                        <td>OpenTelemetry standard</td>
+                        <td>Basic logging</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State Management</strong></td>
+                        <td>Memory + Flows</td>
+                        <td>Session-based + Checkpointing</td>
+                        <td>Conversation history</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>API key management</td>
+                        <td>Entra ID + RBAC</td>
+                        <td>API key management</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Community</strong></td>
+                        <td>Growing, active</td>
+                        <td>Microsoft ecosystem</td>
+                        <td>Research community</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Future Support</strong></td>
+                        <td>Active development</td>
+                        <td>Microsoft roadmap</td>
+                        <td>⚠️ Maintenance mode</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Use Case Recommendations</h3>
+
+            <div class="framework-grid">
+                <div class="framework-card crewai-card">
+                    <h4>Choose CrewAI When:</h4>
+                    <ul>
+                        <li><strong>Rapid Prototyping:</strong> Need to quickly test multi-agent concepts</li>
+                        <li><strong>Role-Based Workflows:</strong> Clear agent roles and responsibilities</li>
+                        <li><strong>Structured Processes:</strong> Sequential or hierarchical task execution</li>
+                        <li><strong>Educational Projects:</strong> Learning multi-agent development</li>
+                        <li><strong>Startup/SMB:</strong> Cost-effective solution with good capabilities</li>
+                    </ul>
+                </div>
+                <div class="framework-card msagent-card">
+                    <h4>Choose Microsoft Agent Framework When:</h4>
+                    <ul>
+                        <li><strong>Enterprise Deployment:</strong> Production-grade requirements</li>
+                        <li><strong>Azure Ecosystem:</strong> Heavy Microsoft technology usage</li>
+                        <li><strong>Compliance Needs:</strong> Regulatory and security requirements</li>
+                        <li><strong>Scale Requirements:</strong> Large-scale, distributed deployments</li>
+                        <li><strong>Long-term Investment:</strong> Strategic Microsoft partnership</li>
+                    </ul>
+                </div>
+                <div class="framework-card autogen-card">
+                    <h4>Choose AutoGen When:</h4>
+                    <ul>
+                        <li><strong>Research Projects:</strong> Academic or experimental work</li>
+                        <li><strong>Existing Investment:</strong> Already using AutoGen extensively</li>
+                        <li><strong>Short-term Projects:</strong> 6-month or shorter timelines</li>
+                        <li><strong>Conversation Focus:</strong> Heavy emphasis on chat patterns</li>
+                        <li><strong>⚠️ With Migration Plan:</strong> Plan transition to Agent Framework</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Technical Architecture Comparison</h3>
+
+            <h4>Development Experience</h4>
+            
+            <div class="code-block" data-language="comparison">
+                <pre><code>CrewAI:
++ YAML configuration reduces code complexity
++ Built-in tools and integrations
++ Clear separation of agents, tasks, and crews
++ Flows architecture for complex workflows
+- Less enterprise features
+- Smaller ecosystem compared to Microsoft
+
+Microsoft Agent Framework:
++ Enterprise-grade security and compliance
++ Azure integration and managed services
++ OpenTelemetry observability
++ Cross-platform SDK support
+- Higher complexity for simple use cases
+- Azure dependency for best experience
+
+AutoGen:
++ Flexible conversation patterns
++ Research-proven approaches
++ Simple agent creation
++ Good for experimentation
+- ⚠️ Maintenance mode - no new features
+- Limited enterprise features</code></pre>
+            </div>
+
+            <h4>Performance Characteristics</h4>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>CrewAI</th>
+                        <th>Microsoft Agent Framework</th>
+                        <th>AutoGen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Startup Time</strong></td>
+                        <td>Fast</td>
+                        <td>Medium (Azure setup)</td>
+                        <td>Fast</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Memory Usage</strong></td>
+                        <td>200MB-2GB per agent</td>
+                        <td>Variable (depends on deployment)</td>
+                        <td>100MB-1GB per agent</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Good (with proper infrastructure)</td>
+                        <td>Excellent (Azure auto-scaling)</td>
+                        <td>Limited (single machine focus)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Latency</strong></td>
+                        <td>Low (optimized execution)</td>
+                        <td>Low to Medium (network dependent)</td>
+                        <td>Medium (conversation overhead)</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="info-box">
+                <h4>Decision Framework</h4>
+                <ol>
+                    <li><strong>Assess Requirements:</strong> Enterprise vs. prototyping needs</li>
+                    <li><strong>Evaluate Timeline:</strong> Long-term vs. short-term projects</li>
+                    <li><strong>Consider Ecosystem:</strong> Microsoft vs. vendor-neutral approach</li>
+                    <li><strong>Review Capabilities:</strong> Match features to use case requirements</li>
+                    <li><strong>Plan Migration:</strong> Consider future upgrade paths</li>
+                </ol>
+            </div>
+        </section>
+
+        <section id="examples" class="section">
+            <h2>6. Practical Implementation Examples</h2>
+            
+            <p>This section provides real-world examples demonstrating how to implement common multi-agent scenarios using each framework.</p>
+
+            <h3>Example 1: Content Creation Pipeline</h3>
+
+            <h4>CrewAI Implementation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Content Creation with CrewAI
+from crewai import Agent, Task, Crew, Process
+from crewai_tools import SerperDevTool, FileReadTool
+
+# Define tools
+search_tool = SerperDevTool()
+file_tool = FileReadTool()
+
+# Create specialized agents
+researcher = Agent(
+    role='Content Researcher',
+    goal='Research comprehensive information on given topics',
+    backstory='Expert researcher with 10+ years in content strategy',
+    tools=[search_tool],
+    verbose=True
+)
+
+writer = Agent(
+    role='Content Writer',
+    goal='Create engaging, well-structured content',
+    backstory='Professional writer specializing in technical content',
+    verbose=True
+)
+
+editor = Agent(
+    role='Content Editor',
+    goal='Review and improve content quality',
+    backstory='Senior editor with expertise in clarity and engagement',
+    tools=[file_tool],
+    verbose=True
+)
+
+# Define tasks
+research_task = Task(
+    description='Research latest trends and insights about {topic}',
+    expected_output='Comprehensive research report with sources',
+    agent=researcher
+)
+
+writing_task = Task(
+    description='Create a 1000-word article about {topic} based on research',
+    expected_output='Well-structured article in markdown format',
+    agent=writer,
+    context=[research_task]
+)
+
+editing_task = Task(
+    description='Edit and improve the article for clarity and engagement',
+    expected_output='Final edited article ready for publication',
+    agent=editor,
+    context=[writing_task]
+)
+
+# Create and execute crew
+content_crew = Crew(
+    agents=[researcher, writer, editor],
+    tasks=[research_task, writing_task, editing_task],
+    process=Process.sequential,
+    verbose=True
+)
+
+# Execute the workflow
+result = content_crew.kickoff(inputs={'topic': 'Sustainable Technology Trends 2025'})
+print(result)</code></pre>
+            </div>
+
+            <h4>Microsoft Agent Framework Implementation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Content Creation with Microsoft Agent Framework
+from agent_framework import Agent, Workflow
+from agent_framework.azure_ai import AzureAIAgent
+from azure.identity import DefaultAzureCredential
+
+# Create Azure-based agents
+researcher_agent = AzureAIAgent(
+    name="ContentResearcher",
+    instructions="""You are a content researcher. Research comprehensive 
+                   information on given topics using web search and analysis.""",
+    tools=["web_search", "document_analysis"],
+    credential=DefaultAzureCredential()
+)
+
+writer_agent = AzureAIAgent(
+    name="ContentWriter",
+    instructions="""You are a professional writer. Create engaging, 
+                   well-structured content based on research findings.""",
+    tools=["content_generation"],
+    credential=DefaultAzureCredential()
+)
+
+editor_agent = AzureAIAgent(
+    name="ContentEditor", 
+    instructions="""You are a senior editor. Review and improve content 
+                   for clarity, engagement, and publication readiness.""",
+    tools=["grammar_check", "style_analysis"],
+    credential=DefaultAzureCredential()
+)
+
+# Create workflow
+class ContentCreationWorkflow(Workflow):
+    def __init__(self):
+        super().__init__([researcher_agent, writer_agent, editor_agent])
+    
+    async def execute(self, topic):
+        # Research phase
+        research_result = await researcher_agent.run(
+            f"Research latest trends and insights about {topic}"
+        )
+        
+        # Writing phase
+        article = await writer_agent.run(
+            f"Create a 1000-word article about {topic}. Use this research: {research_result}"
+        )
+        
+        # Editing phase
+        final_content = await editor_agent.run(
+            f"Edit and improve this article: {article}"
+        )
+        
+        return final_content
+
+# Execute workflow
+workflow = ContentCreationWorkflow()
+result = await workflow.execute("Sustainable Technology Trends 2025")</code></pre>
+            </div>
+
+            <h4>AutoGen Implementation</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Content Creation with AutoGen
+import autogen
+from autogen import AssistantAgent, UserProxyAgent, GroupChat, GroupChatManager
+
+llm_config = {"model": "gpt-4", "api_key": os.environ["OPENAI_API_KEY"]}
+
+# Create specialized agents
+researcher = AssistantAgent(
+    "researcher",
+    system_message="""You are a content researcher. Research comprehensive 
+                     information on given topics. Provide detailed analysis 
+                     with sources and key insights.""",
+    llm_config=llm_config
+)
+
+writer = AssistantAgent(
+    "writer",
+    system_message="""You are a professional content writer. Create engaging, 
+                     well-structured articles based on research findings. 
+                     Focus on clarity and reader engagement.""",
+    llm_config=llm_config
+)
+
+editor = AssistantAgent(
+    "editor",
+    system_message="""You are a senior content editor. Review articles for 
+                     clarity, engagement, grammar, and publication readiness. 
+                     Provide constructive feedback and improvements.""",
+    llm_config=llm_config
+)
+
+user_proxy = UserProxyAgent(
+    "user_proxy",
+    human_input_mode="TERMINATE",
+    max_consecutive_auto_reply=1,
+    is_termination_msg=lambda x: "TERMINATE" in x.get("content", "").upper()
+)
+
+# Create group chat with specific flow
+def content_workflow_transition(last_speaker, groupchat):
+    messages = groupchat.messages
+    
+    if last_speaker is user_proxy:
+        return researcher  # Start with research
+    elif last_speaker is researcher:
+        return writer      # Research → Writing
+    elif last_speaker is writer:
+        return editor      # Writing → Editing
+    else:
+        return user_proxy  # Complete workflow
+
+group_chat = GroupChat(
+    agents=[user_proxy, researcher, writer, editor],
+    messages=[],
+    max_round=10,
+    speaker_selection_method=content_workflow_transition
+)
+
+manager = GroupChatManager(groupchat=group_chat, llm_config=llm_config)
+
+# Execute content creation
+user_proxy.initiate_chat(
+    manager,
+    message="""Create a comprehensive article about 'Sustainable Technology Trends 2025'. 
+              Research the topic thoroughly, write a well-structured 1000-word article, 
+              and edit it for publication. When complete, respond with TERMINATE."""
+)</code></pre>
+            </div>
+
+            <h3>Example 2: Customer Support Automation</h3>
+
+            <h4>CrewAI Customer Support System</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Customer Support with CrewAI
+from crewai import Agent, Task, Crew, Flow
+from crewai_tools import SerperDevTool, FileReadTool
+from crewai.flow.flow import listen, router, start
+
+# Customer support agents
+classifier = Agent(
+    role='Support Classifier',
+    goal='Classify and route customer inquiries',
+    backstory='Expert in customer service with pattern recognition skills',
+    tools=[FileReadTool()],  # Access to knowledge base
+    verbose=True
+)
+
+technical_support = Agent(
+    role='Technical Support Specialist',
+    goal='Resolve technical issues and provide solutions',
+    backstory='Senior technical support engineer with troubleshooting expertise',
+    tools=[SerperDevTool(), FileReadTool()],
+    verbose=True
+)
+
+escalation_manager = Agent(
+    role='Escalation Manager',
+    goal='Handle complex issues requiring human intervention',
+    backstory='Experienced manager who determines escalation needs',
+    verbose=True
+)
+
+# Customer Support Flow
+class CustomerSupportFlow(Flow):
+    
+    @start()
+    def classify_inquiry(self, customer_message: str) -> str:
+        # Classify the customer inquiry
+        task = Task(
+            description=f'Classify this customer inquiry: {customer_message}',
+            expected_output='Classification: TECHNICAL, BILLING, GENERAL, ESCALATION',
+            agent=classifier
+        )
+        
+        result = task.execute()
+        self.classification = result
+        return "route_to_specialist"
+    
+    @router("route_to_specialist")
+    def route_inquiry(self) -> str:
+        if "TECHNICAL" in self.classification:
+            return "handle_technical"
+        elif "ESCALATION" in self.classification:
+            return "escalate_issue"
+        else:
+            return "handle_general"
+    
+    @listen("handle_technical")
+    def handle_technical_issue(self) -> str:
+        task = Task(
+            description=f'Resolve this technical issue: {self.customer_message}',
+            expected_output='Technical solution with step-by-step instructions',
+            agent=technical_support
+        )
+        
+        self.resolution = task.execute()
+        return "complete"
+
+# Usage
+support_flow = CustomerSupportFlow()
+result = support_flow.kickoff({
+    "customer_message": "My application keeps crashing when I try to export data"
+})</code></pre>
+            </div>
+
+            <h3>Example 3: Research and Analysis Pipeline</h3>
+
+            <div class="code-block" data-language="python">
+                <pre><code># Research Pipeline - Multi-Framework Comparison
+
+# CrewAI Version
+research_crew = Crew(
+    agents=[data_collector, analyst, report_writer],
+    tasks=[collect_task, analyze_task, report_task],
+    process=Process.sequential,
+    memory=True
+)
+
+# Microsoft Agent Framework Version
+class ResearchWorkflow(Workflow):
+    async def execute(self, research_topic):
+        data = await data_collector.run(f"Collect data on {research_topic}")
+        analysis = await analyst.run(f"Analyze this data: {data}")
+        report = await report_writer.run(f"Create report from analysis: {analysis}")
+        return report
+
+# AutoGen Version  
+research_group = GroupChat(
+    agents=[user_proxy, data_collector, analyst, report_writer],
+    speaker_selection_method=research_transition_logic,
+    max_round=12
+)</code></pre>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Implementation Best Practices</h4>
+                <ul>
+                    <li><strong>Start Simple:</strong> Begin with basic workflows and add complexity gradually</li>
+                    <li><strong>Error Handling:</strong> Implement robust error handling and fallback mechanisms</li>
+                    <li><strong>Monitoring:</strong> Add logging and monitoring for production deployments</li>
+                    <li><strong>Testing:</strong> Create comprehensive test suites for agent interactions</li>
+                    <li><strong>Documentation:</strong> Maintain clear documentation of agent roles and workflows</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="migration" class="section">
+            <h2>7. Migration Paths and Best Practices</h2>
+            
+            <p>As the multi-agent landscape evolves, understanding migration paths between frameworks becomes crucial for long-term project success.</p>
+
+            <h3>AutoGen to Microsoft Agent Framework Migration</h3>
+            
+            <div class="warning-box">
+                <h4>⚠️ Critical Migration Timeline</h4>
+                <p>With AutoGen entering maintenance mode, existing AutoGen projects should plan migration to Microsoft Agent Framework within 6-12 months to avoid technical debt accumulation and access new enterprise capabilities.</p>
+            </div>
+
+            <h4>Migration Strategy</h4>
+
+            <div class="installation-steps">
+                <h5>Phase 1: Assessment (Month 1-2)</h5>
+                <ol>
+                    <li><strong>Inventory Analysis:</strong> Document existing AutoGen agents and workflows</li>
+                    <li><strong>Feature Mapping:</strong> Identify Agent Framework equivalents</li>
+                    <li><strong>Infrastructure Review:</strong> Assess Azure integration requirements</li>
+                    <li><strong>Training Planning:</strong> Identify team training needs</li>
+                </ol>
+            </div>
+
+            <div class="installation-steps">
+                <h5>Phase 2: Proof of Concept (Month 2-3)</h5>
+                <ol>
+                    <li><strong>Parallel Development:</strong> Recreate key workflows in Agent Framework</li>
+                    <li><strong>Performance Testing:</strong> Compare execution and resource usage</li>
+                    <li><strong>Integration Testing:</strong> Validate Azure service integrations</li>
+                    <li><strong>Team Training:</strong> Begin Agent Framework education</li>
+                </ol>
+            </div>
+
+            <div class="installation-steps">
+                <h5>Phase 3: Gradual Migration (Month 4-8)</h5>
+                <ol>
+                    <li><strong>Component-by-Component:</strong> Migrate non-critical workflows first</li>
+                    <li><strong>Parallel Running:</strong> Run both systems during transition</li>
+                    <li><strong>Monitoring Setup:</strong> Implement comprehensive observability</li>
+                    <li><strong>User Acceptance:</strong> Validate functionality with stakeholders</li>
+                </ol>
+            </div>
+
+            <div class="installation-steps">
+                <h5>Phase 4: Complete Transition (Month 9-12)</h5>
+                <ol>
+                    <li><strong>Critical Workloads:</strong> Migrate remaining production systems</li>
+                    <li><strong>AutoGen Decommission:</strong> Safely retire AutoGen infrastructure</li>
+                    <li><strong>Documentation:</strong> Update all technical documentation</li>
+                    <li><strong>Knowledge Transfer:</strong> Complete team training and certification</li>
+                </ol>
+            </div>
+
+            <h4>Code Migration Example</h4>
+
+            <div class="code-block" data-language="python">
+                <pre><code># AutoGen Original Code
+import autogen
+
+researcher = autogen.AssistantAgent(
+    "researcher",
+    system_message="You are a research analyst",
+    llm_config={"model": "gpt-4"}
+)
+
+analyst = autogen.AssistantAgent(
+    "analyst", 
+    system_message="You analyze data and provide insights",
+    llm_config={"model": "gpt-4"}
+)
+
+group_chat = autogen.GroupChat(
+    agents=[researcher, analyst],
+    messages=[],
+    max_round=10
+)
+
+# Microsoft Agent Framework Equivalent
+from agent_framework import Agent, Workflow
+from agent_framework.azure_ai import AzureAIAgent
+
+researcher = AzureAIAgent(
+    name="researcher",
+    instructions="You are a research analyst",
+    model_deployment_name="gpt-4o",
+    endpoint=os.getenv("AZURE_AI_ENDPOINT")
+)
+
+analyst = AzureAIAgent(
+    name="analyst",
+    instructions="You analyze data and provide insights", 
+    model_deployment_name="gpt-4o",
+    endpoint=os.getenv("AZURE_AI_ENDPOINT")
+)
+
+class ResearchWorkflow(Workflow):
+    def __init__(self):
+        super().__init__([researcher, analyst])
+    
+    async def execute(self, query):
+        research_result = await researcher.run(f"Research: {query}")
+        analysis = await analyst.run(f"Analyze: {research_result}")
+        return analysis</code></pre>
+            </div>
+
+            <h3>Framework Selection Migration Paths</h3>
+
+            <h4>From Prototype to Production</h4>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Migration Path</th>
+                        <th>Scenario</th>
+                        <th>Recommendation</th>
+                        <th>Timeline</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>CrewAI → Agent Framework</strong></td>
+                        <td>Scaling to enterprise</td>
+                        <td>Gradual migration with Azure adoption</td>
+                        <td>3-6 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AutoGen → CrewAI</strong></td>
+                        <td>Non-Microsoft ecosystem</td>
+                        <td>Alternative to Agent Framework</td>
+                        <td>2-4 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AutoGen → Agent Framework</strong></td>
+                        <td>Microsoft ecosystem focus</td>
+                        <td>Recommended migration path</td>
+                        <td>6-12 months</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Custom → Framework</strong></td>
+                        <td>Replacing custom solutions</td>
+                        <td>Choose based on requirements</td>
+                        <td>4-8 months</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Migration Best Practices</h3>
+
+            <h4>Technical Considerations</h4>
+
+            <ul>
+                <li><strong>API Compatibility:</strong> Map existing agent interfaces to new framework APIs</li>
+                <li><strong>State Management:</strong> Migrate conversation state and memory systems</li>
+                <li><strong>Tool Integration:</strong> Adapt custom tools to new framework patterns</li>
+                <li><strong>Testing Strategy:</strong> Implement comprehensive testing for migrated components</li>
+                <li><strong>Performance Monitoring:</strong> Establish baselines and monitor throughout migration</li>
+            </ul>
+
+            <h4>Organizational Considerations</h4>
+
+            <ul>
+                <li><strong>Change Management:</strong> Prepare teams for new development workflows</li>
+                <li><strong>Training Investment:</strong> Allocate resources for framework-specific education</li>
+                <li><strong>Documentation Updates:</strong> Revise all technical and user documentation</li>
+                <li><strong>Vendor Relationships:</strong> Consider support and partnership implications</li>
+                <li><strong>Compliance Review:</strong> Validate new framework meets organizational requirements</li>
+            </ul>
+
+            <h4>Risk Mitigation Strategies</h4>
+
+            <div class="info-box">
+                <h4>Migration Risk Management</h4>
+                <ol>
+                    <li><strong>Parallel Systems:</strong> Run old and new systems simultaneously during transition</li>
+                    <li><strong>Rollback Plans:</strong> Maintain ability to revert to previous system</li>
+                    <li><strong>Incremental Deployment:</strong> Migrate non-critical components first</li>
+                    <li><strong>Stakeholder Communication:</strong> Keep all parties informed of progress and issues</li>
+                    <li><strong>Success Metrics:</strong> Define clear criteria for migration success</li>
+                </ol>
+            </div>
+
+            <h3>Future-Proofing Strategies</h3>
+
+            <h4>Technology Evolution Considerations</h4>
+
+            <ul>
+                <li><strong>Abstraction Layers:</strong> Build abstractions to reduce framework lock-in</li>
+                <li><strong>Standard Interfaces:</strong> Use industry-standard APIs where possible</li>
+                <li><strong>Modular Architecture:</strong> Design systems for easy component replacement</li>
+                <li><strong>Monitoring Standards:</strong> Use OpenTelemetry and standard observability tools</li>
+                <li><strong>Documentation Practices:</strong> Maintain comprehensive architectural documentation</li>
+            </ul>
+
+            <div class="highlight-box">
+                <h4>Long-term Recommendations</h4>
+                <p><strong>For New Projects (2025+):</strong> Start with Microsoft Agent Framework for enterprise use or CrewAI for rapid development</p>
+                <p><strong>For Existing AutoGen:</strong> Plan migration to Agent Framework within 12 months</p>
+                <p><strong>For Existing CrewAI:</strong> Continue development; consider Agent Framework for enterprise scaling</p>
+                <p><strong>For All Projects:</strong> Implement proper abstractions and monitoring for future flexibility</p>
+            </div>
+        </section>
+
+        <footer style="text-align: center; padding: 2rem; color: var(--text-tertiary); border-top: 1px solid var(--border-primary); margin-top: 3rem; transition: color 0.3s ease, border-color 0.3s ease;">
+            <p>Multi-Agent Systems Handbook - Comprehensive Guide to CrewAI, Microsoft Agent Framework, and AutoGen</p>
+            <p style="font-size: 0.9rem;">Last Updated: March 2026 | Framework Documentation Compiled from Official Sources</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Theme management functionality
+        class ThemeManager {
+            constructor() {
+                this.currentTheme = localStorage.getItem('mas-handbook-theme') || 'light';
+                this.themeToggleBtn = document.querySelector('.theme-toggle');
+                this.themeIcon = document.querySelector('.theme-icon');
+                this.themeText = document.querySelector('.theme-text');
+                
+                this.init();
+            }
+            
+            init() {
+                // Apply saved theme on page load
+                this.applyTheme(this.currentTheme);
+                this.updateToggleButton();
+                
+                // Add smooth transition after initial load
+                setTimeout(() => {
+                    document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+                }, 100);
+            }
+            
+            applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                }
+                this.currentTheme = theme;
+                localStorage.setItem('mas-handbook-theme', theme);
+            }
+            
+            updateToggleButton() {
+                if (this.currentTheme === 'dark') {
+                    this.themeIcon.textContent = '☀️';
+                    this.themeText.textContent = 'Light';
+                } else {
+                    this.themeIcon.textContent = '🌙';
+                    this.themeText.textContent = 'Dark';
+                }
+            }
+            
+            toggle() {
+                const newTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+                this.applyTheme(newTheme);
+                this.updateToggleButton();
+                
+                // Add a subtle animation effect
+                this.themeToggleBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.themeToggleBtn.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Save user preference
+                this.trackThemeChange(newTheme);
+            }
+            
+            trackThemeChange(theme) {
+                console.log(`MAS Handbook theme changed to: ${theme}`);
+            }
+            
+            // Detect system theme preference
+            detectSystemTheme() {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            }
+            
+            // Auto-apply system theme if no preference is saved
+            autoApplySystemTheme() {
+                if (!localStorage.getItem('mas-handbook-theme')) {
+                    const systemTheme = this.detectSystemTheme();
+                    this.applyTheme(systemTheme);
+                    this.updateToggleButton();
+                }
+            }
+        }
+        
+        // Initialize theme manager
+        const themeManager = new ThemeManager();
+        
+        // Global function for the onclick handler
+        function toggleTheme() {
+            themeManager.toggle();
+        }
+        
+        // Listen for system theme changes
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+                if (!localStorage.getItem('mas-handbook-theme')) {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    themeManager.applyTheme(newTheme);
+                    themeManager.updateToggleButton();
+                }
+            });
+        }
+        
+        // Apply system theme on first visit
+        document.addEventListener('DOMContentLoaded', () => {
+            themeManager.autoApplySystemTheme();
+        });
+        
+        // Add keyboard shortcut for theme toggle (Ctrl/Cmd + Shift + T)
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+    </script>
+</body>
+</html>
