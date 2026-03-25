@@ -1,0 +1,1838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Engineering: From Basics to Advanced</title>
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: white;
+            --bg-tertiary: #f1f3f4;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --link-color: #1a73e8;
+            --link-hover: #1557b0;
+            --border-color: #dadce0;
+            --code-bg: #f8f9fa;
+            --code-border: #e8eaed;
+            --highlight-bg: #e8f0fe;
+            --warning-bg: #fef7e0;
+            --success-bg: #e6f4ea;
+            --error-bg: #fce8e6;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9aa0a6;
+            --link-color: #8ab4f8;
+            --link-hover: #aecbfa;
+            --border-color: #5f6368;
+            --code-bg: #1e1e1e;
+            --code-border: #5f6368;
+            --highlight-bg: #1e3a8a;
+            --warning-bg: #3e2723;
+            --success-bg: #1b5e20;
+            --error-bg: #b71c1c;
+            --shadow: 0 1px 2px 0 rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            min-height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--highlight-bg), var(--bg-tertiary));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-secondary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--link-color), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .nav-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            list-style: none;
+        }
+
+        .nav-list a {
+            color: var(--link-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .nav-list a:hover {
+            background-color: var(--highlight-bg);
+            color: var(--link-hover);
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: box-shadow 0.3s;
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 2rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            margin-top: 25px;
+            font-size: 1.5rem;
+        }
+
+        h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+
+        p, li {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--link-color);
+        }
+
+        .warning-box {
+            background-color: var(--warning-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .success-box {
+            background-color: var(--success-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .error-box {
+            background-color: var(--error-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--code-border);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--code-border);
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            font-size: 0.9em;
+        }
+
+        .technique-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .technique-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .technique-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .technique-description {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .example-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .metrics-table th {
+            background-color: var(--bg-tertiary);
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+            <h1>Context Engineering: From Basics to Advanced</h1>
+            <p class="subtitle">Master the art of crafting effective prompts and context for AI systems</p>
+        </div>
+
+        <div class="nav">
+            <h3>Navigation</h3>
+            <ul class="nav-list">
+                <li><a href="#fundamentals">Context Engineering Fundamentals</a></li>
+                <li><a href="#prompt-design">Prompt Design Principles</a></li>
+                <li><a href="#advanced-techniques">Advanced Techniques</a></li>
+                <li><a href="#context-optimization">Context Window Optimization</a></li>
+                <li><a href="#frameworks-tools">Frameworks & Tools</a></li>
+                <li><a href="#evaluation">Evaluation Methods</a></li>
+                <li><a href="#industry-applications">Industry Applications</a></li>
+                <li><a href="#model-specific">Model-Specific Strategies</a></li>
+            </ul>
+        </div>
+
+        <section id="fundamentals" class="section">
+            <h2>1. Context Engineering Fundamentals</h2>
+            
+            <h3>What is Context Engineering?</h3>
+            <p>Context engineering is the systematic approach to designing, crafting, and optimizing the context provided to AI models to achieve specific, high-quality outputs. It encompasses prompt engineering, context window management, and the strategic structuring of information to guide model behavior.</p>
+            
+            <div class="highlight-box">
+                <p><strong>Core Definition:</strong> Context engineering is the discipline of structuring input to AI systems in a way that maximizes the relevance, accuracy, and utility of their outputs while minimizing ambiguity and undesired behaviors.</p>
+            </div>
+
+            <h3>Key Components of Context Engineering</h3>
+            
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>1. Information Architecture</h4>
+                    <ul>
+                        <li>Logical organization of context elements</li>
+                        <li>Hierarchical structuring of information</li>
+                        <li>Clear separation of instructions vs. data</li>
+                        <li>Contextual relationships and dependencies</li>
+                    </ul>
+                </div>
+                
+                <div class="example-card">
+                    <h4>2. Prompt Design</h4>
+                    <ul>
+                        <li>Clear, specific instructions</li>
+                        <li>Role and persona definition</li>
+                        <li>Output format specification</li>
+                        <li>Constraint and boundary setting</li>
+                    </ul>
+                </div>
+                
+                <div class="example-card">
+                    <h4>3. Context Management</h4>
+                    <ul>
+                        <li>Token economy optimization</li>
+                        <li>Information prioritization</li>
+                        <li>Memory and state management</li>
+                        <li>Dynamic context adaptation</li>
+                    </ul>
+                </div>
+                
+                <div class="example-card">
+                    <h4>4. Quality Assurance</h4>
+                    <ul>
+                        <li>Output validation and testing</li>
+                        <li>Iterative refinement processes</li>
+                        <li>Performance measurement</li>
+                        <li>Edge case handling</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Basic Context Structure Template</h3>
+            <pre><code># System Role and Persona
+You are a [ROLE] with expertise in [DOMAIN]. Your goal is to [PRIMARY_OBJECTIVE].
+
+# Context and Background
+[RELEVANT_BACKGROUND_INFORMATION]
+
+# Specific Task
+[CLEAR_TASK_DESCRIPTION]
+
+# Input Data
+[STRUCTURED_INPUT_DATA]
+
+# Output Requirements
+Format: [OUTPUT_FORMAT]
+Length: [TARGET_LENGTH]
+Tone: [DESIRED_TONE]
+Include: [REQUIRED_ELEMENTS]
+Exclude: [ELEMENTS_TO_AVOID]
+
+# Constraints
+- [CONSTRAINT_1]
+- [CONSTRAINT_2]
+- [CONSTRAINT_N]
+
+# Examples (if applicable)
+Input: [EXAMPLE_INPUT]
+Output: [EXAMPLE_OUTPUT]
+
+# Task Input
+[ACTUAL_INPUT_DATA]</code></pre>
+        </section>
+
+        <section id="prompt-design" class="section">
+            <h2>2. Prompt Design Principles</h2>
+            
+            <h3>The CLARITY Framework</h3>
+            
+            <div class="technique-card">
+                <div class="technique-title">C - Clear Instructions</div>
+                <div class="technique-description">Use specific, unambiguous language that leaves no room for misinterpretation.</div>
+                <pre><code>❌ Poor: "Write something about climate change"
+✅ Good: "Write a 300-word executive summary of the top 3 climate change impacts on agriculture, including specific data and mitigation strategies"</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">L - Logical Structure</div>
+                <div class="technique-description">Organize information in a logical flow that guides the model's reasoning process.</div>
+                <pre><code># Logical Structure Example
+## Background Context
+[Set the scene and provide necessary background]
+
+## Specific Task
+[What exactly needs to be done]
+
+## Success Criteria
+[How to evaluate if the task is completed successfully]
+
+## Output Format
+[Exact format requirements]</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">A - Audience Awareness</div>
+                <div class="technique-description">Define the target audience to ensure appropriate tone, complexity, and style.</div>
+                <pre><code>For Technical Audience:
+"Explain the OAuth 2.0 authorization code flow, including security considerations and implementation details"
+
+For General Audience:
+"Explain how apps safely connect to your accounts without knowing your password, using simple analogies"</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">R - Role Definition</div>
+                <div class="technique-description">Establish a clear persona or role for the AI to embody, providing context for appropriate responses.</div>
+                <pre><code>Effective Role Examples:
+- "You are a senior data scientist with 10 years of experience in machine learning"
+- "Act as a technical writing expert specializing in API documentation"
+- "You are a customer service representative for a SaaS platform"</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">I - Interactive Guidelines</div>
+                <div class="technique-description">Specify how the AI should interact, ask for clarification, or handle uncertainty.</div>
+                <pre><code>Interactive Guidelines:
+- "If any requirements are unclear, ask specific clarifying questions before proceeding"
+- "When multiple solutions exist, provide the top 3 options with pros/cons"
+- "If you need more information to complete the task, specify exactly what is missing"</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">T - Testing Integration</div>
+                <div class="technique-description">Include mechanisms for validation and quality assurance within the prompt structure.</div>
+                <pre><code>Testing Integration:
+- "Before providing your final answer, review it against these criteria: [CRITERIA_LIST]"
+- "Include a confidence score (1-10) for your response"
+- "Identify any assumptions you've made in your reasoning"</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">Y - Yield Management</div>
+                <div class="technique-description">Optimize output quality through strategic constraint setting and expectation management.</div>
+                <pre><code>Yield Management Examples:
+- "Focus on the top 5 most impactful recommendations"
+- "Prioritize accuracy over creativity in your response"
+- "If the task would require more than 500 words, provide an outline instead"</code></pre>
+            </div>
+
+            <h3>Advanced Prompt Patterns</h3>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>Chain of Thought Pattern</h4>
+                    <pre><code>Solve this step-by-step:
+1. First, identify what type of problem this is
+2. Then, list the given information
+3. Next, determine what formula or approach to use
+4. Show your calculations
+5. Finally, verify your answer makes sense
+
+Problem: [INSERT_PROBLEM]</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Role-Playing Pattern</h4>
+                    <pre><code>You are a [SPECIFIC_ROLE] with these characteristics:
+- Background: [EXPERTISE_AREA]
+- Experience: [YEARS_OF_EXPERIENCE]
+- Personality: [PERSONALITY_TRAITS]
+- Goals: [PRIMARY_OBJECTIVES]
+
+Respond to this situation as this character would:
+[SITUATION_DESCRIPTION]</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Iterative Refinement Pattern</h4>
+                    <pre><code>Draft 1: Create an initial response to [TASK]
+Review 1: Identify 3 areas for improvement
+Draft 2: Implement improvements from Review 1
+Review 2: Check for completeness and accuracy
+Final: Present the refined response</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Comparative Analysis Pattern</h4>
+                    <pre><code>Compare [OPTION_A] vs [OPTION_B] using this framework:
+
+Criteria 1: [CRITERION_1]
+- Option A: [ANALYSIS]
+- Option B: [ANALYSIS]
+- Winner: [A/B/TIE] - [REASONING]
+
+[Repeat for each criterion]
+
+Overall Recommendation: [CHOICE] because [REASONING]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="advanced-techniques" class="section">
+            <h2>3. Advanced Context Engineering Techniques</h2>
+            
+            <h3>Few-Shot Learning Optimization</h3>
+            <p>Few-shot learning leverages carefully selected examples to guide model behavior without fine-tuning.</p>
+
+            <div class="technique-card">
+                <div class="technique-title">Example Selection Strategy</div>
+                <pre><code># Strategic Few-Shot Example Design
+
+## Task: Extract key insights from customer feedback
+
+## Example 1 (Simple Case)
+Input: "The app is easy to use but crashes sometimes"
+Output: {
+  "sentiment": "mixed",
+  "key_insights": ["usability_positive", "stability_issue"],
+  "priority": "medium",
+  "suggested_action": "investigate_crash_patterns"
+}
+
+## Example 2 (Complex Case)
+Input: "Love the new features but pricing is getting expensive. Customer service is helpful when I can reach them"
+Output: {
+  "sentiment": "mixed",
+  "key_insights": ["feature_satisfaction", "price_concern", "service_accessibility_issue"],
+  "priority": "high",
+  "suggested_action": "review_pricing_strategy_and_support_capacity"
+}
+
+## Example 3 (Edge Case)
+Input: "                    " (empty feedback)
+Output: {
+  "sentiment": "unknown",
+  "key_insights": ["insufficient_data"],
+  "priority": "low",
+  "suggested_action": "request_more_feedback"
+}
+
+## Your Task
+Input: [ACTUAL_CUSTOMER_FEEDBACK]
+Output:</code></pre>
+            </div>
+
+            <h3>Chain-of-Thought Prompting</h3>
+            <p>Guide the model through explicit reasoning steps to improve accuracy and transparency.</p>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>Mathematical Reasoning</h4>
+                    <pre><code>Solve this problem step by step:
+
+Problem: A company's revenue grew 15% in Q1, declined 8% in Q2, grew 22% in Q3, and declined 5% in Q4. If they started with $1M revenue, what was their end-of-year revenue?
+
+Step 1: Identify the starting value
+Starting revenue: $1,000,000
+
+Step 2: Calculate Q1 growth
+Q1: $1,000,000 × 1.15 = $1,150,000
+
+Step 3: Calculate Q2 decline
+Q2: $1,150,000 × 0.92 = $1,058,000
+
+Step 4: Calculate Q3 growth
+Q3: $1,058,000 × 1.22 = $1,290,760
+
+Step 5: Calculate Q4 decline
+Q4: $1,290,760 × 0.95 = $1,226,222
+
+Final Answer: $1,226,222</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Logical Analysis</h4>
+                    <pre><code>Analyze this business scenario systematically:
+
+Scenario: [BUSINESS_PROBLEM]
+
+Step 1: Problem Identification
+- What is the core issue?
+- What are the symptoms vs. root causes?
+
+Step 2: Stakeholder Analysis
+- Who is affected by this problem?
+- What are their interests and concerns?
+
+Step 3: Option Generation
+- What are the possible solutions?
+- What are the constraints?
+
+Step 4: Impact Assessment
+- Short-term consequences of each option
+- Long-term implications
+- Resource requirements
+
+Step 5: Recommendation
+- Preferred solution with justification
+- Implementation plan
+- Risk mitigation strategies</code></pre>
+                </div>
+            </div>
+
+            <h3>Retrieval-Augmented Generation (RAG) Integration</h3>
+            <p>Combine external knowledge retrieval with generative capabilities for enhanced accuracy and currency.</p>
+
+            <div class="warning-box">
+                <h4>RAG Context Engineering Best Practices</h4>
+                <ul class="checklist">
+                    <li>Prioritize retrieved content by relevance score</li>
+                    <li>Include source attribution in the context</li>
+                    <li>Handle conflicting information from multiple sources</li>
+                    <li>Implement fallback strategies when retrieval fails</li>
+                    <li>Maintain context coherence between retrieved and generated content</li>
+                </ul>
+            </div>
+
+            <pre><code># RAG-Optimized Prompt Template
+
+## System Instructions
+You are an expert analyst. Use the provided retrieved information to answer questions accurately. Always cite sources and acknowledge when information is insufficient.
+
+## Retrieved Context
+[RETRIEVED_DOCUMENT_1]
+Source: [SOURCE_1_CITATION]
+Relevance Score: [SCORE_1]
+
+[RETRIEVED_DOCUMENT_2]
+Source: [SOURCE_2_CITATION]
+Relevance Score: [SCORE_2]
+
+## Instructions for Source Usage
+1. Prioritize higher relevance scores
+2. If sources conflict, acknowledge the disagreement
+3. If retrieved information is insufficient, state what additional information would be helpful
+4. Always provide source citations for factual claims
+
+## Question
+[USER_QUESTION]
+
+## Response Guidelines
+Format your response as:
+1. Direct answer (if possible)
+2. Supporting evidence from sources
+3. Limitations or uncertainties
+4. Source citations</code></pre>
+
+            <h3>Constitutional AI and Constraint Programming</h3>
+            <p>Embed ethical guidelines and behavioral constraints directly into the context structure.</p>
+
+            <div class="technique-card">
+                <div class="technique-title">Constitutional Prompt Framework</div>
+                <pre><code># Constitutional AI Context Template
+
+## Core Principles
+You must adhere to these principles in all responses:
+1. Accuracy: Only state facts you can verify
+2. Helpfulness: Provide useful, actionable information
+3. Safety: Avoid harmful or dangerous advice
+4. Respect: Maintain dignity for all people and groups
+5. Transparency: Acknowledge limitations and uncertainties
+
+## Decision Framework
+When faced with ethical dilemmas:
+1. Consider the impact on human wellbeing
+2. Respect individual autonomy and consent
+3. Promote fairness and justice
+4. Minimize potential harm
+5. Be transparent about trade-offs
+
+## Constraint Checks
+Before responding, verify:
+- Does this response respect human dignity?
+- Could this information be misused to cause harm?
+- Am I making claims beyond my knowledge?
+- Am I being fair to all perspectives?
+
+## Task
+[SPECIFIC_TASK_WITH_CONSTRAINTS]</code></pre>
+            </div>
+
+            <h3>Multi-Agent Conversation Design</h3>
+            <p>Structure contexts for multi-agent interactions and collaborative problem-solving.</p>
+
+            <div class="example-card">
+                <h4>Multi-Agent Debate Framework</h4>
+                <pre><code># Multi-Agent Problem-Solving Context
+
+## Scenario Setup
+Topic: [COMPLEX_PROBLEM_TO_SOLVE]
+
+## Agent Roles
+Agent 1 - Advocate: Present the strongest case FOR the proposed solution
+Agent 2 - Skeptic: Identify potential problems and risks
+Agent 3 - Synthesizer: Find common ground and propose compromises
+Agent 4 - Facilitator: Keep discussion focused and productive
+
+## Discussion Rules
+1. Each agent speaks from their assigned perspective
+2. Use evidence and logical reasoning
+3. Build on previous agents' points
+4. Acknowledge valid concerns from other agents
+5. Final round: collaborative solution development
+
+## Round 1: Initial Positions
+[Each agent presents their initial analysis]
+
+## Round 2: Response and Clarification
+[Agents respond to others' positions]
+
+## Round 3: Synthesis and Solution
+[Collaborative problem-solving]</code></pre>
+            </div>
+        </section>
+
+        <section id="context-optimization" class="section">
+            <h2>4. Context Window Optimization</h2>
+            
+            <h3>Token Economy Management</h3>
+            <p>Effective context engineering requires strategic token usage to maximize information density while staying within model limits.</p>
+
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Context Window</th>
+                        <th>Optimal Context Ratio</th>
+                        <th>Reserved for Output</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>GPT-4</td>
+                        <td>8,192 tokens</td>
+                        <td>60-70%</td>
+                        <td>2,000-3,000 tokens</td>
+                    </tr>
+                    <tr>
+                        <td>GPT-4 Turbo</td>
+                        <td>128,000 tokens</td>
+                        <td>70-80%</td>
+                        <td>10,000-15,000 tokens</td>
+                    </tr>
+                    <tr>
+                        <td>Claude 3</td>
+                        <td>200,000 tokens</td>
+                        <td>75-85%</td>
+                        <td>15,000-20,000 tokens</td>
+                    </tr>
+                    <tr>
+                        <td>Llama 2</td>
+                        <td>4,096 tokens</td>
+                        <td>50-60%</td>
+                        <td>1,500-2,000 tokens</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Context Compression Techniques</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">1. Information Layering</div>
+                <pre><code># Information Layering Example
+
+## Core Context (Essential - 20% of tokens)
+Task: Analyze customer churn for SaaS platform
+Data: 10,000 customers, 15% annual churn rate
+Goal: Identify top 3 churn factors and actionable recommendations
+
+## Supporting Context (Important - 50% of tokens)
+Business Context:
+- B2B SaaS, $50-500/month plans
+- Primarily SMB customers
+- Key features: analytics, automation, integration
+
+Available Data:
+- Demographics, usage patterns, support tickets
+- Feature adoption rates, billing history
+- Survey responses from churned customers
+
+## Detailed Context (Additional - 30% of tokens)
+[Specific data tables, detailed feature descriptions, historical context]</code></pre>
+            </div>
+
+            <div class="technique-card">
+                <div class="technique-title">2. Dynamic Context Loading</div>
+                <pre><code># Dynamic Context Management Strategy
+
+## Phase 1: Problem Definition (Minimal Context)
+Initial prompt with core requirements and constraints
+
+## Phase 2: Context Expansion (Iterative Loading)
+Based on initial response, load relevant additional context:
+- If analysis mentioned feature usage → Load feature adoption data
+- If mentioned customer segments → Load demographic breakdowns
+- If mentioned support issues → Load ticket analysis
+
+## Phase 3: Deep Dive (Focused Context)
+Narrow context to most relevant areas identified in Phase 2
+
+## Implementation Pattern
+while context_budget_available:
+    response = query_with_current_context()
+    needed_context = identify_missing_information(response)
+    if needed_context and fits_in_budget(needed_context):
+        context += needed_context
+    else:
+        break</code></pre>
+            </div>
+
+            <h3>Context Prioritization Matrix</h3>
+
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Information Type</th>
+                        <th>Priority</th>
+                        <th>Token Allocation</th>
+                        <th>Compression Strategy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Task Definition</td>
+                        <td>Critical</td>
+                        <td>5-10%</td>
+                        <td>Precise, no compression</td>
+                    </tr>
+                    <tr>
+                        <td>Core Constraints</td>
+                        <td>Critical</td>
+                        <td>5-10%</td>
+                        <td>Bullet points</td>
+                    </tr>
+                    <tr>
+                        <td>Key Examples</td>
+                        <td>High</td>
+                        <td>15-20%</td>
+                        <td>Most relevant only</td>
+                    </tr>
+                    <tr>
+                        <td>Background Context</td>
+                        <td>Medium</td>
+                        <td>20-30%</td>
+                        <td>Summarization</td>
+                    </tr>
+                    <tr>
+                        <td>Supporting Data</td>
+                        <td>Medium</td>
+                        <td>20-30%</td>
+                        <td>Statistical summaries</td>
+                    </tr>
+                    <tr>
+                        <td>Historical Information</td>
+                        <td>Low</td>
+                        <td>10-15%</td>
+                        <td>Key highlights only</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Memory and State Management</h3>
+
+            <div class="success-box">
+                <h4>Context Persistence Strategies</h4>
+                <ul class="checklist">
+                    <li>Maintain conversation summaries for multi-turn interactions</li>
+                    <li>Extract and store key decisions and assumptions</li>
+                    <li>Use structured state representations for complex tasks</li>
+                    <li>Implement context refresh mechanisms for long conversations</li>
+                    <li>Design graceful degradation when context limits are approached</li>
+                </ul>
+            </div>
+
+            <pre><code># Context State Management Template
+
+## Session State
+Conversation ID: [UNIQUE_ID]
+Turn Number: [CURRENT_TURN]
+Context Budget Used: [TOKENS_USED]/[TOTAL_BUDGET]
+
+## Persistent Context (Carried Forward)
+Key Decisions Made:
+- Decision 1: [SUMMARY]
+- Decision 2: [SUMMARY]
+
+Current Focus Area: [AREA_OF_FOCUS]
+Outstanding Questions: [UNRESOLVED_ITEMS]
+
+## Fresh Context (Current Turn)
+New Information: [CURRENT_INPUT]
+Updated Requirements: [ANY_CHANGES]
+
+## Context Refresh Trigger
+if tokens_used > 80% of budget:
+    summarize_conversation()
+    extract_key_points()
+    reset_context_with_summary()</code></pre>
+        </section>
+
+        <section id="frameworks-tools" class="section">
+            <h2>5. Frameworks & Tools</h2>
+            
+            <h3>Popular Context Engineering Frameworks</h3>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>LangChain</h4>
+                    <p><strong>Strengths:</strong> Comprehensive ecosystem, prompt templates, chain composition</p>
+                    <pre><code>from langchain import PromptTemplate, LLMChain
+from langchain.llms import OpenAI
+
+template = """
+You are a {role} with expertise in {domain}.
+
+Context: {context}
+Task: {task}
+Format: {output_format}
+
+{input}
+"""
+
+prompt = PromptTemplate(
+    input_variables=["role", "domain", "context", "task", "output_format", "input"],
+    template=template
+)
+
+llm = OpenAI(temperature=0.7)
+chain = LLMChain(llm=llm, prompt=prompt)
+
+response = chain.run(
+    role="data scientist",
+    domain="machine learning",
+    context="Customer churn analysis for SaaS company",
+    task="Identify top 3 churn factors",
+    output_format="JSON with factors and confidence scores",
+    input=customer_data
+)</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Microsoft Semantic Kernel</h4>
+                    <p><strong>Strengths:</strong> Enterprise integration, plugin ecosystem, semantic functions</p>
+                    <pre><code>import semantic_kernel as sk
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
+
+kernel = sk.Kernel()
+kernel.add_chat_service(
+    "gpt-4",
+    OpenAIChatCompletion("gpt-4", api_key)
+)
+
+prompt = """
+{{$role_description}}
+
+Context Information:
+{{$context}}
+
+Task: {{$task}}
+
+Input: {{$input}}
+
+Please respond according to your role and the provided context.
+"""
+
+semantic_function = kernel.create_semantic_function(
+    prompt,
+    max_tokens=2000,
+    temperature=0.3
+)
+
+result = semantic_function(
+    role_description="You are a senior business analyst",
+    context="Quarterly performance review for tech startup",
+    task="Identify key growth opportunities",
+    input=financial_data
+)</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>OpenAI Function Calling</h4>
+                    <p><strong>Strengths:</strong> Structured outputs, tool integration, reliable formatting</p>
+                    <pre><code>import openai
+
+functions = [
+    {
+        "name": "analyze_customer_data",
+        "description": "Analyze customer data to identify patterns and insights",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "key_insights": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Main insights from the analysis"
+                },
+                "recommendations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "action": {"type": "string"},
+                            "priority": {"type": "string"},
+                            "expected_impact": {"type": "string"}
+                        }
+                    }
+                },
+                "confidence_score": {
+                    "type": "number",
+                    "description": "Confidence in analysis (0-1)"
+                }
+            }
+        }
+    }
+]
+
+response = openai.ChatCompletion.create(
+    model="gpt-4",
+    messages=[
+        {"role": "system", "content": "You are a data analyst expert."},
+        {"role": "user", "content": f"Analyze this customer data: {data}"}
+    ],
+    functions=functions,
+    function_call={"name": "analyze_customer_data"}
+)</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Custom Context Manager</h4>
+                    <p><strong>Strengths:</strong> Full control, optimized for specific use cases</p>
+                    <pre><code>class ContextManager:
+    def __init__(self, max_tokens=8000):
+        self.max_tokens = max_tokens
+        self.context_layers = []
+        self.token_usage = 0
+    
+    def add_layer(self, content, priority, compressible=True):
+        layer = {
+            'content': content,
+            'priority': priority,
+            'compressible': compressible,
+            'tokens': self.count_tokens(content)
+        }
+        self.context_layers.append(layer)
+    
+    def optimize_context(self):
+        # Sort by priority
+        self.context_layers.sort(key=lambda x: x['priority'], reverse=True)
+        
+        optimized_context = ""
+        tokens_used = 0
+        
+        for layer in self.context_layers:
+            if tokens_used + layer['tokens'] <= self.max_tokens:
+                optimized_context += layer['content'] + "\n\n"
+                tokens_used += layer['tokens']
+            elif layer['compressible']:
+                # Apply compression
+                compressed = self.compress_content(layer['content'])
+                compressed_tokens = self.count_tokens(compressed)
+                
+                if tokens_used + compressed_tokens <= self.max_tokens:
+                    optimized_context += compressed + "\n\n"
+                    tokens_used += compressed_tokens
+        
+        return optimized_context
+    
+    def compress_content(self, content):
+        # Simple compression - extract key points
+        lines = content.split('\n')
+        key_points = [line for line in lines if any(keyword in line.lower() 
+                     for keyword in ['important', 'key', 'critical', 'main'])]
+        return '\n'.join(key_points[:5])  # Top 5 key points</code></pre>
+                </div>
+            </div>
+
+            <h3>Context Engineering Tools and Libraries</h3>
+
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Primary Use Case</th>
+                        <th>Key Features</th>
+                        <th>Integration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>tiktoken</strong></td>
+                        <td>Token counting</td>
+                        <td>Accurate token estimation, fast performance</td>
+                        <td>Python, OpenAI models</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Guidance</strong></td>
+                        <td>Structured generation</td>
+                        <td>Template-based prompts, output validation</td>
+                        <td>Multiple LLM providers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>PromptLayer</strong></td>
+                        <td>Prompt management</td>
+                        <td>Version control, A/B testing, analytics</td>
+                        <td>Cloud-based, API access</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weights & Biases</strong></td>
+                        <td>Experiment tracking</td>
+                        <td>Prompt versioning, performance metrics</td>
+                        <td>MLOps platforms</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Anthropic Workbench</strong></td>
+                        <td>Prompt testing</td>
+                        <td>Interactive development, evaluation tools</td>
+                        <td>Claude models</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="evaluation" class="section">
+            <h2>6. Evaluation Methods</h2>
+            
+            <h3>Context Effectiveness Metrics</h3>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>Quantitative Metrics</h4>
+                    <ul>
+                        <li><strong>Task Completion Rate:</strong> % of successfully completed tasks</li>
+                        <li><strong>Output Quality Score:</strong> Human-rated quality (1-10 scale)</li>
+                        <li><strong>Response Time:</strong> Time to generate response</li>
+                        <li><strong>Token Efficiency:</strong> Quality per token used</li>
+                        <li><strong>Consistency Rate:</strong> Similar outputs for similar inputs</li>
+                    </ul>
+                </div>
+
+                <div class="example-card">
+                    <h4>Qualitative Metrics</h4>
+                    <ul>
+                        <li><strong>Relevance:</strong> How well output matches requirements</li>
+                        <li><strong>Coherence:</strong> Logical flow and structure</li>
+                        <li><strong>Accuracy:</strong> Factual correctness of information</li>
+                        <li><strong>Appropriateness:</strong> Tone and style match requirements</li>
+                        <li><strong>Completeness:</strong> All required elements included</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>A/B Testing Framework for Context Engineering</h3>
+
+            <pre><code># Context A/B Testing Framework
+
+class ContextTester:
+    def __init__(self, test_name, variants):
+        self.test_name = test_name
+        self.variants = variants
+        self.results = []
+    
+    def run_test(self, test_inputs, evaluators, sample_size=100):
+        for variant_name, context_template in self.variants.items():
+            variant_results = []
+            
+            for i in range(sample_size):
+                input_data = random.choice(test_inputs)
+                prompt = context_template.format(**input_data)
+                
+                # Generate response
+                response = self.generate_response(prompt)
+                
+                # Evaluate response
+                scores = {}
+                for evaluator_name, evaluator_func in evaluators.items():
+                    scores[evaluator_name] = evaluator_func(
+                        input_data, response, context_template
+                    )
+                
+                variant_results.append({
+                    'input': input_data,
+                    'response': response,
+                    'scores': scores
+                })
+            
+            self.results.append({
+                'variant': variant_name,
+                'results': variant_results,
+                'avg_scores': self.calculate_averages(variant_results)
+            })
+    
+    def analyze_results(self):
+        # Statistical significance testing
+        # Effect size calculation
+        # Confidence intervals
+        return self.statistical_analysis()
+
+# Example Usage
+variants = {
+    'control': """
+    Task: {task}
+    Input: {input}
+    """,
+    
+    'enhanced': """
+    You are an expert {domain} specialist.
+    
+    Task: {task}
+    Context: {context}
+    Constraints: {constraints}
+    
+    Input: {input}
+    
+    Please provide a detailed response following these guidelines:
+    {guidelines}
+    """
+}
+
+evaluators = {
+    'relevance': lambda inp, resp, ctx: rate_relevance(inp, resp),
+    'completeness': lambda inp, resp, ctx: check_completeness(inp, resp),
+    'accuracy': lambda inp, resp, ctx: verify_accuracy(inp, resp)
+}
+
+tester = ContextTester("prompt_enhancement_test", variants)
+tester.run_test(test_inputs, evaluators)
+results = tester.analyze_results()</code></pre>
+
+            <h3>Automated Evaluation Pipeline</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">LLM-as-Judge Evaluation</div>
+                <pre><code># LLM-as-Judge Evaluation Framework
+
+EVALUATION_PROMPT = """
+You are an expert evaluator assessing the quality of AI responses.
+
+Original Task: {task}
+AI Response: {response}
+
+Please evaluate this response on the following criteria (1-10 scale):
+
+1. Relevance: How well does the response address the task?
+2. Accuracy: Are the facts and information correct?
+3. Completeness: Does the response cover all required aspects?
+4. Clarity: Is the response clear and well-structured?
+5. Usefulness: How helpful is this response to the user?
+
+For each criterion, provide:
+- Score (1-10)
+- Brief justification (1-2 sentences)
+
+Format as JSON:
+{
+  "relevance": {"score": X, "justification": "..."},
+  "accuracy": {"score": X, "justification": "..."},
+  "completeness": {"score": X, "justification": "..."},
+  "clarity": {"score": X, "justification": "..."},
+  "usefulness": {"score": X, "justification": "..."}
+}
+"""
+
+def evaluate_response(task, response):
+    evaluation_request = EVALUATION_PROMPT.format(
+        task=task,
+        response=response
+    )
+    
+    evaluation = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": evaluation_request}],
+        temperature=0.1
+    )
+    
+    return json.loads(evaluation.choices[0].message.content)</code></pre>
+            </div>
+
+            <h3>Human Evaluation Best Practices</h3>
+
+            <div class="warning-box">
+                <h4>Human Evaluation Guidelines</h4>
+                <ul class="checklist">
+                    <li>Use multiple evaluators to reduce bias (minimum 3 per response)</li>
+                    <li>Provide clear evaluation rubrics and examples</li>
+                    <li>Include diverse perspectives in evaluator pool</li>
+                    <li>Blind evaluations when possible (hide context variant)</li>
+                    <li>Include calibration tasks to ensure evaluator consistency</li>
+                    <li>Track inter-rater reliability and provide feedback</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="industry-applications" class="section">
+            <h2>7. Industry Applications</h2>
+            
+            <h3>Healthcare Context Engineering</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">Medical Analysis Assistant</div>
+                <pre><code># Healthcare Context Template
+
+## System Role
+You are a medical information assistant designed to help healthcare professionals analyze patient data. You provide informational support only and do not make diagnoses or treatment recommendations.
+
+## Medical Context
+Patient Demographics: {demographics}
+Chief Complaint: {chief_complaint}
+Medical History: {medical_history}
+Current Medications: {current_medications}
+Vital Signs: {vital_signs}
+Lab Results: {lab_results}
+
+## Analysis Framework
+1. Information Summary: Synthesize key clinical findings
+2. Relevant Patterns: Identify significant patterns or trends
+3. Additional Considerations: Note any relevant factors
+4. Information Gaps: Identify missing information that might be clinically relevant
+
+## Constraints
+- Provide informational analysis only
+- Do not make diagnostic conclusions
+- Always recommend consultation with qualified healthcare providers
+- Highlight any critical values or urgent findings
+- Use appropriate medical terminology
+
+## Required Disclaimers
+Include: "This analysis is for informational purposes only and does not constitute medical advice. Always consult qualified healthcare professionals for diagnosis and treatment decisions."</code></pre>
+            </div>
+
+            <h3>Financial Services Context Engineering</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">Investment Analysis Assistant</div>
+                <pre><code># Financial Analysis Context Template
+
+## System Role
+You are a financial analyst specializing in {specialization} with {experience_level} of experience. Your role is to provide objective, data-driven financial analysis.
+
+## Market Context
+Current Market Conditions: {market_conditions}
+Economic Indicators: {economic_indicators}
+Sector Performance: {sector_performance}
+Regulatory Environment: {regulatory_updates}
+
+## Analysis Request
+Security/Portfolio: {investment_target}
+Analysis Type: {analysis_type}
+Time Horizon: {time_horizon}
+Risk Tolerance: {risk_profile}
+
+## Analysis Framework
+1. Quantitative Analysis
+   - Financial ratios and metrics
+   - Historical performance data
+   - Comparative analysis
+
+2. Qualitative Analysis
+   - Industry position and competitive advantages
+   - Management quality and strategy
+   - Market trends and opportunities
+
+3. Risk Assessment
+   - Systematic risks
+   - Company-specific risks
+   - Scenario analysis
+
+## Output Requirements
+- Provide clear reasoning for all conclusions
+- Include confidence levels for projections
+- Cite data sources and methodologies
+- Acknowledge limitations and assumptions
+
+## Compliance Notes
+- Analysis for informational purposes only
+- Not personalized investment advice
+- Past performance does not guarantee future results
+- Recommend consultation with qualified financial advisors</code></pre>
+            </div>
+
+            <h3>Legal Document Analysis</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">Legal Research Assistant</div>
+                <pre><code># Legal Analysis Context Template
+
+## System Role
+You are a legal research assistant specializing in {legal_area}. You provide informational analysis of legal documents and concepts but do not provide legal advice.
+
+## Document Context
+Document Type: {document_type}
+Jurisdiction: {jurisdiction}
+Relevant Law Areas: {applicable_law}
+Document Purpose: {document_purpose}
+
+## Analysis Request
+Specific Questions: {research_questions}
+Analysis Focus: {analysis_focus}
+Required Depth: {detail_level}
+
+## Legal Analysis Framework
+1. Document Structure Analysis
+   - Key provisions and clauses
+   - Standard vs. non-standard terms
+   - Missing elements or gaps
+
+2. Legal Compliance Review
+   - Regulatory requirements
+   - Industry standards
+   - Best practices
+
+3. Risk Identification
+   - Potential legal issues
+   - Ambiguous language
+   - Enforcement challenges
+
+## Output Format
+- Executive summary
+- Detailed findings by section
+- Risk assessment matrix
+- Recommendations for further review
+
+## Important Disclaimers
+- This analysis is for informational purposes only
+- Does not constitute legal advice
+- Laws vary by jurisdiction and change over time
+- Consult qualified legal counsel for specific legal matters
+- Verify all information with current legal sources</code></pre>
+            </div>
+
+            <h3>Educational Content Creation</h3>
+
+            <div class="technique-card">
+                <div class="technique-title">Adaptive Learning Assistant</div>
+                <pre><code># Educational Context Template
+
+## Educator Role
+You are an expert educator specializing in {subject_area} with experience teaching {grade_level} students. You adapt your teaching style to match individual learning needs.
+
+## Student Profile
+Learning Level: {current_level}
+Learning Style: {learning_preferences}
+Previous Knowledge: {background_knowledge}
+Learning Goals: {objectives}
+Time Available: {session_duration}
+
+## Subject Context
+Topic: {lesson_topic}
+Curriculum Standards: {standards_alignment}
+Prerequisites: {required_knowledge}
+Key Concepts: {core_concepts}
+
+## Instructional Design
+1. Learning Objectives
+   - What students will know
+   - What students will be able to do
+   - Success criteria
+
+2. Engagement Strategy
+   - Hook/attention grabber
+   - Real-world connections
+   - Interactive elements
+
+3. Content Delivery
+   - Explanation methods
+   - Examples and analogies
+   - Visual aids and demonstrations
+
+4. Practice and Assessment
+   - Guided practice opportunities
+   - Independent practice tasks
+   - Formative assessment methods
+
+## Adaptation Guidelines
+- Adjust complexity based on student responses
+- Provide multiple explanation approaches
+- Include scaffolding for challenging concepts
+- Offer extension activities for advanced students
+- Use inclusive and culturally responsive examples</code></pre>
+            </div>
+        </section>
+
+        <section id="model-specific" class="section">
+            <h2>8. Model-Specific Strategies</h2>
+            
+            <h3>GPT Model Optimization</h3>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>GPT-4 Best Practices</h4>
+                    <ul>
+                        <li><strong>Temperature:</strong> 0.1-0.3 for analytical tasks, 0.7-0.9 for creative tasks</li>
+                        <li><strong>System Messages:</strong> Use detailed system instructions</li>
+                        <li><strong>Function Calling:</strong> Leverage for structured outputs</li>
+                        <li><strong>Context Length:</strong> Optimal performance in first 8K tokens</li>
+                    </ul>
+                    <pre><code># GPT-4 Optimized Context
+{
+  "model": "gpt-4",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert analyst. Follow these principles: 1) Be precise and factual, 2) Show your reasoning, 3) Acknowledge limitations."
+    },
+    {
+      "role": "user", 
+      "content": "Task: {task}\n\nData: {data}\n\nRequirements: {requirements}"
+    }
+  ],
+  "temperature": 0.2,
+  "max_tokens": 2000
+}</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Claude Model Optimization</h4>
+                    <ul>
+                        <li><strong>Constitutional AI:</strong> Respond well to ethical guidelines</li>
+                        <li><strong>Long Context:</strong> Excellent with 100K+ token contexts</li>
+                        <li><strong>Reasoning:</strong> Strong analytical capabilities</li>
+                        <li><strong>Safety:</strong> Built-in safety considerations</li>
+                    </ul>
+                    <pre><code># Claude Optimized Context
+You are Claude, an AI assistant created by Anthropic to be helpful, harmless, and honest.
+
+## Core Principles
+- Provide accurate, well-reasoned responses
+- Acknowledge uncertainty and limitations  
+- Consider potential risks and benefits
+- Respect human autonomy and dignity
+
+## Task Context
+{detailed_context_up_to_200k_tokens}
+
+## Specific Request
+{user_request}
+
+Please analyze this thoroughly and provide your reasoning.</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Llama Model Optimization</h4>
+                    <ul>
+                        <li><strong>Instruction Format:</strong> Use consistent instruction templates</li>
+                        <li><strong>Context Length:</strong> Optimize for 4K token window</li>
+                        <li><strong>Fine-tuning:</strong> Consider domain-specific fine-tuning</li>
+                        <li><strong>Prompt Format:</strong> Follow Alpaca or ChatML formats</li>
+                    </ul>
+                    <pre><code># Llama Optimized Context
+### Instruction:
+You are an expert {domain} assistant. Your task is to {specific_task}.
+
+### Context:
+{compressed_relevant_context}
+
+### Input:
+{user_input}
+
+### Response:
+[Assistant responds here following the instruction]</code></pre>
+                </div>
+
+                <div class="example-card">
+                    <h4>Gemini Model Optimization</h4>
+                    <ul>
+                        <li><strong>Multimodal:</strong> Leverage image and text integration</li>
+                        <li><strong>Code Generation:</strong> Strong programming capabilities</li>
+                        <li><strong>Reasoning:</strong> Excellent at step-by-step analysis</li>
+                        <li><strong>Context:</strong> Efficient with mixed-media contexts</li>
+                    </ul>
+                    <pre><code># Gemini Optimized Context
+You are Gemini, a large language model built by Google.
+
+## Capabilities
+- Analyze text, images, and code
+- Provide step-by-step reasoning
+- Generate high-quality content
+
+## Task Setup
+Input Type: {text/image/multimodal}
+Domain: {specific_domain}
+Expected Output: {output_specification}
+
+## Input Data
+{multimodal_input_data}
+
+Please analyze this input and provide a comprehensive response.</code></pre>
+                </div>
+            </div>
+
+            <h3>Model-Specific Context Patterns</h3>
+
+            <table class="metrics-table">
+                <thead>
+                    <tr>
+                        <th>Model Family</th>
+                        <th>Optimal Context Structure</th>
+                        <th>Key Considerations</th>
+                        <th>Performance Tips</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>OpenAI GPT</strong></td>
+                        <td>System → User → Assistant pattern</td>
+                        <td>Function calling, JSON mode</td>
+                        <td>Use system messages effectively</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Anthropic Claude</strong></td>
+                        <td>Direct instruction with principles</td>
+                        <td>Constitutional AI alignment</td>
+                        <td>Leverage long context window</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Meta Llama</strong></td>
+                        <td>Instruction-following templates</td>
+                        <td>Open-source flexibility</td>
+                        <td>Consistent formatting crucial</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Google Gemini</strong></td>
+                        <td>Multimodal integration</td>
+                        <td>Image + text processing</td>
+                        <td>Optimize for reasoning tasks</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Cross-Model Compatibility Framework</h3>
+
+            <pre><code># Universal Context Template for Multi-Model Deployment
+
+class UniversalContextTemplate:
+    def __init__(self):
+        self.base_structure = {
+            'system_role': '',
+            'task_description': '',
+            'context_data': '',
+            'constraints': [],
+            'output_format': '',
+            'examples': []
+        }
+    
+    def format_for_openai(self, context_data):
+        return {
+            "model": "gpt-4",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": f"{context_data['system_role']}\n\nConstraints:\n" + 
+                              "\n".join(f"- {c}" for c in context_data['constraints'])
+                },
+                {
+                    "role": "user",
+                    "content": f"Task: {context_data['task_description']}\n\n"
+                              f"Context: {context_data['context_data']}\n\n"
+                              f"Output Format: {context_data['output_format']}"
+                }
+            ]
+        }
+    
+    def format_for_claude(self, context_data):
+        return f"""You are {context_data['system_role']}.
+
+Task: {context_data['task_description']}
+
+Context:
+{context_data['context_data']}
+
+Please respond according to these constraints:
+{chr(10).join(f"• {c}" for c in context_data['constraints'])}
+
+Output Format: {context_data['output_format']}
+"""
+    
+    def format_for_llama(self, context_data):
+        return f"""### Instruction:
+{context_data['system_role']} Your task is to {context_data['task_description']}.
+
+### Context:
+{context_data['context_data']}
+
+### Requirements:
+{chr(10).join(f"- {c}" for c in context_data['constraints'])}
+Output format: {context_data['output_format']}
+
+### Response:
+"""
+    
+    def deploy_to_model(self, context_data, model_type):
+        formatters = {
+            'openai': self.format_for_openai,
+            'claude': self.format_for_claude,
+            'llama': self.format_for_llama
+        }
+        
+        return formatters[model_type](context_data)</code></pre>
+        </section>
+
+        <div class="footer">
+            <p><strong>Context Engineering: From Basics to Advanced</strong></p>
+            <p>Complete guide to crafting effective prompts and contexts for AI systems • Updated 2025</p>
+            <p>Master the art of AI interaction through strategic context design</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const button = document.querySelector('.theme-toggle');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            document.body.setAttribute('data-theme', savedTheme);
+            button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.technique-card, .example-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

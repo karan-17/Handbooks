@@ -1,0 +1,3741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Actions & DevOps: Complete Implementation Guide</title>
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: white;
+            --bg-tertiary: #f1f3f4;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --link-color: #1a73e8;
+            --link-hover: #1557b0;
+            --border-color: #dadce0;
+            --code-bg: #f8f9fa;
+            --code-border: #e8eaed;
+            --highlight-bg: #e8f0fe;
+            --warning-bg: #fef7e0;
+            --success-bg: #e6f4ea;
+            --error-bg: #fce8e6;
+            --github-bg: #f6f8fa;
+            --jenkins-bg: #d33833;
+            --terraform-bg: #623ce4;
+            --kubernetes-bg: #326ce5;
+            --docker-bg: #2496ed;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9aa0a6;
+            --link-color: #8ab4f8;
+            --link-hover: #aecbfa;
+            --border-color: #5f6368;
+            --code-bg: #1e1e1e;
+            --code-border: #5f6368;
+            --highlight-bg: #1e3a8a;
+            --warning-bg: #3e2723;
+            --success-bg: #1b5e20;
+            --error-bg: #b71c1c;
+            --github-bg: #161b22;
+            --shadow: 0 1px 2px 0 rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            min-height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--highlight-bg), var(--bg-tertiary));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-secondary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--link-color), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .nav-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            list-style: none;
+        }
+
+        .nav-list a {
+            color: var(--link-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .nav-list a:hover {
+            background-color: var(--highlight-bg);
+            color: var(--link-hover);
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: box-shadow 0.3s;
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 2rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            margin-top: 25px;
+            font-size: 1.5rem;
+        }
+
+        h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+
+        p, li {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--link-color);
+        }
+
+        .warning-box {
+            background-color: var(--warning-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .success-box {
+            background-color: var(--success-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .error-box {
+            background-color: var(--error-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        .github-box {
+            background-color: var(--github-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #24292e;
+        }
+
+        .jenkins-box {
+            background-color: rgba(211, 56, 51, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--jenkins-bg);
+        }
+
+        .terraform-box {
+            background-color: rgba(98, 60, 228, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--terraform-bg);
+        }
+
+        .kubernetes-box {
+            background-color: rgba(50, 108, 229, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--kubernetes-bg);
+        }
+
+        .docker-box {
+            background-color: rgba(36, 150, 237, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--docker-bg);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--code-border);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--code-border);
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            font-size: 0.9em;
+        }
+
+        .workflow-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .workflow-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .workflow-description {
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .tool-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .tool-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pipeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .pipeline-table th,
+        .pipeline-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .pipeline-table th {
+            background-color: var(--bg-tertiary);
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: var(--link-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .architecture-diagram {
+            background-color: var(--bg-tertiary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tool-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+            <h1>GitHub Actions & DevOps: Complete Implementation Guide</h1>
+            <p class="subtitle">Master CI/CD with GitHub Actions, Jenkins, Terraform, Kubernetes, and Docker</p>
+        </div>
+
+        <div class="nav">
+            <h3>Navigation</h3>
+            <ul class="nav-list">
+                <li><a href="#github-actions">GitHub Actions Fundamentals</a></li>
+                <li><a href="#workflow-design">Workflow Design & Configuration</a></li>
+                <li><a href="#jenkins-integration">Jenkins Integration</a></li>
+                <li><a href="#terraform-automation">Terraform Automation</a></li>
+                <li><a href="#kubernetes-deployment">Kubernetes Deployment</a></li>
+                <li><a href="#docker-containerization">Docker Containerization</a></li>
+                <li><a href="#production-workflows">Production Workflows</a></li>
+                <li><a href="#security-monitoring">Security & Monitoring</a></li>
+            </ul>
+        </div>
+
+        <section id="github-actions" class="section">
+            <h2>1. GitHub Actions Fundamentals</h2>
+            
+            <h3>Architecture Overview</h3>
+            <div class="architecture-diagram">
+                <h4>GitHub Actions Architecture</h4>
+                <p><strong>Event → Workflow → Job → Step → Action</strong></p>
+                <div style="margin: 20px 0; font-family: monospace;">
+                    📅 Events (push, PR, schedule) <br>
+                    ↓<br>
+                    🔄 Workflows (.github/workflows/*.yml)<br>
+                    ↓<br>
+                    🏗️ Jobs (parallel execution units)<br>
+                    ↓<br>
+                    📝 Steps (sequential commands)<br>
+                    ↓<br>
+                    ⚙️ Actions (reusable components)
+                </div>
+            </div>
+
+            <h3>Core Components Explained</h3>
+            
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <h4>🔄 Workflows</h4>
+                    <p>Automated processes defined in YAML files that respond to repository events.</p>
+                    <ul>
+                        <li>Stored in <code>.github/workflows/</code></li>
+                        <li>Triggered by events or schedules</li>
+                        <li>Can contain multiple jobs</li>
+                        <li>Support for matrix builds</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>🏗️ Jobs</h4>
+                    <p>Sets of steps that execute on the same runner environment.</p>
+                    <ul>
+                        <li>Run in parallel by default</li>
+                        <li>Can depend on other jobs</li>
+                        <li>Execute on GitHub-hosted or self-hosted runners</li>
+                        <li>Isolated environments</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>📝 Steps</h4>
+                    <p>Individual tasks within a job that run sequentially.</p>
+                    <ul>
+                        <li>Shell commands or actions</li>
+                        <li>Share the same runner environment</li>
+                        <li>Can pass data between steps</li>
+                        <li>Support conditional execution</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>⚙️ Actions</h4>
+                    <p>Reusable units of code that perform specific tasks.</p>
+                    <ul>
+                        <li>Public actions from GitHub Marketplace</li>
+                        <li>Custom actions for your organization</li>
+                        <li>JavaScript, Docker, or composite actions</li>
+                        <li>Versioned and shareable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Basic Workflow Structure</h3>
+            
+            <div class="github-box">
+                <h4>Starter Workflow Template</h4>
+                <pre><code># .github/workflows/ci.yml
+name: Continuous Integration
+
+# Trigger events
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+
+# Environment variables
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+# Workflow jobs
+jobs:
+  # Job 1: Code Quality
+  lint-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint
+    
+    - name: Run tests
+      run: npm test -- --coverage
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+
+  # Job 2: Security Scanning
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run security audit
+      run: npm audit --audit-level high
+    
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v3
+
+  # Job 3: Build and Package
+  build:
+    needs: [lint-and-test, security-scan]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-files
+        path: dist/</code></pre>
+            </div>
+
+            <h3>Event Triggers and Conditions</h3>
+            
+            <table class="pipeline-table">
+                <thead>
+                    <tr>
+                        <th>Event Type</th>
+                        <th>Trigger</th>
+                        <th>Use Case</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>push</strong></td>
+                        <td>Code pushed to repository</td>
+                        <td>CI on specific branches</td>
+                        <td><code>on: push: branches: [main]</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>pull_request</strong></td>
+                        <td>PR opened, updated, closed</td>
+                        <td>PR validation and testing</td>
+                        <td><code>on: pull_request: types: [opened]</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>schedule</strong></td>
+                        <td>Cron-based timing</td>
+                        <td>Nightly builds, maintenance</td>
+                        <td><code>on: schedule: cron: '0 2 * * *'</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>workflow_dispatch</strong></td>
+                        <td>Manual trigger</td>
+                        <td>On-demand deployments</td>
+                        <td><code>on: workflow_dispatch: inputs:</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>release</strong></td>
+                        <td>Release created</td>
+                        <td>Production deployments</td>
+                        <td><code>on: release: types: [published]</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="workflow-design" class="section">
+            <h2>2. Advanced Workflow Design & Configuration</h2>
+            
+            <h3>Matrix Strategy for Multi-Environment Testing</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">Cross-Platform Testing Matrix</div>
+                <pre><code># .github/workflows/matrix-testing.yml
+name: Cross-Platform Testing
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [16, 18, 20]
+        include:
+          # Additional configurations
+          - os: ubuntu-latest
+            node-version: 20
+            experimental: true
+            coverage: true
+        exclude:
+          # Remove problematic combinations
+          - os: windows-latest
+            node-version: 16
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+      continue-on-error: ${{ matrix.experimental == true }}
+    
+    - name: Generate coverage report
+      if: matrix.coverage == true
+      run: npm run test:coverage
+    
+    - name: Upload coverage
+      if: matrix.coverage == true
+      uses: codecov/codecov-action@v3</code></pre>
+            </div>
+
+            <h3>Reusable Workflows</h3>
+            
+            <div class="success-box">
+                <h4>Benefits of Reusable Workflows</h4>
+                <ul class="checklist">
+                    <li>Eliminate duplicate workflow code across repositories</li>
+                    <li>Centralize common CI/CD patterns</li>
+                    <li>Ensure consistency across projects</li>
+                    <li>Simplify maintenance and updates</li>
+                    <li>Enable organization-wide best practices</li>
+                </ul>
+            </div>
+
+            <div class="workflow-card">
+                <div class="workflow-title">Reusable Deployment Workflow</div>
+                <pre><code># .github/workflows/reusable-deploy.yml
+name: Reusable Deployment
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: string
+      app-name:
+        description: 'Application name'
+        required: true
+        type: string
+      docker-image:
+        description: 'Docker image to deploy'
+        required: true
+        type: string
+      health-check-url:
+        description: 'Health check endpoint'
+        required: false
+        type: string
+        default: '/health'
+    secrets:
+      KUBE_CONFIG:
+        description: 'Kubernetes config'
+        required: true
+      SLACK_WEBHOOK:
+        description: 'Slack notification webhook'
+        required: false
+    outputs:
+      deployment-url:
+        description: 'Deployed application URL'
+        value: ${{ jobs.deploy.outputs.app-url }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      app-url: ${{ steps.deploy.outputs.app-url }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Configure kubectl
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    
+    - name: Deploy to Kubernetes
+      id: deploy
+      run: |
+        # Replace image in deployment manifest
+        sed -i 's|IMAGE_PLACEHOLDER|${{ inputs.docker-image }}|g' k8s/deployment.yaml
+        
+        # Apply deployment
+        kubectl apply -f k8s/
+        
+        # Wait for rollout
+        kubectl rollout status deployment/${{ inputs.app-name }} -n ${{ inputs.environment }}
+        
+        # Get service URL
+        APP_URL=$(kubectl get service ${{ inputs.app-name }} -n ${{ inputs.environment }} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+        echo "app-url=${APP_URL}" >> $GITHUB_OUTPUT
+    
+    - name: Health check
+      run: |
+        for i in {1..30}; do
+          if curl -f "http://${{ steps.deploy.outputs.app-url }}${{ inputs.health-check-url }}"; then
+            echo "Health check passed"
+            exit 0
+          fi
+          echo "Health check attempt $i failed, retrying..."
+          sleep 10
+        done
+        echo "Health check failed after 30 attempts"
+        exit 1
+    
+    - name: Notify Slack
+      if: always() && secrets.SLACK_WEBHOOK
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        text: |
+          Deployment to ${{ inputs.environment }}: ${{ job.status }}
+          App: ${{ inputs.app-name }}
+          URL: http://${{ steps.deploy.outputs.app-url }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}</code></pre>
+            </div>
+
+            <h3>Using the Reusable Workflow</h3>
+            
+            <pre><code># .github/workflows/production-deployment.yml
+name: Production Deployment
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+
+  deploy-staging:
+    needs: build
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment: staging
+      app-name: myapp
+      docker-image: ${{ needs.build.outputs.image-tag }}
+    secrets:
+      KUBE_CONFIG: ${{ secrets.STAGING_KUBE_CONFIG }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  deploy-production:
+    needs: [build, deploy-staging]
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment: production
+      app-name: myapp
+      docker-image: ${{ needs.build.outputs.image-tag }}
+    secrets:
+      KUBE_CONFIG: ${{ secrets.PRODUCTION_KUBE_CONFIG }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}</code></pre>
+
+            <h3>Advanced Security Configuration</h3>
+            
+            <div class="warning-box">
+                <h4>Security Best Practices</h4>
+                <ul class="checklist">
+                    <li>Use least privilege permissions with <code>permissions:</code> block</li>
+                    <li>Pin actions to specific commit SHAs for security</li>
+                    <li>Use OpenID Connect (OIDC) for cloud provider authentication</li>
+                    <li>Enable secret scanning and push protection</li>
+                    <li>Use environment protection rules for sensitive deployments</li>
+                    <li>Regularly audit and rotate secrets</li>
+                </ul>
+            </div>
+
+            <div class="workflow-card">
+                <div class="workflow-title">Security-Hardened Workflow</div>
+                <pre><code># .github/workflows/secure-deployment.yml
+name: Secure Production Deployment
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  id-token: write  # for OIDC
+  packages: write  # for container registry
+  deployments: write
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@7b7aa264d83dc58691451798b4d117d53d21edfe # v0.12.0
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@2e230e8fe0ad3a14a340ad0815ddb96d599d2aff # v2.22.8
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  build-and-deploy:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    environment: production  # Requires manual approval
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+    
+    - name: Configure AWS credentials using OIDC
+      uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+      with:
+        role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole
+        role-session-name: GitHubActions-${{ github.run_id }}
+        aws-region: us-east-1
+    
+    - name: Log in to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076 # v2.0.1
+    
+    - name: Build and push Docker image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: myapp
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG</code></pre>
+            </div>
+        </section>
+
+        <section id="jenkins-integration" class="section">
+            <h2>3. Jenkins Integration with GitHub Actions</h2>
+            
+            <h3>Hybrid CI/CD Strategy</h3>
+            <p>Combine GitHub Actions for lightweight tasks with Jenkins for complex, enterprise workflows.</p>
+
+            <div class="jenkins-box">
+                <h4>When to Use Each Platform</h4>
+                <div class="tool-grid">
+                    <div class="tool-card">
+                        <h4>GitHub Actions - Best For:</h4>
+                        <ul>
+                            <li>Simple CI/CD workflows</li>
+                            <li>Open source projects</li>
+                            <li>GitHub-native integrations</li>
+                            <li>Matrix builds and parallel testing</li>
+                            <li>Container-based workflows</li>
+                        </ul>
+                    </div>
+                    <div class="tool-card">
+                        <h4>Jenkins - Best For:</h4>
+                        <ul>
+                            <li>Complex enterprise workflows</li>
+                            <li>Legacy system integration</li>
+                            <li>Custom plugins and extensions</li>
+                            <li>On-premises environments</li>
+                            <li>Advanced pipeline orchestration</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Jenkins Pipeline Integration</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">GitHub Actions → Jenkins Trigger</div>
+                <pre><code># .github/workflows/trigger-jenkins.yml
+name: Trigger Jenkins Deployment
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  trigger-jenkins:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Trigger Jenkins job
+      env:
+        JENKINS_URL: ${{ secrets.JENKINS_URL }}
+        JENKINS_USER: ${{ secrets.JENKINS_USER }}
+        JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+      run: |
+        # Trigger Jenkins job with parameters
+        curl -X POST \
+          "${JENKINS_URL}/job/production-deployment/buildWithParameters" \
+          --user "${JENKINS_USER}:${JENKINS_TOKEN}" \
+          --data-urlencode "GIT_COMMIT=${GITHUB_SHA}" \
+          --data-urlencode "GIT_BRANCH=${GITHUB_REF_NAME}" \
+          --data-urlencode "BUILD_NUMBER=${GITHUB_RUN_NUMBER}" \
+          --data-urlencode "TRIGGERED_BY=github-actions"
+    
+    - name: Wait for Jenkins job completion
+      env:
+        JENKINS_URL: ${{ secrets.JENKINS_URL }}
+        JENKINS_USER: ${{ secrets.JENKINS_USER }}
+        JENKINS_TOKEN: ${{ secrets.JENKINS_TOKEN }}
+      run: |
+        # Get latest build number
+        BUILD_NUMBER=$(curl -s "${JENKINS_URL}/job/production-deployment/api/json" \
+          --user "${JENKINS_USER}:${JENKINS_TOKEN}" | \
+          jq '.nextBuildNumber - 1')
+        
+        # Poll for completion
+        while true; do
+          STATUS=$(curl -s "${JENKINS_URL}/job/production-deployment/${BUILD_NUMBER}/api/json" \
+            --user "${JENKINS_USER}:${JENKINS_TOKEN}" | \
+            jq -r '.result // "BUILDING"')
+          
+          if [ "$STATUS" = "SUCCESS" ]; then
+            echo "Jenkins job completed successfully"
+            exit 0
+          elif [ "$STATUS" = "FAILURE" ]; then
+            echo "Jenkins job failed"
+            exit 1
+          fi
+          
+          echo "Job status: $STATUS, waiting..."
+          sleep 30
+        done</code></pre>
+            </div>
+
+            <h3>Enterprise Jenkins Pipeline</h3>
+            
+            <div class="jenkins-box">
+                <h4>Multi-Stage Production Pipeline</h4>
+                <pre><code>// Jenkinsfile
+@Library('enterprise-shared-library@v2.1.0') _
+
+pipeline {
+    agent {
+        kubernetes {
+            yaml """
+                apiVersion: v1
+                kind: Pod
+                spec:
+                  containers:
+                  - name: terraform
+                    image: hashicorp/terraform:1.7
+                    command: ['cat']
+                    tty: true
+                  - name: docker
+                    image: docker:24-dind
+                    securityContext:
+                      privileged: true
+                  - name: kubectl
+                    image: bitnami/kubectl:latest
+                    command: ['cat']
+                    tty: true
+                  - name: sonar
+                    image: sonarsource/sonar-scanner-cli:latest
+                    command: ['cat']
+                    tty: true
+            """
+        }
+    }
+    
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['staging', 'production'],
+            description: 'Target deployment environment'
+        )
+        string(
+            name: 'GIT_COMMIT',
+            defaultValue: '',
+            description: 'Git commit hash from GitHub Actions'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Skip test execution'
+        )
+    }
+    
+    environment {
+        DOCKER_REGISTRY = credentials('docker-registry')
+        AWS_DEFAULT_REGION = 'us-west-2'
+        SONAR_TOKEN = credentials('sonar-token')
+        SLACK_CHANNEL = '#deployments'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    if (params.GIT_COMMIT) {
+                        checkout([
+                            $class: 'GitSCM',
+                            branches: [[name: params.GIT_COMMIT]],
+                            userRemoteConfigs: [[url: env.GIT_URL]]
+                        ])
+                    } else {
+                        checkout scm
+                    }
+                }
+            }
+        }
+        
+        stage('Infrastructure Validation') {
+            parallel {
+                stage('Terraform Plan') {
+                    steps {
+                        container('terraform') {
+                            script {
+                                dir('terraform') {
+                                    sh '''
+                                        terraform init -backend-config="bucket=${S3_BACKEND_BUCKET}"
+                                        terraform plan -out=tfplan -var="environment=${ENVIRONMENT}"
+                                        terraform show -json tfplan > plan.json
+                                    '''
+                                    
+                                    // Archive terraform plan
+                                    archiveArtifacts artifacts: 'plan.json', allowEmptyArchive: false
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                stage('Security Scanning') {
+                    steps {
+                        container('docker') {
+                            script {
+                                sh '''
+                                    # Build image for scanning
+                                    docker build -t security-scan:${BUILD_NUMBER} .
+                                    
+                                    # Run Trivy scan
+                                    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                                        aquasec/trivy image --format json \
+                                        --output scan-results.json \
+                                        security-scan:${BUILD_NUMBER}
+                                '''
+                                
+                                publishHTML([
+                                    allowMissing: false,
+                                    alwaysLinkToLastBuild: true,
+                                    keepAll: true,
+                                    reportDir: '.',
+                                    reportFiles: 'scan-results.json',
+                                    reportName: 'Security Scan Report'
+                                ])
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            when {
+                not { params.SKIP_TESTS }
+            }
+            steps {
+                container('sonar') {
+                    script {
+                        sh '''
+                            sonar-scanner \
+                                -Dsonar.projectKey=${JOB_NAME} \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=${SONAR_HOST_URL} \
+                                -Dsonar.login=${SONAR_TOKEN}
+                        '''
+                        
+                        // Wait for quality gate result
+                        timeout(time: 10, unit: 'MINUTES') {
+                            script {
+                                def qualityGate = waitForQualityGate()
+                                if (qualityGate.status != 'OK') {
+                                    error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Build and Push') {
+            steps {
+                container('docker') {
+                    script {
+                        def image = docker.build("${DOCKER_REGISTRY}/${JOB_NAME}:${BUILD_NUMBER}")
+                        
+                        docker.withRegistry("https://${DOCKER_REGISTRY}", 'registry-credentials') {
+                            image.push()
+                            image.push("latest")
+                        }
+                        
+                        // Set image tag for deployment
+                        env.IMAGE_TAG = "${DOCKER_REGISTRY}/${JOB_NAME}:${BUILD_NUMBER}"
+                    }
+                }
+            }
+        }
+        
+        stage('Deploy Infrastructure') {
+            when {
+                anyOf {
+                    branch 'main'
+                    params.ENVIRONMENT == 'production'
+                }
+            }
+            steps {
+                container('terraform') {
+                    script {
+                        dir('terraform') {
+                            sh '''
+                                terraform apply -auto-approve tfplan
+                                terraform output -json > outputs.json
+                            '''
+                            
+                            // Store terraform outputs for deployment
+                            archiveArtifacts artifacts: 'outputs.json', allowEmptyArchive: false
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Application Deployment') {
+            steps {
+                container('kubectl') {
+                    script {
+                        sh '''
+                            # Update deployment manifest with new image
+                            sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_TAG}|g" k8s/deployment.yaml
+                            
+                            # Apply Kubernetes manifests
+                            kubectl apply -f k8s/ -n ${ENVIRONMENT}
+                            
+                            # Wait for rollout to complete
+                            kubectl rollout status deployment/${JOB_NAME} -n ${ENVIRONMENT} --timeout=300s
+                        '''
+                        
+                        // Health check
+                        retry(5) {
+                            script {
+                                sh '''
+                                    HEALTH_URL=$(kubectl get service ${JOB_NAME} -n ${ENVIRONMENT} -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+                                    curl -f "http://${HEALTH_URL}/health" || exit 1
+                                '''
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Post-Deployment Tests') {
+            parallel {
+                stage('Smoke Tests') {
+                    steps {
+                        script {
+                            sh '''
+                                # Run smoke tests against deployed application
+                                npm run test:smoke -- --environment=${ENVIRONMENT}
+                            '''
+                        }
+                    }
+                }
+                
+                stage('Performance Tests') {
+                    when {
+                        params.ENVIRONMENT == 'staging'
+                    }
+                    steps {
+                        script {
+                            sh '''
+                                # Run performance tests
+                                npm run test:performance
+                            '''
+                            
+                            publishHTML([
+                                allowMissing: false,
+                                alwaysLinkToLastBuild: true,
+                                keepAll: true,
+                                reportDir: 'performance-results',
+                                reportFiles: 'report.html',
+                                reportName: 'Performance Test Report'
+                            ])
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up
+            sh 'docker system prune -f || true'
+        }
+        
+        success {
+            script {
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: 'good',
+                    message: """
+                        ✅ Deployment Successful!
+                        Job: ${env.JOB_NAME}
+                        Build: ${env.BUILD_NUMBER}
+                        Environment: ${params.ENVIRONMENT}
+                        Commit: ${params.GIT_COMMIT ?: env.GIT_COMMIT}
+                    """
+                )
+            }
+        }
+        
+        failure {
+            script {
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: 'danger',
+                    message: """
+                        ❌ Deployment Failed!
+                        Job: ${env.JOB_NAME}
+                        Build: ${env.BUILD_NUMBER}
+                        Environment: ${params.ENVIRONMENT}
+                        Build URL: ${env.BUILD_URL}
+                    """
+                )
+            }
+        }
+        
+        unstable {
+            script {
+                slackSend(
+                    channel: env.SLACK_CHANNEL,
+                    color: 'warning',
+                    message: """
+                        ⚠️ Deployment Unstable!
+                        Job: ${env.JOB_NAME}
+                        Build: ${env.BUILD_NUMBER}
+                        Please check the build logs.
+                    """
+                )
+            }
+        }
+    }
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="terraform-automation" class="section">
+            <h2>4. Terraform Infrastructure Automation</h2>
+            
+            <h3>GitOps Infrastructure Management</h3>
+            <p>Implement Infrastructure as Code using Terraform with GitHub Actions for automated provisioning and management.</p>
+
+            <div class="terraform-box">
+                <h4>Terraform Directory Structure</h4>
+                <pre><code>terraform/
+├── modules/                    # Reusable infrastructure modules
+│   ├── vpc/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── eks-cluster/
+│   ├── rds/
+│   └── monitoring/
+├── environments/              # Environment-specific configurations
+│   ├── staging/
+│   │   ├── main.tf
+│   │   ├── terraform.tfvars
+│   │   └── backend.tf
+│   └── production/
+│       ├── main.tf
+│       ├── terraform.tfvars
+│       └── backend.tf
+├── global/                    # Shared infrastructure
+│   ├── iam/
+│   ├── route53/
+│   └── s3-backends/
+└── scripts/                   # Automation scripts
+    ├── plan.sh
+    ├── apply.sh
+    └── destroy.sh</code></pre>
+            </div>
+
+            <h3>Terraform GitHub Actions Workflow</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">Automated Terraform Deployment</div>
+                <pre><code># .github/workflows/terraform.yml
+name: Terraform Infrastructure
+
+on:
+  push:
+    branches: [main]
+    paths: ['terraform/**']
+  pull_request:
+    paths: ['terraform/**']
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform action to perform'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  TF_VERSION: '1.7.0'
+  AWS_REGION: 'us-west-2'
+
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+    
+    - name: Terraform Format Check
+      run: terraform fmt -check -recursive terraform/
+    
+    - name: Terraform Validate
+      run: |
+        cd terraform/environments/staging
+        terraform init -backend=false
+        terraform validate
+
+  terraform-plan:
+    needs: terraform-validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging, production]
+    
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', matrix.environment)] }}
+        role-session-name: terraform-${{ matrix.environment }}-${{ github.run_id }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Terraform Init
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: |
+        terraform init
+    
+    - name: Terraform Plan
+      id: plan
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: |
+        terraform plan -out=tfplan -detailed-exitcode
+      continue-on-error: true
+    
+    - name: Generate Plan Summary
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: |
+        terraform show -no-color tfplan > plan_output.txt
+        
+        # Create a summary for PR comment
+        cat << EOF > plan_summary.md
+        ## Terraform Plan Summary - ${{ matrix.environment }}
+        
+        \`\`\`
+        $(terraform show -no-color tfplan | head -50)
+        \`\`\`
+        
+        <details>
+        <summary>Full Plan Output</summary>
+        
+        \`\`\`
+        $(cat plan_output.txt)
+        \`\`\`
+        </details>
+        EOF
+    
+    - name: Comment PR with Plan
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const path = './terraform/environments/${{ matrix.environment }}/plan_summary.md';
+          const planSummary = fs.readFileSync(path, 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: planSummary
+          });
+    
+    - name: Upload Plan Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: tfplan-${{ matrix.environment }}
+        path: terraform/environments/${{ matrix.environment }}/tfplan
+        retention-days: 7
+    
+    - name: Check Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+
+  terraform-apply:
+    needs: terraform-plan
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging]
+        include:
+          - environment: production
+            requires_approval: true
+    
+    environment: 
+      name: ${{ matrix.environment }}
+      url: ${{ steps.outputs.outputs.cluster_endpoint }}
+    
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+        terraform_wrapper: false
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', matrix.environment)] }}
+        role-session-name: terraform-apply-${{ matrix.environment }}-${{ github.run_id }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Download Plan Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: tfplan-${{ matrix.environment }}
+        path: terraform/environments/${{ matrix.environment }}/
+    
+    - name: Terraform Init
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: terraform init
+    
+    - name: Terraform Apply
+      id: apply
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: |
+        terraform apply -auto-approve tfplan
+        
+        # Capture outputs
+        terraform output -json > outputs.json
+        
+        # Set outputs for other jobs
+        echo "cluster_endpoint=$(terraform output -raw cluster_endpoint)" >> $GITHUB_OUTPUT
+    
+    - name: Store Terraform Outputs
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-outputs-${{ matrix.environment }}
+        path: terraform/environments/${{ matrix.environment }}/outputs.json
+
+  deploy-monitoring:
+    needs: terraform-apply
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging, production]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Download Terraform Outputs
+      uses: actions/download-artifact@v4
+      with:
+        name: terraform-outputs-${{ matrix.environment }}
+        path: ./
+    
+    - name: Configure kubectl
+      run: |
+        # Extract cluster info from terraform outputs
+        CLUSTER_ENDPOINT=$(jq -r '.cluster_endpoint.value' outputs.json)
+        CLUSTER_NAME=$(jq -r '.cluster_name.value' outputs.json)
+        
+        # Configure kubectl
+        aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${CLUSTER_NAME}
+    
+    - name: Deploy monitoring stack
+      run: |
+        # Deploy Prometheus and Grafana
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo update
+        
+        helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+          --namespace monitoring \
+          --create-namespace \
+          --values monitoring/values-${{ matrix.environment }}.yaml</code></pre>
+            </div>
+
+            <h3>Terraform Module Example - EKS Cluster</h3>
+            
+            <div class="terraform-box">
+                <h4>Production-Grade EKS Module</h4>
+                <pre><code># terraform/modules/eks-cluster/main.tf
+terraform {
+  required_version = ">= 1.7"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.24"
+    }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "~> 2.12"
+    }
+  }
+}
+
+# Data sources
+data "aws_availability_zones" "available" {
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
+# VPC Module
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+  version = "~> 5.0"
+
+  name = "${var.cluster_name}-vpc"
+  cidr = var.vpc_cidr
+
+  azs             = slice(data.aws_availability_zones.available.names, 0, 3)
+  private_subnets = var.private_subnet_cidrs
+  public_subnets  = var.public_subnet_cidrs
+
+  enable_nat_gateway   = true
+  single_nat_gateway   = var.environment == "development"
+  enable_vpn_gateway   = false
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  # Kubernetes tags
+  tags = merge(var.common_tags, {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+  })
+
+  public_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/elb"                    = "1"
+  }
+
+  private_subnet_tags = {
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "kubernetes.io/role/internal-elb"           = "1"
+  }
+}
+
+# EKS Cluster
+module "eks" {
+  source = "terraform-aws-modules/eks/aws"
+  version = "~> 19.21"
+
+  cluster_name    = var.cluster_name
+  cluster_version = var.kubernetes_version
+
+  vpc_id                         = module.vpc.vpc_id
+  subnet_ids                     = module.vpc.private_subnets
+  cluster_endpoint_public_access = var.cluster_endpoint_public_access
+
+  # Encryption
+  cluster_encryption_config = {
+    provider_key_arn = aws_kms_key.eks.arn
+    resources        = ["secrets"]
+  }
+
+  # EKS Managed Node Groups
+  eks_managed_node_groups = {
+    default = {
+      name = "${var.cluster_name}-default"
+      
+      instance_types = var.node_instance_types
+      capacity_type  = "ON_DEMAND"
+
+      min_size     = var.node_group_min_size
+      max_size     = var.node_group_max_size
+      desired_size = var.node_group_desired_size
+
+      # Launch template
+      create_launch_template = true
+      launch_template_name   = "${var.cluster_name}-default"
+
+      # User data
+      pre_bootstrap_user_data = <<-EOT
+        #!/bin/bash
+        /opt/aws/bin/cfn-signal --exit-code $? --stack ${AWS::StackName} --resource NodeGroup --region ${AWS::Region}
+      EOT
+
+      # Labels
+      k8s_labels = {
+        Environment = var.environment
+        NodeGroup   = "default"
+        WorkerType  = "managed"
+      }
+
+      # Taints (if needed for specific workloads)
+      taints = var.node_group_taints
+
+      # Update config
+      update_config = {
+        max_unavailable_percentage = 25
+      }
+
+      # Instance metadata options
+      metadata_options = {
+        http_endpoint               = "enabled"
+        http_tokens                 = "required"
+        http_put_response_hop_limit = 2
+      }
+    }
+
+    # Spot instances for non-critical workloads
+    spot = {
+      name = "${var.cluster_name}-spot"
+      
+      instance_types = ["m5.large", "m5a.large", "m5d.large"]
+      capacity_type  = "SPOT"
+
+      min_size     = 0
+      max_size     = 10
+      desired_size = var.environment == "production" ? 2 : 0
+
+      k8s_labels = {
+        Environment = var.environment
+        NodeGroup   = "spot"
+        WorkerType  = "spot"
+      }
+
+      taints = [
+        {
+          key    = "spot"
+          value  = "true"
+          effect = "NO_SCHEDULE"
+        }
+      ]
+    }
+  }
+
+  # Cluster access
+  manage_aws_auth_configmap = true
+  aws_auth_roles = concat(
+    var.aws_auth_roles,
+    [
+      {
+        rolearn  = module.eks_admins_iam_role.iam_role_arn
+        username = "eks-admin"
+        groups   = ["system:masters"]
+      }
+    ]
+  )
+
+  aws_auth_users = var.aws_auth_users
+
+  tags = var.common_tags
+}
+
+# KMS Key for EKS encryption
+resource "aws_kms_key" "eks" {
+  description             = "EKS Secret Encryption Key"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+
+  tags = merge(var.common_tags, {
+    Name = "${var.cluster_name}-eks-encryption-key"
+  })
+}
+
+resource "aws_kms_alias" "eks" {
+  name          = "alias/eks-${var.cluster_name}"
+  target_key_id = aws_kms_key.eks.key_id
+}
+
+# IAM role for EKS administrators
+module "eks_admins_iam_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "${var.cluster_name}-eks-admins"
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:eks-admin"]
+    }
+  }
+
+  tags = var.common_tags
+}
+
+# IRSA for AWS Load Balancer Controller
+module "aws_load_balancer_controller_irsa_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name                              = "${var.cluster_name}-aws-load-balancer-controller"
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+
+  tags = var.common_tags
+}
+
+# Security group rules for additional access
+resource "aws_security_group_rule" "additional_cluster_security_group_rules" {
+  for_each = var.additional_security_group_rules
+
+  type                     = each.value.type
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  source_security_group_id = try(each.value.source_security_group_id, null)
+  cidr_blocks              = try(each.value.cidr_blocks, null)
+  description              = each.value.description
+  security_group_id        = module.eks.cluster_security_group_id
+}</code></pre>
+            </div>
+
+            <div class="terraform-box">
+                <h4>Variables and Outputs</h4>
+                <pre><code># terraform/modules/eks-cluster/variables.tf
+variable "cluster_name" {
+  description = "Name of the EKS cluster"
+  type        = string
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version"
+  type        = string
+  default     = "1.28"
+}
+
+variable "environment" {
+  description = "Environment name"
+  type        = string
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "private_subnet_cidrs" {
+  description = "Private subnet CIDR blocks"
+  type        = list(string)
+  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "public_subnet_cidrs" {
+  description = "Public subnet CIDR blocks"
+  type        = list(string)
+  default     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
+variable "node_instance_types" {
+  description = "EC2 instance types for EKS nodes"
+  type        = list(string)
+  default     = ["m5.large"]
+}
+
+variable "node_group_min_size" {
+  description = "Minimum number of nodes"
+  type        = number
+  default     = 1
+}
+
+variable "node_group_max_size" {
+  description = "Maximum number of nodes"
+  type        = number
+  default     = 10
+}
+
+variable "node_group_desired_size" {
+  description = "Desired number of nodes"
+  type        = number
+  default     = 3
+}
+
+variable "node_group_taints" {
+  description = "Node group taints"
+  type = list(object({
+    key    = string
+    value  = string
+    effect = string
+  }))
+  default = []
+}
+
+variable "cluster_endpoint_public_access" {
+  description = "Enable public API server endpoint"
+  type        = bool
+  default     = true
+}
+
+variable "aws_auth_roles" {
+  description = "Additional IAM roles to add to aws-auth configmap"
+  type = list(object({
+    rolearn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default = []
+}
+
+variable "aws_auth_users" {
+  description = "Additional IAM users to add to aws-auth configmap"
+  type = list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  }))
+  default = []
+}
+
+variable "additional_security_group_rules" {
+  description = "Additional security group rules for cluster"
+  type        = map(any)
+  default     = {}
+}
+
+variable "common_tags" {
+  description = "Common tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+# terraform/modules/eks-cluster/outputs.tf
+output "cluster_id" {
+  description = "EKS cluster ID"
+  value       = module.eks.cluster_id
+}
+
+output "cluster_arn" {
+  description = "EKS cluster ARN"
+  value       = module.eks.cluster_arn
+}
+
+output "cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  value       = module.eks.cluster_endpoint
+}
+
+output "cluster_name" {
+  description = "EKS cluster name"
+  value       = module.eks.cluster_name
+}
+
+output "cluster_certificate_authority_data" {
+  description = "Base64 encoded certificate data"
+  value       = module.eks.cluster_certificate_authority_data
+}
+
+output "cluster_security_group_id" {
+  description = "Security group ID attached to the EKS cluster"
+  value       = module.eks.cluster_security_group_id
+}
+
+output "node_security_group_id" {
+  description = "Security group ID attached to the EKS node group"
+  value       = module.eks.node_security_group_id
+}
+
+output "oidc_provider_arn" {
+  description = "ARN of the OIDC Provider"
+  value       = module.eks.oidc_provider_arn
+}
+
+output "aws_load_balancer_controller_role_arn" {
+  description = "ARN of the AWS Load Balancer Controller IAM role"
+  value       = module.aws_load_balancer_controller_irsa_role.iam_role_arn
+}
+
+output "vpc_id" {
+  description = "VPC ID"
+  value       = module.vpc.vpc_id
+}
+
+output "private_subnet_ids" {
+  description = "Private subnet IDs"
+  value       = module.vpc.private_subnets
+}
+
+output "public_subnet_ids" {
+  description = "Public subnet IDs"
+  value       = module.vpc.public_subnets
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="kubernetes-deployment" class="section">
+            <h2>5. Kubernetes Deployment Strategies</h2>
+            
+            <h3>GitOps-Based Deployment with ArgoCD</h3>
+            <p>Implement GitOps principles using ArgoCD for automated, declarative Kubernetes deployments.</p>
+
+            <div class="kubernetes-box">
+                <h4>GitOps Repository Structure</h4>
+                <pre><code>k8s-manifests/
+├── applications/              # Application manifests
+│   ├── web-app/
+│   │   ├── base/             # Base Kustomize configuration
+│   │   │   ├── kustomization.yaml
+│   │   │   ├── deployment.yaml
+│   │   │   ├── service.yaml
+│   │   │   ├── configmap.yaml
+│   │   │   └── ingress.yaml
+│   │   └── overlays/         # Environment-specific overlays
+│   │       ├── staging/
+│   │       │   ├── kustomization.yaml
+│   │       │   ├── deployment-patch.yaml
+│   │       │   └── ingress-patch.yaml
+│   │       └── production/
+│   │           ├── kustomization.yaml
+│   │           ├── deployment-patch.yaml
+│   │           ├── hpa.yaml
+│   │           └── pdb.yaml
+├── infrastructure/           # Infrastructure components
+│   ├── ingress-nginx/
+│   ├── cert-manager/
+│   ├── external-secrets/
+│   └── monitoring/
+├── argocd/                   # ArgoCD applications
+│   ├── projects/
+│   ├── applications/
+│   └── app-of-apps.yaml
+└── scripts/                  # Automation scripts
+    ├── sync-apps.sh
+    └── validate-manifests.sh</code></pre>
+            </div>
+
+            <h3>Production-Ready Application Manifest</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">Complete Application Deployment</div>
+                <pre><code># k8s-manifests/applications/web-app/base/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+    version: v1.0.0
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+        kubectl.kubernetes.io/default-container: web-app
+    spec:
+      serviceAccountName: web-app
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+      
+      containers:
+      - name: web-app
+        image: ghcr.io/company/web-app:latest # Will be replaced by Kustomize
+        imagePullPolicy: Always
+        
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        
+        env:
+        - name: PORT
+          value: "8080"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: url
+        - name: REDIS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: redis-url
+        
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+            ephemeral-storage: "2Gi"
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          successThreshold: 1
+          failureThreshold: 3
+        
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+        
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: cache
+          mountPath: /app/cache
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+      
+      initContainers:
+      - name: db-migration
+        image: ghcr.io/company/web-app:latest
+        command: ['npm', 'run', 'migrate']
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: database-credentials
+              key: url
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: cache
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: config
+        configMap:
+          name: app-config
+      
+      nodeSelector:
+        kubernetes.io/os: linux
+        node.kubernetes.io/instance-type: m5.large
+      
+      tolerations:
+      - key: "app-workload"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - web-app
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+      
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+
+---
+# k8s-manifests/applications/web-app/base/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-internal: "true"
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: web-app
+
+---
+# k8s-manifests/applications/web-app/base/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: web-app
+data:
+  redis-url: "redis://redis-service:6379"
+  cache-ttl: "3600"
+  api-timeout: "30000"
+  max-connections: "100"
+  log-format: "json"
+  metrics-enabled: "true"
+
+---
+# k8s-manifests/applications/web-app/base/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - app.example.com
+    secretName: web-app-tls
+  rules:
+  - host: app.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-app
+            port:
+              number: 80</code></pre>
+            </div>
+
+            <h3>Kustomize Overlays for Environment-Specific Configuration</h3>
+            
+            <div class="kubernetes-box">
+                <h4>Production Overlay with High Availability</h4>
+                <pre><code># k8s-manifests/applications/web-app/overlays/production/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: production
+
+resources:
+- ../../base
+
+patchesStrategicMerge:
+- deployment-patch.yaml
+- ingress-patch.yaml
+
+patches:
+- target:
+    kind: Deployment
+    name: web-app
+  patch: |-
+    - op: replace
+      path: /spec/replicas
+      value: 6
+
+images:
+- name: ghcr.io/company/web-app
+  newTag: v1.2.3
+
+configMapGenerator:
+- name: app-config
+  behavior: merge
+  literals:
+  - redis-url=redis://redis-cluster:6379
+  - cache-ttl=7200
+  - log-level=warn
+
+secretGenerator:
+- name: app-secrets
+  files:
+  - database-password=secrets/database-password.txt
+  - api-key=secrets/api-key.txt
+
+resources:
+- hpa.yaml
+- pdb.yaml
+- network-policy.yaml
+
+---
+# k8s-manifests/applications/web-app/overlays/production/deployment-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 6
+  template:
+    spec:
+      containers:
+      - name: web-app
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: LOG_LEVEL
+          value: "warn"
+        - name: CACHE_TTL
+          value: "7200"
+
+---
+# k8s-manifests/applications/web-app/overlays/production/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-app
+  minReplicas: 6
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "100"
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+
+---
+# k8s-manifests/applications/web-app/overlays/production/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+spec:
+  minAvailable: 50%
+  selector:
+    matchLabels:
+      app: web-app
+
+---
+# k8s-manifests/applications/web-app/overlays/production/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-app
+  labels:
+    app: web-app
+spec:
+  podSelector:
+    matchLabels:
+      app: web-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 9090
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: database
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: cache
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to: []  # Allow all egress to internet
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80
+    - protocol: UDP
+      port: 53</code></pre>
+            </div>
+
+            <h3>ArgoCD Application Configuration</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">ArgoCD Application Manifest</div>
+                <pre><code># argocd/applications/web-app-production.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: web-app-production
+  namespace: argocd
+  labels:
+    app: web-app
+    environment: production
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: production
+  source:
+    repoURL: https://github.com/company/k8s-manifests
+    targetRevision: main
+    path: applications/web-app/overlays/production
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  revisionHistoryLimit: 10
+  ignoreDifferences:
+  - group: apps
+    kind: Deployment
+    managedFieldsManagers:
+    - kube-controller-manager</code></pre>
+            </div>
+        </section>
+
+        <section id="docker-containerization" class="section">
+            <h2>6. Docker Containerization Best Practices</h2>
+            
+            <h3>Multi-Stage Production Dockerfile</h3>
+            <p>Optimize container images for security, size, and performance using multi-stage builds.</p>
+
+            <div class="docker-box">
+                <h4>Production-Grade Multi-Stage Dockerfile</h4>
+                <pre><code># Dockerfile
+# syntax=docker/dockerfile:1.7-labs
+
+# Build arguments
+ARG GOLANG_VERSION=1.21-alpine
+ARG ALPINE_VERSION=3.19
+ARG NODE_VERSION=18-alpine
+
+#######################
+# Dependencies Stage
+#######################
+FROM golang:${GOLANG_VERSION} AS deps
+
+# Install build dependencies
+RUN apk add --no-cache \
+    git \
+    ca-certificates \
+    tzdata \
+    && update-ca-certificates
+
+# Create app directory
+WORKDIR /app
+
+# Copy dependency files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download && \
+    go mod verify
+
+#######################
+# Frontend Build Stage
+#######################
+FROM node:${NODE_VERSION} AS frontend-builder
+
+WORKDIR /app/frontend
+
+# Copy package files
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# Copy frontend source
+COPY frontend/ ./
+
+# Build frontend assets
+RUN npm run build && \
+    npm run optimize
+
+#######################
+# Backend Build Stage
+#######################
+FROM deps AS backend-builder
+
+# Copy source code
+COPY . .
+
+# Copy frontend assets from previous stage
+COPY --from=frontend-builder /app/frontend/dist ./static/
+
+# Build the application
+RUN CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 \
+    go build \
+    -ldflags='-w -s -extldflags "-static"' \
+    -a -installsuffix cgo \
+    -o main ./cmd/server
+
+# Run tests
+RUN go test -v ./...
+
+#######################
+# Security Scan Stage
+#######################
+FROM backend-builder AS security-scanner
+
+# Install security scanning tools
+RUN apk add --no-cache curl
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | \
+    sh -s -- -b /usr/local/bin
+
+# Scan for vulnerabilities
+RUN trivy fs --exit-code 1 --severity HIGH,CRITICAL .
+
+#######################
+# Runtime Base Stage
+#######################
+FROM alpine:${ALPINE_VERSION} AS runtime-base
+
+# Install runtime dependencies and security updates
+RUN apk --no-cache add \
+    ca-certificates \
+    tzdata \
+    curl \
+    && update-ca-certificates \
+    && rm -rf /var/cache/apk/*
+
+# Create non-root user
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -u 1001 -S appuser -G appgroup
+
+# Create app directories
+RUN mkdir -p /app/data /app/logs /app/config /app/static && \
+    chown -R appuser:appgroup /app
+
+#######################
+# Production Stage
+#######################
+FROM runtime-base AS production
+
+# Copy the binary from builder stage
+COPY --from=backend-builder --chown=appuser:appgroup /app/main /app/main
+
+# Copy configuration files
+COPY --from=backend-builder --chown=appuser:appgroup /app/configs/ /app/config/
+
+# Copy static assets
+COPY --from=frontend-builder --chown=appuser:appgroup /app/frontend/dist/ /app/static/
+
+# Switch to non-root user
+USER appuser
+
+# Set working directory
+WORKDIR /app
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Expose port
+EXPOSE 8080
+
+# Use exec form for proper signal handling
+ENTRYPOINT ["/app/main"]
+CMD ["--config", "/app/config/config.yaml"]
+
+#######################
+# Development Stage
+#######################
+FROM golang:${GOLANG_VERSION} AS development
+
+# Install development tools
+RUN apk add --no-cache git make
+
+# Install air for hot reload
+RUN go install github.com/cosmtrek/air@latest
+
+# Set working directory
+WORKDIR /app
+
+# Copy source
+COPY . .
+
+# Download dependencies
+RUN go mod download
+
+# Expose port
+EXPOSE 8080
+
+# Start development server with hot reload
+CMD ["air", "-c", ".air.toml"]
+
+#######################
+# Test Stage
+#######################
+FROM deps AS test
+
+# Copy source code
+COPY . .
+
+# Install test dependencies
+RUN apk add --no-cache make
+
+# Run tests with coverage
+RUN go test -v -race -coverprofile=coverage.out ./...
+RUN go tool cover -html=coverage.out -o coverage.html
+
+# Store test results
+RUN mkdir -p /test-results && \
+    go test -v ./... 2>&1 | tee /test-results/test-output.txt
+
+#######################
+# Documentation Stage
+#######################
+FROM node:${NODE_VERSION} AS docs
+
+WORKDIR /app
+
+# Copy documentation source
+COPY docs/ .
+
+# Install documentation dependencies
+RUN npm install
+
+# Build documentation
+RUN npm run build
+
+#######################
+# Final Multi-Target
+#######################
+# Default target is production
+FROM production AS final</code></pre>
+            </div>
+
+            <h3>Docker Compose for Development</h3>
+            
+            <div class="workflow-card">
+                <div class="workflow-title">Complete Development Environment</div>
+                <pre><code># docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+      args:
+        GOLANG_VERSION: 1.21-alpine
+        NODE_VERSION: 18-alpine
+    ports:
+      - "8080:8080"
+      - "40000:40000" # Delve debugger
+    volumes:
+      - .:/app
+      - go-cache:/go/pkg/mod
+      - node-cache:/app/frontend/node_modules
+    environment:
+      - GO_ENV=development
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - LOG_LEVEL=debug
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppass
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d appdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - ./ssl/:/etc/nginx/ssl/:ro
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - app
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/prometheus/rules/:/etc/prometheus/rules/:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring-network
+      - app-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  go-cache:
+    driver: local
+  node-cache:
+    driver: local
+  nginx-cache:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+  monitoring-network:
+    driver: bridge
+
+# Override for production
+---
+# docker-compose.prod.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      target: production
+    environment:
+      - GO_ENV=production
+      - LOG_LEVEL=info
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres_password
+    secrets:
+      - postgres_password
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password.txt</code></pre>
+            </div>
+
+            <h3>Container Security and Optimization</h3>
+            
+            <div class="warning-box">
+                <h4>Security Best Practices</h4>
+                <ul class="checklist">
+                    <li>Use minimal base images (Alpine, distroless)</li>
+                    <li>Run containers as non-root users</li>
+                    <li>Set read-only root filesystem when possible</li>
+                    <li>Drop all unnecessary capabilities</li>
+                    <li>Scan images for vulnerabilities before deployment</li>
+                    <li>Use multi-stage builds to reduce attack surface</li>
+                    <li>Pin base image versions for reproducibility</li>
+                    <li>Implement proper secrets management</li>
+                </ul>
+            </div>
+
+            <div class="docker-box">
+                <h4>Container Optimization Techniques</h4>
+                <pre><code># .dockerignore
+# Version control
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+README*
+
+# Development files
+.env*
+.DS_Store
+.vscode/
+.idea/
+*.log
+*.pid
+
+# Dependencies
+node_modules/
+npm-debug.log*
+coverage/
+.nyc_output/
+
+# Build artifacts
+dist/
+build/
+target/
+*.tmp
+*.temp
+
+# Test files
+*_test.go
+test/
+tests/
+spec/
+__tests__/
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+docker-compose*
+Makefile
+
+# Container files
+Dockerfile*
+.dockerignore</code></pre>
+            </div>
+
+            <div class="success-box">
+                <h4>Image Size Optimization</h4>
+                <ul class="checklist">
+                    <li>Use multi-stage builds to separate build and runtime dependencies</li>
+                    <li>Minimize the number of RUN instructions (combine commands)</li>
+                    <li>Remove package manager cache after installations</li>
+                    <li>Use .dockerignore to exclude unnecessary files</li>
+                    <li>Consider using distroless or scratch images for final stage</li>
+                    <li>Leverage Docker layer caching in CI/CD pipelines</li>
+                    <li>Use BuildKit for advanced build features and performance</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="production-workflows" class="section">
+            <h2>7. Production Deployment Workflows</h2>
+            
+            <h3>Complete CI/CD Pipeline Integration</h3>
+            <p>Combine all tools into a comprehensive production deployment workflow.</p>
+
+            <div class="workflow-card">
+                <div class="workflow-title">End-to-End Production Pipeline</div>
+                <pre><code># .github/workflows/production-pipeline.yml
+name: Production Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  AWS_REGION: us-west-2
+
+jobs:
+  # Stage 1: Code Quality and Security
+  quality-gate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      should-deploy: ${{ steps.changes.outputs.should-deploy }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Detect changes
+      id: changes
+      uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          app:
+            - 'src/**'
+            - 'Dockerfile'
+            - 'go.mod'
+            - 'go.sum'
+          infrastructure:
+            - 'terraform/**'
+          k8s:
+            - 'k8s/**'
+    
+    - name: Generate version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "release" ]]; then
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_SHA:0:8}" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Setup Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+    
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+    
+    - name: Run tests
+      run: |
+        go test -v -race -coverprofile=coverage.out ./...
+        go tool cover -html=coverage.out -o coverage.html
+    
+    - name: Run security scan
+      uses: securecodewarrior/github-action-gosec@master
+      with:
+        args: './...'
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+    
+    - name: Set deployment flag
+      id: deploy-flag
+      run: |
+        if [[ "${{ steps.changes.outputs.app }}" == "true" || "${{ github.event_name }}" == "release" ]]; then
+          echo "should-deploy=true" >> $GITHUB_OUTPUT
+        else
+          echo "should-deploy=false" >> $GITHUB_OUTPUT
+        fi
+
+  # Stage 2: Infrastructure Validation
+  infrastructure-plan:
+    if: needs.quality-gate.outputs.should-deploy == 'true'
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    strategy:
+      matrix:
+        environment: [staging, production]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: '1.7.0'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets[format('AWS_ROLE_ARN_{0}', matrix.environment)] }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Terraform Plan
+      working-directory: terraform/environments/${{ matrix.environment }}
+      run: |
+        terraform init
+        terraform plan -out=tfplan
+
+  # Stage 3: Build and Security Scan
+  build-and-scan:
+    if: needs.quality-gate.outputs.should-deploy == 'true'
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=raw,value=${{ needs.quality-gate.outputs.version }}
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        target: production
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        provenance: true
+        sbom: true
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.quality-gate.outputs.version }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Stage 4: Deploy to Staging
+  deploy-staging:
+    needs: [quality-gate, infrastructure-plan, build-and-scan]
+    runs-on: ubuntu-latest
+    environment: staging
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout k8s manifests
+      uses: actions/checkout@v4
+      with:
+        repository: company/k8s-manifests
+        token: ${{ secrets.K8S_REPO_TOKEN }}
+        path: k8s-manifests
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN_STAGING }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Update image in GitOps repo
+      working-directory: k8s-manifests
+      run: |
+        # Update image tag in staging overlay
+        cd applications/web-app/overlays/staging
+        kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.quality-gate.outputs.version }}
+        
+        # Commit and push changes
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Update staging image to ${{ needs.quality-gate.outputs.version }}"
+        git push origin main
+    
+    - name: Wait for ArgoCD sync
+      run: |
+        # Install ArgoCD CLI
+        curl -sSL -o /usr/local/bin/argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+        chmod +x /usr/local/bin/argocd
+        
+        # Login to ArgoCD
+        argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }}
+        
+        # Sync and wait
+        argocd app sync web-app-staging
+        argocd app wait web-app-staging --timeout 600
+
+  # Stage 5: Integration Tests
+  integration-tests:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Run integration tests
+      run: |
+        # Run integration tests against staging
+        npm run test:integration -- --base-url=${{ secrets.STAGING_BASE_URL }}
+    
+    - name: Run performance tests
+      run: |
+        # Run k6 performance tests
+        docker run --rm -v $(pwd)/tests:/tests grafana/k6 run /tests/performance.js
+    
+    - name: Security penetration test
+      run: |
+        # Run OWASP ZAP scan
+        docker run -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
+          -t ${{ secrets.STAGING_BASE_URL }} -J zap-report.json
+
+  # Stage 6: Production Deployment
+  deploy-production:
+    if: github.event_name == 'release'
+    needs: [quality-gate, build-and-scan, integration-tests]
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout k8s manifests
+      uses: actions/checkout@v4
+      with:
+        repository: company/k8s-manifests
+        token: ${{ secrets.K8S_REPO_TOKEN }}
+        path: k8s-manifests
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN_PRODUCTION }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Update production image
+      working-directory: k8s-manifests
+      run: |
+        cd applications/web-app/overlays/production
+        kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.quality-gate.outputs.version }}
+        
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        git commit -m "Deploy production image ${{ needs.quality-gate.outputs.version }}"
+        git push origin main
+    
+    - name: Deploy with ArgoCD
+      run: |
+        argocd login ${{ secrets.ARGOCD_SERVER }} --username ${{ secrets.ARGOCD_USERNAME }} --password ${{ secrets.ARGOCD_PASSWORD }}
+        argocd app sync web-app-production
+        argocd app wait web-app-production --timeout 900
+    
+    - name: Verify deployment
+      run: |
+        # Health check
+        for i in {1..30}; do
+          if curl -f "${{ secrets.PRODUCTION_BASE_URL }}/health"; then
+            echo "Health check passed"
+            exit 0
+          fi
+          echo "Health check attempt $i failed, retrying..."
+          sleep 10
+        done
+        echo "Health check failed after 30 attempts"
+        exit 1
+
+  # Stage 7: Post-Deployment
+  post-deployment:
+    needs: [deploy-production]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify Slack
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          Production Deployment: ${{ job.status }}
+          Version: ${{ needs.quality-gate.outputs.version }}
+          Commit: ${{ github.sha }}
+          Actor: ${{ github.actor }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+    
+    - name: Update deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: context.payload.deployment.id,
+            state: '${{ job.status }}',
+            environment: 'production',
+            description: 'Deployment ${{ job.status }}'
+          });
+    
+    - name: Create GitHub release notes
+      if: github.event_name == 'release'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const version = '${{ needs.quality-gate.outputs.version }}';
+          const body = `
+          ## Deployment Summary
+          - **Version:** ${version}
+          - **Build Status:** ${{ job.status }}
+          - **Image:** ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${version}
+          - **Deployed:** ${new Date().toISOString()}
+          
+          ## Changes
+          - See commit history for detailed changes
+          
+          ## Verification
+          - Health checks: ✅ Passed
+          - Performance tests: ✅ Passed
+          - Security scans: ✅ Passed
+          `;
+          
+          await github.rest.repos.updateRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            release_id: context.payload.release.id,
+            body: body
+          });</code></pre>
+            </div>
+        </section>
+
+        <section id="security-monitoring" class="section">
+            <h2>8. Security & Monitoring</h2>
+            
+            <h3>Comprehensive Security Pipeline</h3>
+            
+            <div class="error-box">
+                <h4>Security Checkpoints</h4>
+                <ul class="checklist">
+                    <li>Code scanning with CodeQL and Semgrep</li>
+                    <li>Dependency vulnerability scanning</li>
+                    <li>Container image security scanning</li>
+                    <li>Infrastructure security validation</li>
+                    <li>Runtime security monitoring</li>
+                    <li>Secrets detection and management</li>
+                    <li>Compliance validation (SOC 2, PCI DSS)</li>
+                </ul>
+            </div>
+
+            <h3>Monitoring and Observability Stack</h3>
+            
+            <div class="tool-grid">
+                <div class="tool-card">
+                    <h4>📊 Prometheus Metrics</h4>
+                    <ul>
+                        <li>Application performance metrics</li>
+                        <li>Infrastructure monitoring</li>
+                        <li>Custom business metrics</li>
+                        <li>SLI/SLO tracking</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>📈 Grafana Dashboards</h4>
+                    <ul>
+                        <li>Real-time visualization</li>
+                        <li>Alert management</li>
+                        <li>Performance analytics</li>
+                        <li>Business intelligence</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>🔍 Distributed Tracing</h4>
+                    <ul>
+                        <li>Jaeger or Zipkin integration</li>
+                        <li>Request flow visualization</li>
+                        <li>Performance bottleneck identification</li>
+                        <li>Service dependency mapping</li>
+                    </ul>
+                </div>
+                
+                <div class="tool-card">
+                    <h4>📋 Centralized Logging</h4>
+                    <ul>
+                        <li>ELK/EFK stack</li>
+                        <li>Structured logging</li>
+                        <li>Log aggregation and search</li>
+                        <li>Audit trail maintenance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Production Readiness Checklist</h3>
+            
+            <table class="pipeline-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Requirement</th>
+                        <th>Implementation</th>
+                        <th>Validation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>Vulnerability scanning</td>
+                        <td>Trivy, Snyk, OWASP</td>
+                        <td>Zero high/critical vulnerabilities</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td>Load testing</td>
+                        <td>K6, JMeter</td>
+                        <td>Meet SLA requirements</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Reliability</strong></td>
+                        <td>Health checks</td>
+                        <td>Kubernetes probes</td>
+                        <td>99.9% uptime target</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Observability</strong></td>
+                        <td>Metrics and logging</td>
+                        <td>Prometheus, Grafana</td>
+                        <td>Full system visibility</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Compliance</strong></td>
+                        <td>Regulatory requirements</td>
+                        <td>Policy validation</td>
+                        <td>Audit trail complete</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="success-box">
+                <h4>🎯 Key Success Metrics</h4>
+                <ul>
+                    <li><strong>Deployment Frequency:</strong> Multiple times per day</li>
+                    <li><strong>Lead Time:</strong> < 1 hour from commit to production</li>
+                    <li><strong>MTTR:</strong> < 15 minutes mean time to recovery</li>
+                    <li><strong>Change Failure Rate:</strong> < 5% of deployments cause issues</li>
+                    <li><strong>Security:</strong> Zero critical vulnerabilities in production</li>
+                    <li><strong>Availability:</strong> 99.9% uptime SLA compliance</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="footer">
+            <p><strong>GitHub Actions & DevOps: Complete Implementation Guide</strong></p>
+            <p>Comprehensive CI/CD pipeline with GitHub Actions, Jenkins, Terraform, Kubernetes, and Docker • Updated 2025</p>
+            <p>From development to production: automated, secure, and scalable deployments</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const button = document.querySelector('.theme-toggle');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            document.body.setAttribute('data-theme', savedTheme);
+            button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.workflow-card, .tool-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('pre code').forEach(block => {
+            const button = document.createElement('button');
+            button.textContent = 'Copy';
+            button.style.cssText = `
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: var(--link-color);
+                color: white;
+                border: none;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            
+            const pre = block.parentElement;
+            pre.style.position = 'relative';
+            pre.appendChild(button);
+            
+            pre.addEventListener('mouseenter', () => {
+                button.style.opacity = '1';
+            });
+            
+            pre.addEventListener('mouseleave', () => {
+                button.style.opacity = '0';
+            });
+            
+            button.addEventListener('click', () => {
+                navigator.clipboard.writeText(block.textContent).then(() => {
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
