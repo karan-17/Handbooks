@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retrieval Methods Handbook - 2024/2025</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2 {
+            color: #34495e;
+            border-left: 4px solid #3498db;
+            padding-left: 20px;
+            margin-top: 40px;
+        }
+        h3 {
+            color: #2980b9;
+            margin-top: 30px;
+        }
+        .code-block {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .warning {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .toc > ul {
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 5px 0;
+        }
+        .toc a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .performance-table th,
+        .performance-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .performance-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .formula {
+            background: #e8f4fd;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Retrieval Methods Handbook</h1>
+        <p><strong>Updated:</strong> March 2026 | <strong>Focus:</strong> Latest implementations, benchmarks, and best practices</p>
+
+        <div class="toc">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#similarity-search">1. Similarity Search Implementations</a></li>
+                <li><a href="#bm25">2. BM25 Algorithm</a></li>
+                <li><a href="#hybrid-retrieval">3. Hybrid Retrieval Patterns</a></li>
+                <li><a href="#rrf">4. Reciprocal Rank Fusion (RRF)</a></li>
+                <li><a href="#reranking">5. Re-ranking with Cross-Encoders and ColBERT</a></li>
+                <li><a href="#vector-db-syntax">6. Vector Database Query Syntax</a></li>
+                <li><a href="#performance">7. Performance Benchmarks and Optimization</a></li>
+                <li><a href="#evaluation">8. Retrieval Evaluation Metrics</a></li>
+            </ul>
+        </div>
+
+        <section id="similarity-search">
+            <h2>1. Similarity Search Implementations</h2>
+            
+            <h3>Overview of Similarity Metrics</h3>
+            <p>Three primary similarity metrics dominate modern vector search: cosine similarity, Euclidean distance, and dot product. Each handles direction and magnitude differently, affecting application accuracy.</p>
+
+            <h3>Cosine Similarity</h3>
+            <p>Measures the angle between vectors, regardless of magnitude. Ideal for text similarity and document comparison where document length varies.</p>
+            
+            <div class="formula">
+                cosine_similarity = (A · B) / (||A|| × ||B||)
+            </div>
+
+            <div class="code-block">
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Implementation
+def cosine_sim(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+# Example usage
+vector1 = np.array([1, 2, 3])
+vector2 = np.array([4, 5, 6])
+similarity = cosine_sim(vector1, vector2)
+print(f"Cosine similarity: {similarity}")
+
+# Using sklearn
+vectors = np.array([[1, 2, 3], [4, 5, 6]])
+similarity_matrix = cosine_similarity(vectors)
+            </div>
+
+            <h3>Euclidean Distance</h3>
+            <p>Measures straight-line distance between vectors. Sensitive to both magnitude and position, treating vectors as points in geometric space.</p>
+
+            <div class="formula">
+                euclidean_distance = √(Σ(a_i - b_i)²)
+            </div>
+
+            <div class="code-block">
+import numpy as np
+from scipy.spatial.distance import euclidean
+
+# Implementation
+def euclidean_dist(a, b):
+    return np.sqrt(np.sum((a - b) ** 2))
+
+# Convert to similarity (smaller distance = higher similarity)
+def euclidean_similarity(a, b):
+    distance = euclidean_dist(a, b)
+    return 1 / (1 + distance)
+
+# Example usage
+vector1 = np.array([1, 2, 3])
+vector2 = np.array([4, 5, 6])
+distance = euclidean(vector1, vector2)
+print(f"Euclidean distance: {distance}")
+            </div>
+
+            <h3>Dot Product</h3>
+            <p>Hybrid between Euclidean and cosine similarity. When vectors are normalized, it equals cosine similarity. Faster computation than cosine similarity.</p>
+
+            <div class="formula">
+                dot_product = Σ(a_i × b_i)
+            </div>
+
+            <div class="code-block">
+import numpy as np
+
+# Implementation
+def dot_product_similarity(a, b):
+    return np.dot(a, b)
+
+# Normalized dot product (equivalent to cosine for unit vectors)
+def normalized_dot_product(a, b):
+    a_norm = a / np.linalg.norm(a)
+    b_norm = b / np.linalg.norm(b)
+    return np.dot(a_norm, b_norm)
+
+# Example usage
+vector1 = np.array([1, 2, 3])
+vector2 = np.array([4, 5, 6])
+similarity = dot_product_similarity(vector1, vector2)
+print(f"Dot product: {similarity}")
+            </div>
+
+            <div class="highlight">
+                <strong>Best Practice:</strong> Match your similarity metric to the one used to train your embedding model. For example, all-MiniLM-L6-v2 was trained using cosine similarity, so use cosine similarity for optimal results.
+            </div>
+
+            <h3>Use Case Guidelines (2024-2025)</h3>
+            <ul>
+                <li><strong>Cosine Similarity:</strong> Text similarity, document comparison, semantic search where document length varies</li>
+                <li><strong>Dot Product:</strong> Recommendation systems, collaborative filtering, when magnitude represents importance</li>
+                <li><strong>Euclidean Distance:</strong> Clustering, anomaly detection, spatial data, count-based features</li>
+            </ul>
+        </section>
+
+        <section id="bm25">
+            <h2>2. BM25 Algorithm</h2>
+            
+            <h3>Algorithm Overview</h3>
+            <p>BM25 (Best Matching 25) is the standard ranking algorithm in information retrieval, powering search engines like Elasticsearch, Solr, and Lucene since the 1990s.</p>
+
+            <div class="formula">
+                BM25(q,d) = Σ IDF(qi) × [f(qi,d) × (k1 + 1)] / [f(qi,d) + k1 × (1 - b + b × |d|/avgdl)]
+            </div>
+
+            <h3>Elasticsearch Implementation</h3>
+            <p>Elasticsearch uses BM25 as the default scoring algorithm with configurable parameters.</p>
+
+            <div class="code-block">
+# Elasticsearch BM25 configuration
+PUT /my_index
+{
+  "mappings": {
+    "properties": {
+      "content": {
+        "type": "text",
+        "similarity": "BM25",
+        "fields": {
+          "bm25": {
+            "type": "text",
+            "similarity": "BM25"
+          }
+        }
+      }
+    }
+  },
+  "settings": {
+    "similarity": {
+      "my_bm25": {
+        "type": "BM25",
+        "k1": 1.2,
+        "b": 0.75
+      }
+    }
+  }
+}
+
+# Query example
+GET /my_index/_search
+{
+  "query": {
+    "match": {
+      "content": {
+        "query": "retrieval augmented generation",
+        "operator": "or"
+      }
+    }
+  }
+}
+            </div>
+
+            <h3>Whoosh Library Implementation</h3>
+            <div class="code-block">
+from whoosh import scoring
+from whoosh.index import create_index
+from whoosh.fields import Schema, TEXT
+from whoosh.qparser import QueryParser
+
+# Create schema with BM25 scoring
+schema = Schema(title=TEXT(stored=True), content=TEXT)
+ix = create_index("indexdir", schema)
+
+# Configure BM25 scoring
+w = scoring.BM25F(B=0.75, content_B=1.0, K1=1.5)
+
+# Search with BM25
+with ix.searcher(weighting=w) as searcher:
+    query = QueryParser("content", ix.schema).parse("your query")
+    results = searcher.search(query)
+    for result in results:
+        print(result['title'])
+            </div>
+
+            <h3>rank_bm25 Library Implementation</h3>
+            <div class="code-block">
+from rank_bm25 import BM25Okapi
+import nltk
+from nltk.tokenize import word_tokenize
+
+# Prepare documents
+documents = [
+    "The quick brown fox jumps over lazy dog",
+    "Machine learning and artificial intelligence",
+    "Retrieval augmented generation with transformers"
+]
+
+# Tokenize documents
+tokenized_docs = [word_tokenize(doc.lower()) for doc in documents]
+
+# Initialize BM25
+bm25 = BM25Okapi(tokenized_docs)
+
+# Query
+query = "machine learning"
+tokenized_query = word_tokenize(query.lower())
+
+# Get scores
+scores = bm25.get_scores(tokenized_query)
+print("Scores:", scores)
+
+# Get top documents
+top_docs = bm25.get_top_n(tokenized_query, documents, n=2)
+print("Top documents:", top_docs)
+            </div>
+
+            <h3>BM25S - High Performance Implementation</h3>
+            <div class="code-block">
+import bm25s
+
+# Create BM25 index
+corpus = ["your", "documents", "here"]
+retriever = bm25s.BM25(corpus=corpus)
+retriever.index()
+
+# Query
+query = "your search query"
+results, scores = retriever.retrieve(query, k=5)
+print(f"Results: {results}")
+print(f"Scores: {scores}")
+            </div>
+
+            <div class="success">
+                <strong>BM25S Performance:</strong> Achieves speeds comparable to or exceeding Elasticsearch while eliminating the need for web servers, Java installation, and complex APIs.
+            </div>
+        </section>
+
+        <section id="hybrid-retrieval">
+            <h2>3. Hybrid Retrieval Patterns</h2>
+            
+            <h3>LangChain Implementation</h3>
+            <p>LangChain provides hybrid search through the EnsembleRetriever, combining keyword-based search with vector search using Reciprocal Rank Fusion.</p>
+
+            <div class="code-block">
+from langchain.retrievers import EnsembleRetriever, BM25Retriever
+from langchain.vectorstores import Chroma
+from langchain.embeddings import OpenAIEmbeddings
+
+# Setup retrievers
+documents = ["doc1", "doc2", "doc3"]  # Your documents
+
+# BM25 retriever
+bm25_retriever = BM25Retriever.from_documents(documents)
+bm25_retriever.k = 5
+
+# Vector retriever
+embeddings = OpenAIEmbeddings()
+vectorstore = Chroma.from_documents(documents, embeddings)
+vector_retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+# Ensemble retriever with RRF
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, vector_retriever],
+    weights=[0.5, 0.5],  # Equal weights
+    search_type="mmr"  # or "similarity"
+)
+
+# Query
+query = "your search query"
+results = ensemble_retriever.get_relevant_documents(query)
+            </div>
+
+            <h3>LlamaIndex Implementation</h3>
+            <div class="code-block">
+from llama_index import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.retrievers import BM25Retriever, VectorIndexRetriever
+from llama_index.retrievers import QueryFusionRetriever
+from llama_index.query_engine import RetrieverQueryEngine
+
+# Load documents
+documents = SimpleDirectoryReader("./data").load_data()
+
+# Create vector index
+vector_index = VectorStoreIndex.from_documents(documents)
+
+# Setup retrievers
+vector_retriever = VectorIndexRetriever(
+    index=vector_index,
+    similarity_top_k=10
+)
+
+bm25_retriever = BM25Retriever.from_defaults(
+    docstore=vector_index.docstore,
+    similarity_top_k=10
+)
+
+# Fusion retriever
+fusion_retriever = QueryFusionRetriever(
+    [vector_retriever, bm25_retriever],
+    similarity_top_k=5,
+    num_queries=4,  # Generate 4 sub-queries
+    mode="reciprocal_rerank",
+    use_async=True,
+)
+
+# Query engine
+query_engine = RetrieverQueryEngine.from_args(fusion_retriever)
+response = query_engine.query("What is retrieval augmented generation?")
+            </div>
+
+            <h3>Custom Hybrid Implementation</h3>
+            <div class="code-block">
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sentence_transformers import SentenceTransformer
+
+class HybridRetriever:
+    def __init__(self, documents, alpha=0.5):
+        self.documents = documents
+        self.alpha = alpha  # Weight for semantic vs lexical
+        
+        # Initialize TF-IDF for lexical search
+        self.tfidf = TfidfVectorizer()
+        self.tfidf_matrix = self.tfidf.fit_transform(documents)
+        
+        # Initialize sentence transformer for semantic search
+        self.encoder = SentenceTransformer('all-MiniLM-L6-v2')
+        self.embeddings = self.encoder.encode(documents)
+    
+    def search(self, query, top_k=5):
+        # Lexical search
+        query_tfidf = self.tfidf.transform([query])
+        lexical_scores = np.array(
+            (self.tfidf_matrix * query_tfidf.T).toarray().flatten()
+        )
+        
+        # Semantic search
+        query_embedding = self.encoder.encode([query])
+        semantic_scores = np.array([
+            np.dot(query_embedding[0], doc_emb) / 
+            (np.linalg.norm(query_embedding[0]) * np.linalg.norm(doc_emb))
+            for doc_emb in self.embeddings
+        ])
+        
+        # Normalize scores
+        if lexical_scores.max() > 0:
+            lexical_scores = lexical_scores / lexical_scores.max()
+        if semantic_scores.max() > 0:
+            semantic_scores = semantic_scores / semantic_scores.max()
+        
+        # Combine scores
+        hybrid_scores = (self.alpha * semantic_scores + 
+                        (1 - self.alpha) * lexical_scores)
+        
+        # Get top results
+        top_indices = np.argsort(hybrid_scores)[::-1][:top_k]
+        
+        return [(self.documents[i], hybrid_scores[i]) for i in top_indices]
+
+# Usage
+documents = ["Your document collection"]
+retriever = HybridRetriever(documents, alpha=0.7)
+results = retriever.search("your query", top_k=5)
+            </div>
+        </section>
+
+        <section id="rrf">
+            <h2>4. Reciprocal Rank Fusion (RRF)</h2>
+            
+            <h3>Algorithm Overview</h3>
+            <p>RRF combines multiple ranked lists by summing reciprocal scores, independent of original scoring scales. It's robust, simple, and requires no training data.</p>
+
+            <div class="formula">
+                RRF_score(d) = Σ 1/(k + rank(d, q_i)) for all queries q_i
+            </div>
+
+            <h3>Core Implementation</h3>
+            <div class="code-block">
+def reciprocal_rank_fusion(ranked_lists, k=60):
+    """
+    Implement Reciprocal Rank Fusion
+    
+    Args:
+        ranked_lists: List of ranked document lists
+        k: Ranking constant (typically 60)
+    
+    Returns:
+        List of documents sorted by RRF score
+    """
+    scores = {}
+    
+    for ranked_list in ranked_lists:
+        for rank, doc in enumerate(ranked_list):
+            doc_id = doc.get('id', str(doc))  # Use ID or string representation
+            if doc_id not in scores:
+                scores[doc_id] = {'doc': doc, 'score': 0}
+            scores[doc_id]['score'] += 1.0 / (k + rank + 1)  # rank is 0-indexed
+    
+    # Sort by score descending
+    fused_results = sorted(scores.values(), key=lambda x: x['score'], reverse=True)
+    return [item['doc'] for item in fused_results]
+
+# Example usage
+search_results_1 = [{'id': 'doc1', 'text': 'result 1'}, {'id': 'doc2', 'text': 'result 2'}]
+search_results_2 = [{'id': 'doc2', 'text': 'result 2'}, {'id': 'doc3', 'text': 'result 3'}]
+
+fused = reciprocal_rank_fusion([search_results_1, search_results_2])
+print("Fused results:", fused)
+            </div>
+
+            <h3>RAG-Fusion Implementation</h3>
+            <div class="code-block">
+def rag_fusion_search(original_query, retriever, llm, num_queries=4, k=60):
+    """
+    Implement RAG-Fusion with multiple query generation
+    """
+    # Generate multiple query variations
+    query_generation_prompt = f"""
+    Generate {num_queries} different search queries related to: "{original_query}"
+    Each query should capture different aspects or rephrasings of the original question.
+    Return only the queries, one per line.
+    """
+    
+    generated_queries = llm.generate(query_generation_prompt).split('\n')
+    generated_queries = [q.strip() for q in generated_queries if q.strip()]
+    
+    # Add original query
+    all_queries = [original_query] + generated_queries
+    
+    # Retrieve documents for each query
+    all_results = []
+    for query in all_queries:
+        results = retriever.search(query)
+        all_results.append(results)
+    
+    # Apply RRF
+    fused_results = reciprocal_rank_fusion(all_results, k=k)
+    
+    return fused_results[:10]  # Return top 10
+            </div>
+
+            <h3>OpenSearch RRF Implementation</h3>
+            <div class="code-block">
+# OpenSearch hybrid search with RRF
+POST /my_index/_search
+{
+  "query": {
+    "hybrid": {
+      "queries": [
+        {
+          "match": {
+            "content": "machine learning"
+          }
+        },
+        {
+          "neural": {
+            "content_embedding": {
+              "query_text": "machine learning",
+              "model_id": "your_model_id",
+              "k": 10
+            }
+          }
+        }
+      ]
+    }
+  },
+  "search_pipeline": {
+    "phase_results_processors": [
+      {
+        "normalization-processor": {
+          "normalization": {
+            "technique": "min_max"
+          },
+          "combination": {
+            "technique": "arithmetic_mean",
+            "parameters": [0.3, 0.7]
+          }
+        }
+      }
+    ]
+  }
+}
+            </div>
+
+            <div class="highlight">
+                <strong>RRF Advantages:</strong> No training data required, works across different score scales, robust performance, easy to implement, and consistently outperforms complex fusion methods.
+            </div>
+        </section>
+
+        <section id="reranking">
+            <h2>5. Re-ranking with Cross-Encoders and ColBERT</h2>
+            
+            <h3>Multi-Stage Retrieval Pipeline</h3>
+            <p>Modern best practices use a three-stage approach for optimal performance and latency balance.</p>
+
+            <div class="code-block">
+# Stage 1: Initial Retrieval (BM25 or Dense Vector)
+from sentence_transformers import SentenceTransformer, CrossEncoder
+import numpy as np
+
+class MultiStageRetrieval:
+    def __init__(self):
+        # Stage 1: Bi-encoder for initial retrieval
+        self.bi_encoder = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        # Stage 3: Cross-encoder for final reranking
+        self.cross_encoder = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
+    
+    def retrieve_and_rerank(self, query, documents, stage1_k=1000, stage3_k=10):
+        """
+        Three-stage retrieval pipeline
+        """
+        # Stage 1: Initial retrieval with bi-encoder
+        query_embedding = self.bi_encoder.encode([query])
+        doc_embeddings = self.bi_encoder.encode(documents)
+        
+        # Calculate similarities
+        similarities = np.dot(query_embedding, doc_embeddings.T).flatten()
+        
+        # Get top-k candidates
+        top_indices = np.argsort(similarities)[::-1][:stage1_k]
+        candidates = [documents[i] for i in top_indices]
+        
+        # Stage 2: Could add ColBERT here for refinement (optional)
+        # For now, we'll go directly to cross-encoder
+        
+        # Stage 3: Cross-encoder reranking
+        pairs = [(query, doc) for doc in candidates[:100]]  # Limit for efficiency
+        cross_scores = self.cross_encoder.predict(pairs)
+        
+        # Sort by cross-encoder scores
+        ranked_indices = np.argsort(cross_scores)[::-1]
+        final_results = [candidates[i] for i in ranked_indices[:stage3_k]]
+        
+        return final_results, cross_scores[ranked_indices[:stage3_k]]
+
+# Usage
+retriever = MultiStageRetrieval()
+results, scores = retriever.retrieve_and_rerank(
+    "What is machine learning?", 
+    your_documents,
+    stage1_k=1000,
+    stage3_k=10
+)
+            </div>
+
+            <h3>ColBERT Late Interaction Implementation</h3>
+            <div class="code-block">
+import torch
+from transformers import AutoTokenizer, AutoModel
+
+class SimpleColBERT:
+    def __init__(self, model_name='bert-base-uncased'):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name)
+        self.model.eval()
+    
+    def encode(self, texts, max_length=512):
+        """Encode texts and return contextualized embeddings"""
+        encoded = self.tokenizer(
+            texts, 
+            padding=True, 
+            truncation=True, 
+            max_length=max_length,
+            return_tensors='pt'
+        )
+        
+        with torch.no_grad():
+            outputs = self.model(**encoded)
+            # Get token-level embeddings
+            embeddings = outputs.last_hidden_state
+            
+            # Mask padding tokens
+            mask = encoded['attention_mask'].unsqueeze(-1)
+            embeddings = embeddings * mask
+            
+        return embeddings
+    
+    def late_interaction_score(self, query_embeddings, doc_embeddings):
+        """
+        Compute ColBERT-style late interaction score
+        MaxSim operation: for each query token, find max similarity with doc tokens
+        """
+        # query_embeddings: [1, query_len, hidden_size]
+        # doc_embeddings: [1, doc_len, hidden_size]
+        
+        # Compute all pairwise similarities
+        similarities = torch.matmul(query_embeddings, doc_embeddings.transpose(-2, -1))
+        # Shape: [1, query_len, doc_len]
+        
+        # MaxSim: max over document tokens for each query token
+        max_similarities, _ = torch.max(similarities, dim=-1)
+        
+        # Sum over query tokens
+        score = torch.sum(max_similarities, dim=-1)
+        
+        return score.item()
+    
+    def search(self, query, documents, top_k=10):
+        """Search documents using ColBERT-style scoring"""
+        query_emb = self.encode([query])
+        
+        scores = []
+        for doc in documents:
+            doc_emb = self.encode([doc])
+            score = self.late_interaction_score(query_emb, doc_emb)
+            scores.append(score)
+        
+        # Sort by score
+        ranked_indices = sorted(range(len(scores)), 
+                              key=lambda i: scores[i], 
+                              reverse=True)
+        
+        return [documents[i] for i in ranked_indices[:top_k]]
+
+# Usage
+colbert = SimpleColBERT()
+results = colbert.search("machine learning algorithms", your_documents)
+            </div>
+
+            <h3>Cross-Encoder with Early Exit (2025)</h3>
+            <div class="code-block">
+class EarlyExitCrossEncoder:
+    """
+    Cross-encoder with early exit for efficiency
+    Based on 2025 research: "Efficient Re-ranking with Cross-encoders via Early Exit"
+    """
+    def __init__(self, model_name, confidence_threshold=0.9):
+        self.cross_encoder = CrossEncoder(model_name)
+        self.confidence_threshold = confidence_threshold
+    
+    def predict_with_early_exit(self, query_doc_pairs):
+        """
+        Predict relevance with early exit based on confidence
+        """
+        results = []
+        
+        for query, doc in query_doc_pairs:
+            # Get prediction with confidence
+            logits = self.cross_encoder.predict([(query, doc)], 
+                                              convert_to_numpy=False)
+            
+            # Calculate confidence (simplified)
+            confidence = torch.softmax(logits, dim=-1).max().item()
+            score = logits[0].item()
+            
+            # Early exit if confidence is high enough
+            if confidence >= self.confidence_threshold:
+                results.append((score, confidence, True))  # Early exit
+            else:
+                # Full processing (in real implementation, would use deeper layers)
+                results.append((score, confidence, False))  # Full processing
+        
+        return results
+    
+    def efficient_rerank(self, query, candidates, top_k=10):
+        """Efficient reranking with early exit"""
+        pairs = [(query, doc) for doc in candidates]
+        predictions = self.predict_with_early_exit(pairs)
+        
+        # Sort by score
+        ranked_results = sorted(zip(candidates, predictions), 
+                              key=lambda x: x[1][0], 
+                              reverse=True)
+        
+        return [doc for doc, _ in ranked_results[:top_k]]
+
+# Usage
+early_exit_reranker = EarlyExitCrossEncoder(
+    'cross-encoder/ms-marco-MiniLM-L-6-v2',
+    confidence_threshold=0.85
+)
+reranked = early_exit_reranker.efficient_rerank(query, candidates)
+            </div>
+
+            <div class="success">
+                <strong>Performance Gains (2024-2025):</strong>
+                <ul>
+                    <li>ColBERTv2 + Cross-encoder: +44 percentage points improvement in MRR@10</li>
+                    <li>MICE architecture: 4x latency reduction vs standard cross-encoders</li>
+                    <li>PLAID acceleration: 7x faster on GPU, 45x on CPU vs vanilla ColBERTv2</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="vector-db-syntax">
+            <h2>6. Vector Database Query Syntax</h2>
+            
+            <h3>Pinecone</h3>
+            <div class="code-block">
+import pinecone
+from pinecone import Pinecone, ServerlessSpec
+
+# Initialize Pinecone
+pc = Pinecone(api_key="your-api-key")
+
+# Create index
+index_name = "example-index"
+if index_name not in pc.list_indexes().names():
+    pc.create_index(
+        name=index_name,
+        dimension=1024,
+        metric="cosine",
+        spec=ServerlessSpec(
+            cloud="aws",
+            region="us-east-1"
+        )
+    )
+
+# Connect to index
+index = pc.Index(index_name)
+
+# Insert vectors
+vectors_to_upsert = [
+    {
+        "id": "doc1", 
+        "values": [0.1, 0.2, 0.3, ...],  # 1024-dim vector
+        "metadata": {"category": "technology", "date": "2024-01-01"}
+    }
+]
+index.upsert(vectors=vectors_to_upsert)
+
+# Query with vector
+query_vector = [0.1, 0.2, 0.3, ...]  # Your query vector
+results = index.query(
+    vector=query_vector,
+    top_k=5,
+    include_values=True,
+    include_metadata=True,
+    filter={
+        "category": {"$eq": "technology"},
+        "date": {"$gte": "2024-01-01"}
+    }
+)
+
+# Query with text (requires inference)
+results = index.query(
+    vector=query_vector,  # Pre-computed from your text
+    top_k=3,
+    namespace="production"
+)
+
+# Hybrid search with metadata filtering
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    filter={
+        "$and": [
+            {"category": {"$in": ["tech", "ai"]}},
+            {"score": {"$gte": 0.8}}
+        ]
+    }
+)
+
+print(f"Found {len(results['matches'])} results")
+for match in results['matches']:
+    print(f"ID: {match['id']}, Score: {match['score']:.3f}")
+            </div>
+
+            <h3>Weaviate</h3>
+            <div class="code-block">
+import weaviate
+from weaviate.classes.init import Auth
+
+# Connect to Weaviate
+client = weaviate.connect_to_wcs(
+    cluster_url="https://your-cluster.weaviate.network",
+    auth_credentials=Auth.api_key("your-api-key")
+)
+
+# Create collection (schema)
+collection = client.collections.create(
+    name="Article",
+    properties=[
+        weaviate.classes.config.Property(name="title", data_type=weaviate.classes.config.DataType.TEXT),
+        weaviate.classes.config.Property(name="content", data_type=weaviate.classes.config.DataType.TEXT),
+        weaviate.classes.config.Property(name="category", data_type=weaviate.classes.config.DataType.TEXT),
+    ]
+)
+
+# Insert objects
+articles = client.collections.get("Article")
+articles.data.insert_many([
+    {
+        "title": "AI in 2024",
+        "content": "Artificial intelligence developments...",
+        "category": "technology"
+    }
+])
+
+# GraphQL nearText query
+response = articles.query.near_text(
+    query="artificial intelligence",
+    limit=5,
+    return_metadata=weaviate.classes.query.MetadataQuery(distance=True)
+)
+
+# Print results
+for obj in response.objects:
+    print(f"Title: {obj.properties['title']}")
+    print(f"Distance: {obj.metadata.distance}")
+
+# nearVector query
+response = articles.query.near_vector(
+    near_vector=[0.1, 0.2, 0.3, ...],  # Your vector
+    limit=3
+)
+
+# Hybrid search (combines vector and keyword)
+response = articles.query.hybrid(
+    query="machine learning",
+    alpha=0.7,  # 0.7 vector, 0.3 keyword
+    limit=5
+)
+
+# Complex GraphQL query
+graphql_query = """
+{
+  Get {
+    Article(
+      nearText: {
+        concepts: ["artificial intelligence"]
+        distance: 0.3
+      }
+      where: {
+        path: ["category"]
+        operator: Equal
+        valueText: "technology"
+      }
+      limit: 10
+    ) {
+      title
+      content
+      category
+      _additional {
+        distance
+        score
+      }
+    }
+  }
+}
+"""
+
+result = client.query.raw(graphql_query)
+client.close()
+            </div>
+
+            <h3>Chroma</h3>
+            <div class="code-block">
+import chromadb
+from chromadb.config import Settings
+
+# Initialize Chroma client
+client = chromadb.PersistentClient(path="./chroma_db")
+
+# Create collection
+collection = client.create_collection(
+    name="my_collection",
+    metadata={"hnsw:space": "cosine"}  # or "l2", "ip"
+)
+
+# Add documents
+collection.add(
+    documents=[
+        "This is about artificial intelligence",
+        "Machine learning algorithms are powerful",
+        "Deep learning uses neural networks"
+    ],
+    metadatas=[
+        {"category": "AI", "source": "article1"},
+        {"category": "ML", "source": "article2"},
+        {"category": "DL", "source": "article3"}
+    ],
+    ids=["id1", "id2", "id3"]
+)
+
+# Query with text
+results = collection.query(
+    query_texts=["AI and machine learning"],
+    n_results=2,
+    include=['documents', 'metadatas', 'distances']
+)
+
+print("Query results:")
+for i, doc in enumerate(results['documents'][0]):
+    print(f"Document: {doc}")
+    print(f"Distance: {results['distances'][0][i]:.3f}")
+    print(f"Metadata: {results['metadatas'][0][i]}")
+
+# Query with embeddings
+import openai
+embedding = openai.Embedding.create(
+    input="your query text",
+    model="text-embedding-ada-002"
+)['data'][0]['embedding']
+
+results = collection.query(
+    query_embeddings=[embedding],
+    n_results=5,
+    where={"category": "AI"}  # Metadata filtering
+)
+
+# Advanced querying with where clauses
+results = collection.query(
+    query_texts=["neural networks"],
+    n_results=10,
+    where={
+        "$and": [
+            {"category": {"$in": ["AI", "ML"]}},
+            {"source": {"$ne": "article3"}}
+        ]
+    }
+)
+
+# Get all documents
+all_docs = collection.get(
+    include=['documents', 'metadatas']
+)
+
+# Update documents
+collection.update(
+    ids=["id1"],
+    documents=["Updated document about AI"],
+    metadatas=[{"category": "AI", "updated": True}]
+)
+
+# Delete documents
+collection.delete(ids=["id3"])
+            </div>
+
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>Query Language</th>
+                        <th>Strengths</th>
+                        <th>Best For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pinecone</td>
+                        <td>Python API</td>
+                        <td>Sub-100ms latency, enterprise support</td>
+                        <td>Production RAG systems</td>
+                    </tr>
+                    <tr>
+                        <td>Weaviate</td>
+                        <td>GraphQL/gRPC</td>
+                        <td>Knowledge graphs, hybrid search</td>
+                        <td>Complex data relationships</td>
+                    </tr>
+                    <tr>
+                        <td>Chroma</td>
+                        <td>Python API</td>
+                        <td>Simple, embedding-optimized</td>
+                        <td>LLM applications, prototyping</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="performance">
+            <h2>7. Performance Benchmarks and Optimization</h2>
+            
+            <h3>2024-2025 Benchmark Results</h3>
+            <p>Recent benchmarking studies using VectorDBBench and production workloads reveal significant performance differences across vector databases.</p>
+
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>QPS (768D vectors)</th>
+                        <th>P99 Latency</th>
+                        <th>Memory Usage</th>
+                        <th>Recall@10</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Pinecone (Serverless)</td>
+                        <td>2,000+</td>
+                        <td>&lt; 100ms</td>
+                        <td>Managed</td>
+                        <td>0.95+</td>
+                    </tr>
+                    <tr>
+                        <td>Weaviate (HNSW)</td>
+                        <td>1,500+</td>
+                        <td>&lt; 50ms</td>
+                        <td>High</td>
+                        <td>0.93+</td>
+                    </tr>
+                    <tr>
+                        <td>Chroma (Local)</td>
+                        <td>500+</td>
+                        <td>&lt; 200ms</td>
+                        <td>Medium</td>
+                        <td>0.90+</td>
+                    </tr>
+                    <tr>
+                        <td>Qdrant (Quantized)</td>
+                        <td>3,000+</td>
+                        <td>&lt; 20ms</td>
+                        <td>Low</td>
+                        <td>0.94+</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Optimization Techniques</h3>
+
+            <h4>Vector Quantization</h4>
+            <div class="code-block">
+# Product Quantization for memory reduction
+import faiss
+import numpy as np
+
+def setup_quantized_index(vectors, m=8):
+    """
+    Setup Product Quantization index for memory efficiency
+    m: number of subspaces (typically 8, 16, 32)
+    """
+    d = vectors.shape[1]  # dimension
+    
+    # Create Product Quantizer
+    pq = faiss.IndexPQ(d, m, 8)  # 8 bits per subquantizer
+    pq.train(vectors.astype('float32'))
+    pq.add(vectors.astype('float32'))
+    
+    return pq
+
+# Binary quantization for extreme compression
+def binary_quantization(vectors):
+    """Convert vectors to binary for 32x memory reduction"""
+    # Simple sign-based binarization
+    binary_vectors = np.where(vectors >= 0, 1, 0).astype(np.uint8)
+    return binary_vectors
+
+def hamming_distance_search(query_binary, corpus_binary, top_k=10):
+    """Search using Hamming distance on binary vectors"""
+    # XOR for Hamming distance
+    distances = np.sum(query_binary != corpus_binary, axis=1)
+    top_indices = np.argsort(distances)[:top_k]
+    return top_indices
+            </div>
+
+            <h4>HNSW Index Optimization</h4>
+            <div class="code-block">
+import hnswlib
+
+def optimize_hnsw_index(vectors, ef_construction=200, M=16):
+    """
+    Optimize HNSW index parameters for best performance
+    
+    ef_construction: controls index construction quality/time tradeoff
+    M: controls index memory/accuracy tradeoff
+    """
+    dim = vectors.shape[1]
+    num_elements = vectors.shape[0]
+    
+    # Create index
+    index = hnswlib.Index(space='cosine', dim=dim)
+    
+    # Initialize with optimized parameters
+    index.init_index(
+        max_elements=num_elements,
+        ef_construction=ef_construction,  # Higher = better quality, slower build
+        M=M  # Higher = more memory, better accuracy
+    )
+    
+    # Add vectors
+    index.add_items(vectors.astype('float32'), list(range(num_elements)))
+    
+    # Set ef for search (can be different from ef_construction)
+    index.set_ef(50)  # Higher = more accurate, slower search
+    
+    return index
+
+# Usage
+vectors = np.random.random((10000, 768)).astype('float32')
+index = optimize_hnsw_index(vectors, ef_construction=400, M=32)
+
+# Search
+query = np.random.random((1, 768)).astype('float32')
+labels, distances = index.knn_query(query, k=10)
+            </div>
+
+            <h4>Batch Processing Optimization</h4>
+            <div class="code-block">
+import asyncio
+import aiohttp
+from concurrent.futures import ThreadPoolExecutor
+
+class BatchVectorSearch:
+    """Optimized batch processing for vector searches"""
+    
+    def __init__(self, index, batch_size=32, max_workers=4):
+        self.index = index
+        self.batch_size = batch_size
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
+    
+    def batch_search_sync(self, queries, top_k=10):
+        """Synchronous batch search"""
+        all_results = []
+        
+        for i in range(0, len(queries), self.batch_size):
+            batch = queries[i:i + self.batch_size]
+            batch_results = self.index.query(
+                query_embeddings=batch,
+                n_results=top_k
+            )
+            all_results.extend(batch_results)
+        
+        return all_results
+    
+    async def batch_search_async(self, queries, top_k=10):
+        """Asynchronous batch search"""
+        loop = asyncio.get_event_loop()
+        tasks = []
+        
+        for i in range(0, len(queries), self.batch_size):
+            batch = queries[i:i + self.batch_size]
+            task = loop.run_in_executor(
+                self.executor,
+                self._search_batch,
+                batch,
+                top_k
+            )
+            tasks.append(task)
+        
+        results = await asyncio.gather(*tasks)
+        return [item for sublist in results for item in sublist]
+    
+    def _search_batch(self, batch, top_k):
+        """Helper method for batch processing"""
+        return self.index.query(
+            query_embeddings=batch,
+            n_results=top_k
+        )
+
+# Usage
+batch_searcher = BatchVectorSearch(your_index, batch_size=64)
+results = batch_searcher.batch_search_sync(query_embeddings)
+            </div>
+
+            <div class="highlight">
+                <strong>Optimization Best Practices (2025):</strong>
+                <ul>
+                    <li>Use Product Quantization for 4-8x memory reduction with minimal accuracy loss</li>
+                    <li>Implement geographic sharding for latency-sensitive applications</li>
+                    <li>Batch queries for 3-5x throughput improvement</li>
+                    <li>Use appropriate HNSW parameters: M=16-32, ef_construction=200-400</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="evaluation">
+            <h2>8. Retrieval Evaluation Metrics</h2>
+            
+            <h3>Traditional IR Metrics</h3>
+            <p>Standard metrics for evaluating retrieval systems, though recent research shows limitations for RAG systems.</p>
+
+            <h4>Precision@K and Recall@K</h4>
+            <div class="formula">
+                Precision@K = |Relevant ∩ Retrieved@K| / K<br>
+                Recall@K = |Relevant ∩ Retrieved@K| / |Total Relevant|
+            </div>
+
+            <div class="code-block">
+import numpy as np
+
+def precision_at_k(relevant_items, retrieved_items, k):
+    """Calculate Precision@K"""
+    retrieved_k = retrieved_items[:k]
+    relevant_retrieved = set(relevant_items).intersection(set(retrieved_k))
+    return len(relevant_retrieved) / k if k > 0 else 0.0
+
+def recall_at_k(relevant_items, retrieved_items, k):
+    """Calculate Recall@K"""
+    retrieved_k = retrieved_items[:k]
+    relevant_retrieved = set(relevant_items).intersection(set(retrieved_k))
+    return len(relevant_retrieved) / len(relevant_items) if len(relevant_items) > 0 else 0.0
+
+def f1_at_k(relevant_items, retrieved_items, k):
+    """Calculate F1@K"""
+    precision = precision_at_k(relevant_items, retrieved_items, k)
+    recall = recall_at_k(relevant_items, retrieved_items, k)
+    
+    if precision + recall == 0:
+        return 0.0
+    return 2 * (precision * recall) / (precision + recall)
+
+# Example usage
+relevant_docs = ['doc1', 'doc3', 'doc5', 'doc7']
+retrieved_docs = ['doc1', 'doc2', 'doc3', 'doc4', 'doc5', 'doc6']
+
+precision = precision_at_k(relevant_docs, retrieved_docs, k=5)
+recall = recall_at_k(relevant_docs, retrieved_docs, k=5)
+f1 = f1_at_k(relevant_docs, retrieved_docs, k=5)
+
+print(f"Precision@5: {precision:.3f}")
+print(f"Recall@5: {recall:.3f}")
+print(f"F1@5: {f1:.3f}")
+            </div>
+
+            <h4>Mean Reciprocal Rank (MRR)</h4>
+            <div class="formula">
+                MRR = (1/|Q|) × Σ(1/rank_i) for i in queries
+            </div>
+
+            <div class="code-block">
+def mean_reciprocal_rank(relevant_items, retrieved_items):
+    """Calculate Mean Reciprocal Rank"""
+    reciprocal_ranks = []
+    
+    for relevant_set, retrieved_list in zip(relevant_items, retrieved_items):
+        reciprocal_rank = 0.0
+        for rank, item in enumerate(retrieved_list, 1):
+            if item in relevant_set:
+                reciprocal_rank = 1.0 / rank
+                break
+        reciprocal_ranks.append(reciprocal_rank)
+    
+    return np.mean(reciprocal_ranks)
+
+# Example usage
+relevant_sets = [{'doc1', 'doc3'}, {'doc2', 'doc4'}]
+retrieved_lists = [
+    ['doc2', 'doc1', 'doc3'],  # First relevant at position 2
+    ['doc4', 'doc1', 'doc2']   # First relevant at position 1
+]
+
+mrr = mean_reciprocal_rank(relevant_sets, retrieved_lists)
+print(f"MRR: {mrr:.3f}")
+            </div>
+
+            <h4>Normalized Discounted Cumulative Gain (NDCG)</h4>
+            <div class="formula">
+                DCG@K = Σ(rel_i / log₂(i+1)) for i=1 to K<br>
+                NDCG@K = DCG@K / IDCG@K
+            </div>
+
+            <div class="code-block">
+import math
+
+def dcg_at_k(relevance_scores, k):
+    """Calculate Discounted Cumulative Gain at K"""
+    dcg = 0.0
+    for i, score in enumerate(relevance_scores[:k]):
+        dcg += score / math.log2(i + 2)  # i+2 because positions start at 1
+    return dcg
+
+def ndcg_at_k(relevance_scores, k):
+    """Calculate Normalized DCG at K"""
+    dcg = dcg_at_k(relevance_scores, k)
+    
+    # Calculate ideal DCG (IDCG)
+    ideal_scores = sorted(relevance_scores, reverse=True)
+    idcg = dcg_at_k(ideal_scores, k)
+    
+    return dcg / idcg if idcg > 0 else 0.0
+
+# Example with graded relevance (0-3 scale)
+relevance_scores = [3, 0, 2, 1, 0, 3, 1]  # Retrieved documents' relevance
+k = 5
+
+ndcg = ndcg_at_k(relevance_scores, k)
+print(f"NDCG@{k}: {ndcg:.3f}")
+
+# Multi-query NDCG
+def mean_ndcg_at_k(all_relevance_scores, k):
+    """Calculate mean NDCG@K across multiple queries"""
+    ndcg_scores = []
+    for relevance_scores in all_relevance_scores:
+        ndcg = ndcg_at_k(relevance_scores, k)
+        ndcg_scores.append(ndcg)
+    return np.mean(ndcg_scores)
+            </div>
+
+            <h4>Mean Average Precision (MAP)</h4>
+            <div class="formula">
+                MAP = (1/|Q|) × Σ(AP_q) where AP_q = (1/|R_q|) × Σ(P@k × rel_k)
+            </div>
+
+            <div class="code-block">
+def average_precision(relevant_items, retrieved_items):
+    """Calculate Average Precision for a single query"""
+    if not relevant_items:
+        return 0.0
+    
+    precision_sum = 0.0
+    num_relevant_found = 0
+    
+    for k, item in enumerate(retrieved_items, 1):
+        if item in relevant_items:
+            num_relevant_found += 1
+            precision_at_k = num_relevant_found / k
+            precision_sum += precision_at_k
+    
+    return precision_sum / len(relevant_items) if relevant_items else 0.0
+
+def mean_average_precision(relevant_items_list, retrieved_items_list):
+    """Calculate Mean Average Precision across multiple queries"""
+    ap_scores = []
+    for relevant_items, retrieved_items in zip(relevant_items_list, retrieved_items_list):
+        ap = average_precision(relevant_items, retrieved_items)
+        ap_scores.append(ap)
+    
+    return np.mean(ap_scores)
+
+# Example usage
+relevant_sets = [
+    {'doc1', 'doc3', 'doc5'},
+    {'doc2', 'doc4'}
+]
+retrieved_lists = [
+    ['doc1', 'doc2', 'doc3', 'doc4', 'doc5'],
+    ['doc1', 'doc2', 'doc3', 'doc4']
+]
+
+map_score = mean_average_precision(relevant_sets, retrieved_lists)
+print(f"MAP: {map_score:.3f}")
+            </div>
+
+            <h3>Modern RAG-Specific Metrics (2024)</h3>
+
+            <div class="code-block">
+class RAGEvaluationMetrics:
+    """
+    Modern metrics for RAG systems that account for LLM consumption patterns
+    Based on 2024 research highlighting issues with traditional IR metrics for RAG
+    """
+    
+    def __init__(self, llm_model=None):
+        self.llm_model = llm_model
+    
+    def retrieval_utility_score(self, query, retrieved_docs, ground_truth_answer):
+        """
+        Measure how useful retrieved documents are for LLM answer generation
+        Rather than just relevance to query
+        """
+        if not self.llm_model:
+            return self._simple_utility_score(retrieved_docs, ground_truth_answer)
+        
+        # Generate answer using retrieved docs
+        context = "\n".join(retrieved_docs)
+        prompt = f"Context: {context}\n\nQuestion: {query}\nAnswer:"
+        generated_answer = self.llm_model.generate(prompt)
+        
+        # Compare with ground truth (simplified)
+        utility_score = self._answer_similarity(generated_answer, ground_truth_answer)
+        return utility_score
+    
+    def context_utilization_rate(self, query, retrieved_docs, generated_answer):
+        """
+        Measure how much of the retrieved context is actually used by the LLM
+        """
+        used_docs = 0
+        for doc in retrieved_docs:
+            # Simple check if document content appears in answer
+            if self._doc_influences_answer(doc, generated_answer):
+                used_docs += 1
+        
+        return used_docs / len(retrieved_docs) if retrieved_docs else 0.0
+    
+    def retrieval_precision_for_llm(self, query, retrieved_docs, ground_truth_answer):
+        """
+        Precision metric that considers LLM's ability to identify relevant information
+        """
+        useful_docs = 0
+        for doc in retrieved_docs:
+            if self._doc_contributes_to_answer(doc, query, ground_truth_answer):
+                useful_docs += 1
+        
+        return useful_docs / len(retrieved_docs) if retrieved_docs else 0.0
+    
+    def _simple_utility_score(self, retrieved_docs, ground_truth):
+        """Simplified utility scoring without LLM"""
+        # Basic keyword overlap (simplified)
+        gt_words = set(ground_truth.lower().split())
+        total_overlap = 0
+        
+        for doc in retrieved_docs:
+            doc_words = set(doc.lower().split())
+            overlap = len(gt_words.intersection(doc_words))
+            total_overlap += overlap / len(gt_words) if gt_words else 0
+        
+        return total_overlap / len(retrieved_docs) if retrieved_docs else 0.0
+    
+    def _answer_similarity(self, generated, ground_truth):
+        """Compute similarity between generated and ground truth answers"""
+        # Simplified implementation - in practice use semantic similarity
+        gen_words = set(generated.lower().split())
+        gt_words = set(ground_truth.lower().split())
+        
+        if not gt_words:
+            return 0.0
+        
+        overlap = len(gen_words.intersection(gt_words))
+        return overlap / len(gt_words)
+    
+    def _doc_influences_answer(self, doc, answer):
+        """Check if document influenced the generated answer"""
+        doc_words = set(doc.lower().split())
+        answer_words = set(answer.lower().split())
+        
+        # Simple heuristic: if >30% of doc words appear in answer
+        overlap = len(doc_words.intersection(answer_words))
+        return overlap / len(doc_words) > 0.3 if doc_words else False
+    
+    def _doc_contributes_to_answer(self, doc, query, ground_truth):
+        """Check if document contributes useful information for the answer"""
+        # Simplified: check if doc contains information relevant to ground truth
+        doc_words = set(doc.lower().split())
+        gt_words = set(ground_truth.lower().split())
+        
+        overlap = len(doc_words.intersection(gt_words))
+        return overlap > 0
+
+# Usage
+evaluator = RAGEvaluationMetrics()
+
+# Traditional metrics
+query = "What is machine learning?"
+retrieved = ["Doc about ML algorithms", "Doc about AI", "Irrelevant doc"]
+ground_truth = "Machine learning is a subset of AI that uses algorithms to learn patterns"
+
+utility = evaluator.retrieval_utility_score(query, retrieved, ground_truth)
+print(f"Retrieval Utility Score: {utility:.3f}")
+
+# Context utilization
+generated_answer = "Machine learning uses algorithms to identify patterns in data"
+utilization = evaluator.context_utilization_rate(query, retrieved, generated_answer)
+print(f"Context Utilization Rate: {utilization:.3f}")
+            </div>
+
+            <div class="warning">
+                <strong>2024 Research Findings:</strong> Traditional IR metrics (nDCG, MAP, MRR) may not accurately predict RAG performance because:
+                <ul>
+                    <li>LLMs process all retrieved documents holistically, not sequentially</li>
+                    <li>Human relevance judgments differ from machine utility for answer generation</li>
+                    <li>Position-based discounting doesn't align with how LLMs consume context</li>
+                </ul>
+            </div>
+
+            <h3>Comprehensive Evaluation Framework</h3>
+            <div class="code-block">
+class ComprehensiveRAGEvaluator:
+    """Complete evaluation framework combining traditional and modern metrics"""
+    
+    def __init__(self):
+        self.rag_metrics = RAGEvaluationMetrics()
+    
+    def evaluate_retrieval_system(self, test_queries, ground_truth, retrieved_results):
+        """
+        Comprehensive evaluation of a retrieval system
+        """
+        results = {
+            'traditional_metrics': {},
+            'rag_specific_metrics': {},
+            'per_query_results': []
+        }
+        
+        all_precision = []
+        all_recall = []
+        all_f1 = []
+        all_mrr = []
+        all_ndcg = []
+        all_map = []
+        all_utility = []
+        all_utilization = []
+        
+        for query_data in test_queries:
+            query = query_data['query']
+            relevant_docs = query_data['relevant_docs']
+            retrieved_docs = retrieved_results[query]
+            gt_answer = ground_truth[query]
+            
+            # Traditional metrics
+            precision = precision_at_k(relevant_docs, retrieved_docs, k=10)
+            recall = recall_at_k(relevant_docs, retrieved_docs, k=10)
+            f1 = f1_at_k(relevant_docs, retrieved_docs, k=10)
+            
+            # Single query MRR
+            mrr = 1.0 / (next((i for i, doc in enumerate(retrieved_docs, 1) 
+                              if doc in relevant_docs), 0) or float('inf'))
+            if mrr == float('inf'):
+                mrr = 0.0
+            
+            # NDCG (simplified binary relevance)
+            relevance_scores = [1 if doc in relevant_docs else 0 
+                              for doc in retrieved_docs[:10]]
+            ndcg = ndcg_at_k(relevance_scores, 10)
+            
+            # MAP for single query
+            ap = average_precision(relevant_docs, retrieved_docs)
+            
+            # RAG-specific metrics
+            utility = self.rag_metrics.retrieval_utility_score(query, retrieved_docs, gt_answer)
+            
+            # Store results
+            all_precision.append(precision)
+            all_recall.append(recall)
+            all_f1.append(f1)
+            all_mrr.append(mrr)
+            all_ndcg.append(ndcg)
+            all_map.append(ap)
+            all_utility.append(utility)
+            
+            results['per_query_results'].append({
+                'query': query,
+                'precision@10': precision,
+                'recall@10': recall,
+                'f1@10': f1,
+                'mrr': mrr,
+                'ndcg@10': ndcg,
+                'ap': ap,
+                'utility_score': utility
+            })
+        
+        # Aggregate results
+        results['traditional_metrics'] = {
+            'precision@10': np.mean(all_precision),
+            'recall@10': np.mean(all_recall),
+            'f1@10': np.mean(all_f1),
+            'mrr': np.mean(all_mrr),
+            'ndcg@10': np.mean(all_ndcg),
+            'map': np.mean(all_map)
+        }
+        
+        results['rag_specific_metrics'] = {
+            'mean_utility_score': np.mean(all_utility),
+        }
+        
+        return results
+    
+    def print_evaluation_report(self, results):
+        """Print formatted evaluation report"""
+        print("=== Retrieval System Evaluation Report ===\n")
+        
+        print("Traditional IR Metrics:")
+        for metric, value in results['traditional_metrics'].items():
+            print(f"  {metric}: {value:.4f}")
+        
+        print("\nRAG-Specific Metrics:")
+        for metric, value in results['rag_specific_metrics'].items():
+            print(f"  {metric}: {value:.4f}")
+        
+        print(f"\nEvaluated on {len(results['per_query_results'])} queries")
+
+# Example usage
+evaluator = ComprehensiveRAGEvaluator()
+
+# Your test data
+test_queries = [
+    {
+        'query': 'What is machine learning?',
+        'relevant_docs': ['doc1', 'doc3', 'doc5']
+    }
+    # ... more queries
+]
+
+ground_truth = {
+    'What is machine learning?': 'Machine learning is a subset of AI...'
+}
+
+retrieved_results = {
+    'What is machine learning?': ['doc1', 'doc2', 'doc3', 'doc4', 'doc5']
+}
+
+results = evaluator.evaluate_retrieval_system(test_queries, ground_truth, retrieved_results)
+evaluator.print_evaluation_report(results)
+            </div>
+        </section>
+
+        <div class="success">
+            <h3>Key Takeaways for Modern Retrieval Systems</h3>
+            <ul>
+                <li><strong>Hybrid Approach:</strong> Combine vector search with keyword search using RRF for optimal results</li>
+                <li><strong>Multi-stage Pipeline:</strong> Use bi-encoders for initial retrieval, ColBERT for refinement, cross-encoders for final reranking</li>
+                <li><strong>Metric Selection:</strong> Traditional IR metrics may not reflect RAG performance; consider LLM-centric evaluation</li>
+                <li><strong>Performance Optimization:</strong> Implement quantization, batching, and appropriate indexing for production systems</li>
+                <li><strong>Database Choice:</strong> Select vector database based on use case: Pinecone for production, Weaviate for complex relationships, Chroma for simplicity</li>
+            </ul>
+        </div>
+
+        <footer style="margin-top: 50px; padding-top: 20px; border-top: 1px solid #dee2e6; text-align: center; color: #6c757d;">
+            <p>Retrieval Methods Handbook | Updated March 2026 | Based on latest research and industry best practices</p>
+        </footer>
+    </div>
+</body>
+</html>

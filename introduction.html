@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG (Retrieval-Augmented Generation) - Complete Introduction</title>
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: white;
+            --bg-tertiary: #f1f3f4;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --link-color: #1a73e8;
+            --link-hover: #1557b0;
+            --border-color: #dadce0;
+            --code-bg: #f8f9fa;
+            --code-border: #e8eaed;
+            --highlight-bg: #e8f0fe;
+            --warning-bg: #fef7e0;
+            --success-bg: #e6f4ea;
+            --error-bg: #fce8e6;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9aa0a6;
+            --link-color: #8ab4f8;
+            --link-hover: #aecbfa;
+            --border-color: #5f6368;
+            --code-bg: #1e1e1e;
+            --code-border: #5f6368;
+            --highlight-bg: #1e3a8a;
+            --warning-bg: #3e2723;
+            --success-bg: #1b5e20;
+            --error-bg: #b71c1c;
+            --shadow: 0 1px 2px 0 rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            min-height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--highlight-bg), var(--bg-tertiary));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-secondary);
+        }
+
+        .nav-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--link-color);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-back:hover {
+            background: var(--link-hover);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .toc {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--link-color);
+        }
+
+        .toc h2 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: var(--link-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: var(--link-hover);
+        }
+
+        .section {
+            margin-bottom: 50px;
+            padding: 30px;
+            background-color: var(--bg-tertiary);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--link-color);
+            border-bottom: 3px solid var(--link-color);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 25px 0 15px 0;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        ul, ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+
+        li {
+            margin: 8px 0;
+            color: var(--text-primary);
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .inline-code {
+            background-color: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid var(--link-color);
+        }
+
+        .warning-box {
+            background-color: var(--warning-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .success-box {
+            background-color: var(--success-bg);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background-color: var(--link-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .diagram {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+
+        .workflow-step {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .workflow-step h4 {
+            color: var(--link-color);
+            margin-bottom: 10px;
+        }
+
+        .use-case {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .use-case h4 {
+            color: var(--link-color);
+            margin-bottom: 10px;
+        }
+
+        .rag-type {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+
+        .rag-type h4 {
+            color: var(--link-color);
+            margin-bottom: 10px;
+        }
+
+        .challenge-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .challenge {
+            background-color: var(--error-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #f44336;
+        }
+
+        .solution {
+            background-color: var(--success-bg);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4caf50;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 10px;
+            }
+
+            .section {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .challenge-solution {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-back, .theme-toggle {
+                position: relative;
+                top: auto;
+                left: auto;
+                right: auto;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="nav-back">← Back to Index</a>
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+            <h1>RAG: Retrieval-Augmented Generation</h1>
+            <p class="subtitle">A Complete Introduction to Building Intelligent AI Systems</p>
+        </div>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#what-is-rag">1. What is RAG?</a></li>
+                <li><a href="#rag-vs-traditional">2. RAG vs Traditional LLMs</a></li>
+                <li><a href="#core-architecture">3. Core RAG Architecture</a></li>
+                <li><a href="#workflow">4. RAG Workflow Step-by-Step</a></li>
+                <li><a href="#benefits">5. Benefits and Use Cases</a></li>
+                <li><a href="#types">6. Types of RAG Systems</a></li>
+                <li><a href="#applications">7. Real-World Applications</a></li>
+                <li><a href="#implementation">8. Code Implementation Examples</a></li>
+                <li><a href="#challenges">9. Common Challenges and Solutions</a></li>
+            </ul>
+        </div>
+
+        <section id="what-is-rag" class="section">
+            <h2>1. What is RAG? - Comprehensive Explanation</h2>
+            
+            <p><strong>Retrieval-Augmented Generation (RAG)</strong> is a powerful AI architecture that combines the strengths of large language models (LLMs) with external knowledge retrieval systems. Unlike traditional LLMs that rely solely on their pre-trained knowledge, RAG systems can access and incorporate real-time, domain-specific, or updated information from external sources.</p>
+
+            <h3>Core Concept</h3>
+            <p>RAG works by first retrieving relevant information from a knowledge base or document collection, then using this retrieved context to augment the language model's generation process. This approach enables AI systems to provide more accurate, up-to-date, and contextually relevant responses.</p>
+
+            <div class="highlight-box">
+                <h4>Key Innovation</h4>
+                <p>RAG bridges the gap between the parametric knowledge stored in neural networks and the vast amount of non-parametric knowledge available in external databases, documents, and real-time data sources.</p>
+            </div>
+
+            <h3>Why RAG Matters</h3>
+            <ul>
+                <li><strong>Knowledge Currency:</strong> Provides access to information beyond the model's training cutoff</li>
+                <li><strong>Domain Specificity:</strong> Enables specialization in specific fields or organizations</li>
+                <li><strong>Factual Accuracy:</strong> Reduces hallucinations by grounding responses in retrieved facts</li>
+                <li><strong>Transparency:</strong> Allows citation and verification of information sources</li>
+                <li><strong>Cost Efficiency:</strong> Avoids the need to retrain massive models for new information</li>
+            </ul>
+
+            <h3>The RAG Paradigm Shift</h3>
+            <p>Traditional AI systems are like having a very knowledgeable person who can only reference what they learned in school. RAG systems are like giving that same person access to a vast library and real-time internet access, allowing them to look up current information and provide more comprehensive, accurate answers.</p>
+        </section>
+
+        <section id="rag-vs-traditional" class="section">
+            <h2>2. RAG vs Traditional LLMs Comparison</h2>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Traditional LLMs</th>
+                        <th>RAG Systems</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Knowledge Source</strong></td>
+                        <td>Pre-trained parameters only</td>
+                        <td>Pre-trained parameters + External retrieval</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Knowledge Updates</strong></td>
+                        <td>Requires model retraining</td>
+                        <td>Update knowledge base dynamically</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Factual Accuracy</strong></td>
+                        <td>Prone to hallucinations</td>
+                        <td>Grounded in retrieved facts</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Domain Specialization</strong></td>
+                        <td>Limited to training data</td>
+                        <td>Easy domain adaptation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Computational Cost</strong></td>
+                        <td>High inference cost for large models</td>
+                        <td>Moderate cost (retrieval + generation)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Transparency</strong></td>
+                        <td>Black box reasoning</td>
+                        <td>Citable sources and reasoning</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Limited by parameter count</td>
+                        <td>Scales with knowledge base size</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Performance Characteristics</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Traditional LLM Limitations</h4>
+                    <ul>
+                        <li>Knowledge cutoff dates</li>
+                        <li>Hallucination of facts</li>
+                        <li>Inability to access current information</li>
+                        <li>Limited domain-specific knowledge</li>
+                        <li>Expensive fine-tuning for specialization</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>RAG Advantages</h4>
+                    <ul>
+                        <li>Real-time information access</li>
+                        <li>Reduced hallucinations</li>
+                        <li>Current and updated knowledge</li>
+                        <li>Easy domain customization</li>
+                        <li>Cost-effective specialization</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>When to Use Each Approach</h3>
+            <p><strong>Traditional LLMs are better for:</strong></p>
+            <ul>
+                <li>General conversation and creative tasks</li>
+                <li>Tasks not requiring specific factual knowledge</li>
+                <li>Scenarios where inference speed is critical</li>
+                <li>Applications with limited computational resources</li>
+            </ul>
+
+            <p><strong>RAG systems are better for:</strong></p>
+            <ul>
+                <li>Question-answering systems requiring factual accuracy</li>
+                <li>Domain-specific applications (legal, medical, technical)</li>
+                <li>Systems needing current or updated information</li>
+                <li>Applications requiring source attribution</li>
+            </ul>
+        </section>
+
+        <section id="core-architecture" class="section">
+            <h2>3. Core RAG Architecture with Diagrams</h2>
+
+            <h3>High-Level Architecture</h3>
+            <div class="diagram">
+                <pre>
+┌─────────────────────────────────────────────────────────────────────┐
+│                          RAG SYSTEM ARCHITECTURE                    │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────┐  │
+│  │    Query     │───▶│   Retriever  │───▶│    Knowledge Base    │  │
+│  │  Processing  │    │   Component  │    │                      │  │
+│  └──────────────┘    └──────────────┘    │  • Documents         │  │
+│         │                      │         │  • Embeddings        │  │
+│         │                      │         │  • Metadata          │  │
+│         │                      ▼         └──────────────────────┘  │
+│         │             ┌──────────────┐                             │
+│         │             │  Retrieved   │                             │
+│         │             │   Context    │                             │
+│         │             └──────────────┘                             │
+│         │                      │                                   │
+│         ▼                      ▼                                   │
+│  ┌─────────────────────────────────────────┐                      │
+│  │            Generator (LLM)              │                      │
+│  │                                         │                      │
+│  │  Query + Retrieved Context ──────────▶  │                      │
+│  │                                         │                      │
+│  │  ┌─────────────────────────────────┐   │                      │
+│  │  │        Final Response           │   │                      │
+│  │  └─────────────────────────────────┘   │                      │
+│  └─────────────────────────────────────────┘                      │
+└─────────────────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+
+            <h3>Component Breakdown</h3>
+
+            <h4>1. Knowledge Base</h4>
+            <p>The foundation of any RAG system, containing:</p>
+            <ul>
+                <li><strong>Document Store:</strong> Raw documents, text chunks, structured data</li>
+                <li><strong>Vector Database:</strong> Embedded representations of knowledge for semantic search</li>
+                <li><strong>Metadata Store:</strong> Additional context, tags, and organizational information</li>
+                <li><strong>Indexing System:</strong> Efficient retrieval mechanisms</li>
+            </ul>
+
+            <h4>2. Retrieval Component</h4>
+            <p>Responsible for finding relevant information:</p>
+            <ul>
+                <li><strong>Query Encoder:</strong> Converts user queries to searchable format</li>
+                <li><strong>Similarity Search:</strong> Finds semantically similar content</li>
+                <li><strong>Ranking Algorithm:</strong> Orders results by relevance</li>
+                <li><strong>Context Assembly:</strong> Combines multiple retrieved pieces</li>
+            </ul>
+
+            <h4>3. Generation Component</h4>
+            <p>The language model that produces the final response:</p>
+            <ul>
+                <li><strong>Context Integration:</strong> Merges query with retrieved information</li>
+                <li><strong>Response Generation:</strong> Produces coherent, contextual answers</li>
+                <li><strong>Citation Handling:</strong> References source materials</li>
+                <li><strong>Quality Control:</strong> Ensures response relevance and accuracy</li>
+            </ul>
+
+            <h3>Data Flow Architecture</h3>
+            <div class="diagram">
+                <pre>
+┌─────────────────────────────────────────────────────────────────────┐
+│                        DATA FLOW DIAGRAM                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│ User Query                                                          │
+│     │                                                               │
+│     ▼                                                               │
+│ ┌─────────────┐     ┌──────────────────────────────────────┐       │
+│ │   Query     │────▶│         Vector Search                │       │
+│ │ Embedding   │     │                                      │       │
+│ └─────────────┘     │  ┌─────────────┐  ┌─────────────┐   │       │
+│                     │  │ Embedding   │  │ Similarity  │   │       │
+│                     │  │ Database    │  │ Calculation │   │       │
+│                     │  └─────────────┘  └─────────────┘   │       │
+│                     └──────────────────────────────────────┘       │
+│                                  │                                 │
+│                                  ▼                                 │
+│                     ┌──────────────────────────────────────┐       │
+│                     │       Top-K Results                  │       │
+│                     │                                      │       │
+│                     │ Doc 1: "Climate change effects..."  │       │
+│                     │ Doc 2: "Temperature rising by..."   │       │
+│                     │ Doc 3: "Carbon emissions data..."   │       │
+│                     └──────────────────────────────────────┘       │
+│                                  │                                 │
+│                                  ▼                                 │
+│ ┌─────────────────────────────────────────────────────────────┐   │
+│ │                    Prompt Template                          │   │
+│ │                                                             │   │
+│ │ Context: [Retrieved Documents]                              │   │
+│ │ Question: [User Query]                                      │   │
+│ │ Please provide an answer based on the context above.       │   │
+│ └─────────────────────────────────────────────────────────────┘   │
+│                                  │                                 │
+│                                  ▼                                 │
+│ ┌─────────────────────────────────────────────────────────────┐   │
+│ │                  Language Model                             │   │
+│ │                                                             │   │
+│ │              Generated Response                             │   │
+│ └─────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────┘
+                </pre>
+            </div>
+
+            <h3>Vector Embedding Process</h3>
+            <div class="diagram">
+                <pre>
+Documents → Chunking → Embedding → Vector DB → Retrieval
+    │           │          │           │          │
+    │           │          │           │          │
+    ▼           ▼          ▼           ▼          ▼
+┌──────┐  ┌──────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+│"The  │  │ Chunk 1: │ │ [0.2,   │ │ Store   │ │ Query   │
+│ cat  │  │ "The cat"│ │  0.8,   │ │ vectors │ │ vector  │
+│ sat  │  │         │ │  -0.1,  │ │ with    │ │ search  │
+│ on   │  │ Chunk 2: │ │  0.5,   │ │ metadata│ │ for     │
+│ the  │  │ "sat on" │ │  ...]   │ │         │ │ similar │
+│ mat" │  │         │ │         │ │         │ │ vectors │
+└──────┘  └──────────┘ └─────────┘ └─────────┘ └─────────┘
+                </pre>
+            </div>
+        </section>
+
+        <section id="workflow" class="section">
+            <h2>4. RAG Workflow Step-by-Step</h2>
+
+            <div class="workflow-step">
+                <h4>Step 1: Knowledge Ingestion and Preprocessing</h4>
+                <p><strong>Objective:</strong> Prepare and store knowledge for efficient retrieval</p>
+                <ul>
+                    <li><strong>Document Collection:</strong> Gather relevant documents, web pages, databases</li>
+                    <li><strong>Text Extraction:</strong> Convert PDFs, HTML, and other formats to plain text</li>
+                    <li><strong>Cleaning:</strong> Remove noise, formatting artifacts, and irrelevant content</li>
+                    <li><strong>Chunking:</strong> Split documents into manageable pieces (200-1000 tokens typically)</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 2: Embedding Generation</h4>
+                <p><strong>Objective:</strong> Convert text chunks into numerical representations</p>
+                <ul>
+                    <li><strong>Model Selection:</strong> Choose appropriate embedding model (e.g., sentence-transformers)</li>
+                    <li><strong>Vector Creation:</strong> Generate dense vector representations for each chunk</li>
+                    <li><strong>Dimensionality:</strong> Typically 384, 768, or 1536 dimensions</li>
+                    <li><strong>Quality Assurance:</strong> Validate embedding quality and coverage</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 3: Vector Database Storage</h4>
+                <p><strong>Objective:</strong> Store embeddings for efficient similarity search</p>
+                <ul>
+                    <li><strong>Database Setup:</strong> Configure vector database (Pinecone, Weaviate, Chroma)</li>
+                    <li><strong>Indexing:</strong> Create searchable indexes for fast retrieval</li>
+                    <li><strong>Metadata Storage:</strong> Store associated metadata (source, date, tags)</li>
+                    <li><strong>Optimization:</strong> Tune for query speed vs. accuracy trade-offs</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 4: Query Processing</h4>
+                <p><strong>Objective:</strong> Transform user queries for optimal retrieval</p>
+                <ul>
+                    <li><strong>Query Understanding:</strong> Parse and analyze user intent</li>
+                    <li><strong>Query Expansion:</strong> Add synonyms, related terms, context</li>
+                    <li><strong>Embedding Generation:</strong> Convert query to vector representation</li>
+                    <li><strong>Filter Application:</strong> Apply metadata filters if needed</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 5: Similarity Search and Retrieval</h4>
+                <p><strong>Objective:</strong> Find most relevant knowledge pieces</p>
+                <ul>
+                    <li><strong>Vector Search:</strong> Compute cosine similarity or other distance metrics</li>
+                    <li><strong>Top-K Selection:</strong> Retrieve top N most similar chunks (typically 3-10)</li>
+                    <li><strong>Reranking:</strong> Apply secondary ranking algorithms for refinement</li>
+                    <li><strong>Diversity:</strong> Ensure retrieved content covers different aspects</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 6: Context Assembly</h4>
+                <p><strong>Objective:</strong> Prepare retrieved information for the language model</p>
+                <ul>
+                    <li><strong>Context Compilation:</strong> Combine retrieved chunks intelligently</li>
+                    <li><strong>Deduplication:</strong> Remove redundant information</li>
+                    <li><strong>Length Management:</strong> Ensure context fits within token limits</li>
+                    <li><strong>Source Attribution:</strong> Maintain references to original sources</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 7: Prompt Engineering</h4>
+                <p><strong>Objective:</strong> Structure input for optimal language model performance</p>
+                <ul>
+                    <li><strong>Template Design:</strong> Create effective prompt templates</li>
+                    <li><strong>Context Integration:</strong> Seamlessly blend query and retrieved context</li>
+                    <li><strong>Instruction Clarity:</strong> Provide clear guidelines for response generation</li>
+                    <li><strong>Format Specification:</strong> Define expected output format</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 8: Response Generation</h4>
+                <p><strong>Objective:</strong> Generate final answer using language model</p>
+                <ul>
+                    <li><strong>Model Inference:</strong> Pass structured prompt to language model</li>
+                    <li><strong>Response Generation:</strong> Generate contextually appropriate answer</li>
+                    <li><strong>Quality Control:</strong> Apply filters for safety and relevance</li>
+                    <li><strong>Post-processing:</strong> Format and enhance the final response</li>
+                </ul>
+            </div>
+
+            <div class="workflow-step">
+                <h4>Step 9: Response Enhancement and Delivery</h4>
+                <p><strong>Objective:</strong> Finalize and present the answer to the user</p>
+                <ul>
+                    <li><strong>Citation Addition:</strong> Include references to source materials</li>
+                    <li><strong>Confidence Scoring:</strong> Assess and communicate answer confidence</li>
+                    <li><strong>Format Optimization:</strong> Structure for optimal user experience</li>
+                    <li><strong>Feedback Collection:</strong> Gather user feedback for system improvement</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="benefits" class="section">
+            <h2>5. Benefits and Use Cases</h2>
+
+            <h3>Key Benefits of RAG Systems</h3>
+
+            <div class="success-box">
+                <h4>Accuracy and Reliability</h4>
+                <ul>
+                    <li><strong>Reduced Hallucinations:</strong> Grounding in real data minimizes false information</li>
+                    <li><strong>Source Attribution:</strong> Ability to cite and verify information sources</li>
+                    <li><strong>Fact-checking:</strong> Cross-reference multiple sources for validation</li>
+                    <li><strong>Confidence Metrics:</strong> Assess reliability of generated responses</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4>Flexibility and Adaptability</h4>
+                <ul>
+                    <li><strong>Dynamic Knowledge Updates:</strong> Add new information without model retraining</li>
+                    <li><strong>Domain Specialization:</strong> Easy customization for specific fields</li>
+                    <li><strong>Multi-modal Support:</strong> Integration of text, images, and structured data</li>
+                    <li><strong>Scalable Architecture:</strong> Handle growing knowledge bases efficiently</li>
+                </ul>
+            </div>
+
+            <div class="success-box">
+                <h4>Cost Effectiveness</h4>
+                <ul>
+                    <li><strong>Reduced Training Costs:</strong> No need for expensive model fine-tuning</li>
+                    <li><strong>Efficient Inference:</strong> Smaller models with external knowledge support</li>
+                    <li><strong>Resource Optimization:</strong> Balance between computation and storage</li>
+                    <li><strong>Maintenance Efficiency:</strong> Update knowledge without system rebuilding</li>
+                </ul>
+            </div>
+
+            <h3>Primary Use Cases</h3>
+
+            <div class="use-case">
+                <h4>Enterprise Knowledge Management</h4>
+                <p><strong>Application:</strong> Internal company knowledge bases and documentation systems</p>
+                <ul>
+                    <li>Employee onboarding and training systems</li>
+                    <li>Technical documentation and troubleshooting guides</li>
+                    <li>Policy and procedure question-answering</li>
+                    <li>Institutional memory preservation and access</li>
+                </ul>
+                <p><strong>Benefits:</strong> Improved employee productivity, consistent information delivery, reduced support burden</p>
+            </div>
+
+            <div class="use-case">
+                <h4>Customer Support and Service</h4>
+                <p><strong>Application:</strong> Automated customer service systems and help desks</p>
+                <ul>
+                    <li>Product information and troubleshooting</li>
+                    <li>FAQ automation with current information</li>
+                    <li>Ticket routing and initial response generation</li>
+                    <li>Multi-language customer support</li>
+                </ul>
+                <p><strong>Benefits:</strong> 24/7 availability, consistent service quality, reduced response times, cost savings</p>
+            </div>
+
+            <div class="use-case">
+                <h4>Research and Academic Applications</h4>
+                <p><strong>Application:</strong> Scientific literature analysis and research assistance</p>
+                <ul>
+                    <li>Literature review and synthesis</li>
+                    <li>Research paper summarization</li>
+                    <li>Citation and reference management</li>
+                    <li>Knowledge discovery and connection finding</li>
+                </ul>
+                <p><strong>Benefits:</strong> Accelerated research processes, comprehensive literature coverage, novel insight discovery</p>
+            </div>
+
+            <div class="use-case">
+                <h4>Legal and Compliance</h4>
+                <p><strong>Application:</strong> Legal document analysis and regulatory compliance</p>
+                <ul>
+                    <li>Contract analysis and review</li>
+                    <li>Regulatory compliance checking</li>
+                    <li>Legal precedent research</li>
+                    <li>Due diligence automation</li>
+                </ul>
+                <p><strong>Benefits:</strong> Improved accuracy, faster document review, comprehensive compliance coverage</p>
+            </div>
+
+            <div class="use-case">
+                <h4>Healthcare and Medical</h4>
+                <p><strong>Application:</strong> Medical knowledge systems and clinical decision support</p>
+                <ul>
+                    <li>Clinical guideline consultation</li>
+                    <li>Drug interaction checking</li>
+                    <li>Medical literature review</li>
+                    <li>Diagnostic assistance</li>
+                </ul>
+                <p><strong>Benefits:</strong> Evidence-based decision making, current medical knowledge access, improved patient outcomes</p>
+            </div>
+
+            <div class="use-case">
+                <h4>Financial Services</h4>
+                <p><strong>Application:</strong> Financial analysis and advisory services</p>
+                <ul>
+                    <li>Market research and analysis</li>
+                    <li>Regulatory requirement interpretation</li>
+                    <li>Investment research and recommendations</li>
+                    <li>Risk assessment and management</li>
+                </ul>
+                <p><strong>Benefits:</strong> Current market data access, comprehensive analysis, regulatory compliance, risk mitigation</p>
+            </div>
+
+            <h3>Industry-Specific Applications</h3>
+            <ul>
+                <li><strong>E-commerce:</strong> Product recommendation and customer query handling</li>
+                <li><strong>Education:</strong> Personalized tutoring and curriculum assistance</li>
+                <li><strong>Manufacturing:</strong> Technical documentation and maintenance guides</li>
+                <li><strong>Government:</strong> Public information systems and citizen services</li>
+                <li><strong>Media:</strong> Content research and fact-checking systems</li>
+                <li><strong>Travel:</strong> Dynamic travel information and recommendation systems</li>
+            </ul>
+        </section>
+
+        <section id="types" class="section">
+            <h2>6. Types of RAG Systems</h2>
+
+            <div class="rag-type">
+                <h4>1. Naive RAG (Basic RAG)</h4>
+                <p><strong>Architecture:</strong> Simple retrieve-then-generate approach</p>
+                
+                <h5>Characteristics:</h5>
+                <ul>
+                    <li>Direct similarity search without query optimization</li>
+                    <li>Fixed chunk size and retrieval count</li>
+                    <li>Single-step retrieval process</li>
+                    <li>Minimal post-processing of retrieved content</li>
+                </ul>
+
+                <h5>Workflow:</h5>
+                <div class="code-block">
+                    <pre>
+Query → Embedding → Vector Search → Top-K Results → LLM → Response
+                    </pre>
+                </div>
+
+                <h5>Pros:</h5>
+                <ul>
+                    <li>Simple to implement and understand</li>
+                    <li>Fast inference time</li>
+                    <li>Low computational overhead</li>
+                    <li>Good baseline performance</li>
+                </ul>
+
+                <h5>Cons:</h5>
+                <ul>
+                    <li>Limited retrieval accuracy</li>
+                    <li>No query understanding or optimization</li>
+                    <li>Fixed retrieval strategy</li>
+                    <li>Potential for irrelevant context inclusion</li>
+                </ul>
+
+                <h5>Best for:</h5>
+                <ul>
+                    <li>Proof-of-concept implementations</li>
+                    <li>Simple question-answering tasks</li>
+                    <li>Well-structured knowledge bases</li>
+                    <li>Resource-constrained environments</li>
+                </ul>
+            </div>
+
+            <div class="rag-type">
+                <h4>2. Advanced RAG (Enhanced RAG)</h4>
+                <p><strong>Architecture:</strong> Sophisticated retrieval with optimization techniques</p>
+                
+                <h5>Key Enhancements:</h5>
+                <ul>
+                    <li><strong>Query Optimization:</strong> Query expansion, rewriting, and intent understanding</li>
+                    <li><strong>Multi-stage Retrieval:</strong> Coarse-to-fine search strategies</li>
+                    <li><strong>Reranking:</strong> Secondary scoring models for relevance refinement</li>
+                    <li><strong>Context Optimization:</strong> Smart chunking and context assembly</li>
+                </ul>
+
+                <h5>Advanced Techniques:</h5>
+                <ul>
+                    <li><strong>Hybrid Search:</strong> Combining dense and sparse retrieval methods</li>
+                    <li><strong>Query Decomposition:</strong> Breaking complex queries into sub-queries</li>
+                    <li><strong>Contextual Compression:</strong> Intelligent context length management</li>
+                    <li><strong>Multi-vector Retrieval:</strong> Different embeddings for different query types</li>
+                </ul>
+
+                <h5>Workflow:</h5>
+                <div class="code-block">
+                    <pre>
+Query → Query Analysis → Multiple Retrieval → Reranking → Context Assembly → LLM → Response
+                    </pre>
+                </div>
+
+                <h5>Pros:</h5>
+                <ul>
+                    <li>Significantly improved retrieval accuracy</li>
+                    <li>Better handling of complex queries</li>
+                    <li>More relevant context selection</li>
+                    <li>Enhanced response quality</li>
+                </ul>
+
+                <h5>Cons:</h5>
+                <ul>
+                    <li>Increased system complexity</li>
+                    <li>Higher computational requirements</li>
+                    <li>More components to optimize and maintain</li>
+                    <li>Longer inference times</li>
+                </ul>
+
+                <h5>Best for:</h5>
+                <ul>
+                    <li>Production systems requiring high accuracy</li>
+                    <li>Complex domain-specific applications</li>
+                    <li>Multi-faceted knowledge bases</li>
+                    <li>Applications where query complexity varies significantly</li>
+                </ul>
+            </div>
+
+            <div class="rag-type">
+                <h4>3. Agentic RAG (Agent-based RAG)</h4>
+                <p><strong>Architecture:</strong> Intelligent agent-driven retrieval and generation system</p>
+                
+                <h5>Core Concepts:</h5>
+                <ul>
+                    <li><strong>Reasoning Agents:</strong> AI agents that plan and execute retrieval strategies</li>
+                    <li><strong>Tool Integration:</strong> Access to multiple tools and data sources</li>
+                    <li><strong>Iterative Refinement:</strong> Multi-turn retrieval and reasoning cycles</li>
+                    <li><strong>Self-reflection:</strong> Agents evaluate and improve their own performance</li>
+                </ul>
+
+                <h5>Agent Capabilities:</h5>
+                <ul>
+                    <li><strong>Planning:</strong> Develop step-by-step strategies for complex queries</li>
+                    <li><strong>Tool Selection:</strong> Choose appropriate tools and data sources</li>
+                    <li><strong>Execution:</strong> Perform multi-step reasoning and retrieval</li>
+                    <li><strong>Validation:</strong> Verify and cross-check retrieved information</li>
+                </ul>
+
+                <h5>Advanced Features:</h5>
+                <ul>
+                    <li><strong>Multi-source Integration:</strong> Combine information from diverse sources</li>
+                    <li><strong>Real-time Data Access:</strong> API calls and live data retrieval</li>
+                    <li><strong>Memory Management:</strong> Long-term context and conversation history</li>
+                    <li><strong>Error Recovery:</strong> Handle failures and retry with alternative strategies</li>
+                </ul>
+
+                <h5>Workflow:</h5>
+                <div class="code-block">
+                    <pre>
+Query → Agent Planning → Multi-step Execution → Tool Integration → 
+Validation → Synthesis → Response Generation → Self-reflection
+                    </pre>
+                </div>
+
+                <h5>Pros:</h5>
+                <ul>
+                    <li>Handles extremely complex queries</li>
+                    <li>Adaptive and learning capabilities</li>
+                    <li>Multi-source data integration</li>
+                    <li>Human-like reasoning processes</li>
+                    <li>Self-improving performance</li>
+                </ul>
+
+                <h5>Cons:</h5>
+                <ul>
+                    <li>High complexity and development cost</li>
+                    <li>Significant computational resources required</li>
+                    <li>Potential for unpredictable behavior</li>
+                    <li>Difficult to debug and optimize</li>
+                    <li>Longer response times</li>
+                </ul>
+
+                <h5>Best for:</h5>
+                <ul>
+                    <li>Research and analytical applications</li>
+                    <li>Complex multi-domain queries</li>
+                    <li>Systems requiring extensive reasoning</li>
+                    <li>High-value use cases justifying complexity</li>
+                </ul>
+            </div>
+
+            <h3>Comparative Analysis</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Naive RAG</th>
+                        <th>Advanced RAG</th>
+                        <th>Agentic RAG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Complexity</strong></td>
+                        <td>Low</td>
+                        <td>Medium</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accuracy</strong></td>
+                        <td>Baseline</td>
+                        <td>Improved</td>
+                        <td>Highest</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Query Handling</strong></td>
+                        <td>Simple queries</td>
+                        <td>Complex queries</td>
+                        <td>Any complexity</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Resource Requirements</strong></td>
+                        <td>Low</td>
+                        <td>Medium</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Development Time</strong></td>
+                        <td>Short</td>
+                        <td>Medium</td>
+                        <td>Long</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maintenance</strong></td>
+                        <td>Easy</td>
+                        <td>Moderate</td>
+                        <td>Complex</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="applications" class="section">
+            <h2>7. Real-World Applications and Examples</h2>
+
+            <h3>Case Study 1: Enterprise Documentation System</h3>
+            <div class="highlight-box">
+                <h4>Company: Tech Corporation with 10,000+ employees</h4>
+                <p><strong>Challenge:</strong> Employees struggling to find relevant information across thousands of internal documents, leading to decreased productivity and repeated questions.</p>
+                
+                <p><strong>RAG Solution:</strong></p>
+                <ul>
+                    <li><strong>Knowledge Base:</strong> HR policies, technical documentation, procedures, FAQs</li>
+                    <li><strong>Implementation:</strong> Advanced RAG with query expansion and reranking</li>
+                    <li><strong>Integration:</strong> Slack bot and web interface</li>
+                </ul>
+
+                <p><strong>Results:</strong></p>
+                <ul>
+                    <li>75% reduction in HR support tickets</li>
+                    <li>60% faster onboarding process</li>
+                    <li>90% employee satisfaction with information access</li>
+                    <li>$500K annual savings in support costs</li>
+                </ul>
+            </div>
+
+            <h3>Case Study 2: Medical Research Assistant</h3>
+            <div class="highlight-box">
+                <h4>Organization: Major Research Hospital</h4>
+                <p><strong>Challenge:</strong> Doctors and researchers needed quick access to latest medical literature and clinical guidelines during patient care and research.</p>
+                
+                <p><strong>RAG Solution:</strong></p>
+                <ul>
+                    <li><strong>Knowledge Base:</strong> PubMed articles, clinical guidelines, drug databases</li>
+                    <li><strong>Implementation:</strong> Agentic RAG with real-time literature updates</li>
+                    <li><strong>Features:</strong> Evidence-based recommendations with citation tracking</li>
+                </ul>
+
+                <p><strong>Results:</strong></p>
+                <ul>
+                    <li>40% improvement in diagnosis accuracy</li>
+                    <li>50% reduction in literature review time</li>
+                    <li>Enhanced evidence-based decision making</li>
+                    <li>Improved patient outcomes and safety</li>
+                </ul>
+            </div>
+
+            <h3>Case Study 3: Legal Document Analysis</h3>
+            <div class="highlight-box">
+                <h4>Organization: International Law Firm</h4>
+                <p><strong>Challenge:</strong> Lawyers needed to quickly analyze contracts, find precedents, and ensure compliance across multiple jurisdictions.</p>
+                
+                <p><strong>RAG Solution:</strong></p>
+                <ul>
+                    <li><strong>Knowledge Base:</strong> Case law, contracts, regulations, legal precedents</li>
+                    <li><strong>Implementation:</strong> Advanced RAG with legal entity recognition</li>
+                    <li><strong>Features:</strong> Contract clause analysis and risk assessment</li>
+                </ul>
+
+                <p><strong>Results:</strong></p>
+                <ul>
+                    <li>70% reduction in document review time</li>
+                    <li>Improved contract risk identification</li>
+                    <li>Enhanced compliance monitoring</li>
+                    <li>$2M annual efficiency gains</li>
+                </ul>
+            </div>
+
+            <h3>Industry-Specific Examples</h3>
+
+            <h4>Financial Services</h4>
+            <div class="use-case">
+                <h4>Investment Research Platform</h4>
+                <ul>
+                    <li><strong>Application:</strong> Real-time market analysis and investment recommendations</li>
+                    <li><strong>Data Sources:</strong> Market data, financial reports, news, analyst reports</li>
+                    <li><strong>Benefits:</strong> Faster research, comprehensive analysis, risk assessment</li>
+                    <li><strong>ROI:</strong> 35% improvement in investment decision quality</li>
+                </ul>
+            </div>
+
+            <h4>E-commerce</h4>
+            <div class="use-case">
+                <h4>Product Discovery and Recommendations</h4>
+                <ul>
+                    <li><strong>Application:</strong> Personalized product recommendations and customer support</li>
+                    <li><strong>Data Sources:</strong> Product catalogs, reviews, user behavior, inventory</li>
+                    <li><strong>Benefits:</strong> Improved customer experience, higher conversion rates</li>
+                    <li><strong>ROI:</strong> 25% increase in sales, 40% reduction in support costs</li>
+                </ul>
+            </div>
+
+            <h4>Education</h4>
+            <div class="use-case">
+                <h4>Personalized Learning Assistant</h4>
+                <ul>
+                    <li><strong>Application:</strong> Adaptive tutoring and curriculum assistance</li>
+                    <li><strong>Data Sources:</strong> Textbooks, lectures, assignments, student performance</li>
+                    <li><strong>Benefits:</strong> Personalized learning paths, instant feedback</li>
+                    <li><strong>ROI:</strong> 30% improvement in learning outcomes</li>
+                </ul>
+            </div>
+
+            <h4>Manufacturing</h4>
+            <div class="use-case">
+                <h4>Equipment Maintenance System</h4>
+                <ul>
+                    <li><strong>Application:</strong> Predictive maintenance and troubleshooting</li>
+                    <li><strong>Data Sources:</strong> Manuals, maintenance logs, sensor data, expert knowledge</li>
+                    <li><strong>Benefits:</strong> Reduced downtime, optimized maintenance schedules</li>
+                    <li><strong>ROI:</strong> 45% reduction in unplanned downtime</li>
+                </ul>
+            </div>
+
+            <h3>Success Factors</h3>
+            <p>Common elements in successful RAG implementations:</p>
+            <ul>
+                <li><strong>Quality Data Curation:</strong> Clean, well-organized, and regularly updated knowledge bases</li>
+                <li><strong>User-Centric Design:</strong> Interfaces and workflows tailored to user needs</li>
+                <li><strong>Iterative Improvement:</strong> Continuous feedback collection and system refinement</li>
+                <li><strong>Change Management:</strong> Proper training and adoption support for users</li>
+                <li><strong>Performance Monitoring:</strong> Regular evaluation and optimization of system performance</li>
+            </ul>
+        </section>
+
+        <section id="implementation" class="section">
+            <h2>8. Code Implementation Examples</h2>
+
+            <h3>Basic RAG Implementation with Python</h3>
+            
+            <h4>1. Setting Up Dependencies</h4>
+            <div class="code-block">
+                <pre>
+# requirements.txt
+langchain==0.1.0
+openai==1.0.0
+chromadb==0.4.0
+sentence-transformers==2.2.2
+pypdf==3.17.0
+python-dotenv==1.0.0
+
+# Install dependencies
+pip install -r requirements.txt
+                </pre>
+            </div>
+
+            <h4>2. Document Loading and Processing</h4>
+            <div class="code-block">
+                <pre>
+import os
+from typing import List, Dict
+from langchain.document_loaders import PyPDFLoader, TextLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+
+class DocumentProcessor:
+    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
+            length_function=len,
+        )
+    
+    def load_documents(self, file_paths: List[str]) -> List[Document]:
+        """Load documents from various file formats."""
+        documents = []
+        
+        for file_path in file_paths:
+            if file_path.endswith('.pdf'):
+                loader = PyPDFLoader(file_path)
+            elif file_path.endswith('.txt'):
+                loader = TextLoader(file_path)
+            else:
+                continue  # Skip unsupported formats
+            
+            docs = loader.load()
+            documents.extend(docs)
+        
+        return documents
+    
+    def split_documents(self, documents: List[Document]) -> List[Document]:
+        """Split documents into chunks."""
+        return self.text_splitter.split_documents(documents)
+    
+    def process_documents(self, file_paths: List[str]) -> List[Document]:
+        """Complete document processing pipeline."""
+        documents = self.load_documents(file_paths)
+        chunks = self.split_documents(documents)
+        return chunks
+
+# Example usage
+processor = DocumentProcessor()
+file_paths = ["document1.pdf", "document2.txt"]
+document_chunks = processor.process_documents(file_paths)
+                </pre>
+            </div>
+
+            <h4>3. Vector Database Setup</h4>
+            <div class="code-block">
+                <pre>
+import chromadb
+from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from typing import List, Tuple
+
+class VectorDatabase:
+    def __init__(self, collection_name: str = "documents", 
+                 embedding_model: str = "all-MiniLM-L6-v2"):
+        """Initialize ChromaDB with sentence transformer embeddings."""
+        self.client = chromadb.Client(Settings(
+            chroma_db_impl="duckdb+parquet",
+            persist_directory="./chroma_db"
+        ))
+        
+        self.collection = self.client.get_or_create_collection(
+            name=collection_name
+        )
+        
+        self.embedding_model = SentenceTransformer(embedding_model)
+    
+    def add_documents(self, documents: List[Document]):
+        """Add documents to the vector database."""
+        texts = [doc.page_content for doc in documents]
+        metadatas = [doc.metadata for doc in documents]
+        ids = [f"doc_{i}" for i in range(len(documents))]
+        
+        # Generate embeddings
+        embeddings = self.embedding_model.encode(texts).tolist()
+        
+        # Add to collection
+        self.collection.add(
+            documents=texts,
+            metadatas=metadatas,
+            ids=ids,
+            embeddings=embeddings
+        )
+    
+    def search(self, query: str, top_k: int = 5) -> List[Dict]:
+        """Search for relevant documents."""
+        query_embedding = self.embedding_model.encode([query]).tolist()
+        
+        results = self.collection.query(
+            query_embeddings=query_embedding,
+            n_results=top_k
+        )
+        
+        # Format results
+        formatted_results = []
+        for i, doc in enumerate(results['documents'][0]):
+            formatted_results.append({
+                'text': doc,
+                'metadata': results['metadatas'][0][i],
+                'score': results['distances'][0][i]
+            })
+        
+        return formatted_results
+
+# Example usage
+vector_db = VectorDatabase()
+vector_db.add_documents(document_chunks)
+                </pre>
+            </div>
+
+            <h4>4. RAG Query Engine</h4>
+            <div class="code-block">
+                <pre>
+import openai
+from typing import List, Dict
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class RAGQueryEngine:
+    def __init__(self, vector_db: VectorDatabase, 
+                 model_name: str = "gpt-3.5-turbo"):
+        self.vector_db = vector_db
+        self.model_name = model_name
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    def create_prompt(self, query: str, context_docs: List[Dict]) -> str:
+        """Create a RAG prompt with query and context."""
+        context = "\n\n".join([
+            f"Source {i+1}: {doc['text']}"
+            for i, doc in enumerate(context_docs)
+        ])
+        
+        prompt = f"""
+Context Information:
+{context}
+
+Question: {query}
+
+Please provide a comprehensive answer based on the context above. 
+If the context doesn't contain enough information to answer the question, 
+please say so explicitly. Include relevant source numbers in your response.
+
+Answer:
+        """
+        return prompt
+    
+    def query(self, query: str, top_k: int = 5) -> Dict:
+        """Process a query through the RAG pipeline."""
+        # Retrieve relevant documents
+        retrieved_docs = self.vector_db.search(query, top_k=top_k)
+        
+        # Create prompt
+        prompt = self.create_prompt(query, retrieved_docs)
+        
+        # Generate response
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that answers questions based on provided context."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,
+            max_tokens=1000
+        )
+        
+        return {
+            "answer": response.choices[0].message.content,
+            "sources": retrieved_docs,
+            "query": query
+        }
+
+# Example usage
+rag_engine = RAGQueryEngine(vector_db)
+result = rag_engine.query("What are the main benefits of renewable energy?")
+print(f"Answer: {result['answer']}")
+                </pre>
+            </div>
+
+            <h3>Advanced RAG with Query Optimization</h3>
+
+            <div class="code-block">
+                <pre>
+class AdvancedRAGEngine:
+    def __init__(self, vector_db: VectorDatabase, 
+                 model_name: str = "gpt-3.5-turbo"):
+        self.vector_db = vector_db
+        self.model_name = model_name
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    def optimize_query(self, query: str) -> List[str]:
+        """Generate optimized queries for better retrieval."""
+        optimization_prompt = f"""
+        Given the following query, generate 2-3 alternative phrasings or 
+        related questions that might help retrieve relevant information:
+        
+        Original query: {query}
+        
+        Alternative queries (one per line):
+        """
+        
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": "Generate alternative query phrasings."},
+                {"role": "user", "content": optimization_prompt}
+            ],
+            temperature=0.3,
+            max_tokens=200
+        )
+        
+        alternative_queries = response.choices[0].message.content.strip().split('\n')
+        return [query] + [q.strip('- ') for q in alternative_queries if q.strip()]
+    
+    def retrieve_with_reranking(self, queries: List[str], top_k: int = 10) -> List[Dict]:
+        """Retrieve documents with multiple queries and rerank results."""
+        all_results = {}
+        
+        # Retrieve for each query
+        for query in queries:
+            results = self.vector_db.search(query, top_k=top_k)
+            for doc in results:
+                doc_id = doc['text'][:100]  # Use text snippet as ID
+                if doc_id not in all_results:
+                    all_results[doc_id] = doc
+                    all_results[doc_id]['scores'] = []
+                all_results[doc_id]['scores'].append(doc['score'])
+        
+        # Rerank by average score
+        for doc_id in all_results:
+            all_results[doc_id]['avg_score'] = np.mean(all_results[doc_id]['scores'])
+        
+        # Sort by average score and return top results
+        ranked_docs = sorted(all_results.values(), 
+                           key=lambda x: x['avg_score'])
+        
+        return ranked_docs[:top_k//2]  # Return fewer, but higher quality results
+    
+    def query_with_optimization(self, query: str) -> Dict:
+        """Advanced RAG query with optimization."""
+        # Generate optimized queries
+        optimized_queries = self.optimize_query(query)
+        
+        # Retrieve and rerank
+        retrieved_docs = self.retrieve_with_reranking(optimized_queries)
+        
+        # Generate enhanced prompt
+        prompt = self.create_enhanced_prompt(query, retrieved_docs)
+        
+        # Generate response
+        response = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[
+                {"role": "system", "content": self.get_system_prompt()},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.1,
+            max_tokens=1500
+        )
+        
+        return {
+            "answer": response.choices[0].message.content,
+            "sources": retrieved_docs,
+            "query": query,
+            "optimized_queries": optimized_queries
+        }
+    
+    def get_system_prompt(self) -> str:
+        """Get enhanced system prompt for RAG."""
+        return """
+        You are an expert assistant that provides accurate, well-sourced answers.
+        
+        Instructions:
+        1. Base your answer strictly on the provided context
+        2. If information is insufficient, state this clearly
+        3. Include source references in your response
+        4. Provide comprehensive yet concise answers
+        5. Maintain objectivity and avoid speculation
+        """
+    
+    def create_enhanced_prompt(self, query: str, context_docs: List[Dict]) -> str:
+        """Create enhanced prompt with better formatting."""
+        context = ""
+        for i, doc in enumerate(context_docs):
+            context += f"\n[Source {i+1}]\n{doc['text']}\n"
+        
+        prompt = f"""
+Context Sources:
+{context}
+
+User Question: {query}
+
+Please provide a detailed answer based on the context sources above. 
+Cite specific sources using [Source X] notation when referencing information.
+
+Response:
+        """
+        return prompt
+
+# Example usage
+advanced_rag = AdvancedRAGEngine(vector_db)
+result = advanced_rag.query_with_optimization(
+    "How does climate change affect global agriculture?"
+)
+                </pre>
+            </div>
+
+            <h3>Complete RAG Application</h3>
+
+            <div class="code-block">
+                <pre>
+class RAGApplication:
+    def __init__(self):
+        self.processor = DocumentProcessor()
+        self.vector_db = VectorDatabase()
+        self.rag_engine = AdvancedRAGEngine(self.vector_db)
+        self.is_initialized = False
+    
+    def initialize(self, document_paths: List[str]):
+        """Initialize the RAG system with documents."""
+        print("Processing documents...")
+        chunks = self.processor.process_documents(document_paths)
+        
+        print(f"Adding {len(chunks)} document chunks to vector database...")
+        self.vector_db.add_documents(chunks)
+        
+        self.is_initialized = True
+        print("RAG system initialized successfully!")
+    
+    def chat(self):
+        """Interactive chat interface."""
+        if not self.is_initialized:
+            print("Please initialize the system first with documents.")
+            return
+        
+        print("RAG Chat Interface - Type 'quit' to exit")
+        print("-" * 50)
+        
+        while True:
+            query = input("\nYou: ").strip()
+            
+            if query.lower() in ['quit', 'exit', 'q']:
+                break
+            
+            if not query:
+                continue
+            
+            print("\nThinking...")
+            result = self.rag_engine.query_with_optimization(query)
+            
+            print(f"\nAssistant: {result['answer']}")
+            print(f"\nSources used: {len(result['sources'])}")
+            
+            # Optionally show sources
+            show_sources = input("\nShow sources? (y/n): ").lower() == 'y'
+            if show_sources:
+                print("\nSources:")
+                for i, source in enumerate(result['sources']):
+                    print(f"\n[{i+1}] {source['text'][:200]}...")
+
+def main():
+    # Example usage
+    app = RAGApplication()
+    
+    # Initialize with documents
+    document_paths = [
+        "path/to/document1.pdf",
+        "path/to/document2.txt",
+        # Add more document paths
+    ]
+    
+    app.initialize(document_paths)
+    
+    # Start chat interface
+    app.chat()
+
+if __name__ == "__main__":
+    main()
+                </pre>
+            </div>
+
+            <h3>Performance Monitoring and Evaluation</h3>
+
+            <div class="code-block">
+                <pre>
+class RAGEvaluator:
+    def __init__(self, rag_engine: AdvancedRAGEngine):
+        self.rag_engine = rag_engine
+        self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    
+    def evaluate_retrieval_relevance(self, query: str, retrieved_docs: List[Dict]) -> float:
+        """Evaluate the relevance of retrieved documents to the query."""
+        relevance_scores = []
+        
+        for doc in retrieved_docs:
+            evaluation_prompt = f"""
+            Query: {query}
+            Document: {doc['text'][:500]}
+            
+            Rate the relevance of this document to the query on a scale of 0-1:
+            - 1.0: Highly relevant, directly answers the query
+            - 0.5: Somewhat relevant, contains related information
+            - 0.0: Not relevant, unrelated to the query
+            
+            Relevance score (just the number):
+            """
+            
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are an expert at evaluating document relevance."},
+                    {"role": "user", "content": evaluation_prompt}
+                ],
+                temperature=0.1,
+                max_tokens=10
+            )
+            
+            try:
+                score = float(response.choices[0].message.content.strip())
+                relevance_scores.append(score)
+            except:
+                relevance_scores.append(0.5)  # Default score if parsing fails
+        
+        return np.mean(relevance_scores) if relevance_scores else 0.0
+    
+    def evaluate_answer_quality(self, query: str, answer: str, sources: List[Dict]) -> Dict:
+        """Evaluate the quality of the generated answer."""
+        evaluation_prompt = f"""
+        Query: {query}
+        Answer: {answer}
+        
+        Evaluate this answer on the following criteria (rate each 0-1):
+        
+        1. Accuracy: Is the answer factually correct?
+        2. Completeness: Does it fully address the query?
+        3. Clarity: Is it well-written and understandable?
+        4. Source Usage: Does it properly use the provided sources?
+        
+        Provide scores in this format:
+        Accuracy: X.X
+        Completeness: X.X
+        Clarity: X.X
+        Source Usage: X.X
+        """
+        
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert at evaluating AI-generated answers."},
+                {"role": "user", "content": evaluation_prompt}
+            ],
+            temperature=0.1,
+            max_tokens=200
+        )
+        
+        # Parse evaluation scores
+        evaluation_text = response.choices[0].message.content
+        scores = {}
+        for line in evaluation_text.split('\n'):
+            if ':' in line:
+                criterion, score_text = line.split(':', 1)
+                try:
+                    score = float(score_text.strip())
+                    scores[criterion.strip()] = score
+                except:
+                    pass
+        
+        return scores
+    
+    def run_evaluation(self, test_queries: List[str]) -> Dict:
+        """Run comprehensive evaluation on test queries."""
+        results = {
+            'retrieval_relevance': [],
+            'answer_quality': [],
+            'response_times': []
+        }
+        
+        for query in test_queries:
+            start_time = time.time()
+            
+            # Get RAG response
+            result = self.rag_engine.query_with_optimization(query)
+            
+            response_time = time.time() - start_time
+            
+            # Evaluate retrieval
+            retrieval_score = self.evaluate_retrieval_relevance(
+                query, result['sources']
+            )
+            
+            # Evaluate answer quality
+            answer_scores = self.evaluate_answer_quality(
+                query, result['answer'], result['sources']
+            )
+            
+            results['retrieval_relevance'].append(retrieval_score)
+            results['answer_quality'].append(answer_scores)
+            results['response_times'].append(response_time)
+        
+        # Calculate averages
+        summary = {
+            'avg_retrieval_relevance': np.mean(results['retrieval_relevance']),
+            'avg_answer_quality': {
+                criterion: np.mean([scores.get(criterion, 0) 
+                                  for scores in results['answer_quality']])
+                for criterion in ['Accuracy', 'Completeness', 'Clarity', 'Source Usage']
+            },
+            'avg_response_time': np.mean(results['response_times'])
+        }
+        
+        return summary
+                </pre>
+            </div>
+        </section>
+
+        <section id="challenges" class="section">
+            <h2>9. Common Challenges and Solutions</h2>
+
+            <h3>Technical Challenges</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Poor Retrieval Quality</h4>
+                    <ul>
+                        <li>Irrelevant documents retrieved</li>
+                        <li>Important information missed</li>
+                        <li>Inconsistent retrieval performance</li>
+                        <li>Language/domain mismatch</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Hybrid Search:</strong> Combine dense + sparse retrieval</li>
+                        <li><strong>Query Optimization:</strong> Expand and rephrase queries</li>
+                        <li><strong>Reranking:</strong> Use secondary models for refinement</li>
+                        <li><strong>Domain-specific Embeddings:</strong> Fine-tune for specific domains</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Context Length Limitations</h4>
+                    <ul>
+                        <li>Token limits in language models</li>
+                        <li>Too much irrelevant context</li>
+                        <li>Important information truncated</li>
+                        <li>Balancing breadth vs depth</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Smart Chunking:</strong> Semantic-aware document splitting</li>
+                        <li><strong>Context Compression:</strong> Summarize less relevant content</li>
+                        <li><strong>Hierarchical Retrieval:</strong> Multi-level context selection</li>
+                        <li><strong>Dynamic Context:</strong> Adjust context based on query complexity</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Factual Inconsistencies</h4>
+                    <ul>
+                        <li>Contradictory information in sources</li>
+                        <li>Hallucination despite retrieved context</li>
+                        <li>Outdated information</li>
+                        <li>Biased or unreliable sources</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Source Validation:</strong> Verify source credibility and recency</li>
+                        <li><strong>Contradiction Detection:</strong> Identify conflicting information</li>
+                        <li><strong>Fact Verification:</strong> Cross-reference multiple sources</li>
+                        <li><strong>Confidence Scoring:</strong> Indicate uncertainty levels</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Scalability Challenges</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Large-Scale Performance</h4>
+                    <ul>
+                        <li>Slow retrieval with large databases</li>
+                        <li>Memory constraints</li>
+                        <li>High computational costs</li>
+                        <li>Latency issues</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Indexing Optimization:</strong> Use approximate nearest neighbors (ANN)</li>
+                        <li><strong>Caching:</strong> Cache frequent queries and embeddings</li>
+                        <li><strong>Distributed Systems:</strong> Scale across multiple machines</li>
+                        <li><strong>Model Optimization:</strong> Use smaller, faster models when appropriate</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Real-time Updates</h4>
+                    <ul>
+                        <li>Keeping knowledge base current</li>
+                        <li>Incremental updates without full reindexing</li>
+                        <li>Version control for documents</li>
+                        <li>Maintaining consistency during updates</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Incremental Indexing:</strong> Update only changed documents</li>
+                        <li><strong>Change Detection:</strong> Monitor source systems for updates</li>
+                        <li><strong>Versioning:</strong> Maintain document version history</li>
+                        <li><strong>Automated Pipelines:</strong> Set up continuous data ingestion</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Data Quality Challenges</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Poor Document Quality</h4>
+                    <ul>
+                        <li>Inconsistent formatting</li>
+                        <li>Incomplete or corrupted documents</li>
+                        <li>Mixed languages and formats</li>
+                        <li>Lack of structure or metadata</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Data Preprocessing:</strong> Clean and standardize documents</li>
+                        <li><strong>Quality Scoring:</strong> Assess and filter low-quality content</li>
+                        <li><strong>Metadata Enhancement:</strong> Add structured information</li>
+                        <li><strong>Format Normalization:</strong> Convert to consistent formats</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Multimodal Content</h4>
+                    <ul>
+                        <li>Images and tables in documents</li>
+                        <li>Complex document layouts</li>
+                        <li>Audio and video content</li>
+                        <li>Structured data integration</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>OCR and Layout Analysis:</strong> Extract text from images and complex layouts</li>
+                        <li><strong>Multimodal Embeddings:</strong> Handle different content types</li>
+                        <li><strong>Content-specific Processing:</strong> Specialized pipelines for different media</li>
+                        <li><strong>Unified Representation:</strong> Convert all content to searchable format</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>User Experience Challenges</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Query Understanding</h4>
+                    <ul>
+                        <li>Ambiguous user queries</li>
+                        <li>Domain-specific terminology</li>
+                        <li>Context-dependent questions</li>
+                        <li>Multi-part complex queries</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Query Clarification:</strong> Ask follow-up questions when needed</li>
+                        <li><strong>Intent Recognition:</strong> Classify query types and intents</li>
+                        <li><strong>Context Tracking:</strong> Maintain conversation history</li>
+                        <li><strong>Query Suggestions:</strong> Provide query refinement suggestions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Trust and Transparency</h4>
+                    <ul>
+                        <li>Users unsure about answer reliability</li>
+                        <li>Lack of source transparency</li>
+                        <li>Inconsistent response quality</li>
+                        <li>No explanation of reasoning</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Source Citation:</strong> Always provide clear source references</li>
+                        <li><strong>Confidence Indicators:</strong> Show certainty levels</li>
+                        <li><strong>Explanation Generation:</strong> Explain reasoning process</li>
+                        <li><strong>User Feedback:</strong> Collect and act on user feedback</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Operational Challenges</h3>
+
+            <div class="challenge-solution">
+                <div class="challenge">
+                    <h4>Challenge: Cost Management</h4>
+                    <ul>
+                        <li>High API costs for large-scale deployment</li>
+                        <li>Storage costs for large knowledge bases</li>
+                        <li>Compute costs for embedding generation</li>
+                        <li>Infrastructure scaling costs</li>
+                    </ul>
+                </div>
+                <div class="solution">
+                    <h4>Solutions</h4>
+                    <ul>
+                        <li><strong>Cost Optimization:</strong> Use efficient models and caching strategies</li>
+                        <li><strong>Usage Monitoring:</strong> Track and optimize resource usage</li>
+                        <li><strong>Tiered Services:</strong> Offer different quality levels</li>
+                        <li><strong>Open Source Alternatives:</strong> Consider self-hosted solutions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>Best Practices for Overcoming Challenges</h3>
+
+            <div class="success-box">
+                <h4>Implementation Guidelines</h4>
+                <ul>
+                    <li><strong>Start Simple:</strong> Begin with naive RAG, then add complexity</li>
+                    <li><strong>Measure Everything:</strong> Implement comprehensive monitoring and evaluation</li>
+                    <li><strong>User-Centric Design:</strong> Focus on user needs and feedback</li>
+                    <li><strong>Iterative Improvement:</strong> Continuously refine based on real-world usage</li>
+                    <li><strong>Quality Over Quantity:</strong> Better to have high-quality, relevant content than large, noisy databases</li>
+                </ul>
+            </div>
+
+            <div class="warning-box">
+                <h4>Common Pitfalls to Avoid</h4>
+                <ul>
+                    <li><strong>Ignoring Data Quality:</strong> Poor input data leads to poor results</li>
+                    <li><strong>Over-Engineering Early:</strong> Add complexity only when justified by clear need</li>
+                    <li><strong>Neglecting Evaluation:</strong> Without proper metrics, improvements are guesswork</li>
+                    <li><strong>Forgetting User Context:</strong> Consider how users actually interact with the system</li>
+                    <li><strong>Lack of Maintenance:</strong> RAG systems need ongoing care and updates</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="section">
+            <h2>Conclusion</h2>
+            <p>RAG represents a significant advancement in AI systems, combining the generative capabilities of large language models with the precision of information retrieval. By understanding the core concepts, architectures, and implementation strategies outlined in this guide, you can build powerful RAG systems that provide accurate, relevant, and trustworthy AI assistance.</p>
+            
+            <p>Whether you're implementing a simple document Q&A system or building a complex enterprise knowledge platform, the principles and techniques covered here will help you create effective RAG solutions that meet real-world needs.</p>
+
+            <div class="highlight-box">
+                <h4>Next Steps</h4>
+                <ul>
+                    <li>Start with a simple proof-of-concept using the code examples provided</li>
+                    <li>Gather and prepare your domain-specific knowledge base</li>
+                    <li>Implement evaluation metrics to measure system performance</li>
+                    <li>Iterate and improve based on user feedback and performance data</li>
+                    <li>Consider advanced techniques as your system matures</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const button = document.querySelector('.theme-toggle');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            document.body.setAttribute('data-theme', savedTheme);
+            button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Add syntax highlighting for code blocks (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('.code-block pre');
+            codeBlocks.forEach(block => {
+                // Add line numbers
+                const lines = block.textContent.split('\n');
+                const numberedContent = lines.map((line, index) => {
+                    if (line.trim() === '' && index === lines.length - 1) return '';
+                    return line;
+                }).join('\n');
+                block.textContent = numberedContent;
+            });
+        });
+    </script>
+</body>
+</html>

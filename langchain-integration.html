@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain Integration Handbook 2026</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .section {
+            background: white;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+        }
+        .section h3 {
+            color: #5a67d8;
+            margin-top: 2rem;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        .highlight {
+            background: #fef5e7;
+            border-left: 4px solid #f6ad55;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .warning {
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .info {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .feature-card {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+        .toc {
+            background: #edf2f7;
+            padding: 1.5rem;
+            border-radius: 6px;
+            margin-bottom: 2rem;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #4a5568;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .toc li {
+            margin: 0.5rem 0;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .toc a:hover {
+            color: #5a67d8;
+        }
+        .timestamp {
+            color: #718096;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>LangChain Integration Handbook 2026</h1>
+        <p>Comprehensive Guide to Production-Ready AI Applications</p>
+    </div>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#overview">Overview & Architecture</a></li>
+            <li><a href="#chains">Latest Chains & Implementations</a></li>
+            <li><a href="#agents">Agent Frameworks & Tool Integration</a></li>
+            <li><a href="#memory">Memory Systems & Conversation Management</a></li>
+            <li><a href="#lcel">LangChain Expression Language (LCEL)</a></li>
+            <li><a href="#tools">Custom Tool Development</a></li>
+            <li><a href="#streaming">Streaming & Async Processing</a></li>
+            <li><a href="#debugging">Error Handling & Debugging</a></li>
+            <li><a href="#deployment">Production Deployment with LangServe</a></li>
+        </ul>
+    </div>
+
+    <section id="overview" class="section">
+        <h2>1. LangChain Overview & Core Architecture (2026)</h2>
+        
+        <p>LangChain provides the engineering platform and open source frameworks developers use to build, test, and deploy reliable AI agents. The platform emphasizes modularity, production readiness, and seamless integration across the AI development lifecycle.</p>
+
+        <h3>Core Components</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Models</h4>
+                <p>Language models and chat models with unified interfaces</p>
+            </div>
+            <div class="feature-card">
+                <h4>Prompts</h4>
+                <p>Template management and prompt engineering utilities</p>
+            </div>
+            <div class="feature-card">
+                <h4>Chains</h4>
+                <p>Composable sequences connecting multiple components</p>
+            </div>
+            <div class="feature-card">
+                <h4>Retrieval</h4>
+                <p>Vector stores, embeddings, and document processing</p>
+            </div>
+            <div class="feature-card">
+                <h4>Memory</h4>
+                <p>Context retention and conversation management</p>
+            </div>
+            <div class="feature-card">
+                <h4>Agents</h4>
+                <p>Intelligent reasoning and dynamic tool usage</p>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>2026 Update:</strong> LangChain has evolved to emphasize LCEL (LangChain Expression Language) as the primary method for building chains, deprecating legacy chain classes in favor of more flexible, composable patterns.
+        </div>
+    </section>
+
+    <section id="chains" class="section">
+        <h2>2. Latest Chains & RAG Implementations</h2>
+
+        <h3>Modern RAG Architecture</h3>
+        <p>Retrieval-Augmented Generation (RAG) remains the cornerstone of production LangChain applications. The 2026 implementations focus on advanced patterns that boost accuracy by 15-40% over naive RAG approaches.</p>
+
+        <div class="code-block">
+# Basic RAG Chain with LCEL
+from langchain_core.vectorstores import InMemoryVectorStore
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+
+# Setup vector store
+vectorstore = InMemoryVectorStore.from_documents(
+    documents=doc_splits,
+    embedding=OpenAIEmbeddings(model="text-embedding-3-small")
+)
+retriever = vectorstore.as_retriever()
+
+# Create RAG chain using LCEL
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know."),
+    ("human", "Context: {context}\n\nQuestion: {question}")
+])
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | ChatOpenAI(model="gpt-4-turbo")
+    | StrOutputParser()
+)
+
+# Usage
+answer = rag_chain.invoke("What is LangChain?")
+        </div>
+
+        <h3>Advanced RAG Patterns (2026)</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Query Transformations</h4>
+                <ul>
+                    <li>HyDE (Hypothetical Document Embeddings)</li>
+                    <li>Step-back prompting</li>
+                    <li>Multi-query retriever</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h4>Reranking & Compression</h4>
+                <ul>
+                    <li>Cohere Rerank integration</li>
+                    <li>LLM-based rerankers</li>
+                    <li>40-65% token reduction</li>
+                </ul>
+            </div>
+            <div class="feature-card">
+                <h4>Parent-Document Retrieval</h4>
+                <ul>
+                    <li>Small chunks for retrieval</li>
+                    <li>Large parent docs for context</li>
+                    <li>28% coherence improvement</li>
+                </ul>
+            </div>
+        </div>
+
+        <h3>Vector Store Examples</h3>
+        
+        <div class="code-block">
+# Pinecone Integration
+from langchain_pinecone import PineconeVectorStore
+import os
+
+os.environ["PINECONE_API_KEY"] = "your-pinecone-api-key"
+
+vectorstore = PineconeVectorStore.from_documents(
+    documents=chunks,
+    embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
+    index_name="my-rag-index"
+)
+
+# Retrieval with reranking
+retriever = vectorstore.as_retriever(
+    search_type="mmr",  # Maximum Marginal Relevance
+    search_kwargs={"k": 6, "fetch_k": 20}
+)
+        </div>
+
+        <div class="highlight">
+            <strong>Cost Optimization:</strong> text-embedding-3-small costs $0.02 per million tokens. A typical 100-page PDF (50,000 tokens) costs ~$0.001 to embed. Entire corporate knowledge bases can be embedded for under $10.
+        </div>
+    </section>
+
+    <section id="agents" class="section">
+        <h2>3. Agent Frameworks & Tool Integration</h2>
+
+        <h3>ReAct Pattern Implementation</h3>
+        <p>The ReAct ("Reasoning + Acting") pattern remains the most effective approach for intelligent agents, alternating between reasoning steps and tool usage.</p>
+
+        <div class="code-block">
+# ReAct Agent with LangGraph
+from langgraph.prebuilt import create_react_agent
+from langchain_openai import ChatOpenAI
+from langchain_community.tools import DuckDuckGoSearchRun, ShellTool
+
+# Initialize tools
+search = DuckDuckGoSearchRun()
+shell = ShellTool()
+tools = [search, shell]
+
+# Create agent
+llm = ChatOpenAI(model="gpt-4-turbo")
+agent_executor = create_react_agent(llm, tools)
+
+# Execute with streaming
+for chunk in agent_executor.stream(
+    {"messages": [("human", "Search for LangChain documentation and summarize key features")]}
+):
+    print(chunk)
+        </div>
+
+        <h3>OpenAI Functions Integration</h3>
+        <p>The OpenAI Functions agent leverages structured function calling for more reliable and faster tool usage compared to text-based reasoning.</p>
+
+        <div class="code-block">
+# OpenAI Functions Agent
+from langchain.agents import create_openai_functions_agent
+from langchain_core.prompts import ChatPromptTemplate
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful assistant"),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}"),
+])
+
+agent = create_openai_functions_agent(
+    llm=ChatOpenAI(model="gpt-4-turbo"),
+    tools=tools,
+    prompt=prompt
+)
+
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+        </div>
+
+        <h3>2026 Agent Improvements</h3>
+        <div class="info">
+            <ul>
+                <li><strong>Enhanced Understanding:</strong> Better question interpretation and context awareness</li>
+                <li><strong>Improved Accuracy:</strong> More precise tool selection and argument generation</li>
+                <li><strong>Performance Gains:</strong> Faster execution with reduced computational overhead</li>
+                <li><strong>Expanded Toolset:</strong> Real-time data access, enterprise integrations, advanced media manipulation</li>
+            </ul>
+        </div>
+
+        <h3>Custom Agent Tools</h3>
+        <div class="code-block">
+# Custom Tool Implementation
+from langchain_core.tools import tool
+from typing import Optional
+
+@tool
+def calculate_compound_interest(
+    principal: float, 
+    rate: float, 
+    time: int, 
+    compound_frequency: int = 12
+) -> str:
+    """
+    Calculate compound interest.
+    
+    Args:
+        principal: Initial amount
+        rate: Annual interest rate (as decimal)
+        time: Time period in years
+        compound_frequency: Compounding frequency per year
+    """
+    amount = principal * (1 + rate/compound_frequency)**(compound_frequency*time)
+    interest = amount - principal
+    return f"Final amount: ${amount:.2f}, Interest earned: ${interest:.2f}"
+
+# Tool with async support
+@tool
+async def async_web_search(query: str) -> str:
+    """Perform asynchronous web search."""
+    import aiohttp
+    async with aiohttp.ClientSession() as session:
+        # Implementation here
+        return "Search results"
+        </div>
+    </section>
+
+    <section id="memory" class="section">
+        <h2>4. Memory Systems & Conversation Management</h2>
+
+        <h3>2026 Memory Architecture</h3>
+        <p>Memory in LangChain has evolved significantly, moving away from legacy memory objects to more flexible, state-based approaches using RunnableWithMessageHistory and LangGraph.</p>
+
+        <h3>Short-term Memory Implementation</h3>
+        <div class="code-block">
+# Modern Memory with RunnableWithMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+
+store = {}
+
+def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    if session_id not in store:
+        store[session_id] = ChatMessageHistory()
+    return store[session_id]
+
+# Add memory to any LCEL chain
+chain_with_history = RunnableWithMessageHistory(
+    chain,
+    get_session_history,
+    input_messages_key="question",
+    history_messages_key="chat_history",
+)
+
+# Usage
+response = chain_with_history.invoke(
+    {"question": "What is LangChain?"},
+    config={"configurable": {"session_id": "user123"}}
+)
+        </div>
+
+        <h3>Long-term Memory Patterns</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Semantic Memory</h4>
+                <p>Retention of facts and concepts from past interactions, enabling personalization</p>
+            </div>
+            <div class="feature-card">
+                <h4>Episodic Memory</h4>
+                <p>Memory of specific experiences and events within conversation contexts</p>
+            </div>
+            <div class="feature-card">
+                <h4>Procedural Memory</h4>
+                <p>Learning and remembering rules, processes, and behavioral patterns</p>
+            </div>
+        </div>
+
+        <h3>Advanced Memory with LangGraph</h3>
+        <div class="code-block">
+# Persistent Memory with LangGraph
+from langgraph.graph import StateGraph
+from langgraph.checkpoint.sqlite import SqliteSaver
+from typing import TypedDict, List
+
+class ConversationState(TypedDict):
+    messages: List[str]
+    user_context: dict
+    session_summary: str
+
+def conversation_node(state: ConversationState):
+    # Process conversation with access to full state
+    return state
+
+# Create graph with persistent checkpointing
+graph = StateGraph(ConversationState)
+graph.add_node("conversation", conversation_node)
+graph.set_entry_point("conversation")
+
+# SQLite-based persistence
+memory = SqliteSaver.from_conn_string("conversations.db")
+app = graph.compile(checkpointer=memory)
+
+# Conversations persist across sessions
+result = app.invoke(
+    {"messages": ["Hello"]}, 
+    config={"configurable": {"thread_id": "user123"}}
+)
+        </div>
+
+        <div class="warning">
+            <strong>Legacy Deprecation:</strong> Traditional memory classes (ConversationBufferMemory, ConversationSummaryMemory) are deprecated. Use RunnableWithMessageHistory for LCEL chains or LangGraph's state management for complex workflows.
+        </div>
+    </section>
+
+    <section id="lcel" class="section">
+        <h2>5. LangChain Expression Language (LCEL) Patterns</h2>
+
+        <h3>Core LCEL Concepts</h3>
+        <p>LCEL is a declarative language for composing chains using the pipe operator (|). It provides automatic support for streaming, async execution, parallelism, and more.</p>
+
+        <div class="code-block">
+# Basic LCEL Chain
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+
+prompt = ChatPromptTemplate.from_template("Tell me a joke about {topic}")
+model = ChatOpenAI(model="gpt-3.5-turbo")
+output_parser = StrOutputParser()
+
+# Chain composition with pipe operator
+chain = prompt | model | output_parser
+
+# Automatic async, streaming, and batch support
+result = chain.invoke({"topic": "programming"})
+        </div>
+
+        <h3>Advanced LCEL Patterns</h3>
+
+        <h4>Parallel Execution</h4>
+        <div class="code-block">
+from langchain_core.runnables import RunnableParallel
+
+# Parallel chain execution
+analysis_chain = RunnableParallel(
+    sentiment=prompt_sentiment | model | StrOutputParser(),
+    summary=prompt_summary | model | StrOutputParser(),
+    keywords=prompt_keywords | model | StrOutputParser()
+)
+
+# All branches execute simultaneously
+results = analysis_chain.invoke({"text": "Long document content..."})
+        </div>
+
+        <h4>Conditional Branching</h4>
+        <div class="code-block">
+from langchain_core.runnables import RunnableBranch
+
+# Conditional routing based on input
+branch = RunnableBranch(
+    (lambda x: "code" in x["query"].lower(), code_analysis_chain),
+    (lambda x: "data" in x["query"].lower(), data_analysis_chain),
+    general_chain  # Default branch
+)
+
+result = branch.invoke({"query": "How to debug Python code?"})
+        </div>
+
+        <h4>Streaming with Middleware</h4>
+        <div class="code-block">
+# Custom streaming middleware
+async def token_filter_middleware(stream):
+    """Filter and transform tokens in real-time."""
+    buffer = ""
+    async for chunk in stream:
+        buffer += chunk
+        if "@" in buffer:
+            yield "[REDACTED_EMAIL]"
+            buffer = ""
+        elif len(buffer) > 50:
+            yield buffer
+            buffer = ""
+    if buffer:
+        yield buffer
+
+# Apply middleware to streaming
+async for token in token_filter_middleware(chain.astream(input_data)):
+    print(token, end="", flush=True)
+        </div>
+
+        <h3>Production LCEL Benefits</h3>
+        <div class="highlight">
+            <ul>
+                <li><strong>Zero Code Change:</strong> Prototypes work in production without modification</li>
+                <li><strong>Automatic Optimization:</strong> Built-in parallelism and streaming</li>
+                <li><strong>Enhanced Observability:</strong> Integrated LangSmith tracing</li>
+                <li><strong>Fallback Support:</strong> Graceful error handling across chain steps</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="tools" class="section">
+        <h2>6. Custom Tool Development & Integration</h2>
+
+        <h3>Runnable Protocol Implementation</h3>
+        <p>Custom components should implement the Runnable protocol to integrate seamlessly with LCEL chains.</p>
+
+        <div class="code-block">
+from langchain_core.runnables import Runnable
+from typing import Any, Dict, Optional
+
+class CustomDataProcessor(Runnable):
+    """Custom tool implementing Runnable protocol."""
+    
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+    
+    def invoke(
+        self, 
+        input: Dict[str, Any], 
+        config: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        # Synchronous processing
+        processed_data = self._process_data(input["data"])
+        return {"processed": processed_data}
+    
+    async def ainvoke(
+        self, 
+        input: Dict[str, Any], 
+        config: Optional[Dict] = None
+    ) -> Dict[str, Any]:
+        # Asynchronous processing
+        processed_data = await self._aprocess_data(input["data"])
+        return {"processed": processed_data}
+    
+    def _process_data(self, data: str) -> str:
+        # Sync implementation
+        return data.upper()
+    
+    async def _aprocess_data(self, data: str) -> str:
+        # Async implementation
+        import asyncio
+        await asyncio.sleep(0.1)  # Simulate async work
+        return data.upper()
+
+# Integration with LCEL
+processor = CustomDataProcessor("api_key")
+chain = prompt | processor | model | output_parser
+        </div>
+
+        <h3>Tool Decorators and Function Tools</h3>
+        <div class="code-block">
+from langchain_core.tools import tool
+from langchain_core.pydantic_v1 import BaseModel, Field
+from typing import Optional
+
+# Simple function tool
+@tool
+def get_weather(city: str, country: str = "US") -> str:
+    """Get current weather for a city."""
+    # Implementation here
+    return f"Weather in {city}, {country}: Sunny, 22°C"
+
+# Tool with Pydantic schema
+class WeatherInput(BaseModel):
+    city: str = Field(description="City name")
+    country: str = Field(default="US", description="Country code")
+    units: Optional[str] = Field(default="celsius", description="Temperature units")
+
+@tool(args_schema=WeatherInput)
+def advanced_weather(city: str, country: str = "US", units: str = "celsius") -> str:
+    """Get detailed weather information with units."""
+    return f"Weather in {city}, {country}: 22°{units[0].upper()}"
+
+# Async tool implementation
+@tool
+async def async_database_query(query: str) -> str:
+    """Execute async database query."""
+    import asyncio
+    await asyncio.sleep(1)  # Simulate DB query
+    return f"Query result for: {query}"
+        </div>
+
+        <h3>Production Tool Patterns</h3>
+        <div class="info">
+            <strong>Best Practices:</strong>
+            <ul>
+                <li><strong>Error Handling:</strong> Implement robust error handling with meaningful messages</li>
+                <li><strong>Rate Limiting:</strong> Add rate limiting for external API calls</li>
+                <li><strong>Caching:</strong> Cache tool results for frequently accessed data</li>
+                <li><strong>Monitoring:</strong> Log tool usage and performance metrics</li>
+                <li><strong>Security:</strong> Validate inputs and sanitize outputs</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="streaming" class="section">
+        <h2>7. Streaming & Async Processing Patterns</h2>
+
+        <h3>Built-in Streaming Support</h3>
+        <p>LCEL chains automatically support streaming through the .stream() and .astream() methods.</p>
+
+        <div class="code-block">
+# Basic streaming
+for chunk in chain.stream({"topic": "AI"}):
+    print(chunk, end="", flush=True)
+
+# Async streaming
+async def async_stream_example():
+    async for chunk in chain.astream({"topic": "AI"}):
+        print(chunk, end="", flush=True)
+
+# Streaming with intermediate steps
+for chunk in chain.stream_log({"topic": "AI"}):
+    print(f"Step: {chunk['ops'][0]['path']}")
+    print(f"Output: {chunk['ops'][0]['value']}")
+        </div>
+
+        <h3>Advanced Streaming Patterns</h3>
+        <div class="code-block">
+# Stream events for detailed monitoring
+async def stream_events_example():
+    async for event in chain.astream_events(
+        {"topic": "machine learning"}, 
+        version="v1"
+    ):
+        if event["event"] == "on_llm_stream":
+            print(event["data"]["chunk"].content, end="")
+        elif event["event"] == "on_tool_end":
+            print(f"\nTool {event['name']} completed")
+
+# Batch processing with streaming
+batch_inputs = [{"topic": f"topic_{i}"} for i in range(10)]
+
+# Process in parallel batches
+async for batch_result in chain.abatch(batch_inputs):
+    print(f"Batch completed: {len(batch_result)} items")
+        </div>
+
+        <h3>Custom Async Components</h3>
+        <div class="code-block">
+from langchain_core.runnables import Runnable
+import asyncio
+import aiohttp
+
+class AsyncWebRetriever(Runnable):
+    """Async web content retriever."""
+    
+    async def ainvoke(self, input: dict, config=None) -> dict:
+        urls = input.get("urls", [])
+        
+        async with aiohttp.ClientSession() as session:
+            tasks = [self._fetch_url(session, url) for url in urls]
+            results = await asyncio.gather(*tasks)
+        
+        return {"retrieved_content": results}
+    
+    async def _fetch_url(self, session: aiohttp.ClientSession, url: str) -> str:
+        try:
+            async with session.get(url) as response:
+                return await response.text()
+        except Exception as e:
+            return f"Error fetching {url}: {str(e)}"
+
+# Integration in async chain
+async_retriever = AsyncWebRetriever()
+async_chain = async_retriever | processing_chain
+
+# Concurrent execution
+results = await asyncio.gather(*[
+    async_chain.ainvoke({"urls": urls_batch_1}),
+    async_chain.ainvoke({"urls": urls_batch_2}),
+])
+        </div>
+
+        <h3>Performance Optimization</h3>
+        <div class="highlight">
+            <strong>Async Benefits:</strong>
+            <ul>
+                <li><strong>I/O Bound Operations:</strong> Network requests, database queries, file operations</li>
+                <li><strong>Parallel Tool Execution:</strong> Multiple tools can run concurrently</li>
+                <li><strong>Better Resource Utilization:</strong> Reduced blocking operations</li>
+                <li><strong>Scalability:</strong> Handle more concurrent requests with same resources</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="debugging" class="section">
+        <h2>8. Error Handling & Debugging</h2>
+
+        <h3>LCEL Error Handling</h3>
+        <div class="code-block">
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.runnables.utils import Input, Output
+
+# Fallback chains for error recovery
+primary_chain = prompt | model | output_parser
+fallback_chain = simple_prompt | backup_model | output_parser
+
+robust_chain = primary_chain.with_fallbacks([fallback_chain])
+
+# Custom error handling
+def safe_invoke(chain, input_data):
+    try:
+        return chain.invoke(input_data)
+    except Exception as e:
+        print(f"Chain execution failed: {e}")
+        return {"error": str(e), "fallback": True}
+
+# Retry logic with exponential backoff
+from langchain_core.runnables import RunnableRetry
+
+retry_chain = RunnableRetry(
+    bound=chain,
+    max_attempt_number=3,
+    wait_exponential_jitter=True
+)
+        </div>
+
+        <h3>LangSmith Integration for Debugging</h3>
+        <div class="code-block">
+import os
+from langsmith import traceable
+
+# Enable LangSmith tracing
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = "your_api_key"
+
+@traceable
+def debug_chain_execution(input_data):
+    """Traced function for debugging."""
+    result = chain.invoke(input_data)
+    return result
+
+# Custom run name for better organization
+result = chain.invoke(
+    input_data,
+    config={"run_name": "production_rag_query"}
+)
+        </div>
+
+        <h3>Common Debugging Patterns</h3>
+        <div class="code-block">
+# Add debugging middleware to chains
+class DebugRunnable(Runnable):
+    def __init__(self, runnable: Runnable, name: str):
+        self.runnable = runnable
+        self.name = name
+    
+    def invoke(self, input, config=None):
+        print(f"[{self.name}] Input: {input}")
+        try:
+            output = self.runnable.invoke(input, config)
+            print(f"[{self.name}] Output: {output}")
+            return output
+        except Exception as e:
+            print(f"[{self.name}] Error: {e}")
+            raise
+
+# Wrap chain components for debugging
+debug_chain = (
+    DebugRunnable(prompt, "prompt") | 
+    DebugRunnable(model, "model") | 
+    DebugRunnable(output_parser, "parser")
+)
+
+# Token usage tracking
+def track_token_usage(chain_result, input_data):
+    """Track and log token usage for cost monitoring."""
+    if hasattr(chain_result, 'response_metadata'):
+        usage = chain_result.response_metadata.get('token_usage', {})
+        print(f"Token usage: {usage}")
+        
+        # Log to monitoring system
+        logger.info("chain_execution", {
+            "input_tokens": usage.get('prompt_tokens', 0),
+            "output_tokens": usage.get('completion_tokens', 0),
+            "total_tokens": usage.get('total_tokens', 0)
+        })
+        </div>
+
+        <h3>Production Error Patterns</h3>
+        <div class="warning">
+            <strong>Common Production Issues:</strong>
+            <ul>
+                <li><strong>Rate Limiting:</strong> API quotas and throttling</li>
+                <li><strong>Token Limits:</strong> Context window exceeded</li>
+                <li><strong>Latency:</strong> Sequential API calls causing delays</li>
+                <li><strong>Model Availability:</strong> Service disruptions</li>
+                <li><strong>Memory Issues:</strong> Large document processing</li>
+            </ul>
+        </div>
+    </section>
+
+    <section id="deployment" class="section">
+        <h2>9. Production Deployment with LangServe</h2>
+
+        <h3>LangServe Setup</h3>
+        <div class="code-block">
+# Basic LangServe deployment
+from fastapi import FastAPI
+from langserve import add_routes
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+
+app = FastAPI(
+    title="LangChain Server",
+    version="1.0",
+    description="Production LangChain API server"
+)
+
+# Add chain routes
+add_routes(
+    app,
+    ChatOpenAI(model="gpt-3.5-turbo"),
+    path="/chat",
+)
+
+add_routes(
+    app,
+    rag_chain,
+    path="/rag",
+    enable_feedback_endpoint=True,
+    enable_public_trace_link_endpoint=True,
+)
+
+# Custom middleware for monitoring
+from fastapi import Request
+import time
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=8000)
+        </div>
+
+        <h3>Production Configuration</h3>
+        <div class="code-block">
+# Advanced LangServe configuration
+from langserve import CustomUserType
+from pydantic import BaseModel, Field
+
+class ChatRequest(BaseModel):
+    message: str = Field(..., description="User message")
+    session_id: str = Field(..., description="Session identifier")
+    context: dict = Field(default={}, description="Additional context")
+
+class ChatResponse(BaseModel):
+    response: str
+    session_id: str
+    metadata: dict
+
+# Configure with custom types
+add_routes(
+    app,
+    chain_with_history,
+    path="/chat",
+    input_type=ChatRequest,
+    output_type=ChatResponse,
+    config_keys=["configurable"],
+    enable_feedback_endpoint=True,
+)
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": time.time()}
+        </div>
+
+        <h3>Docker Deployment</h3>
+        <div class="code-block">
+# Dockerfile for LangServe
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# docker-compose.yml
+version: '3.8'
+services:
+  langchain-api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LANGCHAIN_TRACING_V2=true
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+        </div>
+
+        <h3>Cloud Deployment Patterns</h3>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>Google Cloud Run</h4>
+                <p>Serverless containerized deployment with automatic scaling</p>
+                <div class="code-block" style="font-size: 0.8rem;">
+gcloud run deploy langchain-api \
+  --image gcr.io/PROJECT/langchain \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated
+                </div>
+            </div>
+            <div class="feature-card">
+                <h4>AWS Lambda + API Gateway</h4>
+                <p>Serverless deployment with FastAPI adapter</p>
+                <div class="code-block" style="font-size: 0.8rem;">
+from mangum import Mangum
+from fastapi import FastAPI
+
+app = FastAPI()
+# Add LangServe routes
+
+lambda_handler = Mangum(app)
+                </div>
+            </div>
+        </div>
+
+        <h3>Production Monitoring</h3>
+        <div class="code-block">
+# Enhanced monitoring and logging
+import logging
+from prometheus_client import Counter, Histogram, generate_latest
+
+# Metrics collection
+request_count = Counter('requests_total', 'Total requests')
+request_duration = Histogram('request_duration_seconds', 'Request duration')
+
+@app.middleware("http")
+async def monitor_requests(request: Request, call_next):
+    request_count.inc()
+    
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+    
+    request_duration.observe(duration)
+    
+    # Log slow requests
+    if duration > 5.0:
+        logging.warning(f"Slow request: {request.url.path} took {duration:.2f}s")
+    
+    return response
+
+@app.get("/metrics")
+async def metrics():
+    return generate_latest()
+        </div>
+
+        <h3>2026 Production Considerations</h3>
+        <div class="highlight">
+            <strong>Production Best Practices:</strong>
+            <ul>
+                <li><strong>Auto-scaling:</strong> Configure based on token throughput and latency SLAs</li>
+                <li><strong>Cost Monitoring:</strong> Track token usage and API costs per endpoint</li>
+                <li><strong>Security:</strong> API authentication, rate limiting, input validation</li>
+                <li><strong>Observability:</strong> Integrated LangSmith tracing and custom metrics</li>
+                <li><strong>Fallback Strategies:</strong> Multiple model providers and degraded service modes</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            <strong>Known 2026 Limitations:</strong>
+            <ul>
+                <li>Error handling requires custom middleware for production-grade responses</li>
+                <li>Streaming errors can interfere with response handling</li>
+                <li>Built-in playground is helpful for testing but disable in production</li>
+                <li>Consider lighter alternatives for simple use cases</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="timestamp">
+        <p>Last updated: March 26, 2026</p>
+        <p>This handbook covers the latest LangChain patterns and production-ready implementations based on the most current documentation and community practices.</p>
+    </div>
+</body>
+</html>

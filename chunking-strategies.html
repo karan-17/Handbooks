@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Chunking Strategies Handbook - 2025</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .header p {
+            margin: 0.5rem 0 0 0;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .container {
+            display: grid;
+            gap: 2rem;
+        }
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            color: #667eea;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .section h3 {
+            color: #495057;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+            font-weight: 600;
+        }
+        .section h4 {
+            color: #6c757d;
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem 0;
+            font-weight: 500;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+        .code-block code {
+            background: none;
+            padding: 0;
+        }
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #17a2b8;
+        }
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .performance-table th,
+        .performance-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.8rem;
+            text-align: left;
+        }
+        .performance-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        .performance-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .benchmark-card {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .benchmark-card h4 {
+            color: #1976d2;
+            margin-top: 0;
+        }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .pros, .cons {
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .pros {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .cons {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        .pros h4, .cons h4 {
+            margin-top: 0;
+            color: inherit;
+        }
+        .toc {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .toc h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        .toc li {
+            padding: 0.3rem 0;
+        }
+        .toc a {
+            color: #495057;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .toc a:hover {
+            color: #667eea;
+        }
+        .research-highlight {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .research-highlight h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Text Chunking Strategies Handbook</h1>
+        <p>Comprehensive Guide to Modern Text Splitting Techniques - 2025 Edition</p>
+    </div>
+
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#overview">1. Overview & 2025 Research Insights</a></li>
+            <li><a href="#langchain">2. LangChain Text Splitters</a></li>
+            <li><a href="#semantic">3. Semantic Chunking with Embeddings</a></li>
+            <li><a href="#llamaindex">4. LlamaIndex Chunking Strategies</a></li>
+            <li><a href="#unstructured">5. Unstructured.io Chunking Capabilities</a></li>
+            <li><a href="#spacy-nltk">6. Advanced Chunking with spaCy and NLTK</a></li>
+            <li><a href="#benchmarks">7. Performance Benchmarks & Optimization</a></li>
+            <li><a href="#recommendations">8. Best Practices & Recommendations</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <section id="overview" class="section">
+            <h2>1. Overview & 2025 Research Insights</h2>
+            
+            <div class="research-highlight">
+                <h4>Key 2025 Finding</h4>
+                <p>According to S.R. Bhat et al.'s "Rethinking Chunk Size for Long-Document Retrieval: A Multi-Dataset Analysis," there isn't a single "best" chunk size for RAG. Small chunks (64–128 tokens) work better for factual queries, while larger chunks (512–1024 tokens) help with narrative reasoning tasks.</p>
+            </div>
+
+            <h3>Evolution of Text Chunking</h3>
+            <p>Text chunking has evolved from simple character-based splitting to sophisticated semantic approaches that preserve meaning and context. Modern strategies leverage embeddings, linguistic analysis, and machine learning to create more intelligent document segmentation.</p>
+
+            <div class="highlight">
+                <strong>Critical Insight:</strong> A 2025 Gartner report indicates that 60% of AI projects will be abandoned by 2026 due to lack of "AI-ready" data, emphasizing the importance of proper chunking strategies.
+            </div>
+
+            <h3>Core Chunking Approaches</h3>
+            <ul>
+                <li><span class="tag">Fixed-Size</span> Character or token-based splitting with overlap</li>
+                <li><span class="tag">Semantic</span> Meaning-based chunking using embeddings</li>
+                <li><span class="tag">Hierarchical</span> Multi-level chunking with parent-child relationships</li>
+                <li><span class="tag">Structural</span> Document structure-aware splitting</li>
+                <li><span class="tag">Hybrid</span> Combining multiple strategies for optimal results</li>
+            </ul>
+        </section>
+
+        <section id="langchain" class="section">
+            <h2>2. LangChain Text Splitters</h2>
+            
+            <h3>RecursiveCharacterTextSplitter</h3>
+            <p>The most commonly used and recommended text splitter for general use cases. It attempts to keep semantically related text together by splitting on paragraphs, then sentences, then words.</p>
+
+            <div class="code-block">
+                <code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# Basic usage
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=200,
+    length_function=len,
+    separators=["\n\n", "\n", " ", ""]
+)
+
+documents = text_splitter.split_text(text)
+
+# Advanced configuration
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=4000,
+    chunk_overlap=200,
+    length_function=len,
+    is_separator_regex=False,
+    keep_separator=False
+)</code>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>Advantages</h4>
+                    <ul>
+                        <li>Preserves semantic structure</li>
+                        <li>Good out-of-the-box performance</li>
+                        <li>Configurable separators</li>
+                        <li>Handles various text formats well</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>Limitations</h4>
+                    <ul>
+                        <li>May break mid-sentence on complex texts</li>
+                        <li>Not aware of document structure</li>
+                        <li>Fixed hierarchy approach</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>TokenTextSplitter</h3>
+            <p>Splits text based on token counts rather than characters, ensuring compatibility with language model token limits.</p>
+
+            <div class="code-block">
+                <code>from langchain_text_splitters import CharacterTextSplitter
+
+# Token-based splitting with tiktoken
+text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    encoding_name="cl100k_base",  # GPT-4 encoding
+    chunk_size=1000,
+    chunk_overlap=0
+)
+
+documents = text_splitter.split_text(text)
+
+# With specific model tokenizer
+text_splitter = CharacterTextSplitter.from_huggingface_tokenizer(
+    tokenizer="bert-base-uncased",
+    chunk_size=512,
+    chunk_overlap=50
+)</code>
+            </div>
+
+            <h3>Specialized Splitters</h3>
+            <div class="code-block">
+                <code># Code splitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+python_splitter = RecursiveCharacterTextSplitter.from_language(
+    language=Language.PYTHON, 
+    chunk_size=50
+)
+
+# Markdown splitter
+from langchain_text_splitters import MarkdownTextSplitter
+
+markdown_splitter = MarkdownTextSplitter(
+    chunk_size=100, 
+    chunk_overlap=0
+)
+
+# HTML splitter
+from langchain_text_splitters import HTMLSectionSplitter
+
+html_splitter = HTMLSectionSplitter(
+    headers_to_split_on=[
+        ("h1", "Header 1"),
+        ("h2", "Header 2"),
+    ]
+)</code>
+            </div>
+        </section>
+
+        <section id="semantic" class="section">
+            <h2>3. Semantic Chunking with Embeddings</h2>
+            
+            <h3>Max-Min Semantic Chunking (2025 Latest)</h3>
+            <p>The cutting-edge approach that embeds first, then chunks based on semantic similarity rather than arbitrary size limits.</p>
+
+            <div class="code-block">
+                <code>import numpy as np
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+class MaxMinSemanticChunker:
+    def __init__(self, model_name="all-MiniLM-L6-v2", similarity_threshold=0.8):
+        self.model = SentenceTransformer(model_name)
+        self.similarity_threshold = similarity_threshold
+    
+    def chunk_text(self, text, max_chunk_size=1000):
+        sentences = self.split_into_sentences(text)
+        embeddings = self.model.encode(sentences)
+        
+        chunks = []
+        current_chunk = [sentences[0]]
+        current_embeddings = [embeddings[0]]
+        
+        for i in range(1, len(sentences)):
+            # Calculate min similarity within current chunk
+            if len(current_embeddings) > 1:
+                chunk_similarities = cosine_similarity(current_embeddings)
+                min_similarity = np.min(chunk_similarities[np.triu_indices_from(chunk_similarities, k=1)])
+            else:
+                min_similarity = 1.0
+            
+            # Calculate max similarity to new sentence
+            new_similarities = cosine_similarity([embeddings[i]], current_embeddings)
+            max_similarity = np.max(new_similarities)
+            
+            # Decision logic
+            chunk_text_length = sum(len(s) for s in current_chunk)
+            
+            if (max_similarity >= self.similarity_threshold and 
+                chunk_text_length + len(sentences[i]) <= max_chunk_size):
+                current_chunk.append(sentences[i])
+                current_embeddings.append(embeddings[i])
+            else:
+                chunks.append(" ".join(current_chunk))
+                current_chunk = [sentences[i]]
+                current_embeddings = [embeddings[i]]
+        
+        if current_chunk:
+            chunks.append(" ".join(current_chunk))
+        
+        return chunks
+    
+    def split_into_sentences(self, text):
+        # Use spaCy or NLTK for better sentence segmentation
+        import spacy
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(text)
+        return [sent.text.strip() for sent in doc.sents]
+
+# Usage example
+chunker = MaxMinSemanticChunker(similarity_threshold=0.75)
+semantic_chunks = chunker.chunk_text(document_text)</code>
+            </div>
+
+            <h3>Embedding-Based Similarity Chunking</h3>
+            <div class="code-block">
+                <code>from langchain.text_splitter import SemanticChunker
+from langchain_openai import OpenAIEmbeddings
+
+# Using percentile-based thresholding
+semantic_chunker = SemanticChunker(
+    embeddings=OpenAIEmbeddings(),
+    breakpoint_threshold_type="percentile",
+    breakpoint_threshold_amount=80
+)
+
+chunks = semantic_chunker.split_text(document)
+
+# Using standard deviation thresholding
+semantic_chunker_std = SemanticChunker(
+    embeddings=OpenAIEmbeddings(),
+    breakpoint_threshold_type="standard_deviation",
+    breakpoint_threshold_amount=3
+)</code>
+            </div>
+
+            <div class="benchmark-card">
+                <h4>2025 Performance Results</h4>
+                <p><strong>Embedding-Similarity-Based:</strong> Achieved high relevancy using cosine distances and 80th percentile thresholds</p>
+                <p><strong>LLM-Based Chunking:</strong> Best overall performance across metrics but higher latency (6.88s vs 5.24s)</p>
+                <p><strong>Hierarchical-Clustering:</strong> Lowest latency but struggles with fine-grained semantic relationships</p>
+            </div>
+
+            <h3>Hierarchical Clustering Approach</h3>
+            <div class="code-block">
+                <code>from sklearn.cluster import AgglomerativeClustering
+from sentence_transformers import SentenceTransformer
+import numpy as np
+
+class HierarchicalSemanticChunker:
+    def __init__(self, model_name="all-MiniLM-L6-v2", n_clusters=None):
+        self.model = SentenceTransformer(model_name)
+        self.n_clusters = n_clusters
+    
+    def chunk_text(self, text, target_chunk_count=10):
+        sentences = self.split_sentences(text)
+        embeddings = self.model.encode(sentences)
+        
+        # Hierarchical clustering
+        clustering = AgglomerativeClustering(
+            n_clusters=target_chunk_count,
+            linkage='ward'
+        )
+        cluster_labels = clustering.fit_predict(embeddings)
+        
+        # Group sentences by cluster
+        chunks = {}
+        for i, label in enumerate(cluster_labels):
+            if label not in chunks:
+                chunks[label] = []
+            chunks[label].append(sentences[i])
+        
+        return [" ".join(sentences) for sentences in chunks.values()]</code>
+            </div>
+        </section>
+
+        <section id="llamaindex" class="section">
+            <h2>4. LlamaIndex Chunking Strategies</h2>
+            
+            <h3>Node Parser Overview</h3>
+            <p>LlamaIndex uses Node Parsers to break documents into Node objects, each representing a distinct chunk with inherited attributes from parent documents.</p>
+
+            <h3>Semantic Splitter Node Parser</h3>
+            <div class="code-block">
+                <code>from llama_index.core.node_parser import SemanticSplitterNodeParser
+from llama_index.embeddings.openai import OpenAIEmbedding
+
+# Adaptive semantic chunking
+semantic_splitter = SemanticSplitterNodeParser(
+    buffer_size=1,  # Number of sentences to group together
+    breakpoint_percentile_threshold=95,  # Percentile for semantic breaks
+    embed_model=OpenAIEmbedding(),
+)
+
+nodes = semantic_splitter.get_nodes_from_documents(documents)</code>
+            </div>
+
+            <h3>Hierarchical Node Parser</h3>
+            <div class="code-block">
+                <code>from llama_index.core.node_parser import HierarchicalNodeParser
+
+# Create hierarchical chunks with parent-child relationships
+hierarchical_parser = HierarchicalNodeParser.from_defaults(
+    chunk_sizes=[2048, 512, 128],  # Multiple hierarchy levels
+    chunk_overlap=20
+)
+
+nodes = hierarchical_parser.get_nodes_from_documents(documents)
+
+# Use with AutoMergingRetriever for intelligent merging
+from llama_index.core.retrievers import AutoMergingRetriever
+from llama_index.core import VectorStoreIndex
+
+index = VectorStoreIndex(nodes)
+retriever = AutoMergingRetriever(
+    index.as_retriever(similarity_top_k=6),
+    storage_context
+)</code>
+            </div>
+
+            <h3>Sentence Window Node Parser</h3>
+            <div class="code-block">
+                <code>from llama_index.core.node_parser import SentenceWindowNodeParser
+
+# Each node contains individual sentences with surrounding context
+sentence_parser = SentenceWindowNodeParser.from_defaults(
+    window_size=3,  # Number of sentences before and after
+    window_metadata_key="window",
+    original_text_metadata_key="original_text",
+)
+
+nodes = sentence_parser.get_nodes_from_documents(documents)</code>
+            </div>
+
+            <h3>Specialized Parsers</h3>
+            <div class="code-block">
+                <code># Token-based splitting
+from llama_index.core.node_parser import TokenTextSplitter
+
+token_splitter = TokenTextSplitter(
+    chunk_size=1024,
+    chunk_overlap=20,
+    separator=" "
+)
+
+# HTML-aware parsing
+from llama_index.core.node_parser import HTMLNodeParser
+
+html_parser = HTMLNodeParser.from_defaults(
+    tags=["p", "h1", "h2", "h3", "h4", "h5", "h6", "li", "b", "i", "u", "section"]
+)
+
+# Code splitting with language awareness
+from llama_index.core.node_parser import CodeSplitter
+
+code_splitter = CodeSplitter(
+    language="python",
+    chunk_lines=40,  # number of lines per chunk
+    chunk_lines_overlap=15,  # overlap between chunks
+    max_chars=1500,  # max characters per chunk
+)</code>
+            </div>
+
+            <div class="research-highlight">
+                <h4>2025 Research Finding</h4>
+                <p>A NAACL 2025 Findings paper concluded that computational costs of advanced chunking aren't always justified by performance gains, with fixed 200-word chunks matching or beating semantic chunking in many cases.</p>
+            </div>
+        </section>
+
+        <section id="unstructured" class="section">
+            <h2>5. Unstructured.io Chunking Capabilities</h2>
+            
+            <h3>Chunking Strategies</h3>
+            <p>Unstructured.io provides sophisticated document-aware chunking that respects document structure while maintaining optimal chunk sizes.</p>
+
+            <h3>Basic Strategy</h3>
+            <div class="code-block">
+                <code>from unstructured.partition.auto import partition
+from unstructured.chunking.title import chunk_by_title
+
+# Partition document first
+elements = partition("document.pdf")
+
+# Basic chunking - combines elements to fill chunks maximally
+chunked_elements = chunk_by_title(
+    elements=elements,
+    max_characters=1500,      # Hard maximum
+    new_after_n_chars=1200,   # Soft maximum
+    combine_text_under_n_chars=500  # Combine small elements
+)
+
+for element in chunked_elements:
+    print(f"Type: {element.category}")
+    print(f"Text: {element.text[:100]}...")
+    print(f"Length: {len(element.text)}")
+    print("---")</code>
+            </div>
+
+            <h3>By Title Strategy</h3>
+            <div class="code-block">
+                <code># Respects document section boundaries
+chunked_elements = chunk_by_title(
+    elements=elements,
+    max_characters=1000,
+    new_after_n_chars=800,
+    combine_text_under_n_chars=300,
+    multipage_sections=True,  # Allow sections across pages
+    overlap=100,              # Overlap between chunks
+    overlap_all=True         # Apply overlap to all chunks
+)</code>
+            </div>
+
+            <h3>Element Types After Chunking</h3>
+            <ul>
+                <li><strong>CompositeElement:</strong> Combination of multiple text elements within size limits</li>
+                <li><strong>Table:</strong> Table element preserved if within max_characters</li>
+                <li><strong>TableChunk:</strong> Large tables split into chunks with special handling</li>
+            </ul>
+
+            <h3>API Integration</h3>
+            <div class="code-block">
+                <code>import requests
+
+# Using Unstructured API for chunking
+files = {"files": open("document.pdf", "rb")}
+data = {
+    "chunking_strategy": "by_title",
+    "max_characters": 1500,
+    "new_after_n_chars": 1200,
+    "combine_text_under_n_chars": 500,
+    "overlap": 100
+}
+
+response = requests.post(
+    "https://api.unstructured.io/general/v0/general",
+    files=files,
+    data=data,
+    headers={"Authorization": f"Bearer {api_key}"}
+)
+
+elements = response.json()</code>
+            </div>
+
+            <div class="highlight">
+                <strong>Key Advantage:</strong> Unstructured.io excels at maintaining document structure integrity while chunking, making it ideal for complex documents with mixed content types.
+            </div>
+        </section>
+
+        <section id="spacy-nltk" class="section">
+            <h2>6. Advanced Chunking with spaCy and NLTK</h2>
+            
+            <h3>spaCy-Based Chunking (2025 v3.8)</h3>
+            <p>spaCy provides fast, production-ready chunking with linguistic awareness and dependency parsing.</p>
+
+            <div class="code-block">
+                <code>import spacy
+from spacy.matcher import Matcher
+
+# Load spaCy model (v3.8 - May 2025 release)
+nlp = spacy.load("en_core_web_sm")
+
+class SpacySemanticChunker:
+    def __init__(self, chunk_size=1000, overlap=100):
+        self.nlp = nlp
+        self.chunk_size = chunk_size
+        self.overlap = overlap
+        
+    def chunk_by_sentences(self, text):
+        doc = self.nlp(text)
+        sentences = [sent.text.strip() for sent in doc.sents]
+        
+        chunks = []
+        current_chunk = ""
+        
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) <= self.chunk_size:
+                current_chunk += sentence + " "
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                current_chunk = sentence + " "
+        
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+            
+        return chunks
+    
+    def chunk_by_noun_phrases(self, text):
+        doc = self.nlp(text)
+        chunks = []
+        current_chunk = []
+        current_length = 0
+        
+        for chunk in doc.noun_chunks:
+            if current_length + len(chunk.text) <= self.chunk_size:
+                current_chunk.append(chunk.text)
+                current_length += len(chunk.text)
+            else:
+                if current_chunk:
+                    chunks.append(" ".join(current_chunk))
+                current_chunk = [chunk.text]
+                current_length = len(chunk.text)
+                
+        if current_chunk:
+            chunks.append(" ".join(current_chunk))
+            
+        return chunks
+
+# Usage
+chunker = SpacySemanticChunker(chunk_size=800)
+sentence_chunks = chunker.chunk_by_sentences(text)
+np_chunks = chunker.chunk_by_noun_phrases(text)</code>
+            </div>
+
+            <h3>NLTK-Based Chunking (2025 v3.9.1)</h3>
+            <div class="code-block">
+                <code>import nltk
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.chunk import ne_chunk
+from nltk.tag import pos_tag
+
+# Download required NLTK data
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('maxent_ne_chunker')
+nltk.download('words')
+
+class NLTKChunker:
+    def __init__(self, chunk_size=1000, overlap=50):
+        self.chunk_size = chunk_size
+        self.overlap = overlap
+    
+    def chunk_by_sentences(self, text):
+        sentences = sent_tokenize(text)
+        
+        chunks = []
+        current_chunk = ""
+        
+        for sentence in sentences:
+            if len(current_chunk) + len(sentence) <= self.chunk_size:
+                current_chunk += sentence + " "
+            else:
+                if current_chunk:
+                    chunks.append(current_chunk.strip())
+                    # Add overlap
+                    overlap_text = current_chunk[-self.overlap:] if len(current_chunk) > self.overlap else current_chunk
+                    current_chunk = overlap_text + sentence + " "
+                else:
+                    current_chunk = sentence + " "
+        
+        if current_chunk:
+            chunks.append(current_chunk.strip())
+            
+        return chunks
+    
+    def chunk_with_named_entities(self, text):
+        sentences = sent_tokenize(text)
+        chunks = []
+        
+        for sentence in sentences:
+            words = word_tokenize(sentence)
+            pos_tags = pos_tag(words)
+            named_entities = ne_chunk(pos_tags)
+            
+            # Extract entities and create chunks preserving them
+            entities = []
+            for chunk in named_entities:
+                if hasattr(chunk, 'label'):
+                    entity = ' '.join([token for token, pos in chunk])
+                    entities.append(entity)
+            
+            chunks.append({
+                'text': sentence,
+                'entities': entities,
+                'pos_tags': pos_tags
+            })
+        
+        return chunks
+
+# Usage
+nltk_chunker = NLTKChunker()
+sentence_chunks = nltk_chunker.chunk_by_sentences(text)
+entity_chunks = nltk_chunker.chunk_with_named_entities(text)</code>
+            </div>
+
+            <h3>Performance Comparison (2025 Studies)</h3>
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Library</th>
+                        <th>Speed</th>
+                        <th>Accuracy</th>
+                        <th>Memory Usage</th>
+                        <th>Production Ready</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>spaCy v3.8</td>
+                        <td>Very Fast</td>
+                        <td>High</td>
+                        <td>Moderate</td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td>NLTK v3.9.1</td>
+                        <td>Slower</td>
+                        <td>Good</td>
+                        <td>High</td>
+                        <td>Research/Educational</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="research-highlight">
+                <h4>2025 Performance Study Results</h4>
+                <p>SpaCy chunking outperformed other approaches across different query complexity levels (Easy, Medium, Hard), with superior performance in Faithfulness (F), Answer Relevancy (AR), and Context Relevancy (CR) metrics.</p>
+            </div>
+        </section>
+
+        <section id="benchmarks" class="section">
+            <h2>7. Performance Benchmarks & Optimization</h2>
+            
+            <h3>2025 Comprehensive Benchmark Results</h3>
+            
+            <div class="benchmark-card">
+                <h4>Clinical Decision Support Study (MDPI, November 2025)</h4>
+                <p><strong>Adaptive Chunking:</strong> 87% accuracy vs 50% fixed-size baseline (p = 0.001)</p>
+                <p><strong>Semantic Chunking:</strong> 93% relevance score</p>
+                <p><strong>Proposition Chunking:</strong> Effective for structured medical data</p>
+            </div>
+
+            <div class="benchmark-card">
+                <h4>NVIDIA Technical Blog (June 2025)</h4>
+                <p><strong>Page-Level Chunking:</strong> Highest average accuracy (0.648) with lowest deviation (0.107)</p>
+                <p><strong>Factoid Queries:</strong> Small chunks (256-512 tokens) optimal</p>
+                <p><strong>Analytical Queries:</strong> Large chunks (1,024 tokens) preferred</p>
+            </div>
+
+            <div class="benchmark-card">
+                <h4>Chroma Research Evaluation</h4>
+                <p><strong>LLMSemanticChunker:</strong> 0.919 recall</p>
+                <p><strong>ClusterSemanticChunker:</strong> 0.913 recall</p>
+                <p><strong>RecursiveCharacterTextSplitter:</strong> 85.4-89.5% recall</p>
+                <p><strong>Performance Variance:</strong> Up to 9% difference across methods</p>
+            </div>
+
+            <h3>Optimization Techniques</h3>
+            
+            <h4>1. Context Length Optimization</h4>
+            <div class="code-block">
+                <code># Optimize for context length limits
+def optimize_chunk_size(model_context_limit, target_chunks_per_context=4):
+    """
+    Calculate optimal chunk size based on model context limits
+    
+    Research shows context rot occurs around 2,500 tokens
+    """
+    safe_context_limit = min(model_context_limit * 0.8, 2500)  # 80% of limit or context cliff
+    optimal_chunk_size = safe_context_limit // target_chunks_per_context
+    
+    return {
+        'chunk_size': optimal_chunk_size,
+        'max_chunks': target_chunks_per_context,
+        'safety_margin': model_context_limit - safe_context_limit
+    }
+
+# Example for GPT-4
+gpt4_config = optimize_chunk_size(8192)  # GPT-4 context limit
+print(f"Optimal chunk size: {gpt4_config['chunk_size']} tokens")</code>
+            </div>
+
+            <h4>2. Dynamic Chunk Size Adjustment</h4>
+            <div class="code-block">
+                <code>class AdaptiveChunker:
+    def __init__(self):
+        self.query_type_patterns = {
+            'factual': ['what is', 'define', 'who is', 'when did'],
+            'analytical': ['analyze', 'compare', 'explain why', 'discuss'],
+            'narrative': ['tell me about', 'describe', 'story of']
+        }
+    
+    def determine_optimal_size(self, query_type, content_complexity):
+        """
+        Adjust chunk size based on query type and content
+        """
+        base_sizes = {
+            'factual': 256,     # Small chunks for precise facts
+            'analytical': 1024,  # Large chunks for context
+            'narrative': 512     # Medium chunks for flow
+        }
+        
+        complexity_multiplier = {
+            'low': 0.8,
+            'medium': 1.0,
+            'high': 1.2
+        }
+        
+        base_size = base_sizes.get(query_type, 512)
+        multiplier = complexity_multiplier.get(content_complexity, 1.0)
+        
+        return int(base_size * multiplier)
+    
+    def classify_query_type(self, query):
+        query_lower = query.lower()
+        for q_type, patterns in self.query_type_patterns.items():
+            if any(pattern in query_lower for pattern in patterns):
+                return q_type
+        return 'analytical'  # default</code>
+            </div>
+
+            <h3>Cost-Performance Trade-offs</h3>
+            <table class="performance-table">
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Accuracy</th>
+                        <th>Latency</th>
+                        <th>Cost</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Fixed Recursive (512 tokens)</td>
+                        <td>69%</td>
+                        <td>Low</td>
+                        <td>Low</td>
+                        <td>Baseline/General</td>
+                    </tr>
+                    <tr>
+                        <td>Semantic Chunking</td>
+                        <td>54%</td>
+                        <td>Medium</td>
+                        <td>Medium</td>
+                        <td>Context-sensitive</td>
+                    </tr>
+                    <tr>
+                        <td>LLM-based Chunking</td>
+                        <td>Highest</td>
+                        <td>High (6.88s)</td>
+                        <td>High</td>
+                        <td>Maximum quality</td>
+                    </tr>
+                    <tr>
+                        <td>Page-level</td>
+                        <td>65%</td>
+                        <td>Low</td>
+                        <td>Low</td>
+                        <td>Document-structured</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="recommendations" class="section">
+            <h2>8. Best Practices & Recommendations</h2>
+            
+            <h3>2025 Production Guidelines</h3>
+            
+            <div class="highlight">
+                <strong>Start Simple, Optimize Later:</strong> Begin with RecursiveCharacterTextSplitter at 400-512 tokens with 10-20% overlap. Move to advanced methods only if metrics justify the additional complexity and cost.
+            </div>
+
+            <h3>Decision Matrix</h3>
+            <div class="code-block">
+                <code>def choose_chunking_strategy(use_case, performance_requirements, budget):
+    """
+    Decision matrix for chunking strategy selection
+    """
+    strategies = {
+        'baseline': {
+            'method': 'RecursiveCharacterTextSplitter',
+            'chunk_size': 512,
+            'overlap': 50,
+            'cost': 'low',
+            'setup_time': 'minutes'
+        },
+        'semantic': {
+            'method': 'SemanticChunker',
+            'threshold': 0.8,
+            'cost': 'medium',
+            'setup_time': 'hours'
+        },
+        'premium': {
+            'method': 'LLMSemanticChunker',
+            'model': 'gpt-4-turbo',
+            'cost': 'high',
+            'setup_time': 'days'
+        }
+    }
+    
+    # Decision logic
+    if budget == 'low' or use_case == 'prototype':
+        return strategies['baseline']
+    elif performance_requirements == 'high' and budget == 'high':
+        return strategies['premium']
+    else:
+        return strategies['semantic']</code>
+            </div>
+
+            <h3>Content-Specific Recommendations</h3>
+            
+            <h4>Technical Documentation</h4>
+            <ul>
+                <li>Use hierarchical chunking to preserve code-explanation relationships</li>
+                <li>Chunk size: 800-1200 tokens for code with explanations</li>
+                <li>Consider language-specific splitters for code blocks</li>
+            </ul>
+
+            <h4>Legal/Medical Documents</h4>
+            <ul>
+                <li>Prioritize structure-aware chunking (by_title strategy)</li>
+                <li>Larger chunks (1000-1500 tokens) to maintain context</li>
+                <li>Careful overlap to preserve regulatory references</li>
+            </ul>
+
+            <h4>Conversational/Q&A Data</h4>
+            <ul>
+                <li>Sentence-based chunking to preserve question-answer pairs</li>
+                <li>Smaller chunks (256-512 tokens) for precise retrieval</li>
+                <li>Consider dialogue-aware splitting</li>
+            </ul>
+
+            <h3>Implementation Checklist</h3>
+            <div class="code-block">
+                <code>class ChunkingPipeline:
+    def __init__(self):
+        self.evaluation_metrics = [
+            'retrieval_precision',
+            'retrieval_recall', 
+            'answer_faithfulness',
+            'context_relevancy',
+            'processing_latency',
+            'cost_per_query'
+        ]
+    
+    def evaluate_strategy(self, strategy, test_queries, ground_truth):
+        """
+        Comprehensive evaluation framework
+        """
+        results = {
+            'strategy': strategy.__class__.__name__,
+            'metrics': {}
+        }
+        
+        for metric in self.evaluation_metrics:
+            results['metrics'][metric] = self.calculate_metric(
+                strategy, test_queries, ground_truth, metric
+            )
+        
+        return results
+    
+    def A_B_test(self, strategy_a, strategy_b, test_set):
+        """
+        Statistical comparison of strategies
+        """
+        results_a = self.evaluate_strategy(strategy_a, test_set)
+        results_b = self.evaluate_strategy(strategy_b, test_set)
+        
+        # Statistical significance testing
+        from scipy import stats
+        
+        significance_tests = {}
+        for metric in self.evaluation_metrics:
+            _, p_value = stats.ttest_ind(
+                results_a['metrics'][metric],
+                results_b['metrics'][metric]
+            )
+            significance_tests[metric] = {
+                'p_value': p_value,
+                'significant': p_value < 0.05
+            }
+        
+        return {
+            'strategy_a_results': results_a,
+            'strategy_b_results': results_b,
+            'significance_tests': significance_tests
+        }</code>
+            </div>
+
+            <h3>Monitoring & Optimization</h3>
+            
+            <h4>Key Metrics to Track</h4>
+            <ul>
+                <li><strong>Retrieval Metrics:</strong> Precision@K, Recall@K, MRR</li>
+                <li><strong>Quality Metrics:</strong> Faithfulness, Answer Relevancy, Context Relevancy</li>
+                <li><strong>Performance Metrics:</strong> Latency, Throughput, Cost per query</li>
+                <li><strong>User Experience:</strong> Response quality ratings, task completion rates</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Continuous Optimization:</strong> Implement A/B testing frameworks to continuously evaluate and improve chunking strategies based on real user interactions and feedback.
+            </div>
+
+            <h3>Future-Proofing Considerations</h3>
+            <ul>
+                <li>Design modular chunking pipelines for easy strategy swapping</li>
+                <li>Implement comprehensive logging for strategy comparison</li>
+                <li>Plan for multi-modal chunking (text + images + tables)</li>
+                <li>Consider privacy-preserving chunking for sensitive documents</li>
+                <li>Prepare for longer context models (100K+ tokens)</li>
+            </ul>
+        </section>
+    </div>
+
+    <div class="section" style="margin-top: 2rem; text-align: center; background: #667eea; color: white;">
+        <h3>Summary</h3>
+        <p>Text chunking strategies continue to evolve rapidly in 2025, with semantic approaches showing promise but fixed-size methods remaining surprisingly competitive. The key is matching strategy complexity to use case requirements while maintaining rigorous evaluation practices.</p>
+        <p><strong>Remember:</strong> Start simple, measure everything, optimize iteratively.</p>
+    </div>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add copy functionality to code blocks
+        document.querySelectorAll('.code-block').forEach(block => {
+            const copyBtn = document.createElement('button');
+            copyBtn.innerHTML = 'Copy';
+            copyBtn.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+            `;
+            
+            block.style.position = 'relative';
+            block.appendChild(copyBtn);
+            
+            copyBtn.addEventListener('click', () => {
+                const code = block.querySelector('code').textContent;
+                navigator.clipboard.writeText(code);
+                copyBtn.innerHTML = 'Copied!';
+                setTimeout(() => copyBtn.innerHTML = 'Copy', 2000);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph Workflow Handbook - 2025 Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .toc h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            column-gap: 30px;
+        }
+        
+        .toc li {
+            margin-bottom: 8px;
+            break-inside: avoid;
+        }
+        
+        .toc a {
+            color: #333;
+            text-decoration: none;
+            padding: 5px 0;
+            display: block;
+            transition: color 0.3s;
+        }
+        
+        .toc a:hover {
+            color: #667eea;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.4rem;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .section h4 {
+            color: #333;
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            position: relative;
+            border-left: 4px solid #667eea;
+        }
+        
+        .code-block code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .success {
+            background: #d1edff;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #17a2b8;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            color: #666;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .toc ul {
+                columns: 1;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">LG</div>
+            <h1>LangGraph Workflow Handbook</h1>
+            <div class="subtitle">Complete 2025 Guide to Production-Ready AI Agent Orchestration</div>
+        </header>
+
+        <nav class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#overview">1. LangGraph Overview & Architecture</a></li>
+                <li><a href="#state-management">2. State Management Patterns</a></li>
+                <li><a href="#workflow-orchestration">3. Workflow Orchestration</a></li>
+                <li><a href="#agent-coordination">4. Agent Coordination & Communication</a></li>
+                <li><a href="#conditional-logic">5. Conditional Logic & Branching</a></li>
+                <li><a href="#error-handling">6. Error Handling & Recovery</a></li>
+                <li><a href="#langchain-integration">7. LangChain Integration</a></li>
+                <li><a href="#real-world-examples">8. Real-World Examples</a></li>
+                <li><a href="#performance-optimization">9. Performance & Monitoring</a></li>
+                <li><a href="#production-deployment">10. Production Deployment</a></li>
+            </ul>
+        </nav>
+
+        <section id="overview" class="section">
+            <h2>1. LangGraph Overview & Architecture</h2>
+            
+            <div class="highlight">
+                <p><strong>LangGraph 1.0</strong> is now generally available as the first stable major release in the durable agent framework space. It's a low-level orchestration framework used by companies like Klarna, Uber, LinkedIn, and J.P. Morgan for production-ready AI systems.</p>
+            </div>
+
+            <h3>Core Architecture Principles</h3>
+            <p>LangGraph is built on the principle of <strong>structured agents</strong> with minimal abstraction. The framework focuses on control and durability rather than hiding complexity.</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Durable Execution</h4>
+                    <p>Build agents that persist through failures and can run for extended periods, resuming from exactly where they left off.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Human-in-the-Loop</h4>
+                    <p>Incorporate human oversight by inspecting and modifying agent state at any point during execution.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Comprehensive Memory</h4>
+                    <p>Create stateful agents with both short-term working memory and long-term persistent memory across sessions.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Streaming Support</h4>
+                    <p>Native token-by-token streaming showing agent reasoning and actions in real time.</p>
+                </div>
+            </div>
+
+            <h3>2025 Key Features</h3>
+            <ul>
+                <li><strong>Node/Task Level Caching:</strong> Cache results of individual nodes to reduce redundant computation</li>
+                <li><strong>Deferred Nodes:</strong> Postpone node execution until all upstream paths complete</li>
+                <li><strong>Command Support:</strong> Special return type that specifies both state updates and next node routing</li>
+                <li><strong>Multi-Agent Coordination:</strong> Built-in support for supervisor, collaborative, and sequential patterns</li>
+            </ul>
+        </section>
+
+        <section id="state-management" class="section">
+            <h2>2. State Management Patterns</h2>
+
+            <h3>Basic State Definition</h3>
+            <div class="code-block">
+                <code>
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+
+# Define graph state
+class AgentState(TypedDict):
+    messages: list
+    current_task: str
+    completed_tasks: list
+    user_input: str
+    agent_output: str
+    error_count: int
+                </code>
+            </div>
+
+            <h3>Advanced State Management</h3>
+            <div class="code-block">
+                <code>
+from typing import Annotated
+from operator import add
+
+class MultiAgentState(TypedDict):
+    # Shared conversation history
+    messages: Annotated[list, add]  # Reducer function for appending
+    
+    # Agent-specific states
+    research_data: dict
+    analysis_result: str
+    final_output: str
+    
+    # Control flow
+    current_agent: str
+    next_action: str
+    
+    # Error handling
+    errors: Annotated[list, add]
+    retry_count: int
+                </code>
+            </div>
+
+            <h3>State Reducers and Updates</h3>
+            <p>LangGraph uses reducer functions to manage how state updates are applied:</p>
+
+            <div class="code-block">
+                <code>
+def custom_reducer(existing_value, new_value):
+    """Custom reducer for complex state merging"""
+    if isinstance(existing_value, dict) and isinstance(new_value, dict):
+        return {**existing_value, **new_value}
+    return new_value
+
+class StateWithReducers(TypedDict):
+    accumulated_data: Annotated[dict, custom_reducer]
+    conversation_log: Annotated[list, add]
+    current_context: str  # Simple replacement
+                </code>
+            </div>
+
+            <div class="success">
+                <strong>Best Practice:</strong> Keep state small, typed, and validated. Use reducers sparingly and only when necessary for complex merging logic.
+            </div>
+        </section>
+
+        <section id="workflow-orchestration" class="section">
+            <h2>3. Workflow Orchestration Patterns</h2>
+
+            <h3>Basic Linear Workflow</h3>
+            <div class="code-block">
+                <code>
+from langgraph.graph import StateGraph, START, END
+
+# Create workflow
+workflow = StateGraph(AgentState)
+
+# Define nodes
+def input_processor(state: AgentState):
+    """Process user input"""
+    processed = process_input(state["user_input"])
+    return {"current_task": processed}
+
+def task_executor(state: AgentState):
+    """Execute the current task"""
+    result = execute_task(state["current_task"])
+    return {"agent_output": result}
+
+def output_formatter(state: AgentState):
+    """Format final output"""
+    formatted = format_output(state["agent_output"])
+    return {"final_output": formatted}
+
+# Add nodes to workflow
+workflow.add_node("process_input", input_processor)
+workflow.add_node("execute_task", task_executor)
+workflow.add_node("format_output", output_formatter)
+
+# Add edges
+workflow.add_edge(START, "process_input")
+workflow.add_edge("process_input", "execute_task")
+workflow.add_edge("execute_task", "format_output")
+workflow.add_edge("format_output", END)
+
+# Compile workflow
+app = workflow.compile()
+                </code>
+            </div>
+
+            <h3>Conditional Workflow with Branching</h3>
+            <div class="code-block">
+                <code>
+def routing_function(state: AgentState) -> str:
+    """Determine next node based on state"""
+    if "error" in state.get("current_task", "").lower():
+        return "error_handler"
+    elif "analysis" in state.get("current_task", "").lower():
+        return "data_analyzer"
+    else:
+        return "general_processor"
+
+# Add conditional edges
+workflow.add_conditional_edges(
+    "task_router",
+    routing_function,
+    {
+        "error_handler": "error_handler",
+        "data_analyzer": "data_analyzer", 
+        "general_processor": "general_processor"
+    }
+)
+                </code>
+            </div>
+
+            <h3>Cyclic Workflows with Loop Control</h3>
+            <div class="code-block">
+                <code>
+def should_continue(state: AgentState) -> str:
+    """Control loop continuation"""
+    if state.get("retry_count", 0) >= 3:
+        return "end"
+    if state.get("task_completed", False):
+        return "end"
+    return "continue"
+
+def retry_processor(state: AgentState):
+    """Handle retry logic"""
+    retry_count = state.get("retry_count", 0) + 1
+    return {
+        "retry_count": retry_count,
+        "current_task": f"Retry {retry_count}: {state['current_task']}"
+    }
+
+# Add loop with conditional exit
+workflow.add_conditional_edges(
+    "task_processor",
+    should_continue,
+    {
+        "continue": "retry_processor",
+        "end": END
+    }
+)
+workflow.add_edge("retry_processor", "task_processor")  # Close the loop
+                </code>
+            </div>
+
+            <h3>Command-Based Routing (2025 Feature)</h3>
+            <div class="code-block">
+                <code>
+from langgraph.types import Command
+
+def smart_router_node(state: AgentState):
+    """Use Command to specify both state update and next node"""
+    if state["task_type"] == "analysis":
+        return Command(
+            update={"status": "analyzing"},
+            goto="data_analyzer"
+        )
+    elif state["task_type"] == "generation":
+        return Command(
+            update={"status": "generating"},
+            goto="content_generator"
+        )
+    else:
+        return Command(
+            update={"status": "error", "error": "Unknown task type"},
+            goto="error_handler"
+        )
+                </code>
+            </div>
+        </section>
+
+        <section id="agent-coordination" class="section">
+            <h2>4. Agent Coordination & Communication</h2>
+
+            <h3>Supervisor Pattern</h3>
+            <p>The supervisor pattern involves a coordinator agent managing specialized worker agents:</p>
+
+            <div class="code-block">
+                <code>
+from typing import Literal
+
+class SupervisorState(TypedDict):
+    messages: list
+    current_agent: str
+    task_queue: list
+    results: dict
+    next_action: Literal["research", "analyze", "write", "review", "end"]
+
+def supervisor_node(state: SupervisorState):
+    """Supervisor decides which agent to route to"""
+    last_message = state["messages"][-1] if state["messages"] else ""
+    
+    if "research" in last_message.lower():
+        return {
+            "current_agent": "researcher",
+            "next_action": "research"
+        }
+    elif "analyze" in last_message.lower():
+        return {
+            "current_agent": "analyst", 
+            "next_action": "analyze"
+        }
+    elif "write" in last_message.lower():
+        return {
+            "current_agent": "writer",
+            "next_action": "write"
+        }
+    else:
+        return {"next_action": "end"}
+
+def research_agent(state: SupervisorState):
+    """Specialized research agent"""
+    research_result = perform_research(state["messages"][-1])
+    return {
+        "messages": state["messages"] + [f"Research: {research_result}"],
+        "results": {**state["results"], "research": research_result}
+    }
+
+def analysis_agent(state: SupervisorState):
+    """Specialized analysis agent"""
+    analysis = analyze_data(state["results"].get("research", ""))
+    return {
+        "messages": state["messages"] + [f"Analysis: {analysis}"],
+        "results": {**state["results"], "analysis": analysis}
+    }
+
+# Build supervisor workflow
+supervisor_workflow = StateGraph(SupervisorState)
+supervisor_workflow.add_node("supervisor", supervisor_node)
+supervisor_workflow.add_node("researcher", research_agent)
+supervisor_workflow.add_node("analyst", analysis_agent)
+
+supervisor_workflow.add_conditional_edges(
+    "supervisor",
+    lambda x: x["next_action"],
+    {
+        "research": "researcher",
+        "analyze": "analyst",
+        "end": END
+    }
+)
+                </code>
+            </div>
+
+            <h3>Collaborative Multi-Agent Pattern</h3>
+            <div class="code-block">
+                <code>
+class CollaborativeState(TypedDict):
+    shared_context: dict
+    agent_outputs: dict
+    collaboration_log: list
+    current_phase: str
+
+def collaborative_agent_a(state: CollaborativeState):
+    """Agent A contributes to shared context"""
+    contribution = process_with_agent_a(state["shared_context"])
+    
+    return {
+        "agent_outputs": {
+            **state["agent_outputs"],
+            "agent_a": contribution
+        },
+        "collaboration_log": state["collaboration_log"] + 
+                           [f"Agent A: {contribution}"],
+        "shared_context": {
+            **state["shared_context"],
+            "agent_a_input": contribution
+        }
+    }
+
+def collaborative_agent_b(state: CollaborativeState):
+    """Agent B builds on Agent A's work"""
+    # Access Agent A's contribution
+    agent_a_work = state["agent_outputs"].get("agent_a", "")
+    contribution = process_with_agent_b(agent_a_work, state["shared_context"])
+    
+    return {
+        "agent_outputs": {
+            **state["agent_outputs"],
+            "agent_b": contribution
+        },
+        "collaboration_log": state["collaboration_log"] + 
+                           [f"Agent B: {contribution}"]
+    }
+
+def synthesizer_agent(state: CollaborativeState):
+    """Combine all agent contributions"""
+    all_outputs = state["agent_outputs"]
+    synthesis = synthesize_results(all_outputs)
+    
+    return {
+        "final_result": synthesis,
+        "collaboration_log": state["collaboration_log"] + 
+                           [f"Synthesis: {synthesis}"]
+    }
+                </code>
+            </div>
+
+            <h3>Handoff Strategies</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Strategy</th>
+                            <th>Use Case</th>
+                            <th>Implementation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Sequential Handoff</td>
+                            <td>Linear workflows</td>
+                            <td>Fixed edge connections</td>
+                        </tr>
+                        <tr>
+                            <td>Conditional Handoff</td>
+                            <td>Dynamic routing</td>
+                            <td>Conditional edges with logic functions</td>
+                        </tr>
+                        <tr>
+                            <td>Parallel Handoff</td>
+                            <td>Concurrent processing</td>
+                            <td>Multiple edges from single node</td>
+                        </tr>
+                        <tr>
+                            <td>Scatter-Gather</td>
+                            <td>Distribute then consolidate</td>
+                            <td>Parallel execution + synchronization node</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="conditional-logic" class="section">
+            <h2>5. Conditional Logic & Branching</h2>
+
+            <h3>Simple Conditional Routing</h3>
+            <div class="code-block">
+                <code>
+def simple_router(state: AgentState) -> str:
+    """Simple condition-based routing"""
+    error_count = state.get("error_count", 0)
+    
+    if error_count > 3:
+        return "error_recovery"
+    elif state.get("task_completed", False):
+        return "success_handler"
+    elif state.get("needs_human_review", False):
+        return "human_review"
+    else:
+        return "continue_processing"
+
+workflow.add_conditional_edges(
+    "decision_node",
+    simple_router,
+    {
+        "error_recovery": "error_recovery_node",
+        "success_handler": "success_node",
+        "human_review": "human_review_node",
+        "continue_processing": "processing_node"
+    }
+)
+                </code>
+            </div>
+
+            <h3>Complex Multi-Condition Logic</h3>
+            <div class="code-block">
+                <code>
+def complex_router(state: AgentState) -> str:
+    """Multi-factor decision making"""
+    conditions = {
+        "high_priority": state.get("priority", 0) > 7,
+        "has_errors": state.get("error_count", 0) > 0,
+        "needs_approval": "approval" in state.get("flags", []),
+        "data_complete": len(state.get("data", [])) >= state.get("required_items", 0)
+    }
+    
+    # Priority routing logic
+    if conditions["has_errors"] and conditions["high_priority"]:
+        return "urgent_error_handling"
+    elif conditions["needs_approval"]:
+        return "approval_workflow"
+    elif not conditions["data_complete"]:
+        return "data_collection"
+    elif conditions["high_priority"]:
+        return "priority_processing"
+    else:
+        return "standard_processing"
+
+def evaluation_router(state: AgentState) -> str:
+    """Quality-based routing"""
+    quality_score = evaluate_quality(state.get("output", ""))
+    confidence = state.get("confidence_score", 0)
+    
+    if quality_score < 0.5 or confidence < 0.6:
+        return "quality_improvement"
+    elif quality_score > 0.9 and confidence > 0.9:
+        return "finalization"
+    else:
+        return "review_and_refine"
+                </code>
+            </div>
+
+            <h3>Dynamic Workflow Modification</h3>
+            <div class="code-block">
+                <code>
+def adaptive_router(state: AgentState) -> str:
+    """Adapt workflow based on runtime conditions"""
+    execution_history = state.get("execution_path", [])
+    performance_metrics = state.get("metrics", {})
+    
+    # Check for infinite loops
+    if execution_history.count("retry_node") > 5:
+        return "escalation_handler"
+    
+    # Performance-based routing
+    avg_response_time = performance_metrics.get("avg_response_time", 0)
+    if avg_response_time > 10.0:  # seconds
+        return "fast_track_processor"
+    
+    # User behavior adaptation
+    user_preference = state.get("user_profile", {}).get("preference", "default")
+    if user_preference == "detailed":
+        return "detailed_processor"
+    elif user_preference == "summary":
+        return "summary_processor"
+    
+    return "default_processor"
+                </code>
+            </div>
+
+            <h3>State-Based Loop Control</h3>
+            <div class="code-block">
+                <code>
+def loop_controller(state: AgentState) -> str:
+    """Sophisticated loop control logic"""
+    max_iterations = state.get("max_iterations", 10)
+    current_iteration = state.get("iteration_count", 0)
+    convergence_threshold = state.get("convergence_threshold", 0.01)
+    
+    # Check convergence
+    if "previous_result" in state and "current_result" in state:
+        difference = abs(state["current_result"] - state["previous_result"])
+        if difference < convergence_threshold:
+            return "converged"
+    
+    # Check iteration limit
+    if current_iteration >= max_iterations:
+        return "max_iterations_reached"
+    
+    # Check quality improvement
+    quality_history = state.get("quality_scores", [])
+    if len(quality_history) > 3:
+        recent_trend = sum(quality_history[-3:]) / 3
+        if recent_trend < 0.5:  # Quality declining
+            return "quality_degradation"
+    
+    return "continue_iteration"
+
+workflow.add_conditional_edges(
+    "iterative_processor",
+    loop_controller,
+    {
+        "continue_iteration": "iterative_processor",  # Loop back
+        "converged": "success_handler",
+        "max_iterations_reached": "timeout_handler",
+        "quality_degradation": "fallback_processor"
+    }
+)
+                </code>
+            </div>
+        </section>
+
+        <section id="error-handling" class="section">
+            <h2>6. Error Handling & Recovery</h2>
+
+            <h3>Multi-Level Error Management</h3>
+            <p>LangGraph promotes a comprehensive approach to error handling at node, graph, and application levels:</p>
+
+            <div class="code-block">
+                <code>
+from langgraph.errors import GraphRecursionError
+import traceback
+from typing import Any, Dict
+
+class ErrorState(TypedDict):
+    error_log: list
+    error_count: int
+    last_error: dict
+    recovery_attempts: int
+    fallback_active: bool
+
+def error_aware_node(state: ErrorState) -> Dict[str, Any]:
+    """Node with comprehensive error handling"""
+    try:
+        # Main processing logic
+        result = risky_operation(state)
+        
+        # Reset error tracking on success
+        return {
+            "result": result,
+            "error_count": 0,
+            "recovery_attempts": 0,
+            "fallback_active": False
+        }
+        
+    except ValueError as e:
+        # Handle specific error types
+        error_info = {
+            "type": "ValueError",
+            "message": str(e),
+            "node": "error_aware_node",
+            "timestamp": datetime.now().isoformat(),
+            "recoverable": True
+        }
+        
+        return {
+            "error_log": state.get("error_log", []) + [error_info],
+            "error_count": state.get("error_count", 0) + 1,
+            "last_error": error_info
+        }
+        
+    except Exception as e:
+        # Handle unexpected errors
+        error_info = {
+            "type": type(e).__name__,
+            "message": str(e),
+            "traceback": traceback.format_exc(),
+            "node": "error_aware_node",
+            "timestamp": datetime.now().isoformat(),
+            "recoverable": False
+        }
+        
+        return {
+            "error_log": state.get("error_log", []) + [error_info],
+            "error_count": state.get("error_count", 0) + 1,
+            "last_error": error_info,
+            "requires_intervention": True
+        }
+                </code>
+            </div>
+
+            <h3>Retry Mechanisms with Exponential Backoff</h3>
+            <div class="code-block">
+                <code>
+import time
+import random
+from langgraph.constants import Send
+
+def retry_node(state: ErrorState) -> Dict[str, Any]:
+    """Implement retry with exponential backoff"""
+    retry_count = state.get("recovery_attempts", 0)
+    max_retries = 3
+    
+    if retry_count >= max_retries:
+        return {
+            "fallback_active": True,
+            "error_message": "Max retries exceeded, activating fallback"
+        }
+    
+    # Exponential backoff calculation
+    base_delay = 1  # seconds
+    delay = base_delay * (2 ** retry_count) + random.uniform(0, 1)
+    
+    try:
+        time.sleep(delay)
+        result = attempt_operation(state)
+        
+        return {
+            "result": result,
+            "recovery_attempts": 0,
+            "error_count": 0,
+            "recovery_successful": True
+        }
+        
+    except Exception as e:
+        return {
+            "recovery_attempts": retry_count + 1,
+            "last_retry_error": str(e),
+            "next_retry_delay": delay * 2
+        }
+
+def retry_controller(state: ErrorState) -> str:
+    """Control retry flow"""
+    if state.get("recovery_successful", False):
+        return "success_path"
+    elif state.get("fallback_active", False):
+        return "fallback_handler"
+    elif state.get("recovery_attempts", 0) < 3:
+        return "retry_node"
+    else:
+        return "escalation_handler"
+                </code>
+            </div>
+
+            <h3>Fallback Strategies</h3>
+            <div class="code-block">
+                <code>
+def fallback_handler(state: ErrorState) -> Dict[str, Any]:
+    """Implement fallback mechanisms"""
+    error_type = state.get("last_error", {}).get("type", "Unknown")
+    
+    # Model fallback strategy
+    if error_type == "ModelUnavailableError":
+        fallback_model = get_fallback_model()
+        try:
+            result = fallback_model.invoke(state.get("input", ""))
+            return {
+                "result": result,
+                "fallback_model_used": True,
+                "resolution": "model_fallback"
+            }
+        except Exception:
+            pass
+    
+    # Data fallback strategy
+    elif error_type == "DataNotFoundError":
+        cached_data = get_cached_data(state.get("query", ""))
+        if cached_data:
+            return {
+                "result": cached_data,
+                "data_source": "cache",
+                "resolution": "cache_fallback"
+            }
+    
+    # Service fallback strategy
+    elif error_type == "ServiceUnavailableError":
+        backup_service = get_backup_service()
+        try:
+            result = backup_service.process(state.get("request", {}))
+            return {
+                "result": result,
+                "service_used": "backup",
+                "resolution": "service_fallback"
+            }
+        except Exception:
+            pass
+    
+    # Ultimate fallback - graceful degradation
+    return {
+        "result": generate_graceful_response(state),
+        "resolution": "graceful_degradation",
+        "requires_manual_review": True
+    }
+
+def circuit_breaker_node(state: ErrorState) -> Dict[str, Any]:
+    """Implement circuit breaker pattern"""
+    failure_threshold = 5
+    recovery_timeout = 300  # 5 minutes
+    
+    current_time = time.time()
+    last_failure = state.get("last_failure_time", 0)
+    consecutive_failures = state.get("consecutive_failures", 0)
+    
+    # Check if circuit should be open
+    if consecutive_failures >= failure_threshold:
+        if current_time - last_failure < recovery_timeout:
+            return {
+                "circuit_open": True,
+                "error_message": "Circuit breaker open - service unavailable"
+            }
+        else:
+            # Try to close circuit (half-open state)
+            return {
+                "circuit_half_open": True,
+                "test_request": True
+            }
+    
+    # Circuit is closed, normal operation
+    try:
+        result = normal_operation(state)
+        return {
+            "result": result,
+            "consecutive_failures": 0,
+            "circuit_open": False
+        }
+    except Exception as e:
+        return {
+            "consecutive_failures": consecutive_failures + 1,
+            "last_failure_time": current_time,
+            "error": str(e)
+        }
+                </code>
+            </div>
+
+            <h3>Human-in-the-Loop Error Recovery</h3>
+            <div class="code-block">
+                <code>
+from langgraph.checkpoint.sqlite import SqliteSaver
+
+def human_intervention_required(state: ErrorState) -> bool:
+    """Determine if human intervention is needed"""
+    critical_errors = ["SecurityError", "DataCorruptionError", "AuthenticationError"]
+    error_type = state.get("last_error", {}).get("type", "")
+    
+    return (
+        error_type in critical_errors or
+        state.get("error_count", 0) > 5 or
+        state.get("requires_intervention", False)
+    )
+
+def create_human_review_checkpoint(state: ErrorState):
+    """Create checkpoint for human review"""
+    checkpointer = SqliteSaver.from_conn_string("checkpoint.db")
+    
+    thread_config = {
+        "configurable": {
+            "thread_id": f"error_review_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        }
+    }
+    
+    review_data = {
+        "state": state,
+        "error_summary": generate_error_summary(state),
+        "suggested_actions": suggest_recovery_actions(state),
+        "escalation_level": determine_escalation_level(state)
+    }
+    
+    # Pause execution for human review
+    return {
+        "human_review_required": True,
+        "review_checkpoint": thread_config["configurable"]["thread_id"],
+        "review_data": review_data,
+        "execution_paused": True
+    }
+
+def resume_after_human_review(state: ErrorState) -> Dict[str, Any]:
+    """Resume execution after human intervention"""
+    human_decision = state.get("human_decision", {})
+    
+    if human_decision.get("action") == "retry":
+        return {
+            "recovery_attempts": 0,
+            "human_guidance": human_decision.get("instructions", ""),
+            "execution_paused": False
+        }
+    elif human_decision.get("action") == "fallback":
+        return {
+            "fallback_active": True,
+            "human_approved_fallback": True,
+            "execution_paused": False
+        }
+    elif human_decision.get("action") == "escalate":
+        return {
+            "escalated": True,
+            "escalation_ticket": human_decision.get("ticket_id", ""),
+            "execution_paused": True
+        }
+    
+    return {"execution_terminated": True}
+                </code>
+            </div>
+
+            <div class="warning">
+                <strong>Best Practice:</strong> Always implement error categorization to handle recoverable vs. non-recoverable errors differently. Use structured error objects that can be easily logged and analyzed.
+            </div>
+        </section>
+
+        <section id="langchain-integration" class="section">
+            <h2>7. Integration with LangChain Agents and Tools</h2>
+
+            <h3>Tool Integration Pattern</h3>
+            <div class="code-block">
+                <code>
+from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+
+# Define custom tools
+@tool
+def web_search(query: str) -> str:
+    """Search the web for current information."""
+    # Implementation details
+    return search_web(query)
+
+@tool 
+def calculator(expression: str) -> str:
+    """Calculate mathematical expressions."""
+    try:
+        result = eval(expression)  # In production, use safer evaluation
+        return str(result)
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+@tool
+def file_reader(file_path: str) -> str:
+    """Read content from a file."""
+    try:
+        with open(file_path, 'r') as file:
+            return file.read()
+    except Exception as e:
+        return f"Error reading file: {str(e)}"
+
+# Create tools list
+tools = [web_search, calculator, file_reader]
+
+# Initialize LLM
+llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
+
+# Create agent with tools
+agent = create_react_agent(llm, tools)
+
+# Integration with StateGraph
+class ToolIntegratedState(TypedDict):
+    messages: list
+    tools_used: list
+    tool_results: dict
+
+def tool_calling_node(state: ToolIntegratedState):
+    """Node that integrates LangChain tools"""
+    response = agent.invoke({"messages": state["messages"]})
+    
+    # Extract tool usage information
+    tools_used = extract_tools_from_response(response)
+    
+    return {
+        "messages": state["messages"] + [response["messages"][-1]],
+        "tools_used": state.get("tools_used", []) + tools_used,
+        "tool_results": {**state.get("tool_results", {}), **extract_tool_results(response)}
+    }
+                </code>
+            </div>
+
+            <h3>Custom Agent Integration</h3>
+            <div class="code-block">
+                <code>
+from langchain.agents import AgentExecutor, create_openai_functions_agent
+from langchain.prompts import ChatPromptTemplate
+
+def create_specialized_agent(tools: list, system_prompt: str):
+    """Create a specialized agent with custom prompt"""
+    
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        ("human", "{input}"),
+        ("placeholder", "{agent_scratchpad}"),
+    ])
+    
+    llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
+    
+    agent = create_openai_functions_agent(llm, tools, prompt)
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    
+    return agent_executor
+
+# Research Agent
+research_agent = create_specialized_agent(
+    tools=[web_search, file_reader],
+    system_prompt="""You are a research specialist. Your role is to:
+    1. Gather comprehensive information on given topics
+    2. Verify facts from multiple sources
+    3. Provide well-structured research summaries
+    4. Identify knowledge gaps that need further investigation
+    """
+)
+
+# Analysis Agent  
+analysis_agent = create_specialized_agent(
+    tools=[calculator, file_reader],
+    system_prompt="""You are a data analysis specialist. Your role is to:
+    1. Analyze numerical data and identify patterns
+    2. Perform statistical calculations
+    3. Generate insights and recommendations
+    4. Create data-driven conclusions
+    """
+)
+
+def multi_agent_coordinator(state: ToolIntegratedState):
+    """Coordinate multiple specialized agents"""
+    task_type = determine_task_type(state["messages"][-1])
+    
+    if task_type == "research":
+        result = research_agent.invoke({
+            "input": state["messages"][-1],
+            "chat_history": state["messages"][:-1]
+        })
+        agent_used = "research_agent"
+        
+    elif task_type == "analysis":
+        result = analysis_agent.invoke({
+            "input": state["messages"][-1],
+            "chat_history": state["messages"][:-1]
+        })
+        agent_used = "analysis_agent"
+        
+    else:
+        result = {"output": "Task type not recognized"}
+        agent_used = "none"
+    
+    return {
+        "messages": state["messages"] + [result.get("output", "")],
+        "agent_used": agent_used,
+        "agent_steps": result.get("intermediate_steps", [])
+    }
+                </code>
+            </div>
+
+            <h3>Memory Integration</h3>
+            <div class="code-block">
+                <code>
+from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.chat_message_histories import SQLChatMessageHistory
+
+class MemoryIntegratedState(TypedDict):
+    messages: list
+    session_id: str
+    user_profile: dict
+    conversation_summary: str
+    long_term_memory: dict
+
+def setup_memory_integration(session_id: str):
+    """Setup integrated memory system"""
+    
+    # Short-term conversation memory
+    chat_history = SQLChatMessageHistory(
+        session_id=session_id,
+        connection_string="sqlite:///chat_memory.db"
+    )
+    
+    conversation_memory = ConversationBufferWindowMemory(
+        k=20,  # Keep last 20 exchanges
+        chat_memory=chat_history,
+        return_messages=True
+    )
+    
+    return conversation_memory
+
+def memory_aware_node(state: MemoryIntegratedState):
+    """Node with integrated memory management"""
+    session_id = state["session_id"]
+    memory = setup_memory_integration(session_id)
+    
+    # Retrieve relevant memories
+    conversation_context = memory.load_memory_variables({})
+    user_profile = load_user_profile(session_id)
+    
+    # Process with context
+    enhanced_input = f"""
+    User Profile: {user_profile}
+    Conversation Context: {conversation_context.get('history', [])}
+    Current Input: {state['messages'][-1]}
+    """
+    
+    # Generate response with context
+    response = llm.invoke(enhanced_input)
+    
+    # Update memory
+    memory.save_context(
+        {"input": state["messages"][-1]},
+        {"output": response.content}
+    )
+    
+    # Update long-term memory
+    updated_profile = update_user_profile(user_profile, response.content)
+    
+    return {
+        "messages": state["messages"] + [response.content],
+        "user_profile": updated_profile,
+        "conversation_summary": generate_summary(conversation_context["history"])
+    }
+                </code>
+            </div>
+
+            <h3>Streaming Integration</h3>
+            <div class="code-block">
+                <code>
+from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain_core.callbacks.manager import CallbackManager
+
+def setup_streaming_agent():
+    """Setup agent with streaming capabilities"""
+    callback_manager = CallbackManager([StreamingStdOutCallbackHandler()])
+    
+    streaming_llm = ChatOpenAI(
+        model="gpt-4-turbo",
+        streaming=True,
+        callback_manager=callback_manager,
+        temperature=0
+    )
+    
+    return create_react_agent(streaming_llm, tools)
+
+async def streaming_node(state: ToolIntegratedState):
+    """Node with streaming response"""
+    agent = setup_streaming_agent()
+    
+    async for chunk in agent.astream({"messages": state["messages"]}):
+        # Process streaming chunks
+        if "messages" in chunk:
+            yield {
+                "streaming_response": chunk["messages"][-1].content,
+                "is_complete": False
+            }
+    
+    # Final response
+    yield {
+        "messages": state["messages"] + [chunk["messages"][-1]],
+        "is_complete": True
+    }
+
+# Compile with streaming support
+streaming_workflow = StateGraph(ToolIntegratedState)
+streaming_workflow.add_node("streaming_agent", streaming_node)
+streaming_app = streaming_workflow.compile()
+
+# Usage with streaming
+for event in streaming_app.stream(initial_state):
+    if event.get("is_complete"):
+        print("Response complete!")
+    else:
+        print(f"Streaming: {event.get('streaming_response', '')}")
+                </code>
+            </div>
+
+            <div class="success">
+                <strong>2025 Recommendation:</strong> LangChain's development team now recommends using LangGraph for all new agent implementations due to its superior flexibility and production-ready architecture.
+            </div>
+        </section>
+
+        <section id="real-world-examples" class="section">
+            <h2>8. Real-World Workflow Examples</h2>
+
+            <h3>Customer Service Automation</h3>
+            <div class="code-block">
+                <code>
+class CustomerServiceState(TypedDict):
+    customer_message: str
+    intent: str
+    customer_info: dict
+    conversation_history: list
+    resolution_status: str
+    escalation_needed: bool
+    satisfaction_score: int
+
+def intent_classifier(state: CustomerServiceState):
+    """Classify customer intent"""
+    message = state["customer_message"]
+    
+    # Use LLM for intent classification
+    classification_prompt = f"""
+    Classify this customer message into one of these categories:
+    - billing_inquiry
+    - technical_support
+    - account_management
+    - complaint
+    - general_inquiry
+    
+    Message: {message}
+    """
+    
+    intent = llm.invoke(classification_prompt).content.strip()
+    
+    return {
+        "intent": intent,
+        "conversation_history": state["conversation_history"] + 
+                               [f"Customer: {message}"]
+    }
+
+def billing_handler(state: CustomerServiceState):
+    """Handle billing-related inquiries"""
+    customer_info = lookup_customer_info(state.get("customer_id"))
+    billing_data = get_billing_data(customer_info["account_id"])
+    
+    response = f"""
+    I can help with your billing inquiry. Based on your account:
+    - Current balance: ${billing_data['current_balance']}
+    - Last payment: {billing_data['last_payment_date']}
+    - Next due date: {billing_data['next_due_date']}
+    
+    Is there a specific billing question I can answer?
+    """
+    
+    return {
+        "agent_response": response,
+        "customer_info": customer_info,
+        "resolution_status": "in_progress"
+    }
+
+def technical_support_handler(state: CustomerServiceState):
+    """Handle technical support requests"""
+    # Create diagnostic workflow
+    diagnostic_steps = [
+        "Check service status",
+        "Verify account configuration", 
+        "Run connectivity tests",
+        "Review recent changes"
+    ]
+    
+    support_response = f"""
+    I'll help troubleshoot your technical issue. Let me run some diagnostics:
+    
+    {chr(10).join(f"✓ {step}" for step in diagnostic_steps[:2])}
+    {chr(10).join(f"⏳ {step}" for step in diagnostic_steps[2:])}
+    
+    Based on initial checks, I found: {run_diagnostics(state)}
+    """
+    
+    return {
+        "agent_response": support_response,
+        "diagnostic_results": run_diagnostics(state),
+        "resolution_status": "diagnosing"
+    }
+
+def escalation_detector(state: CustomerServiceState) -> str:
+    """Determine if escalation is needed"""
+    escalation_triggers = [
+        state.get("satisfaction_score", 10) < 3,
+        "supervisor" in state["customer_message"].lower(),
+        "unacceptable" in state["customer_message"].lower(),
+        len(state["conversation_history"]) > 10,
+        state.get("intent") == "complaint"
+    ]
+    
+    if any(escalation_triggers):
+        return "human_escalation"
+    elif state.get("resolution_status") == "resolved":
+        return "satisfaction_survey"
+    else:
+        return "continue_assistance"
+
+# Build customer service workflow
+customer_service_workflow = StateGraph(CustomerServiceState)
+
+# Add nodes
+customer_service_workflow.add_node("intent_classifier", intent_classifier)
+customer_service_workflow.add_node("billing_handler", billing_handler)
+customer_service_workflow.add_node("technical_support", technical_support_handler)
+customer_service_workflow.add_node("escalation_handler", escalation_handler)
+
+# Add routing
+customer_service_workflow.add_conditional_edges(
+    "intent_classifier",
+    lambda x: x["intent"],
+    {
+        "billing_inquiry": "billing_handler",
+        "technical_support": "technical_support",
+        "complaint": "escalation_handler"
+    }
+)
+
+customer_service_workflow.add_conditional_edges(
+    "billing_handler",
+    escalation_detector,
+    {
+        "human_escalation": "escalation_handler",
+        "satisfaction_survey": "satisfaction_survey",
+        "continue_assistance": "intent_classifier"
+    }
+)
+                </code>
+            </div>
+
+            <h3>Document Processing Pipeline</h3>
+            <div class="code-block">
+                <code>
+class DocumentProcessingState(TypedDict):
+    document_path: str
+    document_type: str
+    extracted_text: str
+    structured_data: dict
+    validation_results: dict
+    processing_status: str
+    quality_score: float
+
+def document_classifier(state: DocumentProcessingState):
+    """Classify document type"""
+    file_path = state["document_path"]
+    
+    # Extract basic file info
+    file_extension = file_path.split('.')[-1].lower()
+    file_size = os.path.getsize(file_path)
+    
+    # Use AI to classify content
+    if file_extension == "pdf":
+        preview_text = extract_pdf_preview(file_path)
+    else:
+        with open(file_path, 'r') as f:
+            preview_text = f.read()[:1000]
+    
+    classification_prompt = f"""
+    Classify this document based on its content:
+    
+    File extension: {file_extension}
+    File size: {file_size} bytes
+    Content preview: {preview_text}
+    
+    Document types: invoice, contract, report, letter, form, other
+    """
+    
+    doc_type = llm.invoke(classification_prompt).content.strip()
+    
+    return {
+        "document_type": doc_type,
+        "file_info": {
+            "extension": file_extension,
+            "size": file_size
+        }
+    }
+
+def text_extractor(state: DocumentProcessingState):
+    """Extract text from document"""
+    doc_path = state["document_path"]
+    doc_type = state["document_type"]
+    
+    if doc_path.endswith('.pdf'):
+        extracted_text = extract_pdf_text(doc_path)
+    elif doc_path.endswith('.docx'):
+        extracted_text = extract_docx_text(doc_path)
+    else:
+        with open(doc_path, 'r') as f:
+            extracted_text = f.read()
+    
+    # Quality assessment
+    quality_metrics = assess_text_quality(extracted_text)
+    
+    return {
+        "extracted_text": extracted_text,
+        "text_quality": quality_metrics,
+        "processing_status": "text_extracted"
+    }
+
+def structured_data_extractor(state: DocumentProcessingState):
+    """Extract structured data based on document type"""
+    text = state["extracted_text"]
+    doc_type = state["document_type"]
+    
+    extraction_schemas = {
+        "invoice": {
+            "fields": ["invoice_number", "date", "total_amount", "vendor", "items"],
+            "prompt_template": "Extract invoice information from: {text}"
+        },
+        "contract": {
+            "fields": ["parties", "start_date", "end_date", "terms", "signatures"],
+            "prompt_template": "Extract contract details from: {text}"
+        },
+        "report": {
+            "fields": ["title", "author", "date", "summary", "key_findings"],
+            "prompt_template": "Extract report metadata and key information from: {text}"
+        }
+    }
+    
+    schema = extraction_schemas.get(doc_type, {})
+    if schema:
+        extraction_prompt = schema["prompt_template"].format(text=text)
+        structured_data = extract_with_schema(extraction_prompt, schema["fields"])
+    else:
+        structured_data = {"raw_text": text}
+    
+    return {
+        "structured_data": structured_data,
+        "processing_status": "data_extracted"
+    }
+
+def quality_validator(state: DocumentProcessingState):
+    """Validate extraction quality"""
+    text = state["extracted_text"]
+    data = state["structured_data"]
+    
+    validation_checks = {
+        "text_length": len(text) > 100,
+        "data_completeness": len(data) > 0,
+        "required_fields": validate_required_fields(data, state["document_type"]),
+        "data_consistency": validate_data_consistency(data),
+        "format_compliance": validate_format_compliance(data)
+    }
+    
+    quality_score = sum(validation_checks.values()) / len(validation_checks)
+    
+    return {
+        "validation_results": validation_checks,
+        "quality_score": quality_score,
+        "processing_status": "validated" if quality_score > 0.8 else "needs_review"
+    }
+
+def processing_router(state: DocumentProcessingState) -> str:
+    """Route based on processing results"""
+    quality_score = state.get("quality_score", 0)
+    processing_status = state.get("processing_status", "")
+    
+    if quality_score < 0.5:
+        return "manual_review"
+    elif quality_score < 0.8:
+        return "quality_improvement"
+    elif processing_status == "validated":
+        return "finalization"
+    else:
+        return "error_handling"
+
+# Build document processing workflow
+doc_processing_workflow = StateGraph(DocumentProcessingState)
+
+doc_processing_workflow.add_node("classify_document", document_classifier)
+doc_processing_workflow.add_node("extract_text", text_extractor)
+doc_processing_workflow.add_node("extract_structured_data", structured_data_extractor)
+doc_processing_workflow.add_node("validate_quality", quality_validator)
+doc_processing_workflow.add_node("manual_review", manual_review_handler)
+doc_processing_workflow.add_node("finalize_processing", finalization_handler)
+
+# Sequential processing with quality gates
+doc_processing_workflow.add_edge(START, "classify_document")
+doc_processing_workflow.add_edge("classify_document", "extract_text") 
+doc_processing_workflow.add_edge("extract_text", "extract_structured_data")
+doc_processing_workflow.add_edge("extract_structured_data", "validate_quality")
+
+doc_processing_workflow.add_conditional_edges(
+    "validate_quality",
+    processing_router,
+    {
+        "manual_review": "manual_review",
+        "quality_improvement": "extract_structured_data",  # Retry
+        "finalization": "finalize_processing",
+        "error_handling": "error_handler"
+    }
+)
+                </code>
+            </div>
+
+            <h3>Multi-Agent Research System</h3>
+            <div class="code-block">
+                <code>
+class ResearchState(TypedDict):
+    research_query: str
+    research_plan: list
+    web_results: dict
+    academic_papers: list
+    synthesis: str
+    fact_checks: list
+    final_report: str
+    confidence_score: float
+
+def research_planner(state: ResearchState):
+    """Create comprehensive research plan"""
+    query = state["research_query"]
+    
+    planning_prompt = f"""
+    Create a detailed research plan for: "{query}"
+    
+    Include:
+    1. Key topics to investigate
+    2. Specific questions to answer
+    3. Types of sources to consult
+    4. Fact-checking priorities
+    5. Expected deliverables
+    
+    Format as a structured plan with clear steps.
+    """
+    
+    plan = llm.invoke(planning_prompt).content
+    research_steps = parse_research_plan(plan)
+    
+    return {
+        "research_plan": research_steps,
+        "planning_complete": True
+    }
+
+def web_researcher(state: ResearchState):
+    """Conduct web research"""
+    query = state["research_query"]
+    plan = state["research_plan"]
+    
+    web_results = {}
+    
+    for step in plan:
+        if step["type"] == "web_search":
+            search_results = web_search.invoke(step["query"])
+            web_results[step["id"]] = {
+                "query": step["query"],
+                "results": search_results,
+                "timestamp": datetime.now().isoformat()
+            }
+    
+    return {
+        "web_results": web_results,
+        "web_research_complete": True
+    }
+
+def academic_researcher(state: ResearchState):
+    """Research academic sources"""
+    query = state["research_query"]
+    
+    # Search academic databases
+    academic_results = search_academic_papers(query, limit=10)
+    
+    # Summarize key papers
+    paper_summaries = []
+    for paper in academic_results:
+        summary = summarize_paper(paper)
+        paper_summaries.append({
+            "title": paper["title"],
+            "authors": paper["authors"],
+            "year": paper["year"],
+            "summary": summary,
+            "relevance_score": assess_relevance(summary, query)
+        })
+    
+    return {
+        "academic_papers": paper_summaries,
+        "academic_research_complete": True
+    }
+
+def fact_checker(state: ResearchState):
+    """Verify claims and facts"""
+    web_results = state.get("web_results", {})
+    academic_papers = state.get("academic_papers", [])
+    
+    # Extract claims from research
+    all_content = []
+    for result in web_results.values():
+        all_content.append(result["results"])
+    
+    for paper in academic_papers:
+        all_content.append(paper["summary"])
+    
+    # Identify key claims
+    claims = extract_claims(all_content)
+    
+    # Verify each claim
+    fact_checks = []
+    for claim in claims:
+        verification = verify_claim(claim, web_results, academic_papers)
+        fact_checks.append({
+            "claim": claim,
+            "verified": verification["verified"],
+            "sources": verification["sources"],
+            "confidence": verification["confidence"]
+        })
+    
+    return {
+        "fact_checks": fact_checks,
+        "fact_checking_complete": True
+    }
+
+def research_synthesizer(state: ResearchState):
+    """Synthesize all research into coherent report"""
+    web_results = state.get("web_results", {})
+    academic_papers = state.get("academic_papers", [])
+    fact_checks = state.get("fact_checks", [])
+    
+    synthesis_prompt = f"""
+    Synthesize the following research on "{state['research_query']}":
+    
+    Web Research: {summarize_web_results(web_results)}
+    
+    Academic Research: {summarize_academic_papers(academic_papers)}
+    
+    Fact Checks: {summarize_fact_checks(fact_checks)}
+    
+    Create a comprehensive, well-structured report that:
+    1. Presents key findings
+    2. Identifies consensus and contradictions
+    3. Highlights knowledge gaps
+    4. Provides evidence-based conclusions
+    5. Includes confidence assessments
+    """
+    
+    synthesis = llm.invoke(synthesis_prompt).content
+    confidence_score = calculate_research_confidence(fact_checks, academic_papers)
+    
+    return {
+        "synthesis": synthesis,
+        "confidence_score": confidence_score,
+        "research_complete": True
+    }
+
+def research_coordinator(state: ResearchState) -> str:
+    """Coordinate research workflow"""
+    if not state.get("planning_complete"):
+        return "research_planner"
+    elif not state.get("web_research_complete"):
+        return "web_researcher"
+    elif not state.get("academic_research_complete"):  
+        return "academic_researcher"
+    elif not state.get("fact_checking_complete"):
+        return "fact_checker"
+    elif not state.get("research_complete"):
+        return "research_synthesizer"
+    else:
+        return "report_generator"
+
+# Build multi-agent research workflow
+research_workflow = StateGraph(ResearchState)
+
+research_workflow.add_node("coordinator", lambda x: x)  # Pass-through coordinator
+research_workflow.add_node("research_planner", research_planner)
+research_workflow.add_node("web_researcher", web_researcher)
+research_workflow.add_node("academic_researcher", academic_researcher)
+research_workflow.add_node("fact_checker", fact_checker)
+research_workflow.add_node("research_synthesizer", research_synthesizer)
+research_workflow.add_node("report_generator", generate_final_report)
+
+research_workflow.add_conditional_edges(
+    "coordinator",
+    research_coordinator,
+    {
+        "research_planner": "research_planner",
+        "web_researcher": "web_researcher",
+        "academic_researcher": "academic_researcher",
+        "fact_checker": "fact_checker",
+        "research_synthesizer": "research_synthesizer",
+        "report_generator": "report_generator"
+    }
+)
+
+# All research nodes return to coordinator for next step
+for node in ["research_planner", "web_researcher", "academic_researcher", 
+             "fact_checker", "research_synthesizer"]:
+    research_workflow.add_edge(node, "coordinator")
+
+research_workflow.add_edge("report_generator", END)
+                </code>
+            </div>
+
+            <div class="success">
+                <strong>Production Examples:</strong> Companies like Uber (code migration), Elastic (threat detection), and Vodafone (data engineering workflows) are successfully using these patterns in production environments.
+            </div>
+        </section>
+
+        <section id="performance-optimization" class="section">
+            <h2>9. Performance Optimization and Monitoring</h2>
+
+            <h3>Caching Strategies</h3>
+            <div class="code-block">
+                <code>
+import hashlib
+import json
+from functools import wraps
+from typing import Dict, Any
+
+class LangGraphCache:
+    def __init__(self):
+        self.node_cache = {}
+        self.semantic_cache = {}
+        self.embedding_cache = {}
+    
+    def cache_key(self, node_name: str, state: dict) -> str:
+        """Generate cache key for node execution"""
+        state_str = json.dumps(state, sort_keys=True, default=str)
+        return hashlib.md5(f"{node_name}_{state_str}".encode()).hexdigest()
+    
+    def cached_node(self, cache_duration: int = 3600):
+        """Decorator for caching node results"""
+        def decorator(func):
+            @wraps(func)
+            def wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
+                cache_key = self.cache_key(func.__name__, state)
+                
+                # Check cache
+                if cache_key in self.node_cache:
+                    cached_result = self.node_cache[cache_key]
+                    if time.time() - cached_result["timestamp"] < cache_duration:
+                        return cached_result["result"]
+                
+                # Execute and cache
+                result = func(state)
+                self.node_cache[cache_key] = {
+                    "result": result,
+                    "timestamp": time.time()
+                }
+                
+                return result
+            return wrapper
+        return decorator
+
+# Initialize global cache
+cache = LangGraphCache()
+
+@cache.cached_node(cache_duration=1800)  # 30 minutes
+def expensive_analysis_node(state: AgentState):
+    """Example of cached expensive operation"""
+    # Simulate expensive computation
+    time.sleep(2)
+    result = complex_analysis(state["data"])
+    
+    return {
+        "analysis_result": result,
+        "computation_cost": "high",
+        "cached": False
+    }
+
+def semantic_cache_lookup(query: str, threshold: float = 0.85) -> Dict[str, Any]:
+    """Semantic caching for similar queries"""
+    query_embedding = get_embedding(query)
+    
+    for cached_query, cached_data in cache.semantic_cache.items():
+        similarity = cosine_similarity(query_embedding, cached_data["embedding"])
+        
+        if similarity > threshold:
+            return {
+                "cache_hit": True,
+                "cached_result": cached_data["result"],
+                "similarity": similarity,
+                "original_query": cached_query
+            }
+    
+    return {"cache_hit": False}
+
+def optimized_llm_node(state: AgentState):
+    """LLM node with semantic caching"""
+    query = state["user_input"]
+    
+    # Check semantic cache first
+    cache_result = semantic_cache_lookup(query)
+    
+    if cache_result["cache_hit"]:
+        return {
+            "llm_response": cache_result["cached_result"],
+            "cache_used": True,
+            "cache_similarity": cache_result["similarity"]
+        }
+    
+    # If no cache hit, process with LLM
+    response = llm.invoke(query)
+    
+    # Cache the result
+    query_embedding = get_embedding(query)
+    cache.semantic_cache[query] = {
+        "embedding": query_embedding,
+        "result": response.content,
+        "timestamp": time.time()
+    }
+    
+    return {
+        "llm_response": response.content,
+        "cache_used": False
+    }
+                </code>
+            </div>
+
+            <h3>Model Routing and Cost Optimization</h3>
+            <div class="code-block">
+                <code>
+from enum import Enum
+
+class ModelTier(Enum):
+    FAST = "gpt-3.5-turbo"  # Low cost, fast
+    BALANCED = "gpt-4o-mini"  # Balanced cost/performance  
+    PREMIUM = "gpt-4o"  # High cost, best quality
+    
+class ModelRouter:
+    def __init__(self):
+        self.model_costs = {
+            ModelTier.FAST: {"input": 0.0005, "output": 0.0015},
+            ModelTier.BALANCED: {"input": 0.00015, "output": 0.0006},
+            ModelTier.PREMIUM: {"input": 0.005, "output": 0.015}
+        }
+        
+        self.performance_history = {}
+    
+    def select_model(self, task_complexity: str, quality_requirement: float, 
+                    budget_constraint: float) -> ModelTier:
+        """Intelligent model selection"""
+        
+        if task_complexity == "simple" and quality_requirement < 0.7:
+            return ModelTier.FAST
+        elif task_complexity == "complex" or quality_requirement > 0.9:
+            return ModelTier.PREMIUM
+        elif budget_constraint < 0.001:  # Low budget
+            return ModelTier.FAST
+        else:
+            return ModelTier.BALANCED
+    
+    def estimate_cost(self, model: ModelTier, input_tokens: int, 
+                     output_tokens: int) -> float:
+        """Estimate request cost"""
+        costs = self.model_costs[model]
+        return (input_tokens * costs["input"] + output_tokens * costs["output"]) / 1000
+
+def cost_optimized_node(state: AgentState):
+    """Node with intelligent model routing"""
+    router = ModelRouter()
+    
+    task_complexity = analyze_task_complexity(state["user_input"])
+    quality_requirement = state.get("quality_threshold", 0.8)
+    budget_constraint = state.get("budget_per_request", 0.01)
+    
+    selected_model = router.select_model(
+        task_complexity, 
+        quality_requirement, 
+        budget_constraint
+    )
+    
+    # Initialize appropriate model
+    llm = ChatOpenAI(
+        model=selected_model.value,
+        temperature=0.1 if selected_model == ModelTier.PREMIUM else 0.3
+    )
+    
+    # Process request
+    start_time = time.time()
+    response = llm.invoke(state["user_input"])
+    processing_time = time.time() - start_time
+    
+    # Estimate cost
+    estimated_cost = router.estimate_cost(
+        selected_model,
+        len(state["user_input"]) // 4,  # Rough token estimate
+        len(response.content) // 4
+    )
+    
+    return {
+        "llm_response": response.content,
+        "model_used": selected_model.value,
+        "estimated_cost": estimated_cost,
+        "processing_time": processing_time,
+        "task_complexity": task_complexity
+    }
+
+def fallback_model_node(state: AgentState):
+    """Node with model fallback strategy"""
+    models_to_try = [ModelTier.PREMIUM, ModelTier.BALANCED, ModelTier.FAST]
+    
+    for model_tier in models_to_try:
+        try:
+            llm = ChatOpenAI(
+                model=model_tier.value,
+                timeout=30,
+                max_retries=2
+            )
+            
+            response = llm.invoke(state["user_input"])
+            
+            return {
+                "llm_response": response.content,
+                "model_used": model_tier.value,
+                "fallback_used": model_tier != models_to_try[0]
+            }
+            
+        except Exception as e:
+            if model_tier == models_to_try[-1]:
+                # Last model failed, return error
+                return {
+                    "error": f"All models failed: {str(e)}",
+                    "requires_manual_intervention": True
+                }
+            continue
+    
+    return {"error": "Unexpected failure in model fallback"}
+                </code>
+            </div>
+
+            <h3>State Optimization</h3>
+            <div class="code-block">
+                <code>
+import pickle
+import gzip
+from typing import Any, Dict
+
+class StateOptimizer:
+    def __init__(self, max_history_size: int = 20, 
+                 compression_threshold: int = 1000):
+        self.max_history_size = max_history_size
+        self.compression_threshold = compression_threshold
+    
+    def optimize_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """Optimize state size and structure"""
+        optimized_state = state.copy()
+        
+        # Prune conversation history
+        if "messages" in optimized_state:
+            messages = optimized_state["messages"]
+            if len(messages) > self.max_history_size:
+                # Keep first few and last few messages
+                keep_start = 3
+                keep_end = self.max_history_size - keep_start - 1
+                
+                optimized_messages = (
+                    messages[:keep_start] + 
+                    [{"role": "system", "content": f"... {len(messages) - keep_start - keep_end} messages truncated ..."}] +
+                    messages[-keep_end:]
+                )
+                optimized_state["messages"] = optimized_messages
+        
+        # Compress large text fields
+        for key, value in optimized_state.items():
+            if isinstance(value, str) and len(value) > self.compression_threshold:
+                compressed = gzip.compress(value.encode('utf-8'))
+                if len(compressed) < len(value.encode('utf-8')) * 0.8:  # 20% savings
+                    optimized_state[f"{key}_compressed"] = compressed
+                    optimized_state[f"{key}_is_compressed"] = True
+                    del optimized_state[key]
+        
+        # Remove temporary/debug fields
+        temp_fields = [key for key in optimized_state.keys() 
+                      if key.startswith("_temp") or key.startswith("debug_")]
+        for field in temp_fields:
+            del optimized_state[field]
+        
+        return optimized_state
+    
+    def decompress_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """Decompress state fields as needed"""
+        decompressed_state = state.copy()
+        
+        compressed_fields = [key for key in state.keys() if key.endswith("_compressed")]
+        
+        for compressed_key in compressed_fields:
+            if state.get(f"{compressed_key[:-11]}_is_compressed"):
+                original_key = compressed_key[:-11]  # Remove "_compressed"
+                decompressed_data = gzip.decompress(state[compressed_key]).decode('utf-8')
+                decompressed_state[original_key] = decompressed_data
+                del decompressed_state[compressed_key]
+                del decompressed_state[f"{original_key}_is_compressed"]
+        
+        return decompressed_state
+
+def optimized_state_node(state: AgentState):
+    """Node that optimizes state before processing"""
+    optimizer = StateOptimizer()
+    
+    # Optimize input state
+    optimized_input = optimizer.optimize_state(state)
+    
+    # Process with optimized state
+    result = process_data(optimized_input)
+    
+    # Optimize output state
+    optimized_output = optimizer.optimize_state(result)
+    
+    return optimized_output
+
+def state_size_monitor(state: AgentState):
+    """Monitor and report state size"""
+    state_size = len(pickle.dumps(state))
+    
+    size_report = {
+        "total_size_bytes": state_size,
+        "size_mb": round(state_size / (1024 * 1024), 2),
+        "field_sizes": {}
+    }
+    
+    # Analyze individual field sizes
+    for key, value in state.items():
+        field_size = len(pickle.dumps(value))
+        size_report["field_sizes"][key] = {
+            "bytes": field_size,
+            "percentage": round((field_size / state_size) * 100, 1)
+        }
+    
+    # Flag large states
+    if state_size > 10 * 1024 * 1024:  # 10MB
+        size_report["warning"] = "State size exceeds 10MB - consider optimization"
+    
+    return {**state, "state_size_report": size_report}
+                </code>
+            </div>
+
+            <h3>Performance Monitoring</h3>
+            <div class="code-block">
+                <code>
+import time
+import psutil
+import logging
+from dataclasses import dataclass, asdict
+from typing import List, Optional
+
+@dataclass
+class NodeMetrics:
+    node_name: str
+    execution_time: float
+    memory_usage_mb: float
+    cpu_usage_percent: float
+    input_size_bytes: int
+    output_size_bytes: int
+    timestamp: str
+    success: bool
+    error_message: Optional[str] = None
+
+class PerformanceMonitor:
+    def __init__(self):
+        self.metrics_history: List[NodeMetrics] = []
+        self.alert_thresholds = {
+            "execution_time": 30.0,  # seconds
+            "memory_usage": 500.0,   # MB
+            "cpu_usage": 80.0,       # percent
+            "error_rate": 0.05       # 5%
+        }
+    
+    def monitor_node(self, node_func):
+        """Decorator to monitor node performance"""
+        def wrapper(state: Dict[str, Any]) -> Dict[str, Any]:
+            # Pre-execution metrics
+            start_time = time.time()
+            start_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            start_cpu = psutil.cpu_percent()
+            input_size = len(pickle.dumps(state))
+            
+            error_message = None
+            success = True
+            
+            try:
+                # Execute node
+                result = node_func(state)
+                
+            except Exception as e:
+                success = False
+                error_message = str(e)
+                result = {**state, "error": error_message}
+            
+            # Post-execution metrics
+            end_time = time.time()
+            end_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            end_cpu = psutil.cpu_percent()
+            output_size = len(pickle.dumps(result))
+            
+            # Create metrics record
+            metrics = NodeMetrics(
+                node_name=node_func.__name__,
+                execution_time=end_time - start_time,
+                memory_usage_mb=end_memory - start_memory,
+                cpu_usage_percent=end_cpu,
+                input_size_bytes=input_size,
+                output_size_bytes=output_size,
+                timestamp=datetime.now().isoformat(),
+                success=success,
+                error_message=error_message
+            )
+            
+            # Store metrics
+            self.metrics_history.append(metrics)
+            
+            # Check for alerts
+            self.check_alerts(metrics)
+            
+            # Add metrics to state for debugging
+            result["_node_metrics"] = asdict(metrics)
+            
+            return result
+        
+        return wrapper
+    
+    def check_alerts(self, metrics: NodeMetrics):
+        """Check if metrics exceed alert thresholds"""
+        alerts = []
+        
+        if metrics.execution_time > self.alert_thresholds["execution_time"]:
+            alerts.append(f"Slow execution: {metrics.execution_time:.2f}s")
+        
+        if metrics.memory_usage_mb > self.alert_thresholds["memory_usage"]:
+            alerts.append(f"High memory usage: {metrics.memory_usage_mb:.2f}MB")
+        
+        if metrics.cpu_usage_percent > self.alert_thresholds["cpu_usage"]:
+            alerts.append(f"High CPU usage: {metrics.cpu_usage_percent:.2f}%")
+        
+        if not metrics.success:
+            alerts.append(f"Node failed: {metrics.error_message}")
+        
+        if alerts:
+            logging.warning(f"Performance alerts for {metrics.node_name}: {', '.join(alerts)}")
+    
+    def get_performance_summary(self, node_name: str = None) -> Dict[str, Any]:
+        """Generate performance summary"""
+        if node_name:
+            relevant_metrics = [m for m in self.metrics_history if m.node_name == node_name]
+        else:
+            relevant_metrics = self.metrics_history
+        
+        if not relevant_metrics:
+            return {"error": "No metrics available"}
+        
+        execution_times = [m.execution_time for m in relevant_metrics]
+        memory_usages = [m.memory_usage_mb for m in relevant_metrics]
+        success_count = sum(1 for m in relevant_metrics if m.success)
+        
+        return {
+            "total_executions": len(relevant_metrics),
+            "success_rate": success_count / len(relevant_metrics),
+            "avg_execution_time": sum(execution_times) / len(execution_times),
+            "max_execution_time": max(execution_times),
+            "avg_memory_usage": sum(memory_usages) / len(memory_usages),
+            "max_memory_usage": max(memory_usages),
+            "recent_errors": [m.error_message for m in relevant_metrics[-10:] if not m.success]
+        }
+
+# Initialize global performance monitor
+perf_monitor = PerformanceMonitor()
+
+@perf_monitor.monitor_node
+def monitored_llm_node(state: AgentState):
+    """Example of monitored node"""
+    response = llm.invoke(state["user_input"])
+    
+    return {
+        "llm_response": response.content,
+        "processing_complete": True
+    }
+
+def performance_reporter_node(state: AgentState):
+    """Generate performance report"""
+    summary = perf_monitor.get_performance_summary()
+    
+    return {
+        **state,
+        "performance_summary": summary,
+        "performance_alerts": check_performance_alerts(summary)
+    }
+                </code>
+            </div>
+
+            <div class="warning">
+                <strong>Performance Best Practices:</strong> Use caching strategically, implement model routing for cost optimization, monitor state size, and set up comprehensive performance tracking for production deployments.
+            </div>
+        </section>
+
+        <section id="production-deployment" class="section">
+            <h2>10. Production Deployment</h2>
+
+            <h3>Checkpointing and Persistence</h3>
+            <div class="code-block">
+                <code>
+from langgraph.checkpoint.sqlite import SqliteSaver
+from langgraph.checkpoint.postgres import PostgresSaver
+import asyncio
+
+class ProductionCheckpointer:
+    def __init__(self, database_url: str):
+        if database_url.startswith("sqlite"):
+            self.checkpointer = SqliteSaver.from_conn_string(database_url)
+        elif database_url.startswith("postgresql"):
+            self.checkpointer = PostgresSaver.from_conn_string(database_url)
+        else:
+            raise ValueError("Unsupported database type")
+    
+    async def save_checkpoint(self, thread_id: str, state: Dict[str, Any], 
+                            step: int) -> str:
+        """Save workflow checkpoint"""
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "checkpoint_ns": f"step_{step}",
+                "timestamp": datetime.now().isoformat()
+            }
+        }
+        
+        checkpoint_id = await self.checkpointer.asave_checkpoint(
+            config=config,
+            state=state
+        )
+        
+        return checkpoint_id
+    
+    async def load_checkpoint(self, thread_id: str, 
+                            checkpoint_id: str = None) -> Dict[str, Any]:
+        """Load workflow checkpoint"""
+        config = {
+            "configurable": {
+                "thread_id": thread_id,
+                "checkpoint_id": checkpoint_id
+            }
+        }
+        
+        checkpoint = await self.checkpointer.aget_checkpoint(config)
+        return checkpoint.state if checkpoint else None
+
+def create_production_workflow():
+    """Create workflow with production-ready features"""
+    
+    # Initialize checkpointer
+    checkpointer = ProductionCheckpointer("postgresql://user:pass@localhost:5432/langgraph")
+    
+    # Create workflow with checkpointing
+    workflow = StateGraph(ProductionState)
+    
+    # Add all nodes
+    workflow.add_node("input_validator", validate_input)
+    workflow.add_node("processor", process_request)
+    workflow.add_node("output_formatter", format_output)
+    workflow.add_node("error_handler", handle_errors)
+    
+    # Add edges with error handling
+    workflow.add_conditional_edges(
+        "input_validator",
+        lambda x: "processor" if x.get("valid_input") else "error_handler",
+        {
+            "processor": "processor",
+            "error_handler": "error_handler"
+        }
+    )
+    
+    # Compile with checkpointer and configuration
+    app = workflow.compile(
+        checkpointer=checkpointer,
+        interrupt_before=["processor"],  # Allow human review
+        interrupt_after=["error_handler"]  # Pause after errors
+    )
+    
+    return app
+
+async def resume_workflow(app, thread_id: str, user_input: Dict[str, Any] = None):
+    """Resume interrupted workflow"""
+    config = {
+        "configurable": {
+            "thread_id": thread_id
+        }
+    }
+    
+    # Get current state
+    current_state = await app.aget_state(config)
+    
+    if current_state.next:
+        # Workflow is paused, can resume
+        if user_input:
+            # Update state with new input
+            await app.aupdate_state(config, user_input)
+        
+        # Resume execution
+        async for event in app.astream(None, config):
+            yield event
+    else:
+        # Workflow is complete
+        return {"status": "complete", "final_state": current_state.values}
+                </code>
+            </div>
+
+            <h3>Scalable Deployment Architecture</h3>
+            <div class="code-block">
+                <code>
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+from pydantic import BaseModel
+import redis
+import uuid
+from typing import Optional
+
+class WorkflowRequest(BaseModel):
+    user_input: str
+    thread_id: Optional[str] = None
+    priority: int = 1
+    timeout: int = 300
+
+class WorkflowResponse(BaseModel):
+    task_id: str
+    thread_id: str
+    status: str
+    result: Optional[dict] = None
+
+class ProductionLangGraphService:
+    def __init__(self):
+        self.app = create_production_workflow()
+        self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
+        self.task_queue = "langgraph_tasks"
+    
+    async def submit_workflow(self, request: WorkflowRequest) -> WorkflowResponse:
+        """Submit workflow for processing"""
+        task_id = str(uuid.uuid4())
+        thread_id = request.thread_id or str(uuid.uuid4())
+        
+        # Store task metadata
+        task_data = {
+            "task_id": task_id,
+            "thread_id": thread_id,
+            "user_input": request.user_input,
+            "priority": request.priority,
+            "timeout": request.timeout,
+            "status": "queued",
+            "created_at": datetime.now().isoformat()
+        }
+        
+        # Queue task
+        self.redis_client.rpush(self.task_queue, json.dumps(task_data))
+        self.redis_client.set(f"task:{task_id}", json.dumps(task_data), ex=3600)
+        
+        return WorkflowResponse(
+            task_id=task_id,
+            thread_id=thread_id,
+            status="queued"
+        )
+    
+    async def get_task_status(self, task_id: str) -> WorkflowResponse:
+        """Get task status and results"""
+        task_data = self.redis_client.get(f"task:{task_id}")
+        
+        if not task_data:
+            raise HTTPException(status_code=404, detail="Task not found")
+        
+        task_info = json.loads(task_data)
+        
+        return WorkflowResponse(
+            task_id=task_id,
+            thread_id=task_info["thread_id"],
+            status=task_info["status"],
+            result=task_info.get("result")
+        )
+    
+    async def process_task_queue(self):
+        """Background task processor"""
+        while True:
+            try:
+                # Get next task
+                task_data = self.redis_client.blpop(self.task_queue, timeout=1)
+                
+                if task_data:
+                    task_info = json.loads(task_data[1])
+                    await self.execute_workflow(task_info)
+                    
+            except Exception as e:
+                logging.error(f"Task processing error: {str(e)}")
+                await asyncio.sleep(1)
+    
+    async def execute_workflow(self, task_info: dict):
+        """Execute workflow task"""
+        task_id = task_info["task_id"]
+        thread_id = task_info["thread_id"]
+        
+        try:
+            # Update status to running
+            task_info["status"] = "running"
+            task_info["started_at"] = datetime.now().isoformat()
+            self.redis_client.set(f"task:{task_id}", json.dumps(task_info), ex=3600)
+            
+            # Execute workflow
+            config = {"configurable": {"thread_id": thread_id}}
+            initial_state = {"user_input": task_info["user_input"]}
+            
+            result = None
+            async for event in self.app.astream(initial_state, config):
+                # Stream events can be processed/logged here
+                result = event
+            
+            # Update task with results
+            task_info["status"] = "completed"
+            task_info["result"] = result
+            task_info["completed_at"] = datetime.now().isoformat()
+            
+        except Exception as e:
+            task_info["status"] = "failed"
+            task_info["error"] = str(e)
+            task_info["failed_at"] = datetime.now().isoformat()
+        
+        finally:
+            # Store final task state
+            self.redis_client.set(f"task:{task_id}", json.dumps(task_info), ex=3600)
+
+# FastAPI application
+app = FastAPI(title="LangGraph Production Service")
+service = ProductionLangGraphService()
+
+@app.post("/workflows", response_model=WorkflowResponse)
+async def create_workflow(request: WorkflowRequest):
+    """Create new workflow execution"""
+    return await service.submit_workflow(request)
+
+@app.get("/workflows/{task_id}", response_model=WorkflowResponse)
+async def get_workflow_status(task_id: str):
+    """Get workflow execution status"""
+    return await service.get_task_status(task_id)
+
+@app.on_event("startup")
+async def startup_event():
+    """Start background task processor"""
+    asyncio.create_task(service.process_task_queue())
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "queue_size": service.redis_client.llen(service.task_queue)
+    }
+                </code>
+            </div>
+
+            <h3>Monitoring and Observability</h3>
+            <div class="code-block">
+                <code>
+from prometheus_client import Counter, Histogram, Gauge, start_http_server
+import logging
+import structlog
+
+# Prometheus metrics
+workflow_executions = Counter('langgraph_workflow_executions_total', 
+                            'Total workflow executions', ['status', 'workflow_type'])
+workflow_duration = Histogram('langgraph_workflow_duration_seconds',
+                            'Workflow execution duration')
+active_workflows = Gauge('langgraph_active_workflows', 'Currently active workflows')
+node_executions = Counter('langgraph_node_executions_total',
+                        'Node execution count', ['node_name', 'status'])
+
+# Structured logging setup
+structlog.configure(
+    processors=[
+        structlog.stdlib.filter_by_level,
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.JSONRenderer()
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger()
+
+class ObservabilityWrapper:
+    def __init__(self, workflow):
+        self.workflow = workflow
+    
+    async def execute_with_monitoring(self, initial_state: dict, config: dict):
+        """Execute workflow with comprehensive monitoring"""
+        thread_id = config.get("configurable", {}).get("thread_id")
+        workflow_type = initial_state.get("workflow_type", "unknown")
+        
+        # Start monitoring
+        start_time = time.time()
+        active_workflows.inc()
+        
+        # Structured logging
+        log = logger.bind(
+            thread_id=thread_id,
+            workflow_type=workflow_type,
+            operation="workflow_execution"
+        )
+        
+        log.info("Workflow execution started")
+        
+        try:
+            result = None
+            node_count = 0
+            
+            async for event in self.workflow.astream(initial_state, config):
+                node_count += 1
+                
+                # Log each step
+                if "node" in event:
+                    log.info("Node executed", 
+                           node=event["node"], 
+                           step=node_count)
+                    
+                    # Update metrics
+                    node_executions.labels(
+                        node_name=event["node"],
+                        status="success"
+                    ).inc()
+                
+                result = event
+            
+            # Success metrics
+            execution_time = time.time() - start_time
+            workflow_executions.labels(status="success", workflow_type=workflow_type).inc()
+            workflow_duration.observe(execution_time)
+            
+            log.info("Workflow execution completed",
+                   execution_time=execution_time,
+                   node_count=node_count)
+            
+            return result
+            
+        except Exception as e:
+            execution_time = time.time() - start_time
+            
+            # Error metrics
+            workflow_executions.labels(status="error", workflow_type=workflow_type).inc()
+            workflow_duration.observe(execution_time)
+            
+            log.error("Workflow execution failed",
+                    error=str(e),
+                    execution_time=execution_time,
+                    exc_info=True)
+            
+            raise
+        
+        finally:
+            active_workflows.dec()
+
+def setup_distributed_tracing():
+    """Setup distributed tracing with OpenTelemetry"""
+    from opentelemetry import trace
+    from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    
+    # Configure tracer
+    trace.set_tracer_provider(TracerProvider())
+    tracer = trace.get_tracer(__name__)
+    
+    # Configure Jaeger exporter
+    jaeger_exporter = JaegerExporter(
+        agent_host_name="jaeger",
+        agent_port=6831,
+    )
+    
+    span_processor = BatchSpanProcessor(jaeger_exporter)
+    trace.get_tracer_provider().add_span_processor(span_processor)
+    
+    return tracer
+
+def traced_node(node_func):
+    """Decorator for distributed tracing of nodes"""
+    tracer = setup_distributed_tracing()
+    
+    def wrapper(state: dict) -> dict:
+        with tracer.start_as_current_span(f"node.{node_func.__name__}") as span:
+            # Add span attributes
+            span.set_attribute("node.name", node_func.__name__)
+            span.set_attribute("state.size", len(str(state)))
+            
+            try:
+                result = node_func(state)
+                span.set_attribute("node.status", "success")
+                return result
+                
+            except Exception as e:
+                span.set_attribute("node.status", "error")
+                span.set_attribute("error.message", str(e))
+                raise
+    
+    return wrapper
+
+# Start Prometheus metrics server
+def start_metrics_server(port: int = 8000):
+    """Start Prometheus metrics server"""
+    start_http_server(port)
+    logger.info(f"Metrics server started on port {port}")
+
+# Example usage
+if __name__ == "__main__":
+    # Start metrics server
+    start_metrics_server(8000)
+    
+    # Create monitored workflow
+    base_workflow = create_production_workflow()
+    monitored_workflow = ObservabilityWrapper(base_workflow)
+    
+    # Execute with monitoring
+    initial_state = {"user_input": "Hello world", "workflow_type": "greeting"}
+    config = {"configurable": {"thread_id": "test-123"}}
+    
+    result = asyncio.run(
+        monitored_workflow.execute_with_monitoring(initial_state, config)
+    )
+                </code>
+            </div>
+
+            <h3>Production Best Practices</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Fault Tolerance</h4>
+                    <p>Implement comprehensive error handling, circuit breakers, and graceful degradation patterns.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Scalability</h4>
+                    <p>Use horizontal scaling with load balancers, distributed checkpointing, and async processing.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Security</h4>
+                    <p>Implement authentication, input validation, rate limiting, and secure state storage.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Monitoring</h4>
+                    <p>Comprehensive observability with metrics, logging, tracing, and alerting systems.</p>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>Production Success:</strong> Companies like Uber, LinkedIn, and Replit are successfully running LangGraph agents in production with these patterns, processing millions of requests reliably.
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="logo">LG</div>
+            <p><strong>LangGraph Workflow Handbook - 2025 Edition</strong></p>
+            <p>Built with the latest LangGraph 1.0 features and production-ready patterns</p>
+            <p>Comprehensive guide for building scalable AI agent orchestration systems</p>
+            <div style="margin-top: 20px; font-size: 0.9rem; color: #888;">
+                Generated from official LangGraph documentation and real-world production examples
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

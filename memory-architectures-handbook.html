@@ -1,0 +1,3191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Architectures in AI Agents and RAG</title>
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: white;
+            --bg-tertiary: #f1f3f4;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --link-color: #1a73e8;
+            --link-hover: #1557b0;
+            --border-color: #dadce0;
+            --code-bg: #f8f9fa;
+            --code-border: #e8eaed;
+            --highlight-bg: #e8f0fe;
+            --warning-bg: #fef7e0;
+            --success-bg: #e6f4ea;
+            --error-bg: #fce8e6;
+            --mem0-bg: #8b5cf6;
+            --vector-bg: #06b6d4;
+            --graph-bg: #10b981;
+            --hybrid-bg: #f59e0b;
+            --shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #9aa0a6;
+            --link-color: #8ab4f8;
+            --link-hover: #aecbfa;
+            --border-color: #5f6368;
+            --code-bg: #1e1e1e;
+            --code-border: #5f6368;
+            --highlight-bg: #1e3a8a;
+            --warning-bg: #3e2723;
+            --success-bg: #1b5e20;
+            --error-bg: #b71c1c;
+            --shadow: 0 1px 2px 0 rgba(0,0,0,.3), 0 1px 3px 1px rgba(0,0,0,.15);
+            --shadow-hover: 0 1px 3px 0 rgba(0,0,0,.3), 0 4px 8px 3px rgba(0,0,0,.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-secondary);
+            min-height: 100vh;
+            transition: background-color 0.3s;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--highlight-bg), var(--bg-tertiary));
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            border-radius: 50px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-secondary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--link-color), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .nav {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .nav h3 {
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .nav-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            list-style: none;
+        }
+
+        .nav-list a {
+            color: var(--link-color);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            display: block;
+        }
+
+        .nav-list a:hover {
+            background-color: var(--highlight-bg);
+            color: var(--link-hover);
+        }
+
+        .section {
+            margin-bottom: 40px;
+            background-color: var(--bg-secondary);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: box-shadow 0.3s;
+        }
+
+        .section:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        h2 {
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 2rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            margin-top: 25px;
+            font-size: 1.5rem;
+        }
+
+        h4 {
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+        }
+
+        p, li {
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .highlight-box {
+            background-color: var(--highlight-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--link-color);
+        }
+
+        .warning-box {
+            background-color: var(--warning-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ff9800;
+        }
+
+        .success-box {
+            background-color: var(--success-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+
+        .error-box {
+            background-color: var(--error-bg);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #f44336;
+        }
+
+        .mem0-box {
+            background-color: rgba(139, 92, 246, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--mem0-bg);
+        }
+
+        .vector-box {
+            background-color: rgba(6, 182, 212, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--vector-bg);
+        }
+
+        .graph-box {
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--graph-bg);
+        }
+
+        .hybrid-box {
+            background-color: rgba(245, 158, 11, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid var(--hybrid-bg);
+        }
+
+        code {
+            background-color: var(--code-bg);
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--code-border);
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--code-border);
+            margin: 15px 0;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            border: none;
+            font-size: 0.9em;
+        }
+
+        .architecture-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .architecture-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .architecture-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .memory-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .performance-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .metric-card {
+            background-color: var(--highlight-bg);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--link-color);
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background-color: var(--link-color);
+            color: white;
+            border-radius: 50%;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .architecture-diagram {
+            background-color: var(--bg-tertiary);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .memory-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-list {
+                grid-template-columns: 1fr;
+            }
+
+            .performance-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+            <h1>Memory Architectures in AI Agents and RAG</h1>
+            <p class="subtitle">Comprehensive Guide to Persistent Memory Storage with Mem0 and Enterprise Solutions</p>
+        </div>
+
+        <div class="nav">
+            <h3>Navigation</h3>
+            <ul class="nav-list">
+                <li><a href="#fundamentals">Memory Fundamentals</a></li>
+                <li><a href="#mem0-platform">Mem0 Platform Guide</a></li>
+                <li><a href="#vector-databases">Vector Database Solutions</a></li>
+                <li><a href="#graph-memory">Graph-Based Memory</a></li>
+                <li><a href="#hybrid-architectures">Hybrid Architectures</a></li>
+                <li><a href="#production-deployment">Production Deployment</a></li>
+                <li><a href="#performance">Performance Optimization</a></li>
+                <li><a href="#enterprise-patterns">Enterprise Patterns</a></li>
+            </ul>
+        </div>
+
+        <section id="fundamentals" class="section">
+            <h2>1. Memory Fundamentals in AI Systems</h2>
+            
+            <h3>Types of Memory in AI Agents</h3>
+            
+            <div class="memory-grid">
+                <div class="memory-card">
+                    <h4>🧠 Short-Term Memory</h4>
+                    <p><strong>Purpose:</strong> Immediate context and conversation state</p>
+                    <p><strong>Duration:</strong> Session-based (minutes to hours)</p>
+                    <p><strong>Storage:</strong> In-memory, Redis, or session stores</p>
+                    <p><strong>Use Cases:</strong> Chat context, current task state, working memory</p>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>📚 Long-Term Memory</h4>
+                    <p><strong>Purpose:</strong> Persistent knowledge and experiences</p>
+                    <p><strong>Duration:</strong> Permanent (days to years)</p>
+                    <p><strong>Storage:</strong> Vector databases, knowledge graphs</p>
+                    <p><strong>Use Cases:</strong> User preferences, learned facts, historical interactions</p>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>🎯 Episodic Memory</h4>
+                    <p><strong>Purpose:</strong> Specific events and experiences</p>
+                    <p><strong>Duration:</strong> Context-dependent</p>
+                    <p><strong>Storage:</strong> Time-indexed vector stores</p>
+                    <p><strong>Use Cases:</strong> Past conversations, event sequences, temporal context</p>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>🗂️ Semantic Memory</h4>
+                    <p><strong>Purpose:</strong> Factual knowledge and concepts</p>
+                    <p><strong>Duration:</strong> Persistent and updatable</p>
+                    <p><strong>Storage:</strong> Knowledge graphs, structured databases</p>
+                    <p><strong>Use Cases:</strong> Domain expertise, relationships, general knowledge</p>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>⚙️ Procedural Memory</h4>
+                    <p><strong>Purpose:</strong> How-to knowledge and skills</p>
+                    <p><strong>Duration:</strong> Persistent with updates</p>
+                    <p><strong>Storage:</strong> Rule engines, workflow databases</p>
+                    <p><strong>Use Cases:</strong> Process workflows, skill libraries, automation rules</p>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>🔄 Working Memory</h4>
+                    <p><strong>Purpose:</strong> Active processing and manipulation</p>
+                    <p><strong>Duration:</strong> Task-based (seconds to minutes)</p>
+                    <p><strong>Storage:</strong> Application memory, cache layers</p>
+                    <p><strong>Use Cases:</strong> Complex reasoning, multi-step tasks, context switching</p>
+                </div>
+            </div>
+
+            <h3>Memory Architecture Patterns</h3>
+            
+            <div class="architecture-diagram">
+                <h4>Three-Layer Memory Architecture</h4>
+                <div style="margin: 20px 0; font-family: monospace;">
+                    🧠 Working Memory (RAM/Cache)<br>
+                    ↕️<br>
+                    📝 Episodic Memory (Vector Store)<br>
+                    ↕️<br>
+                    🗄️ Semantic Memory (Graph Database)<br>
+                    ↕️<br>
+                    ⚙️ Procedural Memory (Rule Engine)
+                </div>
+            </div>
+
+            <h3>Key Performance Metrics</h3>
+            
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">+26%</div>
+                    <div class="metric-label">Accuracy Improvement</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">91%</div>
+                    <div class="metric-label">Faster Responses</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">90%</div>
+                    <div class="metric-label">Lower Token Usage</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">&lt;50ms</div>
+                    <div class="metric-label">Memory Retrieval</div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Memory vs. Context Window Trade-offs</h4>
+                <p><strong>Traditional Approach:</strong> Load entire conversation history into context window</p>
+                <ul>
+                    <li>✅ Simple implementation</li>
+                    <li>❌ High token costs</li>
+                    <li>❌ Context length limitations</li>
+                    <li>❌ Slow processing with long histories</li>
+                </ul>
+                <p><strong>Memory-Based Approach:</strong> Selective retrieval from persistent memory</p>
+                <ul>
+                    <li>✅ Reduced token usage (90% savings)</li>
+                    <li>✅ Unlimited conversation length</li>
+                    <li>✅ Faster response times</li>
+                    <li>✅ Cross-session continuity</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="mem0-platform" class="section">
+            <h2>2. Mem0 Platform: Complete Implementation Guide</h2>
+            
+            <h3>Overview and Architecture</h3>
+            
+            <div class="mem0-box">
+                <h4>What is Mem0?</h4>
+                <p>Mem0 is a universal memory layer for AI agents that enhances AI assistants with intelligent memory systems. It enables personalized AI interactions by remembering user preferences, adapting to individual needs, and continuously learning over time.</p>
+                
+                <h4>Key Features</h4>
+                <ul class="checklist">
+                    <li>Multi-Level Memory: User, Session, and AI Agent memory retention</li>
+                    <li>Adaptive Personalization: Continuous improvement based on interactions</li>
+                    <li>Developer-Friendly API: Simple integration into various applications</li>
+                    <li>Cross-Platform Consistency: Uniform behavior across devices</li>
+                    <li>Vector + Graph Storage: Hybrid approach for different types of information</li>
+                </ul>
+            </div>
+
+            <h3>Installation and Setup</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Python Installation</div>
+                <pre><code># Basic installation
+pip install mem0ai
+
+# With vector store support
+pip install "mem0ai[vector_stores]"
+
+# Environment setup
+export OPENAI_API_KEY="sk-xxx"
+export MEM0_API_KEY="m0-xxx"  # For hosted platform</code></pre>
+            </div>
+
+            <div class="architecture-card">
+                <div class="architecture-title">TypeScript/JavaScript Installation</div>
+                <pre><code># NPM installation
+npm install mem0ai
+
+# Requirements
+# Node.js 18+
+# API key from https://app.mem0.ai</code></pre>
+            </div>
+
+            <h3>Basic Memory Operations</h3>
+            
+            <div class="mem0-box">
+                <h4>Complete Chat Example with Memory</h4>
+                <pre><code>from openai import OpenAI
+from mem0 import Memory
+
+openai_client = OpenAI()
+memory = Memory()
+
+def chat_with_memories(message: str, user_id: str = "default_user") -> str:
+    # Retrieve relevant memories
+    relevant_memories = memory.search(query=message, user_id=user_id, limit=3)
+    memories_str = "\n".join(f"- {entry['memory']}" for entry in relevant_memories["results"])
+    
+    # Generate response with memory context
+    system_prompt = f"""You are a helpful AI assistant with access to user memories.
+    
+    User memories:
+    {memories_str}
+    
+    Use these memories to provide personalized responses."""
+    
+    response = openai_client.chat.completions.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": message}
+        ]
+    )
+    
+    # Add new conversation to memory
+    conversation = [
+        {"role": "user", "content": message},
+        {"role": "assistant", "content": response.choices[0].message.content}
+    ]
+    memory.add(conversation, user_id=user_id)
+    
+    return response.choices[0].message.content
+
+# Usage
+response = chat_with_memories("What are my hobbies?", user_id="alex")
+print(response)</code></pre>
+            </div>
+
+            <h3>Advanced Memory Operations</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Memory Types and Categories</div>
+                <pre><code># Add procedural memory (step-by-step knowledge)
+memory.add(
+    messages=[{
+        "role": "user", 
+        "content": "To reset password: 1) Click forgot password 2) Enter email 3) Check inbox 4) Follow link"
+    }],
+    user_id="user123",
+    agent_id="support_agent",
+    memory_type="procedural_memory"
+)
+
+# Add with custom categories
+memory.add(
+    messages=[{
+        "role": "user",
+        "content": "I prefer vegetarian restaurants and have a nut allergy"
+    }],
+    user_id="user123",
+    categories=["food_preferences", "health"]
+)
+
+# Advanced metadata filtering
+advanced_filters = {
+    "AND": [
+        {"category": {"in": ["food", "health"]}},
+        {"created_at": {"gte": "2024-01-01"}},
+        {"score": {"gt": 0.8}}
+    ]
+}
+
+results = memory.search(
+    "dietary restrictions",
+    user_id="user123", 
+    filters=advanced_filters
+)</code></pre>
+            </div>
+
+            <h3>Configuration Options</h3>
+            
+            <div class="mem0-box">
+                <h4>Complete Configuration Example</h4>
+                <pre><code>config = {
+    "vector_store": {
+        "provider": "qdrant",
+        "config": {
+            "collection_name": "memories",
+            "host": "localhost",
+            "port": 6333,
+            "embedding_model_dims": 1536
+        }
+    },
+    "llm": {
+        "provider": "openai",
+        "config": {
+            "model": "gpt-4o",
+            "temperature": 0.2,
+            "max_tokens": 1500
+        }
+    },
+    "embedder": {
+        "provider": "openai",
+        "config": {
+            "model": "text-embedding-3-small"
+        }
+    },
+    "graph_store": {
+        "provider": "neo4j",
+        "config": {
+            "url": "neo4j://localhost:7687",
+            "username": "neo4j",
+            "password": "password"
+        }
+    }
+}
+
+memory = Memory.from_config(config)</code></pre>
+            </div>
+
+            <h3>Graph Memory with Neo4j</h3>
+            
+            <div class="graph-box">
+                <h4>Entity Relationship Tracking</h4>
+                <pre><code># Configure with Neo4j for relationship tracking
+config = {
+    "graph_store": {
+        "provider": "neo4j",
+        "config": {
+            "url": "neo4j+s://your-instance.databases.neo4j.io",
+            "username": "neo4j",
+            "password": "your-password",
+        },
+        "custom_prompt": "Extract people, organizations, and relationships only."
+    },
+    "vector_store": {
+        "provider": "qdrant",
+        "config": {
+            "collection_name": "graph_memories",
+            "host": "localhost", 
+            "port": 6333
+        }
+    }
+}
+
+memory = Memory.from_config(config)
+
+# Add conversation with entity extraction
+conversation = [
+    {
+        "role": "user",
+        "content": "Alice met Bob at GraphConf 2025 in San Francisco. She works at OpenAI and he's from Google."
+    },
+    {
+        "role": "assistant", 
+        "content": "I've noted the connections between Alice, Bob, and their companies."
+    }
+]
+
+memory.add(conversation, user_id="demo-user")
+
+# Search will now include relationship context
+results = memory.search(
+    "Who did Alice meet at the conference?",
+    user_id="demo-user",
+    limit=3
+)</code></pre>
+            </div>
+
+            <h3>Framework Integrations</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">LangChain Integration</div>
+                <pre><code>from langchain.memory import BaseChatMessageHistory
+from langchain.schema import BaseMessage
+from mem0 import Memory
+import json
+
+class Mem0ChatMemory(BaseChatMessageHistory):
+    def __init__(self, user_id: str, memory_config: dict = None):
+        self.user_id = user_id
+        self.memory = Memory.from_config(memory_config) if memory_config else Memory()
+        self.messages = []
+
+    def add_message(self, message: BaseMessage) -> None:
+        self.messages.append(message)
+        
+        # Convert to mem0 format and store
+        conversation = [{
+            "role": message.type,
+            "content": message.content
+        }]
+        self.memory.add(conversation, user_id=self.user_id)
+
+    def clear(self) -> None:
+        self.messages.clear()
+
+    def get_relevant_memories(self, query: str, limit: int = 3) -> str:
+        results = self.memory.search(query, user_id=self.user_id, limit=limit)
+        return "\n".join([mem["memory"] for mem in results.get("results", [])])</code></pre>
+            </div>
+
+            <div class="architecture-card">
+                <div class="architecture-title">CrewAI Integration</div>
+                <pre><code>import os
+from crewai import Agent, Crew, Process, Task
+from crewai.memory.external.external_memory import ExternalMemory
+from mem0 import Memory
+
+# Set up environment
+os.environ["MEM0_API_KEY"] = "your-api-key"
+os.environ["OPENAI_API_KEY"] = "your-openai-key"
+
+# Create agents with shared memory
+travel_agent = Agent(
+    role="Travel Planning Expert",
+    goal="Plan personalized vacations based on user preferences",
+    backstory="You are an experienced travel agent who remembers client preferences",
+    verbose=True,
+)
+
+# Create crew with external memory
+crew = Crew(
+    agents=[travel_agent],
+    tasks=[plan_task],
+    verbose=True,
+    process=Process.sequential,
+    external_memory=ExternalMemory(
+        embedder_config={
+            "provider": "mem0", 
+            "config": {"user_id": "travel_user_123"}
+        }
+    ),
+)
+
+# Execute with memory
+result = crew.kickoff()
+print(result)</code></pre>
+            </div>
+        </section>
+
+        <section id="vector-databases" class="section">
+            <h2>3. Vector Database Solutions</h2>
+            
+            <h3>Vector Database Comparison</h3>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Database</th>
+                        <th>Strengths</th>
+                        <th>Performance</th>
+                        <th>Best For</th>
+                        <th>Pricing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pinecone</strong></td>
+                        <td>Serverless, auto-scaling, enterprise-ready</td>
+                        <td>&lt;50ms @ 50K QPS</td>
+                        <td>Production, enterprise scale</td>
+                        <td>$0.096/1M queries</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Weaviate</strong></td>
+                        <td>Hybrid search, multi-modal, self-hosted</td>
+                        <td>~123ms @ 15K QPS</td>
+                        <td>Flexibility, data control</td>
+                        <td>Open source / Cloud</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chroma</strong></td>
+                        <td>Developer experience, rapid prototyping</td>
+                        <td>~8K QPS distributed</td>
+                        <td>Development, experimentation</td>
+                        <td>Open source</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Qdrant</strong></td>
+                        <td>High performance, Rust-based</td>
+                        <td>~25K QPS</td>
+                        <td>Performance-critical apps</td>
+                        <td>Open source / Cloud</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Pinecone Implementation</h3>
+            
+            <div class="vector-box">
+                <h4>Enterprise-Grade Setup</h4>
+                <pre><code>import pinecone
+from openai import OpenAI
+import numpy as np
+
+# Initialize Pinecone
+pinecone.init(
+    api_key="your-pinecone-api-key",
+    environment="us-west1-gcp-free"
+)
+
+# Create index
+index_name = "ai-agent-memory"
+if index_name not in pinecone.list_indexes():
+    pinecone.create_index(
+        name=index_name,
+        dimension=1536,  # OpenAI embedding dimension
+        metric="cosine",
+        shards=1
+    )
+
+index = pinecone.Index(index_name)
+
+class PineconeMemoryStore:
+    def __init__(self, index_name: str):
+        self.index = pinecone.Index(index_name)
+        self.openai_client = OpenAI()
+    
+    async def store_memory(self, memory_id: str, content: str, metadata: dict):
+        """Store memory with vector embedding"""
+        # Generate embedding
+        embedding_response = self.openai_client.embeddings.create(
+            input=content,
+            model="text-embedding-3-small"
+        )
+        embedding = embedding_response.data[0].embedding
+        
+        # Store in Pinecone
+        self.index.upsert(vectors=[{
+            "id": memory_id,
+            "values": embedding,
+            "metadata": {
+                **metadata,
+                "content": content,
+                "timestamp": datetime.utcnow().isoformat()
+            }
+        }])
+    
+    async def search_memories(self, query: str, user_id: str, top_k: int = 5):
+        """Search memories with semantic similarity"""
+        # Generate query embedding
+        embedding_response = self.openai_client.embeddings.create(
+            input=query,
+            model="text-embedding-3-small"
+        )
+        query_embedding = embedding_response.data[0].embedding
+        
+        # Search Pinecone
+        results = self.index.query(
+            vector=query_embedding,
+            top_k=top_k,
+            include_metadata=True,
+            filter={"user_id": user_id}
+        )
+        
+        return [{
+            "id": match.id,
+            "score": match.score,
+            "content": match.metadata["content"],
+            "metadata": match.metadata
+        } for match in results.matches]
+
+# Usage
+memory_store = PineconeMemoryStore(index_name)
+await memory_store.store_memory(
+    memory_id="mem_001",
+    content="User prefers Italian restaurants",
+    metadata={"user_id": "user123", "category": "food_preferences"}
+)</code></pre>
+            </div>
+
+            <h3>Weaviate Implementation</h3>
+            
+            <div class="vector-box">
+                <h4>Hybrid Search Configuration</h4>
+                <pre><code>import weaviate
+import json
+
+# Initialize Weaviate client
+client = weaviate.Client(
+    url="https://your-weaviate-cluster.weaviate.network",
+    auth_client_secret=weaviate.AuthApiKey(api_key="your-api-key"),
+    additional_headers={
+        "X-OpenAI-Api-Key": "your-openai-api-key"
+    }
+)
+
+# Define schema
+memory_schema = {
+    "class": "AIMemory",
+    "description": "AI Agent Memory Storage",
+    "vectorizer": "text2vec-openai",
+    "moduleConfig": {
+        "text2vec-openai": {
+            "model": "text-embedding-3-small",
+            "dimensions": 1536,
+            "type": "text"
+        }
+    },
+    "properties": [
+        {
+            "name": "content",
+            "dataType": ["text"],
+            "description": "Memory content"
+        },
+        {
+            "name": "userId",
+            "dataType": ["string"],
+            "description": "User identifier"
+        },
+        {
+            "name": "category",
+            "dataType": ["string"],
+            "description": "Memory category"
+        },
+        {
+            "name": "timestamp",
+            "dataType": ["date"],
+            "description": "Creation timestamp"
+        }
+    ]
+}
+
+# Create schema
+client.schema.create_class(memory_schema)
+
+class WeaviateMemoryStore:
+    def __init__(self, client):
+        self.client = client
+    
+    def store_memory(self, content: str, user_id: str, category: str):
+        """Store memory in Weaviate"""
+        memory_object = {
+            "content": content,
+            "userId": user_id,
+            "category": category,
+            "timestamp": datetime.utcnow().isoformat()
+        }
+        
+        result = self.client.data_object.create(
+            data_object=memory_object,
+            class_name="AIMemory"
+        )
+        return result
+    
+    def hybrid_search(self, query: str, user_id: str, alpha: float = 0.7):
+        """Hybrid search combining vector and keyword search"""
+        response = (
+            self.client.query
+            .get("AIMemory", ["content", "category", "timestamp"])
+            .with_hybrid(query=query, alpha=alpha)  # alpha controls vector vs keyword weight
+            .with_where({
+                "path": ["userId"],
+                "operator": "Equal",
+                "valueString": user_id
+            })
+            .with_limit(5)
+            .with_additional(["score", "explain"])
+            .do()
+        )
+        
+        return response["data"]["Get"]["AIMemory"]
+
+# Usage
+memory_store = WeaviateMemoryStore(client)
+memory_store.store_memory(
+    content="User enjoys spicy Thai food and Indian cuisine",
+    user_id="user123",
+    category="food_preferences"
+)
+
+results = memory_store.hybrid_search("What does the user like to eat?", "user123")</code></pre>
+            </div>
+
+            <h3>Chroma Implementation</h3>
+            
+            <div class="vector-box">
+                <h4>Rapid Prototyping Setup</h4>
+                <pre><code>import chromadb
+from chromadb.config import Settings
+import uuid
+
+# Initialize Chroma client
+client = chromadb.Client(Settings(
+    chroma_db_impl="duckdb+parquet",
+    persist_directory="./chroma_data"
+))
+
+class ChromaMemoryStore:
+    def __init__(self, collection_name: str = "ai_memories"):
+        self.collection = client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=chromadb.utils.embedding_functions.OpenAIEmbeddingFunction(
+                api_key="your-openai-api-key",
+                model_name="text-embedding-3-small"
+            )
+        )
+    
+    def store_memory(self, content: str, user_id: str, metadata: dict = None):
+        """Store memory in Chroma collection"""
+        memory_id = str(uuid.uuid4())
+        
+        self.collection.add(
+            documents=[content],
+            metadatas=[{
+                "user_id": user_id,
+                "timestamp": datetime.utcnow().isoformat(),
+                **(metadata or {})
+            }],
+            ids=[memory_id]
+        )
+        return memory_id
+    
+    def search_memories(self, query: str, user_id: str, n_results: int = 5):
+        """Search memories with metadata filtering"""
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=n_results,
+            where={"user_id": user_id},
+            include=["documents", "metadatas", "distances"]
+        )
+        
+        return [{
+            "content": doc,
+            "metadata": meta,
+            "distance": dist
+        } for doc, meta, dist in zip(
+            results["documents"][0],
+            results["metadatas"][0], 
+            results["distances"][0]
+        )]
+
+# Usage
+memory_store = ChromaMemoryStore()
+memory_id = memory_store.store_memory(
+    content="User is a vegetarian who loves Mediterranean cuisine",
+    user_id="user123",
+    metadata={"category": "dietary_preferences"}
+)
+
+memories = memory_store.search_memories("What are user's food preferences?", "user123")</code></pre>
+            </div>
+        </section>
+
+        <section id="graph-memory" class="section">
+            <h2>4. Graph-Based Memory Systems</h2>
+            
+            <h3>Neo4j Memory Architecture</h3>
+            
+            <div class="graph-box">
+                <h4>Temporal Knowledge Graphs</h4>
+                <p>Graph-based memory systems excel at tracking relationships, temporal context, and complex entity interactions. Modern implementations use temporal graphs to maintain how facts change over time.</p>
+                
+                <h4>Key Benefits:</h4>
+                <ul class="checklist">
+                    <li>Relationship modeling between entities</li>
+                    <li>Temporal tracking of changing facts</li>
+                    <li>Complex query capabilities</li>
+                    <li>Provenance and source tracking</li>
+                    <li>18.5% better accuracy vs traditional retrieval</li>
+                </ul>
+            </div>
+
+            <h3>Neo4j Implementation</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Complete Neo4j Memory System</div>
+                <pre><code>from neo4j import GraphDatabase
+from datetime import datetime
+import json
+
+class Neo4jMemorySystem:
+    def __init__(self, uri: str, user: str, password: str):
+        self.driver = GraphDatabase.driver(uri, auth=(user, password))
+    
+    def close(self):
+        self.driver.close()
+    
+    def create_memory_schema(self):
+        """Initialize memory schema with constraints"""
+        with self.driver.session() as session:
+            # Create constraints
+            constraints = [
+                "CREATE CONSTRAINT memory_id IF NOT EXISTS FOR (m:Memory) REQUIRE m.id IS UNIQUE",
+                "CREATE CONSTRAINT user_id IF NOT EXISTS FOR (u:User) REQUIRE u.id IS UNIQUE",
+                "CREATE CONSTRAINT entity_id IF NOT EXISTS FOR (e:Entity) REQUIRE e.id IS UNIQUE"
+            ]
+            
+            for constraint in constraints:
+                session.run(constraint)
+    
+    def store_memory_with_entities(self, memory_id: str, content: str, 
+                                 user_id: str, entities: list, relationships: list):
+        """Store memory with extracted entities and relationships"""
+        with self.driver.session() as session:
+            query = """
+            // Create or update user
+            MERGE (u:User {id: $user_id})
+            
+            // Create memory node
+            CREATE (m:Memory {
+                id: $memory_id,
+                content: $content,
+                timestamp: datetime($timestamp)
+            })
+            
+            // Link memory to user
+            CREATE (u)-[:HAS_MEMORY]->(m)
+            
+            // Process entities
+            UNWIND $entities as entity
+            MERGE (e:Entity {id: entity.id})
+            SET e.name = entity.name, e.type = entity.type
+            CREATE (m)-[:MENTIONS]->(e)
+            
+            // Process relationships
+            UNWIND $relationships as rel
+            MATCH (e1:Entity {id: rel.from}), (e2:Entity {id: rel.to})
+            CREATE (e1)-[r:RELATES_TO {
+                type: rel.type,
+                confidence: rel.confidence,
+                source_memory: $memory_id,
+                timestamp: datetime($timestamp)
+            }]->(e2)
+            """
+            
+            session.run(query, {
+                "memory_id": memory_id,
+                "content": content,
+                "user_id": user_id,
+                "entities": entities,
+                "relationships": relationships,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+    
+    def temporal_query(self, user_id: str, entity: str, time_range: dict = None):
+        """Query memories with temporal context"""
+        query = """
+        MATCH (u:User {id: $user_id})-[:HAS_MEMORY]->(m:Memory)-[:MENTIONS]->(e:Entity)
+        WHERE e.name CONTAINS $entity
+        """
+        
+        params = {"user_id": user_id, "entity": entity}
+        
+        if time_range:
+            query += """
+            AND m.timestamp >= datetime($start_time)
+            AND m.timestamp <= datetime($end_time)
+            """
+            params.update({
+                "start_time": time_range["start"],
+                "end_time": time_range["end"]
+            })
+        
+        query += """
+        RETURN m.content as content, m.timestamp as timestamp, 
+               collect(e.name) as mentioned_entities
+        ORDER BY m.timestamp DESC
+        """
+        
+        with self.driver.session() as session:
+            result = session.run(query, params)
+            return [record.data() for record in result]
+    
+    def find_entity_relationships(self, user_id: str, entity: str, max_hops: int = 2):
+        """Find relationships around an entity"""
+        query = f"""
+        MATCH (u:User {{id: $user_id}})-[:HAS_MEMORY]->(m:Memory)-[:MENTIONS]->(start:Entity)
+        WHERE start.name CONTAINS $entity
+        MATCH path = (start)-[:RELATES_TO*1..{max_hops}]-(connected:Entity)
+        RETURN start.name as source_entity, 
+               [node in nodes(path) | node.name] as path_entities,
+               [rel in relationships(path) | rel.type] as relationship_types
+        """
+        
+        with self.driver.session() as session:
+            result = session.run(query, {"user_id": user_id, "entity": entity})
+            return [record.data() for record in result]
+
+# Usage example
+memory_system = Neo4jMemorySystem(
+    uri="neo4j://localhost:7687",
+    user="neo4j",
+    password="password"
+)
+
+# Initialize schema
+memory_system.create_memory_schema()
+
+# Store memory with entities
+entities = [
+    {"id": "alice", "name": "Alice", "type": "Person"},
+    {"id": "openai", "name": "OpenAI", "type": "Organization"}
+]
+
+relationships = [
+    {"from": "alice", "to": "openai", "type": "WORKS_AT", "confidence": 0.9}
+]
+
+memory_system.store_memory_with_entities(
+    memory_id="mem_001",
+    content="Alice works at OpenAI and is excited about the new GPT model",
+    user_id="user123",
+    entities=entities,
+    relationships=relationships
+)
+
+# Query temporal memories
+recent_memories = memory_system.temporal_query(
+    user_id="user123",
+    entity="Alice",
+    time_range={
+        "start": "2024-01-01T00:00:00",
+        "end": "2024-12-31T23:59:59"
+    }
+)</code></pre>
+            </div>
+
+            <h3>Amazon Neptune Integration</h3>
+            
+            <div class="graph-box">
+                <h4>Managed Graph Database Solution</h4>
+                <pre><code>import boto3
+from gremlin_python import statics
+from gremlin_python.structure.graph import Graph
+from gremlin_python.process.graph_traversal import __
+from gremlin_python.driver.driver_remote_connection import DriverRemoteConnection
+
+class NeptuneMemorySystem:
+    def __init__(self, endpoint: str):
+        self.endpoint = endpoint
+        self.graph = Graph()
+        self.connection = DriverRemoteConnection(
+            f'wss://{endpoint}:8182/gremlin',
+            'g'
+        )
+        self.g = self.graph.traversal().withRemote(self.connection)
+    
+    def close(self):
+        self.connection.close()
+    
+    def store_conversational_memory(self, conversation_id: str, messages: list, user_id: str):
+        """Store conversation as a graph of connected messages"""
+        # Create conversation node
+        conv = self.g.addV('Conversation').property('id', conversation_id)\
+                     .property('user_id', user_id)\
+                     .property('timestamp', datetime.utcnow().isoformat()).next()
+        
+        prev_message = None
+        for i, message in enumerate(messages):
+            # Create message node
+            msg = self.g.addV('Message')\
+                       .property('content', message['content'])\
+                       .property('role', message['role'])\
+                       .property('sequence', i)\
+                       .next()
+            
+            # Connect to conversation
+            self.g.addE('CONTAINS').from_(conv).to(msg).next()
+            
+            # Connect messages in sequence
+            if prev_message:
+                self.g.addE('FOLLOWS').from_(prev_message).to(msg).next()
+            
+            prev_message = msg
+    
+    def semantic_search_with_graph_context(self, query_concepts: list, user_id: str, max_depth: int = 3):
+        """Search memories using graph traversal for context"""
+        # Find messages containing query concepts
+        matching_messages = self.g.V().hasLabel('Message')\
+                                   .has('Conversation', 'user_id', user_id)\
+                                   .where(__.values('content').is(__.containing(query_concepts[0])))\
+                                   .as_('message')
+        
+        # Expand context through graph relationships
+        context = matching_messages.repeat(
+            __.both('FOLLOWS', 'CONTAINS').dedup()
+        ).times(max_depth).dedup()
+        
+        return context.valueMap().toList()
+
+# Usage
+neptune_memory = NeptuneMemorySystem("your-neptune-cluster.region.neptune.amazonaws.com")
+
+# Store conversation
+conversation = [
+    {"role": "user", "content": "I'm planning a trip to Japan"},
+    {"role": "assistant", "content": "That sounds exciting! What time of year are you thinking?"},
+    {"role": "user", "content": "Spring, to see the cherry blossoms"}
+]
+
+neptune_memory.store_conversational_memory("conv_001", conversation, "user123")</code></pre>
+            </div>
+        </section>
+
+        <section id="hybrid-architectures" class="section">
+            <h2>5. Hybrid Memory Architectures</h2>
+            
+            <h3>Polyglot Persistence Strategy</h3>
+            
+            <div class="hybrid-box">
+                <h4>Three-Memory Architecture</h4>
+                <p>Modern AI agents implement a hybrid approach combining multiple storage paradigms:</p>
+                <ol>
+                    <li><strong>Episodic Memory</strong> - Vector databases for semantic retrieval</li>
+                    <li><strong>Semantic Memory</strong> - Knowledge bases for structured facts</li>
+                    <li><strong>Procedural Memory</strong> - Relational tables for workflows</li>
+                </ol>
+            </div>
+
+            <h3>Unified Memory Architecture</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Complete Hybrid Implementation</div>
+                <pre><code>from typing import List, Dict, Any
+import asyncio
+from dataclasses import dataclass
+
+@dataclass
+class MemoryResult:
+    content: str
+    source: str
+    score: float
+    metadata: Dict[str, Any]
+
+class HybridMemoryArchitecture:
+    def __init__(self):
+        # Vector store for semantic search
+        self.vector_store = PineconeMemoryStore("semantic-memory")
+        # Graph database for relationships  
+        self.graph_db = Neo4jMemorySystem("bolt://localhost:7687", "neo4j", "password")
+        # Traditional database for structured data
+        self.relational_db = PostgreSQLMemoryStore("postgresql://localhost:5432/memories")
+        # Redis for short-term/session memory
+        self.session_store = RedisMemoryStore("redis://localhost:6379")
+    
+    async def unified_store(self, content: str, user_id: str, memory_type: str, metadata: Dict = None):
+        """Store memory across appropriate backends based on type"""
+        metadata = metadata or {}
+        
+        # Semantic memory - always store for similarity search
+        semantic_task = self.vector_store.store_memory(
+            memory_id=f"semantic_{user_id}_{datetime.utcnow().timestamp()}",
+            content=content,
+            metadata={"user_id": user_id, "type": memory_type, **metadata}
+        )
+        
+        tasks = [semantic_task]
+        
+        # Route to appropriate stores based on memory type
+        if memory_type == "relationship":
+            # Extract entities and relationships for graph storage
+            entities, relationships = await self.extract_entities(content)
+            graph_task = self.graph_db.store_memory_with_entities(
+                memory_id=f"graph_{user_id}_{datetime.utcnow().timestamp()}",
+                content=content,
+                user_id=user_id,
+                entities=entities,
+                relationships=relationships
+            )
+            tasks.append(graph_task)
+        
+        elif memory_type == "preference":
+            # Structured storage for user preferences
+            preference_task = self.relational_db.store_preference(
+                user_id=user_id,
+                preference_type=metadata.get("category", "general"),
+                value=content
+            )
+            tasks.append(preference_task)
+        
+        elif memory_type == "session":
+            # Short-term session storage
+            session_task = self.session_store.store_session_data(
+                user_id=user_id,
+                content=content,
+                ttl=3600  # 1 hour
+            )
+            tasks.append(session_task)
+        
+        # Execute all storage operations concurrently
+        await asyncio.gather(*tasks)
+    
+    async def unified_retrieval(self, query: str, user_id: str, context_depth: int = 3) -> List[MemoryResult]:
+        """Unified retrieval across all memory stores"""
+        
+        # Concurrent searches across all stores
+        search_tasks = {
+            "vector": self.vector_store.search_memories(query, user_id, top_k=10),
+            "graph": self.graph_db.temporal_query(user_id, query),
+            "relational": self.relational_db.search_preferences(user_id, query),
+            "session": self.session_store.get_session_context(user_id)
+        }
+        
+        search_results = await asyncio.gather(
+            *[asyncio.create_task(task) for task in search_tasks.values()],
+            return_exceptions=True
+        )
+        
+        # Combine and rank results
+        combined_results = []
+        
+        # Process vector results
+        if not isinstance(search_results[0], Exception):
+            for result in search_results[0]:
+                combined_results.append(MemoryResult(
+                    content=result["content"],
+                    source="vector",
+                    score=result["score"],
+                    metadata=result["metadata"]
+                ))
+        
+        # Process graph results
+        if not isinstance(search_results[1], Exception):
+            for result in search_results[1]:
+                combined_results.append(MemoryResult(
+                    content=result["content"],
+                    source="graph",
+                    score=0.8,  # Default high score for graph matches
+                    metadata={"timestamp": result["timestamp"]}
+                ))
+        
+        # Process relational results
+        if not isinstance(search_results[2], Exception):
+            for result in search_results[2]:
+                combined_results.append(MemoryResult(
+                    content=result["value"],
+                    source="preference",
+                    score=0.9,  # High score for direct preferences
+                    metadata={"category": result["category"]}
+                ))
+        
+        # Process session results
+        if not isinstance(search_results[3], Exception) and search_results[3]:
+            combined_results.append(MemoryResult(
+                content=search_results[3]["content"],
+                source="session",
+                score=1.0,  # Highest score for session context
+                metadata={"session": True}
+            ))
+        
+        # Sort by score and return top results
+        combined_results.sort(key=lambda x: x.score, reverse=True)
+        return combined_results[:context_depth * 3]  # Return more results for context
+    
+    async def extract_entities(self, content: str) -> tuple:
+        """Extract entities and relationships from content using LLM"""
+        # Implementation would use LLM for entity extraction
+        # For now, return empty lists
+        return [], []
+
+class MemoryEnabledAgent:
+    def __init__(self, agent_id: str, user_id: str):
+        self.agent_id = agent_id
+        self.user_id = user_id
+        self.memory = HybridMemoryArchitecture()
+        
+    async def process_with_memory(self, message: str) -> str:
+        # Retrieve relevant memories
+        memories = await self.memory.unified_retrieval(message, self.user_id)
+        
+        # Build context from different memory sources
+        context_parts = []
+        for memory in memories:
+            context_parts.append(f"[{memory.source}] {memory.content}")
+        
+        memory_context = "\n".join(context_parts)
+        
+        # Generate response with your LLM
+        response = await self.generate_response(message, memory_context)
+        
+        # Store the interaction
+        await self.memory.unified_store(
+            content=f"User: {message}\nAssistant: {response}",
+            user_id=self.user_id,
+            memory_type="interaction",
+            metadata={"agent_id": self.agent_id}
+        )
+        
+        return response
+    
+    async def generate_response(self, message: str, context: str) -> str:
+        # Your LLM implementation here
+        return f"Response to: {message} (with context from {len(context.split())} words)"
+
+# Usage
+agent = MemoryEnabledAgent(
+    agent_id="customer_support",
+    user_id="customer_123"
+)
+
+response = await agent.process_with_memory("What were my recent orders?")</code></pre>
+            </div>
+
+            <h3>Memory Fusion and Consolidation</h3>
+            
+            <div class="hybrid-box">
+                <h4>MemOS Framework Implementation</h4>
+                <pre><code>from datetime import datetime, timedelta
+from typing import Set
+import asyncio
+
+class MemoryLifecycleManager:
+    def __init__(self, hybrid_memory: HybridMemoryArchitecture):
+        self.memory = hybrid_memory
+        self.policies = MemoryPolicyEngine()
+        
+    async def consolidate_memories(self, user_id: str, time_window: timedelta = timedelta(days=7)):
+        """Consolidate related memories to reduce redundancy"""
+        
+        # Get recent memories from all sources
+        all_memories = await self.memory.get_all_memories(
+            user_id=user_id,
+            since=datetime.utcnow() - time_window
+        )
+        
+        # Group semantically similar memories
+        memory_groups = await self.group_similar_memories(all_memories)
+        
+        consolidation_tasks = []
+        for group in memory_groups:
+            if len(group) > 1:  # Only consolidate groups with multiple memories
+                task = self.consolidate_group(user_id, group)
+                consolidation_tasks.append(task)
+        
+        # Execute consolidations concurrently
+        await asyncio.gather(*consolidation_tasks)
+    
+    async def group_similar_memories(self, memories: List[MemoryResult]) -> List[List[MemoryResult]]:
+        """Group semantically similar memories using clustering"""
+        # Extract embeddings for all memories
+        embeddings = []
+        for memory in memories:
+            embedding = await self.memory.vector_store.get_embedding(memory.content)
+            embeddings.append(embedding)
+        
+        # Perform clustering (simplified - use proper clustering algorithm)
+        from sklearn.cluster import DBSCAN
+        import numpy as np
+        
+        clustering = DBSCAN(eps=0.3, min_samples=2)
+        cluster_labels = clustering.fit_predict(np.array(embeddings))
+        
+        # Group memories by cluster
+        groups = {}
+        for i, label in enumerate(cluster_labels):
+            if label != -1:  # -1 indicates noise/outlier
+                if label not in groups:
+                    groups[label] = []
+                groups[label].append(memories[i])
+        
+        return list(groups.values())
+    
+    async def consolidate_group(self, user_id: str, memory_group: List[MemoryResult]):
+        """Consolidate a group of related memories"""
+        
+        # Combine content from all memories in group
+        combined_content = "\n".join([memory.content for memory in memory_group])
+        
+        # Use LLM to create consolidated memory
+        consolidation_prompt = f"""
+        Consolidate the following related memories into a single, coherent summary:
+        
+        {combined_content}
+        
+        Create a concise summary that captures the key information without redundancy.
+        """
+        
+        # Get consolidated summary (implement your LLM call)
+        consolidated_content = await self.call_llm_for_consolidation(consolidation_prompt)
+        
+        # Store consolidated memory
+        await self.memory.unified_store(
+            content=consolidated_content,
+            user_id=user_id,
+            memory_type="consolidated",
+            metadata={
+                "source_memories": [m.metadata.get("memory_id") for m in memory_group],
+                "consolidation_timestamp": datetime.utcnow().isoformat()
+            }
+        )
+        
+        # Archive or delete original memories
+        for memory in memory_group:
+            await self.archive_memory(memory)
+    
+    async def archive_memory(self, memory: MemoryResult):
+        """Archive memory to cold storage"""
+        # Implementation depends on your archival strategy
+        pass
+    
+    async def call_llm_for_consolidation(self, prompt: str) -> str:
+        """Call LLM for memory consolidation"""
+        # Implement your LLM call here
+        return f"Consolidated: {prompt[:100]}..."
+
+class MemoryPolicyEngine:
+    def __init__(self):
+        self.retention_policies = {
+            "interaction": timedelta(days=30),
+            "preference": timedelta(days=365),
+            "relationship": timedelta(days=180),
+            "session": timedelta(hours=1),
+            "consolidated": timedelta(days=90)
+        }
+    
+    def should_retain(self, memory: MemoryResult) -> bool:
+        """Determine if memory should be retained based on policies"""
+        memory_type = memory.metadata.get("type", "interaction")
+        retention_period = self.retention_policies.get(memory_type, timedelta(days=30))
+        
+        created_at = datetime.fromisoformat(memory.metadata.get("timestamp", datetime.utcnow().isoformat()))
+        return datetime.utcnow() - created_at < retention_period
+    
+    def get_consolidation_frequency(self, memory_type: str) -> timedelta:
+        """Get how often memories of this type should be consolidated"""
+        frequencies = {
+            "interaction": timedelta(days=7),
+            "preference": timedelta(days=30),
+            "relationship": timedelta(days=14),
+            "session": timedelta(hours=1)  # No consolidation for session data
+        }
+        return frequencies.get(memory_type, timedelta(days=7))</code></pre>
+            </div>
+        </section>
+
+        <section id="production-deployment" class="section">
+            <h2>6. Production Deployment Strategies</h2>
+            
+            <h3>Docker Deployment</h3>
+            
+            <div class="warning-box">
+                <h4>Production-Ready Docker Setup</h4>
+                <pre><code># docker-compose.yml for Mem0 with supporting services
+version: '3.8'
+
+services:
+  mem0-api:
+    image: mem0ai/mem0:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - POSTGRES_URL=postgresql://user:password@postgres:5432/mem0
+      - NEO4J_URL=bolt://neo4j:7687
+      - NEO4J_USERNAME=neo4j
+      - NEO4J_PASSWORD=password
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      - postgres
+      - neo4j
+      - redis
+      - qdrant
+    volumes:
+      - ./mem0_data:/app/data
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: mem0
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  neo4j:
+    image: neo4j:5.15
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_PLUGINS: '["apoc", "graph-data-science"]'
+      NEO4J_dbms_security_procedures_unrestricted: "apoc.*,gds.*"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:v1.7.4
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/dashboards:/var/lib/grafana/dashboards
+      - ./monitoring/provisioning:/etc/grafana/provisioning
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  neo4j_data:
+  neo4j_logs:
+  redis_data:
+  qdrant_data:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  default:
+    driver: bridge</code></pre>
+            </div>
+
+            <h3>Kubernetes Deployment</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Complete Kubernetes Manifests</div>
+                <pre><code># mem0-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mem0-deployment
+  namespace: ai-memory
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: mem0
+  template:
+    metadata:
+      labels:
+        app: mem0
+    spec:
+      containers:
+      - name: mem0
+        image: mem0ai/mem0:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mem0-secrets
+              key: openai-api-key
+        - name: POSTGRES_URL
+          value: "postgresql://mem0-user:$(POSTGRES_PASSWORD)@postgres-service:5432/mem0"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: password
+        - name: NEO4J_URL
+          value: "bolt://neo4j-service:7687"
+        - name: NEO4J_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: neo4j-secret
+              key: password
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mem0-service
+  namespace: ai-memory
+spec:
+  selector:
+    app: mem0
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mem0-secrets
+  namespace: ai-memory
+type: Opaque
+data:
+  openai-api-key: <base64-encoded-key>
+
+---
+# Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: mem0-hpa
+  namespace: ai-memory
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: mem0-deployment
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80</code></pre>
+            </div>
+
+            <h3>Cloud Provider Deployments</h3>
+            
+            <div class="memory-grid">
+                <div class="memory-card">
+                    <h4>AWS ECS Deployment</h4>
+                    <pre><code>{
+  "family": "mem0-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "containerDefinitions": [
+    {
+      "name": "mem0",
+      "image": "mem0ai/mem0:latest",
+      "portMappings": [
+        {
+          "containerPort": 8080
+        }
+      ],
+      "environment": [
+        {
+          "name": "OPENAI_API_KEY",
+          "value": "{{resolve:secretsmanager:mem0-secrets:SecretString:openai-key}}"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/mem0",
+          "awslogs-region": "us-west-2"
+        }
+      }
+    }
+  ]
+}</code></pre>
+                </div>
+                
+                <div class="memory-card">
+                    <h4>Google Cloud Run</h4>
+                    <pre><code>apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: mem0-service
+  annotations:
+    run.googleapis.com/ingress: all
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "100"
+        run.googleapis.com/cpu-throttling: "false"
+        run.googleapis.com/memory: "2Gi"
+        run.googleapis.com/cpu: "1000m"
+    spec:
+      containers:
+      - image: gcr.io/project-id/mem0:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mem0-secrets
+              key: openai-api-key</code></pre>
+                </div>
+            </div>
+
+            <h3>Monitoring and Observability</h3>
+            
+            <div class="success-box">
+                <h4>Production Monitoring Setup</h4>
+                <pre><code># monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'mem0-api'
+    static_configs:
+    - targets: ['mem0-service:8080']
+    metrics_path: /metrics
+    scrape_interval: 30s
+  
+  - job_name: 'postgres'
+    static_configs:
+    - targets: ['postgres-service:9187']
+  
+  - job_name: 'neo4j'
+    static_configs:
+    - targets: ['neo4j-service:2004']
+  
+  - job_name: 'redis'
+    static_configs:
+    - targets: ['redis-service:9121']
+
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093
+
+---
+# monitoring/alert_rules.yml
+groups:
+- name: mem0-alerts
+  rules:
+  - alert: MemorySearchLatencyHigh
+    expr: histogram_quantile(0.95, mem0_search_duration_seconds) > 2
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High memory search latency"
+      description: "95th percentile search latency is {{ $value }}s"
+
+  - alert: MemoryStorageFailureRate
+    expr: rate(mem0_storage_errors_total[5m]) > 0.01
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High memory storage failure rate"
+      description: "Storage failure rate is {{ $value }} errors/sec"</code></pre>
+            </div>
+        </section>
+
+        <section id="performance" class="section">
+            <h2>7. Performance Optimization</h2>
+            
+            <h3>Memory System Benchmarks</h3>
+            
+            <div class="performance-metrics">
+                <div class="metric-card">
+                    <div class="metric-value">47ms</div>
+                    <div class="metric-label">P99 Latency (Pinecone)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">50K</div>
+                    <div class="metric-label">QPS at Scale</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">90%</div>
+                    <div class="metric-label">Latency Reduction (vs full context)</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">87.3%</div>
+                    <div class="metric-label">Memory Utilization Efficiency</div>
+                </div>
+            </div>
+
+            <h3>Optimization Strategies</h3>
+            
+            <div class="vector-box">
+                <h4>Vector Database Optimization</h4>
+                <pre><code># Optimized Pinecone configuration
+OPTIMIZED_CONFIG = {
+    "vector_store": {
+        "provider": "pinecone",
+        "config": {
+            "index_name": "fast-memories",
+            "environment": "us-west1-gcp",
+            "api_key": "your-api-key",
+            # Performance optimizations
+            "dimension": 768,  # Smaller dimensions for speed
+            "metric": "cosine",
+            "shards": 4,       # Multiple shards for parallel processing
+            "replicas": 2,     # Redundancy for high availability
+            # Query optimizations
+            "top_k": 20,       # Fetch more for reranking
+            "include_metadata": True,
+            "include_values": False  # Skip vectors in response for speed
+        }
+    },
+    "embedder": {
+        "provider": "openai", 
+        "config": {
+            "model": "text-embedding-3-small",
+            "dimensions": 768,  # Match vector store
+            "batch_size": 100,   # Batch processing for efficiency
+            "timeout": 10,
+            "max_retries": 3
+        }
+    }
+}
+
+class OptimizedMemorySystem:
+    def __init__(self, config):
+        self.config = config
+        self.vector_store = self._init_vector_store()
+        self.embedding_cache = {}  # Simple embedding cache
+        
+    async def optimized_search(self, query: str, user_id: str, top_k: int = 5):
+        """Optimized search with caching and batching"""
+        
+        # Check embedding cache first
+        cache_key = f"embed:{hash(query)}"
+        if cache_key in self.embedding_cache:
+            query_embedding = self.embedding_cache[cache_key]
+        else:
+            query_embedding = await self.generate_embedding(query)
+            self.embedding_cache[cache_key] = query_embedding
+        
+        # Search with oversampling then rerank
+        initial_results = await self.vector_store.search(
+            vector=query_embedding,
+            top_k=top_k * 2,  # Oversample for better results
+            filter={"user_id": user_id}
+        )
+        
+        # Rerank results using cross-encoder or LLM
+        reranked_results = await self.rerank_results(query, initial_results)
+        
+        return reranked_results[:top_k]
+    
+    async def batch_store_memories(self, memories: List[Dict], batch_size: int = 50):
+        """Batch storage for better performance"""
+        
+        batches = [memories[i:i + batch_size] for i in range(0, len(memories), batch_size)]
+        
+        for batch in batches:
+            # Generate embeddings for entire batch
+            contents = [mem["content"] for mem in batch]
+            embeddings = await self.batch_generate_embeddings(contents)
+            
+            # Prepare vectors for batch upsert
+            vectors = []
+            for i, (memory, embedding) in enumerate(zip(batch, embeddings)):
+                vectors.append({
+                    "id": memory["id"],
+                    "values": embedding,
+                    "metadata": memory["metadata"]
+                })
+            
+            # Batch upsert to vector store
+            await self.vector_store.upsert(vectors)</code></pre>
+            </div>
+
+            <h3>Caching and Memory Management</h3>
+            
+            <div class="architecture-card">
+                <div class="architecture-title">Multi-Level Caching Strategy</div>
+                <pre><code>import redis
+import hashlib
+from typing import Optional, Dict, Any
+import asyncio
+
+class MultiLevelCache:
+    def __init__(self, redis_client: redis.Redis):
+        self.redis = redis_client
+        self.local_cache = {}  # In-memory L1 cache
+        self.local_cache_max_size = 1000
+        
+    def _generate_key(self, query: str, filters: Dict = None) -> str:
+        """Generate consistent cache key"""
+        key_data = f"{query}:{filters or {}}"
+        return f"memory_cache:{hashlib.md5(key_data.encode()).hexdigest()}"
+    
+    async def get(self, query: str, filters: Dict = None) -> Optional[Any]:
+        """Get from cache with fallback levels"""
+        cache_key = self._generate_key(query, filters)
+        
+        # L1: Check local cache first (fastest)
+        if cache_key in self.local_cache:
+            return self.local_cache[cache_key]
+        
+        # L2: Check Redis cache
+        cached_data = await asyncio.to_thread(self.redis.get, cache_key)
+        if cached_data:
+            result = json.loads(cached_data)
+            # Populate L1 cache
+            self._update_local_cache(cache_key, result)
+            return result
+        
+        return None
+    
+    async def set(self, query: str, data: Any, filters: Dict = None, ttl: int = 3600):
+        """Set in all cache levels"""
+        cache_key = self._generate_key(query, filters)
+        
+        # Update both levels
+        self._update_local_cache(cache_key, data)
+        await asyncio.to_thread(
+            self.redis.setex, 
+            cache_key, 
+            ttl, 
+            json.dumps(data, default=str)
+        )
+    
+    def _update_local_cache(self, key: str, data: Any):
+        """Update local cache with LRU eviction"""
+        if len(self.local_cache) >= self.local_cache_max_size:
+            # Simple LRU: remove oldest entry
+            oldest_key = next(iter(self.local_cache))
+            del self.local_cache[oldest_key]
+        
+        self.local_cache[key] = data
+
+class PerformantMemorySystem:
+    def __init__(self, hybrid_memory, redis_client):
+        self.memory = hybrid_memory
+        self.cache = MultiLevelCache(redis_client)
+        self.background_tasks = set()
+        
+    async def cached_search(self, query: str, user_id: str, **kwargs) -> List[MemoryResult]:
+        """Search with intelligent caching"""
+        
+        # Check cache first
+        cache_filters = {"user_id": user_id, **kwargs}
+        cached_result = await self.cache.get(query, cache_filters)
+        if cached_result:
+            return [MemoryResult(**item) for item in cached_result]
+        
+        # Cache miss - perform search
+        results = await self.memory.unified_retrieval(query, user_id, **kwargs)
+        
+        # Cache results asynchronously
+        task = asyncio.create_task(
+            self.cache.set(
+                query, 
+                [result.__dict__ for result in results], 
+                cache_filters
+            )
+        )
+        self.background_tasks.add(task)
+        task.add_done_callback(self.background_tasks.discard)
+        
+        return results
+    
+    async def preload_user_context(self, user_id: str):
+        """Preload frequently accessed memories for a user"""
+        
+        # Get user's most frequent queries
+        frequent_queries = await self.get_frequent_queries(user_id)
+        
+        # Preload in background
+        preload_tasks = []
+        for query in frequent_queries:
+            task = asyncio.create_task(
+                self.cached_search(query, user_id)
+            )
+            preload_tasks.append(task)
+        
+        await asyncio.gather(*preload_tasks, return_exceptions=True)
+    
+    async def get_frequent_queries(self, user_id: str) -> List[str]:
+        """Get most frequent queries for user (implement based on your analytics)"""
+        # Implementation would analyze query logs
+        return ["preferences", "previous conversations", "settings"]</code></pre>
+            </div>
+
+            <h3>Compression and Efficient Storage</h3>
+            
+            <div class="hybrid-box">
+                <h4>Advanced Compression Techniques</h4>
+                <pre><code>import numpy as np
+from typing import List, Tuple
+import asyncio
+
+class AdvancedMemoryCompression:
+    def __init__(self):
+        self.quantization_levels = {
+            "high_precision": 32,   # Full precision
+            "medium_precision": 16, # Half precision 
+            "low_precision": 8,     # 8-bit quantization
+            "ultra_low": 4         # 4-bit quantization
+        }
+    
+    async def adaptive_compression(self, embeddings: List[np.ndarray], 
+                                 workload_metrics: Dict) -> List[bytes]:
+        """Adaptive compression based on system load"""
+        
+        # Determine compression level based on system resources
+        memory_pressure = workload_metrics.get("memory_usage", 0.5)
+        query_frequency = workload_metrics.get("query_frequency", 10)
+        
+        if memory_pressure > 0.8:
+            compression_level = "ultra_low"
+        elif memory_pressure > 0.6:
+            compression_level = "low_precision"
+        elif query_frequency > 100:  # High query frequency - prioritize speed
+            compression_level = "medium_precision"
+        else:
+            compression_level = "high_precision"
+        
+        bits = self.quantization_levels[compression_level]
+        
+        # Compress embeddings
+        compressed_embeddings = []
+        for embedding in embeddings:
+            compressed = await self.quantize_embedding(embedding, bits)
+            compressed_embeddings.append(compressed)
+        
+        return compressed_embeddings
+    
+    async def quantize_embedding(self, embedding: np.ndarray, bits: int) -> bytes:
+        """Quantize embedding to specified bit depth"""
+        
+        if bits == 32:
+            # No compression
+            return embedding.tobytes()
+        
+        elif bits == 16:
+            # Half precision
+            return embedding.astype(np.float16).tobytes()
+        
+        elif bits == 8:
+            # 8-bit quantization
+            min_val, max_val = embedding.min(), embedding.max()
+            scale = (max_val - min_val) / 255
+            quantized = ((embedding - min_val) / scale).astype(np.uint8)
+            
+            # Store scale and offset for decompression
+            header = np.array([min_val, scale], dtype=np.float32).tobytes()
+            return header + quantized.tobytes()
+        
+        elif bits == 4:
+            # 4-bit quantization (more complex implementation)
+            min_val, max_val = embedding.min(), embedding.max()
+            scale = (max_val - min_val) / 15  # 4-bit = 16 levels (0-15)
+            quantized = ((embedding - min_val) / scale).astype(np.uint8)
+            
+            # Pack two 4-bit values into one byte
+            packed = np.zeros(len(quantized) // 2 + len(quantized) % 2, dtype=np.uint8)
+            for i in range(0, len(quantized), 2):
+                packed[i // 2] = (quantized[i] & 0xF) | ((quantized[i + 1] & 0xF) << 4)
+            
+            header = np.array([min_val, scale], dtype=np.float32).tobytes()
+            return header + packed.tobytes()
+    
+    async def decompress_embedding(self, compressed_data: bytes, original_shape: Tuple, bits: int) -> np.ndarray:
+        """Decompress embedding back to original precision"""
+        
+        if bits == 32:
+            return np.frombuffer(compressed_data, dtype=np.float32).reshape(original_shape)
+        
+        elif bits == 16:
+            return np.frombuffer(compressed_data, dtype=np.float16).astype(np.float32).reshape(original_shape)
+        
+        elif bits == 8:
+            header_size = 2 * 4  # 2 float32 values
+            header = np.frombuffer(compressed_data[:header_size], dtype=np.float32)
+            min_val, scale = header[0], header[1]
+            
+            quantized = np.frombuffer(compressed_data[header_size:], dtype=np.uint8)
+            return (quantized.astype(np.float32) * scale + min_val).reshape(original_shape)
+        
+        elif bits == 4:
+            header_size = 2 * 4  # 2 float32 values
+            header = np.frombuffer(compressed_data[:header_size], dtype=np.float32)
+            min_val, scale = header[0], header[1]
+            
+            packed = np.frombuffer(compressed_data[header_size:], dtype=np.uint8)
+            
+            # Unpack 4-bit values
+            quantized = np.zeros(original_shape[0], dtype=np.uint8)
+            for i, byte_val in enumerate(packed):
+                if i * 2 < len(quantized):
+                    quantized[i * 2] = byte_val & 0xF
+                if i * 2 + 1 < len(quantized):
+                    quantized[i * 2 + 1] = (byte_val >> 4) & 0xF
+            
+            return (quantized.astype(np.float32) * scale + min_val).reshape(original_shape)
+
+# Usage example
+compressor = AdvancedMemoryCompression()
+
+# Simulate system metrics
+workload_metrics = {
+    "memory_usage": 0.7,      # 70% memory usage
+    "query_frequency": 50,     # 50 queries/second
+    "cpu_usage": 0.6          # 60% CPU usage
+}
+
+# Compress embeddings based on current load
+embeddings = [np.random.random(768) for _ in range(100)]  # Sample embeddings
+compressed = await compressor.adaptive_compression(embeddings, workload_metrics)</code></pre>
+            </div>
+        </section>
+
+        <section id="enterprise-patterns" class="section">
+            <h2>8. Enterprise Patterns and Best Practices</h2>
+            
+            <h3>Security and Privacy</h3>
+            
+            <div class="error-box">
+                <h4>Data Protection Implementation</h4>
+                <pre><code>import hashlib
+import hmac
+from cryptography.fernet import Fernet
+from typing import Dict, Any
+import re
+
+class SecureMemorySystem:
+    def __init__(self, encryption_key: bytes):
+        self.cipher = Fernet(encryption_key)
+        self.sensitive_patterns = [
+            r'\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b',  # Credit card
+            r'\b\d{3}-\d{2}-\d{4}\b',  # SSN
+            r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',  # Email
+            r'\b(?:password|pwd|pass)\s*[:=]\s*\S+\b',  # Passwords
+            r'\b(?:api[_\-]?key|token)\s*[:=]\s*\S+\b'  # API keys
+        ]
+    
+    def sanitize_content(self, content: str) -> str:
+        """Remove or mask sensitive information"""
+        sanitized = content
+        
+        for pattern in self.sensitive_patterns:
+            sanitized = re.sub(pattern, "[REDACTED]", sanitized, flags=re.IGNORECASE)
+        
+        return sanitized
+    
+    def encrypt_sensitive_data(self, data: str) -> str:
+        """Encrypt sensitive data before storage"""
+        return self.cipher.encrypt(data.encode()).decode()
+    
+    def decrypt_sensitive_data(self, encrypted_data: str) -> str:
+        """Decrypt data for authorized access"""
+        return self.cipher.decrypt(encrypted_data.encode()).decode()
+    
+    async def secure_store_memory(self, content: str, user_id: str, metadata: Dict[str, Any]):
+        """Store memory with security controls"""
+        
+        # Step 1: Sanitize content
+        sanitized_content = self.sanitize_content(content)
+        
+        # Step 2: Apply data classification
+        classification = self.classify_data_sensitivity(sanitized_content)
+        
+        # Step 3: Encrypt if sensitive
+        if classification == "sensitive":
+            sanitized_content = self.encrypt_sensitive_data(sanitized_content)
+            metadata["encrypted"] = True
+        
+        # Step 4: Add audit trail
+        metadata.update({
+            "classification": classification,
+            "sanitized": sanitized_content != content,
+            "access_controls": self.get_access_controls(user_id),
+            "retention_policy": self.get_retention_policy(classification)
+        })
+        
+        # Store with security metadata
+        return await self.memory_store.secure_store(
+            content=sanitized_content,
+            user_id=user_id,
+            metadata=metadata
+        )
+    
+    def classify_data_sensitivity(self, content: str) -> str:
+        """Classify data sensitivity level"""
+        # Simple classification logic
+        sensitive_keywords = ["confidential", "private", "secret", "personal"]
+        
+        if any(keyword in content.lower() for keyword in sensitive_keywords):
+            return "sensitive"
+        elif len(content) > 1000:  # Large content might contain sensitive info
+            return "restricted"
+        else:
+            return "public"
+    
+    def get_access_controls(self, user_id: str) -> Dict[str, Any]:
+        """Get access control policies for user"""
+        # Implementation would connect to your identity management system
+        return {
+            "user_id": user_id,
+            "roles": ["user"],
+            "permissions": ["read_own", "write_own"],
+            "data_residency": "us-west-2"
+        }
+    
+    def get_retention_policy(self, classification: str) -> Dict[str, Any]:
+        """Get data retention policy based on classification"""
+        policies = {
+            "public": {"retention_days": 365, "auto_delete": True},
+            "restricted": {"retention_days": 180, "auto_delete": True},
+            "sensitive": {"retention_days": 90, "auto_delete": False, "requires_manual_review": True}
+        }
+        return policies.get(classification, policies["public"])</code></pre>
+            </div>
+
+            <h3>Compliance and Governance</h3>
+            
+            <div class="warning-box">
+                <h4>GDPR and Privacy Compliance</h4>
+                <pre><code>from datetime import datetime, timedelta
+from enum import Enum
+from typing import List, Optional
+import asyncio
+
+class DataProcessingPurpose(Enum):
+    PERSONALIZATION = "personalization"
+    ANALYTICS = "analytics"
+    SUPPORT = "customer_support"
+    RESEARCH = "research"
+
+class ConsentStatus(Enum):
+    GRANTED = "granted"
+    WITHDRAWN = "withdrawn"
+    PENDING = "pending"
+
+class GDPRCompliantMemorySystem:
+    def __init__(self, memory_store):
+        self.memory_store = memory_store
+        self.consent_manager = ConsentManager()
+        self.audit_logger = AuditLogger()
+    
+    async def store_with_consent(self, content: str, user_id: str, 
+                               purpose: DataProcessingPurpose, metadata: Dict = None):
+        """Store memory only with valid consent"""
+        
+        # Check consent for specific purpose
+        consent = await self.consent_manager.check_consent(user_id, purpose)
+        if not consent.is_valid():
+            raise ConsentError(f"No valid consent for {purpose.value}")
+        
+        # Add consent and purpose metadata
+        gdpr_metadata = {
+            "consent_id": consent.consent_id,
+            "processing_purpose": purpose.value,
+            "legal_basis": consent.legal_basis,
+            "data_subject": user_id,
+            "controller": "YourCompany",
+            "retention_period": consent.retention_period,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        if metadata:
+            gdpr_metadata.update(metadata)
+        
+        # Store with compliance metadata
+        result = await self.memory_store.store(content, user_id, gdpr_metadata)
+        
+        # Audit log
+        await self.audit_logger.log_data_processing({
+            "action": "data_stored",
+            "user_id": user_id,
+            "purpose": purpose.value,
+            "consent_id": consent.consent_id,
+            "memory_id": result.memory_id
+        })
+        
+        return result
+    
+    async def handle_data_subject_request(self, user_id: str, request_type: str):
+        """Handle GDPR data subject requests"""
+        
+        if request_type == "access":
+            return await self.export_user_data(user_id)
+        
+        elif request_type == "deletion":
+            return await self.delete_user_data(user_id)
+        
+        elif request_type == "portability":
+            return await self.export_portable_data(user_id)
+        
+        elif request_type == "rectification":
+            # Return interface for user to correct their data
+            return await self.get_user_data_for_correction(user_id)
+        
+        else:
+            raise ValueError(f"Unsupported request type: {request_type}")
+    
+    async def export_user_data(self, user_id: str) -> Dict[str, Any]:
+        """Export all user data for GDPR access request"""
+        
+        # Get all memories for user
+        memories = await self.memory_store.get_all_memories(user_id)
+        
+        # Get consent history
+        consent_history = await self.consent_manager.get_consent_history(user_id)
+        
+        # Get processing activities
+        processing_log = await self.audit_logger.get_user_processing_log(user_id)
+        
+        export_data = {
+            "user_id": user_id,
+            "export_timestamp": datetime.utcnow().isoformat(),
+            "data_controller": "YourCompany",
+            "memories": [
+                {
+                    "id": mem.id,
+                    "content": mem.content,
+                    "created_at": mem.metadata.get("created_at"),
+                    "processing_purpose": mem.metadata.get("processing_purpose"),
+                    "legal_basis": mem.metadata.get("legal_basis")
+                }
+                for mem in memories
+            ],
+            "consent_history": consent_history,
+            "processing_activities": processing_log
+        }
+        
+        # Audit the access request
+        await self.audit_logger.log_data_processing({
+            "action": "data_exported",
+            "user_id": user_id,
+            "request_type": "access",
+            "records_count": len(memories)
+        })
+        
+        return export_data
+    
+    async def delete_user_data(self, user_id: str, verify_request: bool = True):
+        """Handle right to be forgotten (GDPR Article 17)"""
+        
+        if verify_request:
+            # Verify deletion request authenticity
+            await self.verify_deletion_request(user_id)
+        
+        # Get all memories before deletion for audit
+        memories_to_delete = await self.memory_store.get_all_memories(user_id)
+        
+        # Perform deletion
+        deletion_results = []
+        for memory in memories_to_delete:
+            # Check if deletion is legally required or if there are exceptions
+            if await self.can_delete_memory(memory):
+                await self.memory_store.delete_memory(memory.id)
+                deletion_results.append({"id": memory.id, "status": "deleted"})
+            else:
+                # Mark as anonymized instead of deleted if legal exceptions apply
+                await self.memory_store.anonymize_memory(memory.id)
+                deletion_results.append({"id": memory.id, "status": "anonymized"})
+        
+        # Revoke all consents
+        await self.consent_manager.revoke_all_consents(user_id)
+        
+        # Audit the deletion
+        await self.audit_logger.log_data_processing({
+            "action": "data_deleted",
+            "user_id": user_id,
+            "request_type": "deletion",
+            "records_deleted": len([r for r in deletion_results if r["status"] == "deleted"]),
+            "records_anonymized": len([r for r in deletion_results if r["status"] == "anonymized"])
+        })
+        
+        return deletion_results
+    
+    async def automated_retention_cleanup(self):
+        """Automated cleanup based on retention policies"""
+        
+        # Find memories past their retention period
+        expired_memories = await self.memory_store.find_expired_memories()
+        
+        cleanup_tasks = []
+        for memory in expired_memories:
+            task = self.handle_expired_memory(memory)
+            cleanup_tasks.append(task)
+        
+        # Process cleanup concurrently
+        results = await asyncio.gather(*cleanup_tasks, return_exceptions=True)
+        
+        # Audit cleanup results
+        successful_cleanups = len([r for r in results if not isinstance(r, Exception)])
+        await self.audit_logger.log_data_processing({
+            "action": "automated_retention_cleanup",
+            "records_processed": len(expired_memories),
+            "successful_cleanups": successful_cleanups,
+            "errors": len(results) - successful_cleanups
+        })
+    
+    async def handle_expired_memory(self, memory):
+        """Handle individual expired memory based on retention policy"""
+        
+        retention_policy = memory.metadata.get("retention_policy", {})
+        
+        if retention_policy.get("auto_delete", True):
+            await self.memory_store.delete_memory(memory.id)
+        elif retention_policy.get("requires_manual_review", False):
+            await self.flag_for_manual_review(memory)
+        else:
+            # Default: anonymize
+            await self.memory_store.anonymize_memory(memory.id)
+
+class ConsentManager:
+    def __init__(self):
+        self.consent_store = ConsentStore()
+    
+    async def check_consent(self, user_id: str, purpose: DataProcessingPurpose):
+        """Check if user has valid consent for specific purpose"""
+        consent = await self.consent_store.get_latest_consent(user_id, purpose)
+        return consent if consent and consent.is_valid() else None
+    
+    async def grant_consent(self, user_id: str, purposes: List[DataProcessingPurpose], 
+                           legal_basis: str = "consent", retention_days: int = 365):
+        """Record user consent for data processing"""
+        consent_record = {
+            "user_id": user_id,
+            "purposes": [p.value for p in purposes],
+            "legal_basis": legal_basis,
+            "granted_at": datetime.utcnow(),
+            "expires_at": datetime.utcnow() + timedelta(days=retention_days),
+            "status": ConsentStatus.GRANTED,
+            "retention_period": retention_days
+        }
+        
+        return await self.consent_store.store_consent(consent_record)
+
+# Usage example
+gdpr_memory = GDPRCompliantMemorySystem(memory_store)
+
+# Store with consent checking
+await gdpr_memory.store_with_consent(
+    content="User prefers Italian restaurants",
+    user_id="user123",
+    purpose=DataProcessingPurpose.PERSONALIZATION,
+    metadata={"category": "food_preferences"}
+)
+
+# Handle data subject request
+export_data = await gdpr_memory.handle_data_subject_request("user123", "access")</code></pre>
+            </div>
+
+            <h3>Scalability and High Availability</h3>
+            
+            <div class="success-box">
+                <h4>Enterprise High Availability Architecture</h4>
+                <pre><code>import asyncio
+from typing import List, Dict, Any
+from dataclasses import dataclass
+from enum import Enum
+import random
+
+class MemoryNodeStatus(Enum):
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+
+@dataclass
+class MemoryNode:
+    id: str
+    endpoint: str
+    region: str
+    status: MemoryNodeStatus
+    load_score: float
+    last_health_check: datetime
+
+class DistributedMemoryCluster:
+    def __init__(self, nodes: List[MemoryNode]):
+        self.nodes = nodes
+        self.health_check_interval = 30  # seconds
+        self.replication_factor = 3
+        self.consistency_level = "eventual"  # "strong" or "eventual"
+        
+    async def write_with_replication(self, memory_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Write memory to multiple nodes for high availability"""
+        
+        # Select nodes for replication
+        write_nodes = await self.select_write_nodes(self.replication_factor)
+        
+        if len(write_nodes) < self.replication_factor:
+            raise InsufficientNodesError(
+                f"Need {self.replication_factor} nodes, only {len(write_nodes)} available"
+            )
+        
+        # Perform writes concurrently
+        write_tasks = []
+        for node in write_nodes:
+            task = self.write_to_node(node, memory_data)
+            write_tasks.append(task)
+        
+        # Wait for writes to complete
+        write_results = await asyncio.gather(*write_tasks, return_exceptions=True)
+        
+        # Check for successful writes
+        successful_writes = [
+            result for result in write_results 
+            if not isinstance(result, Exception)
+        ]
+        
+        if len(successful_writes) < (self.replication_factor // 2 + 1):
+            # Majority write failed
+            raise WriteFailureError("Failed to achieve write quorum")
+        
+        return {
+            "memory_id": memory_data["id"],
+            "replicated_to": len(successful_writes),
+            "write_nodes": [node.id for node in write_nodes],
+            "status": "success"
+        }
+    
+    async def read_with_consistency(self, memory_id: str, user_id: str) -> Dict[str, Any]:
+        """Read with consistency guarantees"""
+        
+        if self.consistency_level == "strong":
+            return await self.strong_consistent_read(memory_id, user_id)
+        else:
+            return await self.eventually_consistent_read(memory_id, user_id)
+    
+    async def strong_consistent_read(self, memory_id: str, user_id: str) -> Dict[str, Any]:
+        """Read from majority of replicas for strong consistency"""
+        
+        # Find nodes containing this memory
+        replica_nodes = await self.find_replica_nodes(memory_id)
+        
+        if not replica_nodes:
+            raise MemoryNotFoundError(f"Memory {memory_id} not found")
+        
+        # Read from majority of replicas
+        read_count = len(replica_nodes) // 2 + 1
+        read_tasks = []
+        
+        for node in replica_nodes[:read_count]:
+            task = self.read_from_node(node, memory_id, user_id)
+            read_tasks.append(task)
+        
+        read_results = await asyncio.gather(*read_tasks, return_exceptions=True)
+        
+        # Find consensus result
+        successful_reads = [
+            result for result in read_results 
+            if not isinstance(result, Exception)
+        ]
+        
+        if not successful_reads:
+            raise ReadFailureError("No successful reads from replica nodes")
+        
+        # Return most recent version (simple conflict resolution)
+        return max(successful_reads, key=lambda x: x.get("timestamp", ""))
+    
+    async def eventually_consistent_read(self, memory_id: str, user_id: str) -> Dict[str, Any]:
+        """Read from any available replica for eventual consistency"""
+        
+        # Find healthy nodes with this memory
+        replica_nodes = await self.find_replica_nodes(memory_id)
+        healthy_nodes = [node for node in replica_nodes if node.status == MemoryNodeStatus.HEALTHY]
+        
+        if not healthy_nodes:
+            # Fallback to degraded nodes
+            healthy_nodes = [node for node in replica_nodes if node.status != MemoryNodeStatus.UNHEALTHY]
+        
+        if not healthy_nodes:
+            raise MemoryNotFoundError(f"No healthy nodes found for memory {memory_id}")
+        
+        # Read from node with lowest load
+        selected_node = min(healthy_nodes, key=lambda x: x.load_score)
+        
+        return await self.read_from_node(selected_node, memory_id, user_id)
+    
+    async def select_write_nodes(self, count: int) -> List[MemoryNode]:
+        """Select optimal nodes for writing"""
+        
+        # Filter healthy nodes
+        healthy_nodes = [
+            node for node in self.nodes 
+            if node.status in [MemoryNodeStatus.HEALTHY, MemoryNodeStatus.DEGRADED]
+        ]
+        
+        if len(healthy_nodes) < count:
+            return healthy_nodes
+        
+        # Sort by load score and select least loaded
+        healthy_nodes.sort(key=lambda x: x.load_score)
+        
+        # Ensure geographic distribution if possible
+        selected_nodes = []
+        used_regions = set()
+        
+        for node in healthy_nodes:
+            if len(selected_nodes) >= count:
+                break
+                
+            # Prefer nodes from different regions for fault tolerance
+            if node.region not in used_regions or len(selected_nodes) < count // 2:
+                selected_nodes.append(node)
+                used_regions.add(node.region)
+        
+        # Fill remaining slots if needed
+        while len(selected_nodes) < count and len(selected_nodes) < len(healthy_nodes):
+            for node in healthy_nodes:
+                if node not in selected_nodes:
+                    selected_nodes.append(node)
+                    break
+        
+        return selected_nodes
+    
+    async def health_monitor(self):
+        """Continuous health monitoring of cluster nodes"""
+        
+        while True:
+            try:
+                health_tasks = []
+                for node in self.nodes:
+                    task = self.check_node_health(node)
+                    health_tasks.append(task)
+                
+                # Check all nodes concurrently
+                health_results = await asyncio.gather(*health_tasks, return_exceptions=True)
+                
+                # Update node statuses
+                for i, result in enumerate(health_results):
+                    if isinstance(result, Exception):
+                        self.nodes[i].status = MemoryNodeStatus.UNHEALTHY
+                    else:
+                        self.nodes[i].status = result["status"]
+                        self.nodes[i].load_score = result["load_score"]
+                    
+                    self.nodes[i].last_health_check = datetime.utcnow()
+                
+                # Check cluster health
+                healthy_count = sum(
+                    1 for node in self.nodes 
+                    if node.status == MemoryNodeStatus.HEALTHY
+                )
+                
+                if healthy_count < len(self.nodes) // 2:
+                    await self.handle_cluster_degradation()
+                
+                await asyncio.sleep(self.health_check_interval)
+                
+            except Exception as e:
+                print(f"Health monitor error: {e}")
+                await asyncio.sleep(5)  # Short sleep on error
+    
+    async def auto_scaling_manager(self):
+        """Automatic scaling based on load and performance metrics"""
+        
+        while True:
+            try:
+                # Calculate cluster metrics
+                total_load = sum(node.load_score for node in self.nodes)
+                avg_load = total_load / len(self.nodes) if self.nodes else 0
+                
+                healthy_nodes = [
+                    node for node in self.nodes 
+                    if node.status == MemoryNodeStatus.HEALTHY
+                ]
+                
+                # Scale up if average load is high
+                if avg_load > 0.8 and len(healthy_nodes) < 10:  # Max 10 nodes
+                    await self.scale_up()
+                
+                # Scale down if load is low and we have excess capacity
+                elif avg_load < 0.3 and len(healthy_nodes) > 3:  # Min 3 nodes
+                    await self.scale_down()
+                
+                await asyncio.sleep(60)  # Check every minute
+                
+            except Exception as e:
+                print(f"Auto-scaling error: {e}")
+                await asyncio.sleep(30)
+    
+    async def scale_up(self):
+        """Add new nodes to the cluster"""
+        # Implementation would provision new nodes
+        # This is a simplified example
+        
+        new_node = MemoryNode(
+            id=f"node_{len(self.nodes) + 1}",
+            endpoint=f"node-{len(self.nodes) + 1}.memory-cluster.internal",
+            region=random.choice(["us-west-2", "us-east-1", "eu-west-1"]),
+            status=MemoryNodeStatus.HEALTHY,
+            load_score=0.0,
+            last_health_check=datetime.utcnow()
+        )
+        
+        # Initialize new node
+        await self.initialize_node(new_node)
+        self.nodes.append(new_node)
+        
+        print(f"Scaled up: Added node {new_node.id}")
+    
+    async def scale_down(self):
+        """Remove underutilized nodes"""
+        # Find node with lowest load that's not critical
+        candidate_nodes = [
+            node for node in self.nodes 
+            if node.status == MemoryNodeStatus.HEALTHY
+        ]
+        
+        if len(candidate_nodes) <= 3:  # Maintain minimum nodes
+            return
+        
+        # Remove node with lowest load
+        node_to_remove = min(candidate_nodes, key=lambda x: x.load_score)
+        
+        # Migrate data from this node
+        await self.migrate_node_data(node_to_remove)
+        
+        # Remove from cluster
+        self.nodes.remove(node_to_remove)
+        
+        print(f"Scaled down: Removed node {node_to_remove.id}")
+
+# Usage
+cluster_nodes = [
+    MemoryNode("node1", "node1.cluster", "us-west-2", MemoryNodeStatus.HEALTHY, 0.4, datetime.utcnow()),
+    MemoryNode("node2", "node2.cluster", "us-east-1", MemoryNodeStatus.HEALTHY, 0.3, datetime.utcnow()),
+    MemoryNode("node3", "node3.cluster", "eu-west-1", MemoryNodeStatus.HEALTHY, 0.5, datetime.utcnow()),
+]
+
+distributed_memory = DistributedMemoryCluster(cluster_nodes)
+
+# Start background services
+asyncio.create_task(distributed_memory.health_monitor())
+asyncio.create_task(distributed_memory.auto_scaling_manager())
+
+# Write with high availability
+memory_data = {
+    "id": "mem_001",
+    "content": "User prefers Italian food",
+    "user_id": "user123",
+    "timestamp": datetime.utcnow().isoformat()
+}
+
+result = await distributed_memory.write_with_replication(memory_data)</code></pre>
+            </div>
+        </section>
+
+        <div class="footer">
+            <p><strong>Memory Architectures in AI Agents and RAG</strong></p>
+            <p>Complete implementation guide for persistent memory storage with Mem0 and enterprise solutions • Updated 2025</p>
+            <p>From fundamentals to production: scalable, secure, and intelligent memory systems</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const button = document.querySelector('.theme-toggle');
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            localStorage.setItem('theme', newTheme);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            document.body.setAttribute('data-theme', savedTheme);
+            button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add hover effects to cards
+        document.querySelectorAll('.architecture-card, .memory-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Copy code functionality
+        document.querySelectorAll('pre code').forEach(block => {
+            const button = document.createElement('button');
+            button.textContent = 'Copy';
+            button.style.cssText = `
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                background: var(--link-color);
+                color: white;
+                border: none;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s;
+            `;
+            
+            const pre = block.parentElement;
+            pre.style.position = 'relative';
+            pre.appendChild(button);
+            
+            pre.addEventListener('mouseenter', () => {
+                button.style.opacity = '1';
+            });
+            
+            pre.addEventListener('mouseleave', () => {
+                button.style.opacity = '0';
+            });
+            
+            button.addEventListener('click', () => {
+                navigator.clipboard.writeText(block.textContent).then(() => {
+                    button.textContent = 'Copied!';
+                    setTimeout(() => {
+                        button.textContent = 'Copy';
+                    }, 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
