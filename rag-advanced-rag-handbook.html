@@ -405,10 +405,7 @@
             }
         }
 
-        .toc-card {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
+        .toc-card,
         .outcome-card {
             animation: fadeInUp 0.6s ease forwards;
         }
@@ -482,79 +479,79 @@
                 <div class="toc-card">
                     <h3>1. Introduction to RAG</h3>
                     <p>Fundamental concepts, architecture overview, and core principles of Retrieval-Augmented Generation systems.</p>
-                    <a href="rag-introduction.html">Explore Introduction →</a>
+                    <a href="introduction.html">Explore Introduction →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>2. Data Ingestion Pipeline</h3>
                     <p>Learn to build robust data ingestion pipelines for various document formats and data sources.</p>
-                    <a href="rag-data-ingestion.html">Learn Ingestion →</a>
+                    <a href="data-ingestion.html">Learn Ingestion →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>3. Data Cleaning & Preprocessing</h3>
                     <p>Master techniques for cleaning, normalizing, and preprocessing documents for optimal retrieval performance.</p>
-                    <a href="rag-data-cleaning.html">Master Preprocessing →</a>
+                    <a href="data-cleaning.html">Master Preprocessing →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>4. Chunking Strategies</h3>
                     <p>Explore advanced chunking methods including semantic, hierarchical, and context-aware approaches.</p>
-                    <a href="rag-chunking-strategies.html">Discover Chunking →</a>
+                    <a href="chunking-strategies.html">Discover Chunking →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>5. Vectorization & Embeddings</h3>
                     <p>Deep dive into embedding models, vector databases, and optimization techniques for semantic search.</p>
-                    <a href="rag-vectorization.html">Study Embeddings →</a>
+                    <a href="vectorization.html">Study Embeddings →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>6. Retrieval Methods</h3>
                     <p>Comprehensive guide to retrieval algorithms, similarity metrics, and ranking strategies.</p>
-                    <a href="rag-retrieval-methods.html">Learn Retrieval →</a>
+                    <a href="retrieval-methods.html">Learn Retrieval →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>7. Advanced Retrieval Techniques</h3>
                     <p>Implement hybrid search, query expansion, re-ranking, and multi-stage retrieval systems.</p>
-                    <a href="rag-advanced-retrieval.html">Advanced Techniques →</a>
+                    <a href="advanced-retrieval.html">Advanced Techniques →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>8. Prompt Engineering & Chaining</h3>
                     <p>Master prompt design for RAG systems, including context integration and response optimization.</p>
-                    <a href="rag-prompt-engineering.html">Perfect Prompting →</a>
+                    <a href="prompt-engineering.html">Perfect Prompting →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>9. LangChain Integration</h3>
                     <p>Build production RAG applications using LangChain's comprehensive toolkit and abstractions.</p>
-                    <a href="rag-langchain.html">Build with LangChain →</a>
+                    <a href="langchain-integration.html">Build with LangChain →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>10. LangGraph Workflows</h3>
                     <p>Create sophisticated RAG workflows with state management, conditional logic, and agent patterns.</p>
-                    <a href="rag-langgraph.html">Master LangGraph →</a>
+                    <a href="langgraph-workflow.html">Master LangGraph →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>11. Advanced RAG Patterns</h3>
                     <p>Implement complex patterns like multi-modal RAG, conversational RAG, and agentic workflows.</p>
-                    <a href="rag-advanced-patterns.html">Advanced Patterns →</a>
+                    <a href="advanced-rag-patterns.html">Advanced Patterns →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>12. Evaluation & Optimization</h3>
                     <p>Learn comprehensive evaluation frameworks, metrics, and optimization strategies for RAG systems.</p>
-                    <a href="rag-evaluation.html">Optimize Performance →</a>
+                    <a href="rag_evaluation_guide.html">Optimize Performance →</a>
                 </div>
 
                 <div class="toc-card">
                     <h3>13. Complete Implementation Examples</h3>
                     <p>End-to-end implementations including document QA, knowledge bases, and enterprise applications.</p>
-                    <a href="rag-implementations.html">See Examples →</a>
+                    <a href="implementation-examples.html">See Examples →</a>
                 </div>
             </div>
         </div>
@@ -654,7 +651,7 @@
                 <a href="#introduction">Introduction</a>
                 <a href="#table-of-contents">Contents</a>
                 <a href="#learning-outcomes">Learning Outcomes</a>
-                <a href="rag-introduction.html">Start Learning</a>
+                <a href="introduction.html">Start Learning</a>
             </div>
             <p>&copy; 2024 Advanced RAG Handbook. A comprehensive guide to modern Retrieval-Augmented Generation.</p>
             <p>Empowering developers to build intelligent, knowledge-aware AI applications.</p>
@@ -699,15 +696,14 @@
             observer.observe(card);
         });
 
-        // Add loading states for external links
+        // Add loading states for external links (all sections are now available)
         document.querySelectorAll('a[href$=".html"]').forEach(link => {
             link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                // Check if file exists (in a real implementation, you might want to handle this differently)
-                if (href !== 'rag-introduction.html') {
-                    e.preventDefault();
-                    alert('This section is coming soon! Start with the Introduction section to begin your RAG journey.');
-                }
+                // All sections are now available - no need to prevent navigation
+                this.style.opacity = '0.7';
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                }, 200);
             });
         });
     </script>

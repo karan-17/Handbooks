@@ -1,0 +1,2941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced RAG Patterns - RAG Handbook</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --code-bg: #f1f5f9;
+            --code-border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 3rem 0;
+        }
+
+        .content-section:nth-child(even) {
+            background: var(--surface-color);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .subsection-title {
+            font-size: 1.6rem;
+            margin: 2.5rem 0 1.5rem 0;
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .code-header {
+            background: var(--text-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box h4 {
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .success-box {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-left: 4px solid var(--success-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box h4 {
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .error-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid var(--error-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .error-box h4 {
+            color: var(--error-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Lists */
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Grid Layout */
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .three-column-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Pattern Card Special Styling */
+        .pattern-card {
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .pattern-card h4 {
+            color: var(--accent-color);
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        .flow-step {
+            background: var(--surface-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem;
+            display: inline-block;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .flow-step.decision {
+            background: var(--warning-color);
+            color: white;
+            transform: rotate(45deg);
+            width: 100px;
+            height: 100px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flow-step.decision span {
+            transform: rotate(-45deg);
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 0 1rem;
+        }
+
+        /* Back Navigation */
+        .back-nav {
+            background: var(--surface-color);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .two-column-grid, .three-column-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .subsection-title {
+                font-size: 1.4rem;
+            }
+
+            .flow-step {
+                display: block;
+                margin: 1rem auto;
+            }
+
+            .flow-arrow {
+                display: block;
+                margin: 1rem 0;
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Advanced RAG Patterns</h1>
+            <p class="subtitle">Self-RAG, Corrective RAG, Agentic RAG, and Multi-Modal Systems</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="nav-brand">RAG Handbook</div>
+            <ul class="nav-links">
+                <li><a href="rag-advanced-rag-handbook.html">← Back to Main</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#self-rag">Self-RAG</a></li>
+                <li><a href="#corrective-rag">Corrective RAG</a></li>
+                <li><a href="#agentic-rag">Agentic RAG</a></li>
+                <li><a href="#multimodal">Multi-Modal</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Overview Section -->
+    <section id="overview" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Advanced RAG Architectures</h2>
+            <p class="content-text">
+                Advanced RAG patterns represent the cutting edge of retrieval-augmented generation, 
+                incorporating self-reflection, error correction, autonomous agents, and multi-modal 
+                capabilities. These sophisticated architectures enable more reliable, adaptive, and 
+                intelligent information retrieval and generation systems.
+            </p>
+
+            <div class="three-column-grid">
+                <div class="pattern-card card">
+                    <h4>Self-RAG</h4>
+                    <p>Self-reflecting retrieval system that evaluates its own outputs and decides when to retrieve additional information.</p>
+                    <ul class="feature-list">
+                        <li>Self-evaluation mechanisms</li>
+                        <li>Adaptive retrieval decisions</li>
+                        <li>Quality-aware generation</li>
+                    </ul>
+                </div>
+                <div class="pattern-card card">
+                    <h4>Corrective RAG</h4>
+                    <p>Error-correcting system that validates retrieved information and refines results through iterative improvement.</p>
+                    <ul class="feature-list">
+                        <li>Relevance verification</li>
+                        <li>Iterative refinement</li>
+                        <li>Fallback strategies</li>
+                    </ul>
+                </div>
+                <div class="pattern-card card">
+                    <h4>Agentic RAG</h4>
+                    <p>Autonomous agent-driven retrieval that can plan, execute, and adapt retrieval strategies dynamically.</p>
+                    <ul class="feature-list">
+                        <li>Multi-step reasoning</li>
+                        <li>Tool integration</li>
+                        <li>Dynamic strategy adaptation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Self-RAG Section -->
+    <section id="self-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Self-RAG Implementation</h2>
+
+            <h3 class="subsection-title">1. Self-Reflection Architecture</h3>
+            <p class="content-text">
+                Self-RAG introduces reflection tokens that allow the model to critique and control its own 
+                retrieval and generation process. This creates a more autonomous and quality-aware system.
+            </p>
+
+            <div class="flow-diagram">
+                <h4>Self-RAG Decision Flow</h4>
+                <div style="margin: 2rem 0;">
+                    <div class="flow-step">Query</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step decision"><span>Need Retrieval?</span></div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Retrieve</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Generate</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step decision"><span>Quality Check</span></div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Output</div>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Self-RAG System Implementation</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Tuple, Optional, Any
+from dataclasses import dataclass
+from enum import Enum
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import numpy as np
+
+class ReflectionToken(Enum):
+    """Special tokens for self-reflection"""
+    RETRIEVE = "[Retrieve]"
+    NO_RETRIEVE = "[No Retrieve]"
+    RELEVANT = "[Relevant]"
+    IRRELEVANT = "[Irrelevant]" 
+    SUPPORTED = "[Fully Supported]"
+    PARTIALLY_SUPPORTED = "[Partially Supported]"
+    NOT_SUPPORTED = "[No Support]"
+    USEFUL = "[Utility:5]"
+    NOT_USEFUL = "[Utility:1]"
+    CONTINUE = "[Continue to Use Evidence]"
+    REGENERATE = "[Utility:1]"
+
+@dataclass
+class SelfRAGConfig:
+    """Configuration for Self-RAG system"""
+    retrieval_threshold: float = 0.5
+    relevance_threshold: float = 0.6
+    support_threshold: float = 0.7
+    utility_threshold: float = 0.6
+    max_iterations: int = 3
+    enable_critique: bool = True
+    enable_adaptive_retrieval: bool = True
+
+class SelfRAGSystem:
+    """Self-Reflective Retrieval-Augmented Generation System"""
+    
+    def __init__(
+        self,
+        model_name: str = "meta-llama/Llama-2-7b-chat-hf",
+        retriever = None,
+        config: SelfRAGConfig = None
+    ):
+        self.config = config or SelfRAGConfig()
+        
+        # Initialize language model
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_name, 
+            torch_dtype=torch.float16,
+            device_map="auto"
+        )
+        
+        # Add special tokens
+        special_tokens = [token.value for token in ReflectionToken]
+        self.tokenizer.add_special_tokens({"additional_special_tokens": special_tokens})
+        self.model.resize_token_embeddings(len(self.tokenizer))
+        
+        # Retriever component
+        self.retriever = retriever
+        
+        # Reflection classifiers (simplified - in practice, train specialized models)
+        self.reflection_classifiers = {
+            'retrieval_need': self._build_simple_classifier(),
+            'relevance': self._build_simple_classifier(),
+            'support': self._build_simple_classifier(),
+            'utility': self._build_simple_classifier()
+        }
+    
+    def generate_with_reflection(
+        self, 
+        query: str, 
+        max_length: int = 512
+    ) -> Dict[str, Any]:
+        """
+        Generate response with self-reflection mechanism
+        """
+        conversation_history = []
+        retrieved_docs = []
+        reflection_log = []
+        
+        # Step 1: Determine if retrieval is needed
+        retrieval_decision = self._should_retrieve(query, conversation_history)
+        reflection_log.append(f"Retrieval decision: {retrieval_decision}")
+        
+        if retrieval_decision:
+            # Step 2: Retrieve documents
+            retrieved_docs = self._retrieve_documents(query)
+            
+            # Step 3: Assess relevance of retrieved documents
+            relevant_docs = self._filter_relevant_documents(query, retrieved_docs)
+            reflection_log.append(f"Filtered {len(retrieved_docs)} to {len(relevant_docs)} relevant docs")
+            
+            retrieved_docs = relevant_docs
+        
+        # Step 4: Generate response
+        response = self._generate_response(query, retrieved_docs)
+        
+        # Step 5: Self-critique and potential regeneration
+        if self.config.enable_critique:
+            critique_result = self._critique_response(query, retrieved_docs, response)
+            reflection_log.append(f"Critique result: {critique_result}")
+            
+            if critique_result['needs_improvement']:
+                # Iterative improvement
+                for iteration in range(self.config.max_iterations - 1):
+                    if critique_result['action'] == 'retrieve_more':
+                        additional_docs = self._retrieve_additional_documents(
+                            query, response, retrieved_docs
+                        )
+                        retrieved_docs.extend(additional_docs)
+                    
+                    response = self._generate_response(query, retrieved_docs, previous_attempt=response)
+                    critique_result = self._critique_response(query, retrieved_docs, response)
+                    reflection_log.append(f"Iteration {iteration + 1} critique: {critique_result}")
+                    
+                    if not critique_result['needs_improvement']:
+                        break
+        
+        return {
+            'response': response,
+            'retrieved_documents': retrieved_docs,
+            'reflection_log': reflection_log,
+            'metadata': {
+                'used_retrieval': retrieval_decision,
+                'num_documents': len(retrieved_docs),
+                'critique_iterations': len([log for log in reflection_log if 'Iteration' in log])
+            }
+        }
+    
+    def _should_retrieve(self, query: str, context: List[str]) -> bool:
+        """Determine if retrieval is needed for the query"""
+        
+        # Build prompt for retrieval decision
+        prompt = f"""
+Given the query: "{query}"
+
+Determine if external information retrieval is needed to answer this query accurately.
+
+Consider:
+- Is this a factual question requiring specific information?
+- Can this be answered with general knowledge?
+- Does the query require up-to-date information?
+
+Decision: {ReflectionToken.RETRIEVE.value} or {ReflectionToken.NO_RETRIEVE.value}
+"""
+        
+        # Get model decision (simplified - use classification in practice)
+        decision_text = self._generate_text(prompt, max_length=50)
+        
+        # Parse decision
+        if ReflectionToken.RETRIEVE.value in decision_text:
+            return True
+        elif ReflectionToken.NO_RETRIEVE.value in decision_text:
+            return False
+        else:
+            # Fallback to classifier
+            return self._classify_retrieval_need(query, context)
+    
+    def _classify_retrieval_need(self, query: str, context: List[str]) -> bool:
+        """Classify whether retrieval is needed using heuristics"""
+        
+        # Keywords that often require retrieval
+        factual_indicators = [
+            'what', 'when', 'where', 'who', 'how many', 'statistics',
+            'latest', 'recent', 'current', 'today', 'specific', 'details'
+        ]
+        
+        query_lower = query.lower()
+        has_factual_indicators = any(indicator in query_lower for indicator in factual_indicators)
+        
+        # Length-based heuristic
+        is_complex_query = len(query.split()) > 5
+        
+        # Combine heuristics
+        confidence = 0.0
+        if has_factual_indicators:
+            confidence += 0.4
+        if is_complex_query:
+            confidence += 0.3
+        if not context:  # No previous context
+            confidence += 0.2
+        
+        return confidence > self.config.retrieval_threshold
+    
+    def _retrieve_documents(self, query: str) -> List[Dict]:
+        """Retrieve documents using the configured retriever"""
+        if not self.retriever:
+            return []
+        
+        try:
+            results = self.retriever.search(query, top_k=10)
+            return [
+                {
+                    'content': result.content if hasattr(result, 'content') else result['content'],
+                    'score': result.fusion_score if hasattr(result, 'fusion_score') else result.get('score', 1.0),
+                    'id': getattr(result, 'doc_id', result.get('id', str(i)))
+                }
+                for i, result in enumerate(results)
+            ]
+        except Exception as e:
+            print(f"Retrieval failed: {e}")
+            return []
+    
+    def _filter_relevant_documents(self, query: str, documents: List[Dict]) -> List[Dict]:
+        """Filter documents based on relevance assessment"""
+        relevant_docs = []
+        
+        for doc in documents:
+            relevance_score = self._assess_relevance(query, doc['content'])
+            
+            if relevance_score > self.config.relevance_threshold:
+                doc['relevance_score'] = relevance_score
+                relevant_docs.append(doc)
+        
+        # Sort by relevance
+        relevant_docs.sort(key=lambda x: x['relevance_score'], reverse=True)
+        
+        return relevant_docs[:5]  # Top 5 most relevant
+    
+    def _assess_relevance(self, query: str, document: str) -> float:
+        """Assess relevance of document to query"""
+        
+        prompt = f"""
+Query: "{query}"
+Document: "{document[:500]}..."
+
+Assess the relevance of this document to the query.
+
+Assessment: {ReflectionToken.RELEVANT.value} or {ReflectionToken.IRRELEVANT.value}
+"""
+        
+        assessment = self._generate_text(prompt, max_length=30)
+        
+        if ReflectionToken.RELEVANT.value in assessment:
+            return 0.8
+        elif ReflectionToken.IRRELEVANT.value in assessment:
+            return 0.2
+        else:
+            # Fallback to simple similarity
+            return self._simple_similarity(query, document)
+    
+    def _simple_similarity(self, query: str, document: str) -> float:
+        """Simple token-based similarity score"""
+        query_tokens = set(query.lower().split())
+        doc_tokens = set(document.lower().split())
+        
+        if not query_tokens or not doc_tokens:
+            return 0.0
+        
+        intersection = query_tokens.intersection(doc_tokens)
+        union = query_tokens.union(doc_tokens)
+        
+        return len(intersection) / len(union)
+    
+    def _generate_response(
+        self, 
+        query: str, 
+        documents: List[Dict], 
+        previous_attempt: str = None
+    ) -> str:
+        """Generate response using query and retrieved documents"""
+        
+        # Build context from documents
+        context = ""
+        if documents:
+            context = "Retrieved information:\n"
+            for i, doc in enumerate(documents[:3]):  # Use top 3 documents
+                context += f"{i+1}. {doc['content'][:300]}...\n\n"
+        
+        # Build prompt
+        if previous_attempt:
+            prompt = f"""
+{context}
+Query: "{query}"
+
+Previous attempt: "{previous_attempt}"
+
+The previous response needs improvement. Generate a better response using the available information.
+
+Improved response:"""
+        else:
+            prompt = f"""
+{context}
+Query: "{query}"
+
+Based on the retrieved information above, provide a comprehensive and accurate answer to the query.
+
+Response:"""
+        
+        return self._generate_text(prompt, max_length=256)
+    
+    def _critique_response(
+        self, 
+        query: str, 
+        documents: List[Dict], 
+        response: str
+    ) -> Dict[str, Any]:
+        """Critique the generated response"""
+        
+        # Assess support level
+        support_score = self._assess_support(response, documents)
+        
+        # Assess utility
+        utility_score = self._assess_utility(query, response)
+        
+        # Determine if improvement is needed
+        needs_improvement = (
+            support_score < self.config.support_threshold or
+            utility_score < self.config.utility_threshold
+        )
+        
+        # Determine action
+        action = 'none'
+        if needs_improvement:
+            if support_score < 0.5 and documents:
+                action = 'retrieve_more'
+            else:
+                action = 'regenerate'
+        
+        return {
+            'needs_improvement': needs_improvement,
+            'support_score': support_score,
+            'utility_score': utility_score,
+            'action': action,
+            'reasoning': self._explain_critique(support_score, utility_score)
+        }
+    
+    def _assess_support(self, response: str, documents: List[Dict]) -> float:
+        """Assess how well the response is supported by retrieved documents"""
+        
+        if not documents:
+            return 0.3  # Low support without evidence
+        
+        prompt = f"""
+Response: "{response}"
+
+Supporting documents:
+{chr(10).join([f"- {doc['content'][:200]}..." for doc in documents[:3]])}
+
+Assess how well the response is supported by the provided documents.
+
+Support level: {ReflectionToken.SUPPORTED.value}, {ReflectionToken.PARTIALLY_SUPPORTED.value}, or {ReflectionToken.NOT_SUPPORTED.value}
+"""
+        
+        assessment = self._generate_text(prompt, max_length=50)
+        
+        if ReflectionToken.SUPPORTED.value in assessment:
+            return 0.9
+        elif ReflectionToken.PARTIALLY_SUPPORTED.value in assessment:
+            return 0.6
+        elif ReflectionToken.NOT_SUPPORTED.value in assessment:
+            return 0.2
+        else:
+            return 0.5  # Default moderate support
+    
+    def _assess_utility(self, query: str, response: str) -> float:
+        """Assess utility/helpfulness of response"""
+        
+        prompt = f"""
+Query: "{query}"
+Response: "{response}"
+
+Rate how useful and helpful this response is for answering the query.
+
+Utility: {ReflectionToken.USEFUL.value} or {ReflectionToken.NOT_USEFUL.value}
+"""
+        
+        assessment = self._generate_text(prompt, max_length=30)
+        
+        if ReflectionToken.USEFUL.value in assessment:
+            return 0.8
+        elif ReflectionToken.NOT_USEFUL.value in assessment:
+            return 0.2
+        else:
+            return 0.5  # Default moderate utility
+    
+    def _explain_critique(self, support_score: float, utility_score: float) -> str:
+        """Generate explanation for critique scores"""
+        
+        explanations = []
+        
+        if support_score < 0.5:
+            explanations.append("Response lacks sufficient evidence support")
+        if utility_score < 0.5:
+            explanations.append("Response is not sufficiently helpful")
+        if support_score > 0.7 and utility_score > 0.7:
+            explanations.append("Response is well-supported and helpful")
+        
+        return "; ".join(explanations) if explanations else "Average response quality"
+    
+    def _retrieve_additional_documents(
+        self, 
+        query: str, 
+        response: str, 
+        existing_docs: List[Dict]
+    ) -> List[Dict]:
+        """Retrieve additional documents to improve response"""
+        
+        # Extract gaps or questions from current response
+        expanded_query = f"{query} {self._extract_information_gaps(response)}"
+        
+        # Retrieve with expanded query
+        new_docs = self._retrieve_documents(expanded_query)
+        
+        # Filter out duplicates
+        existing_ids = {doc['id'] for doc in existing_docs}
+        additional_docs = [doc for doc in new_docs if doc['id'] not in existing_ids]
+        
+        return additional_docs[:3]  # Limit additional documents
+    
+    def _extract_information_gaps(self, response: str) -> str:
+        """Extract potential information gaps from response (simplified)"""
+        
+        gap_indicators = [
+            "more information needed", "unclear", "uncertain", 
+            "requires further", "additional details"
+        ]
+        
+        response_lower = response.lower()
+        if any(indicator in response_lower for indicator in gap_indicators):
+            return "additional context details specific information"
+        
+        return ""
+    
+    def _build_simple_classifier(self):
+        """Placeholder for building specialized classifiers"""
+        # In practice, you would train specific models for each reflection task
+        return lambda x: 0.5  # Dummy classifier returning neutral score
+    
+    def _generate_text(self, prompt: str, max_length: int = 512) -> str:
+        """Generate text using the language model"""
+        try:
+            inputs = self.tokenizer.encode(prompt, return_tensors="pt", truncation=True, max_length=1024)
+            
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    inputs,
+                    max_length=inputs.shape[1] + max_length,
+                    num_return_sequences=1,
+                    temperature=0.7,
+                    pad_token_id=self.tokenizer.eos_token_id,
+                    do_sample=True
+                )
+            
+            generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+            # Extract only the generated part
+            response = generated_text[len(prompt):].strip()
+            
+            return response
+            
+        except Exception as e:
+            print(f"Text generation failed: {e}")
+            return "I apologize, but I'm unable to generate a response at this time."
+
+# Usage example
+def self_rag_example():
+    """Example usage of Self-RAG system"""
+    
+    # Note: This example requires a proper retriever and model setup
+    print("Self-RAG System Example")
+    
+    config = SelfRAGConfig(
+        retrieval_threshold=0.6,
+        relevance_threshold=0.7,
+        support_threshold=0.8,
+        utility_threshold=0.7,
+        max_iterations=2
+    )
+    
+    # Initialize system (requires actual models)
+    # self_rag = SelfRAGSystem(
+    #     model_name="meta-llama/Llama-2-7b-chat-hf",
+    #     retriever=your_retriever,
+    #     config=config
+    # )
+    
+    # Generate with reflection
+    # result = self_rag.generate_with_reflection(
+    #     "What are the latest developments in quantum computing?"
+    # )
+    
+    # Display results
+    print("Self-RAG incorporates:")
+    print("• Adaptive retrieval decisions")
+    print("• Relevance assessment of documents") 
+    print("• Self-critique of generated responses")
+    print("• Iterative improvement through reflection")
+    
+    return "Self-RAG system configured"
+                    </pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Self-RAG Key Benefits</h4>
+                <p>
+                    • <strong>Adaptive Behavior:</strong> Decides when retrieval is necessary rather than always retrieving<br>
+                    • <strong>Quality Control:</strong> Self-evaluates outputs and improves through iteration<br>
+                    • <strong>Efficiency:</strong> Reduces unnecessary retrieval calls for queries answerable with existing knowledge<br>
+                    • <strong>Transparency:</strong> Provides clear reasoning for decisions and actions taken
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Corrective RAG Section -->
+    <section id="corrective-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Corrective RAG (CRAG)</h2>
+
+            <h3 class="subsection-title">1. Error Detection and Correction</h3>
+            <p class="content-text">
+                Corrective RAG (CRAG) focuses on identifying and correcting errors in the retrieval and generation 
+                process. It implements sophisticated validation mechanisms and fallback strategies to ensure 
+                high-quality, accurate responses.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Corrective RAG Implementation</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Tuple, Optional, Any, Union
+from dataclasses import dataclass, field
+from enum import Enum
+import time
+import logging
+from concurrent.futures import ThreadPoolExecutor, Future
+import requests
+from abc import ABC, abstractmethod
+
+class CorrectionAction(Enum):
+    """Actions that can be taken for correction"""
+    ACCEPT = "accept"
+    RETRIEVE_MORE = "retrieve_more" 
+    WEB_SEARCH = "web_search"
+    REGENERATE = "regenerate"
+    COMBINE_SOURCES = "combine_sources"
+    HUMAN_REVIEW = "human_review"
+
+@dataclass
+class ValidationResult:
+    """Result of content validation"""
+    is_valid: bool
+    confidence_score: float
+    issues: List[str] = field(default_factory=list)
+    correction_action: CorrectionAction = CorrectionAction.ACCEPT
+    metadata: Dict = field(default_factory=dict)
+
+@dataclass
+class CorrectionStep:
+    """Individual step in correction process"""
+    step_name: str
+    action_taken: CorrectionAction
+    input_data: Any
+    output_data: Any
+    success: bool
+    execution_time: float
+    metadata: Dict = field(default_factory=dict)
+
+class ContentValidator(ABC):
+    """Abstract base class for content validators"""
+    
+    @abstractmethod
+    def validate(self, content: str, query: str, context: Dict) -> ValidationResult:
+        pass
+
+class RelevanceValidator(ContentValidator):
+    """Validates relevance of retrieved content"""
+    
+    def __init__(self, threshold: float = 0.7):
+        self.threshold = threshold
+    
+    def validate(self, content: str, query: str, context: Dict) -> ValidationResult:
+        """Validate relevance of content to query"""
+        
+        # Simplified relevance scoring (in practice, use trained models)
+        relevance_score = self._compute_relevance_score(content, query)
+        
+        is_valid = relevance_score >= self.threshold
+        issues = [] if is_valid else [f"Low relevance score: {relevance_score:.3f}"]
+        
+        correction_action = CorrectionAction.ACCEPT if is_valid else CorrectionAction.RETRIEVE_MORE
+        
+        return ValidationResult(
+            is_valid=is_valid,
+            confidence_score=relevance_score,
+            issues=issues,
+            correction_action=correction_action,
+            metadata={"validator": "relevance", "threshold": self.threshold}
+        )
+    
+    def _compute_relevance_score(self, content: str, query: str) -> float:
+        """Compute relevance score between content and query"""
+        # Simplified implementation - use proper semantic similarity in production
+        query_tokens = set(query.lower().split())
+        content_tokens = set(content.lower().split())
+        
+        if not query_tokens:
+            return 0.0
+        
+        overlap = query_tokens.intersection(content_tokens)
+        return len(overlap) / len(query_tokens)
+
+class FactualityValidator(ContentValidator):
+    """Validates factual accuracy of content"""
+    
+    def __init__(self, fact_check_api_key: str = None):
+        self.fact_check_api_key = fact_check_api_key
+        self.trusted_sources = [
+            "wikipedia.org", "britannica.com", ".edu", ".gov",
+            "nature.com", "science.org"
+        ]
+    
+    def validate(self, content: str, query: str, context: Dict) -> ValidationResult:
+        """Validate factual accuracy of content"""
+        
+        # Extract factual claims
+        claims = self._extract_claims(content)
+        
+        if not claims:
+            return ValidationResult(
+                is_valid=True,
+                confidence_score=0.8,
+                metadata={"validator": "factuality", "claims_found": 0}
+            )
+        
+        # Validate each claim
+        validation_results = []
+        for claim in claims:
+            claim_result = self._validate_claim(claim, context)
+            validation_results.append(claim_result)
+        
+        # Aggregate results
+        avg_confidence = sum(r['confidence'] for r in validation_results) / len(validation_results)
+        failed_validations = [r for r in validation_results if not r['valid']]
+        
+        is_valid = len(failed_validations) == 0
+        issues = [f"Failed validation: {r['claim']}" for r in failed_validations]
+        
+        correction_action = CorrectionAction.ACCEPT
+        if not is_valid:
+            if avg_confidence < 0.3:
+                correction_action = CorrectionAction.WEB_SEARCH
+            else:
+                correction_action = CorrectionAction.COMBINE_SOURCES
+        
+        return ValidationResult(
+            is_valid=is_valid,
+            confidence_score=avg_confidence,
+            issues=issues,
+            correction_action=correction_action,
+            metadata={
+                "validator": "factuality", 
+                "claims_validated": len(claims),
+                "failed_validations": len(failed_validations)
+            }
+        )
+    
+    def _extract_claims(self, content: str) -> List[str]:
+        """Extract factual claims from content"""
+        # Simplified claim extraction - use NLP tools in production
+        sentences = content.split('.')
+        
+        # Filter for sentences that look like factual claims
+        claims = []
+        factual_indicators = ["is", "was", "are", "were", "has", "have", "according to"]
+        
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if (len(sentence) > 10 and 
+                any(indicator in sentence.lower() for indicator in factual_indicators)):
+                claims.append(sentence)
+        
+        return claims[:5]  # Limit to first 5 claims
+    
+    def _validate_claim(self, claim: str, context: Dict) -> Dict[str, Any]:
+        """Validate a single factual claim"""
+        
+        # Check source credibility
+        source_credibility = self._assess_source_credibility(context)
+        
+        # Check for contradictory information in context
+        contradiction_score = self._check_contradictions(claim, context)
+        
+        # Simple validation logic
+        confidence = (source_credibility + (1 - contradiction_score)) / 2
+        valid = confidence > 0.5
+        
+        return {
+            'claim': claim,
+            'valid': valid,
+            'confidence': confidence,
+            'source_credibility': source_credibility,
+            'contradiction_score': contradiction_score
+        }
+    
+    def _assess_source_credibility(self, context: Dict) -> float:
+        """Assess credibility of sources in context"""
+        sources = context.get('sources', [])
+        
+        if not sources:
+            return 0.5  # Neutral when no source info
+        
+        credibility_scores = []
+        for source in sources:
+            source_url = source.get('url', '')
+            
+            # Check against trusted domains
+            credibility = 0.3  # Default
+            for trusted in self.trusted_sources:
+                if trusted in source_url.lower():
+                    credibility = 0.8
+                    break
+            
+            credibility_scores.append(credibility)
+        
+        return sum(credibility_scores) / len(credibility_scores)
+    
+    def _check_contradictions(self, claim: str, context: Dict) -> float:
+        """Check for contradictory information"""
+        # Simplified contradiction detection
+        # In practice, use more sophisticated NLI models
+        
+        other_docs = context.get('retrieved_documents', [])
+        contradiction_signals = 0
+        total_checks = 0
+        
+        negation_words = ["not", "no", "never", "false", "incorrect", "wrong"]
+        
+        for doc in other_docs:
+            doc_content = doc.get('content', '').lower()
+            claim_lower = claim.lower()
+            
+            # Simple check for negation patterns
+            for word in claim.split():
+                if len(word) > 3:
+                    for neg_word in negation_words:
+                        if f"{neg_word} {word}" in doc_content:
+                            contradiction_signals += 1
+                    total_checks += 1
+        
+        if total_checks == 0:
+            return 0.0  # No contradictions found
+        
+        return contradiction_signals / total_checks
+
+class CompletenessValidator(ContentValidator):
+    """Validates completeness of response"""
+    
+    def __init__(self, min_length: int = 50, required_aspects: List[str] = None):
+        self.min_length = min_length
+        self.required_aspects = required_aspects or []
+    
+    def validate(self, content: str, query: str, context: Dict) -> ValidationResult:
+        """Validate completeness of response"""
+        
+        issues = []
+        
+        # Length check
+        if len(content.strip()) < self.min_length:
+            issues.append(f"Response too short: {len(content)} < {self.min_length}")
+        
+        # Aspect coverage check
+        missing_aspects = []
+        for aspect in self.required_aspects:
+            if aspect.lower() not in content.lower():
+                missing_aspects.append(aspect)
+        
+        if missing_aspects:
+            issues.append(f"Missing aspects: {', '.join(missing_aspects)}")
+        
+        # Query component coverage
+        query_components = self._extract_query_components(query)
+        uncovered_components = []
+        
+        for component in query_components:
+            if component.lower() not in content.lower():
+                uncovered_components.append(component)
+        
+        coverage_ratio = 1 - (len(uncovered_components) / max(len(query_components), 1))
+        
+        is_valid = len(issues) == 0 and coverage_ratio >= 0.7
+        
+        correction_action = CorrectionAction.ACCEPT
+        if not is_valid:
+            if coverage_ratio < 0.5:
+                correction_action = CorrectionAction.RETRIEVE_MORE
+            else:
+                correction_action = CorrectionAction.REGENERATE
+        
+        return ValidationResult(
+            is_valid=is_valid,
+            confidence_score=coverage_ratio,
+            issues=issues,
+            correction_action=correction_action,
+            metadata={
+                "validator": "completeness",
+                "coverage_ratio": coverage_ratio,
+                "uncovered_components": uncovered_components
+            }
+        )
+    
+    def _extract_query_components(self, query: str) -> List[str]:
+        """Extract key components from query"""
+        # Simple keyword extraction - use NLP tools in production
+        stop_words = {"what", "how", "when", "where", "why", "who", "is", "are", "the", "a", "an"}
+        
+        words = query.lower().split()
+        components = [word for word in words if word not in stop_words and len(word) > 2]
+        
+        return components
+
+class CorrectiveRAGSystem:
+    """Corrective RAG system with validation and correction"""
+    
+    def __init__(
+        self,
+        base_retriever,
+        validators: List[ContentValidator] = None,
+        web_search_api: Optional[str] = None,
+        max_correction_iterations: int = 3
+    ):
+        self.base_retriever = base_retriever
+        self.validators = validators or [
+            RelevanceValidator(),
+            FactualityValidator(),
+            CompletenessValidator()
+        ]
+        self.web_search_api = web_search_api
+        self.max_correction_iterations = max_correction_iterations
+        self.logger = logging.getLogger(__name__)
+    
+    def retrieve_and_correct(
+        self, 
+        query: str, 
+        initial_top_k: int = 10
+    ) -> Dict[str, Any]:
+        """Main method for corrective RAG"""
+        
+        start_time = time.time()
+        correction_history = []
+        
+        # Initial retrieval
+        initial_docs = self._initial_retrieval(query, initial_top_k)
+        current_docs = initial_docs
+        
+        # Generate initial response
+        current_response = self._generate_response(query, current_docs)
+        
+        # Iterative correction process
+        for iteration in range(self.max_correction_iterations):
+            self.logger.info(f"Starting correction iteration {iteration + 1}")
+            
+            # Validate current response
+            validation_results = self._validate_response(
+                current_response, query, {"retrieved_documents": current_docs}
+            )
+            
+            # Determine if correction is needed
+            needs_correction = any(not result.is_valid for result in validation_results)
+            
+            if not needs_correction:
+                self.logger.info("Validation passed - no correction needed")
+                break
+            
+            # Plan correction actions
+            correction_actions = self._plan_corrections(validation_results)
+            
+            # Execute corrections
+            correction_step = self._execute_corrections(
+                query, current_docs, current_response, correction_actions
+            )
+            
+            correction_history.append(correction_step)
+            
+            # Update current state
+            if correction_step.success:
+                current_docs = correction_step.output_data.get('documents', current_docs)
+                current_response = correction_step.output_data.get('response', current_response)
+            else:
+                self.logger.warning(f"Correction step {iteration + 1} failed")
+                break
+        
+        return {
+            'final_response': current_response,
+            'final_documents': current_docs,
+            'correction_history': correction_history,
+            'validation_results': validation_results,
+            'total_time': time.time() - start_time,
+            'iterations_used': len(correction_history)
+        }
+    
+    def _initial_retrieval(self, query: str, top_k: int) -> List[Dict]:
+        """Perform initial document retrieval"""
+        try:
+            results = self.base_retriever.search(query, top_k=top_k)
+            
+            return [
+                {
+                    'content': result.content if hasattr(result, 'content') else result['content'],
+                    'score': getattr(result, 'fusion_score', result.get('score', 1.0)),
+                    'id': getattr(result, 'doc_id', result.get('id', str(i))),
+                    'metadata': getattr(result, 'metadata', {})
+                }
+                for i, result in enumerate(results)
+            ]
+        except Exception as e:
+            self.logger.error(f"Initial retrieval failed: {e}")
+            return []
+    
+    def _validate_response(
+        self, 
+        response: str, 
+        query: str, 
+        context: Dict
+    ) -> List[ValidationResult]:
+        """Validate response using all validators"""
+        
+        validation_results = []
+        
+        for validator in self.validators:
+            try:
+                result = validator.validate(response, query, context)
+                validation_results.append(result)
+            except Exception as e:
+                self.logger.error(f"Validation failed for {type(validator).__name__}: {e}")
+                # Add failed validation result
+                validation_results.append(
+                    ValidationResult(
+                        is_valid=False,
+                        confidence_score=0.0,
+                        issues=[f"Validator error: {str(e)}"],
+                        correction_action=CorrectionAction.REGENERATE
+                    )
+                )
+        
+        return validation_results
+    
+    def _plan_corrections(self, validation_results: List[ValidationResult]) -> List[CorrectionAction]:
+        """Plan correction actions based on validation results"""
+        
+        # Count action votes
+        action_votes = {}
+        for result in validation_results:
+            if not result.is_valid:
+                action = result.correction_action
+                action_votes[action] = action_votes.get(action, 0) + 1
+        
+        # Sort actions by votes
+        sorted_actions = sorted(action_votes.items(), key=lambda x: x[1], reverse=True)
+        
+        # Return top 2 actions
+        return [action for action, votes in sorted_actions[:2]]
+    
+    def _execute_corrections(
+        self, 
+        query: str, 
+        current_docs: List[Dict], 
+        current_response: str,
+        actions: List[CorrectionAction]
+    ) -> CorrectionStep:
+        """Execute planned correction actions"""
+        
+        step_start = time.time()
+        
+        for action in actions:
+            try:
+                if action == CorrectionAction.RETRIEVE_MORE:
+                    return self._execute_additional_retrieval(
+                        query, current_docs, current_response, step_start
+                    )
+                
+                elif action == CorrectionAction.WEB_SEARCH:
+                    return self._execute_web_search(
+                        query, current_docs, current_response, step_start
+                    )
+                
+                elif action == CorrectionAction.REGENERATE:
+                    return self._execute_regeneration(
+                        query, current_docs, current_response, step_start
+                    )
+                
+                elif action == CorrectionAction.COMBINE_SOURCES:
+                    return self._execute_source_combination(
+                        query, current_docs, current_response, step_start
+                    )
+                
+            except Exception as e:
+                self.logger.error(f"Failed to execute {action.value}: {e}")
+                continue
+        
+        # If all actions failed
+        return CorrectionStep(
+            step_name="correction_failed",
+            action_taken=CorrectionAction.REGENERATE,
+            input_data={"query": query, "docs": current_docs},
+            output_data={"response": current_response, "documents": current_docs},
+            success=False,
+            execution_time=time.time() - step_start,
+            metadata={"error": "All correction actions failed"}
+        )
+    
+    def _execute_additional_retrieval(
+        self, 
+        query: str, 
+        current_docs: List[Dict], 
+        current_response: str,
+        start_time: float
+    ) -> CorrectionStep:
+        """Execute additional retrieval"""
+        
+        # Expand query based on gaps in current response
+        expanded_query = self._expand_query_for_gaps(query, current_response)
+        
+        # Retrieve additional documents
+        additional_docs = self._initial_retrieval(expanded_query, 5)
+        
+        # Combine with existing documents
+        combined_docs = current_docs + additional_docs
+        
+        # Remove duplicates
+        seen_ids = set()
+        unique_docs = []
+        for doc in combined_docs:
+            if doc['id'] not in seen_ids:
+                unique_docs.append(doc)
+                seen_ids.add(doc['id'])
+        
+        # Regenerate response
+        new_response = self._generate_response(query, unique_docs)
+        
+        return CorrectionStep(
+            step_name="additional_retrieval",
+            action_taken=CorrectionAction.RETRIEVE_MORE,
+            input_data={"expanded_query": expanded_query},
+            output_data={"response": new_response, "documents": unique_docs},
+            success=True,
+            execution_time=time.time() - start_time,
+            metadata={"additional_docs": len(additional_docs)}
+        )
+    
+    def _execute_web_search(
+        self, 
+        query: str, 
+        current_docs: List[Dict], 
+        current_response: str,
+        start_time: float
+    ) -> CorrectionStep:
+        """Execute web search for additional information"""
+        
+        if not self.web_search_api:
+            # Fallback to additional retrieval
+            return self._execute_additional_retrieval(query, current_docs, current_response, start_time)
+        
+        try:
+            # Perform web search (simplified - implement actual API calls)
+            web_results = self._perform_web_search(query)
+            
+            # Convert web results to document format
+            web_docs = [
+                {
+                    'content': result['snippet'],
+                    'score': 0.8,
+                    'id': f"web_{i}",
+                    'metadata': {'source': 'web_search', 'url': result['url']}
+                }
+                for i, result in enumerate(web_results[:3])
+            ]
+            
+            # Combine with existing documents
+            combined_docs = current_docs + web_docs
+            
+            # Regenerate response
+            new_response = self._generate_response(query, combined_docs)
+            
+            return CorrectionStep(
+                step_name="web_search",
+                action_taken=CorrectionAction.WEB_SEARCH,
+                input_data={"query": query},
+                output_data={"response": new_response, "documents": combined_docs},
+                success=True,
+                execution_time=time.time() - start_time,
+                metadata={"web_results": len(web_results)}
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Web search failed: {e}")
+            return self._execute_additional_retrieval(query, current_docs, current_response, start_time)
+    
+    def _execute_regeneration(
+        self, 
+        query: str, 
+        current_docs: List[Dict], 
+        current_response: str,
+        start_time: float
+    ) -> CorrectionStep:
+        """Execute response regeneration with different strategy"""
+        
+        # Try different generation strategy (simplified)
+        new_response = self._generate_response(
+            query, 
+            current_docs, 
+            strategy="detailed",  # Use more detailed generation
+            avoid_previous=current_response
+        )
+        
+        return CorrectionStep(
+            step_name="regeneration",
+            action_taken=CorrectionAction.REGENERATE,
+            input_data={"strategy": "detailed"},
+            output_data={"response": new_response, "documents": current_docs},
+            success=True,
+            execution_time=time.time() - start_time,
+            metadata={"generation_strategy": "detailed"}
+        )
+    
+    def _execute_source_combination(
+        self, 
+        query: str, 
+        current_docs: List[Dict], 
+        current_response: str,
+        start_time: float
+    ) -> CorrectionStep:
+        """Execute intelligent source combination"""
+        
+        # Group documents by credibility/source
+        grouped_docs = self._group_documents_by_credibility(current_docs)
+        
+        # Generate response that explicitly combines perspectives
+        new_response = self._generate_multi_perspective_response(query, grouped_docs)
+        
+        return CorrectionStep(
+            step_name="source_combination",
+            action_taken=CorrectionAction.COMBINE_SOURCES,
+            input_data={"grouped_docs": len(grouped_docs)},
+            output_data={"response": new_response, "documents": current_docs},
+            success=True,
+            execution_time=time.time() - start_time,
+            metadata={"perspective_groups": len(grouped_docs)}
+        )
+    
+    def _expand_query_for_gaps(self, original_query: str, response: str) -> str:
+        """Expand query to fill gaps in current response"""
+        # Simplified gap detection - use NLP analysis in production
+        
+        gap_indicators = ["more information", "additional", "further", "unclear"]
+        
+        if any(indicator in response.lower() for indicator in gap_indicators):
+            return f"{original_query} detailed information examples"
+        
+        return f"{original_query} comprehensive"
+    
+    def _perform_web_search(self, query: str) -> List[Dict]:
+        """Perform web search (placeholder implementation)"""
+        # This would integrate with actual search APIs (Google, Bing, etc.)
+        return [
+            {
+                'title': f"Result for {query}",
+                'url': 'https://example.com/result1',
+                'snippet': f"This is additional information about {query} from web search."
+            }
+        ]
+    
+    def _group_documents_by_credibility(self, docs: List[Dict]) -> Dict[str, List[Dict]]:
+        """Group documents by source credibility"""
+        groups = {"high_credibility": [], "medium_credibility": [], "low_credibility": []}
+        
+        for doc in docs:
+            source_url = doc.get('metadata', {}).get('url', '')
+            
+            if any(trusted in source_url for trusted in ['.edu', '.gov', 'wikipedia']):
+                groups["high_credibility"].append(doc)
+            elif doc.get('score', 0) > 0.7:
+                groups["medium_credibility"].append(doc)
+            else:
+                groups["low_credibility"].append(doc)
+        
+        return {k: v for k, v in groups.items() if v}  # Remove empty groups
+    
+    def _generate_response(
+        self, 
+        query: str, 
+        documents: List[Dict],
+        strategy: str = "standard",
+        avoid_previous: str = None
+    ) -> str:
+        """Generate response from documents (placeholder)"""
+        # This would use your actual generation model
+        
+        if not documents:
+            return "I don't have sufficient information to answer this question."
+        
+        # Simple response generation
+        context = "\n".join([doc['content'][:200] for doc in documents[:3]])
+        
+        if strategy == "detailed":
+            return f"Based on the available information: {context[:300]}... [Detailed response for: {query}]"
+        else:
+            return f"According to the sources: {context[:200]}... [Response for: {query}]"
+    
+    def _generate_multi_perspective_response(self, query: str, grouped_docs: Dict[str, List[Dict]]) -> str:
+        """Generate response combining multiple perspectives"""
+        
+        response_parts = []
+        
+        for group_name, docs in grouped_docs.items():
+            if docs:
+                context = "\n".join([doc['content'][:150] for doc in docs[:2]])
+                response_parts.append(f"From {group_name.replace('_', ' ')} sources: {context[:200]}...")
+        
+        combined_response = " | ".join(response_parts)
+        return f"Multiple perspectives on '{query}': {combined_response}"
+
+# Usage example
+def corrective_rag_example():
+    """Example usage of Corrective RAG"""
+    
+    print("Corrective RAG (CRAG) System")
+    print("Implements validation and correction mechanisms:")
+    print("• Relevance validation")
+    print("• Factuality checking") 
+    print("• Completeness assessment")
+    print("• Iterative correction with multiple strategies")
+    print("• Web search fallback")
+    print("• Multi-source perspective combination")
+    
+    return "CRAG system example completed"
+                    </pre>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>CRAG Implementation Considerations</h4>
+                <p>
+                    • <strong>Validation Overhead:</strong> Multiple validation steps can increase latency<br>
+                    • <strong>API Dependencies:</strong> Web search and fact-checking may require external APIs<br>
+                    • <strong>Cost Management:</strong> Iterative corrections can increase computational costs<br>
+                    • <strong>Quality vs Speed Trade-off:</strong> Balance thorough validation with response time requirements
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Agentic RAG Section -->
+    <section id="agentic-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Agentic RAG Systems</h2>
+
+            <h3 class="subsection-title">1. Autonomous Agent Architecture</h3>
+            <p class="content-text">
+                Agentic RAG systems employ autonomous agents that can plan, reason, and execute complex 
+                retrieval strategies. These systems can dynamically adapt their approach based on the 
+                query complexity and available tools.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Agentic RAG Implementation with LangGraph</div>
+                <div class="code-block">
+                    <pre>
+from typing import Dict, List, Optional, Any, TypedDict, Annotated
+from dataclasses import dataclass
+from enum import Enum
+import operator
+from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolExecutor, ToolInvocation
+from langchain.tools import BaseTool
+from langchain.schema import BaseMessage, HumanMessage, AIMessage, SystemMessage
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+import json
+
+class AgentState(TypedDict):
+    """State maintained by the agentic RAG system"""
+    query: str
+    messages: Annotated[List[BaseMessage], operator.add]
+    retrieved_documents: List[Dict]
+    search_queries: List[str]
+    final_response: str
+    tool_calls: List[Dict]
+    iteration_count: int
+    confidence_score: float
+    needs_more_info: bool
+
+class AgentAction(Enum):
+    """Possible actions for the agent"""
+    PLAN_SEARCH = "plan_search"
+    RETRIEVE_DOCS = "retrieve_documents"
+    WEB_SEARCH = "web_search"
+    ANALYZE_DOCS = "analyze_documents"
+    SYNTHESIZE = "synthesize_response"
+    VERIFY_FACTS = "verify_facts"
+    FINISH = "finish"
+
+class SearchPlannerTool(BaseTool):
+    """Tool for planning search strategies"""
+    name = "search_planner"
+    description = "Plan optimal search strategies for complex queries"
+    
+    def _run(self, query: str, context: str = "") -> Dict:
+        """Plan search strategy for the given query"""
+        
+        # Analyze query complexity and type
+        query_analysis = self._analyze_query(query)
+        
+        # Generate search plan
+        plan = {
+            "primary_search": query,
+            "secondary_searches": [],
+            "search_strategy": "comprehensive",
+            "expected_doc_count": 5,
+            "query_type": query_analysis["type"],
+            "complexity": query_analysis["complexity"]
+        }
+        
+        # Add secondary searches for complex queries
+        if query_analysis["complexity"] > 0.7:
+            plan["secondary_searches"] = self._generate_secondary_queries(query)
+            plan["expected_doc_count"] = 10
+        
+        return plan
+    
+    def _analyze_query(self, query: str) -> Dict:
+        """Analyze query to determine type and complexity"""
+        
+        # Simple analysis - use NLP models in production
+        query_lower = query.lower()
+        
+        # Determine query type
+        question_words = ["what", "how", "when", "where", "why", "who"]
+        is_question = any(word in query_lower for word in question_words)
+        
+        # Determine complexity
+        complexity_indicators = ["compare", "analyze", "explain", "relationship", "difference"]
+        complexity_score = sum(1 for indicator in complexity_indicators if indicator in query_lower)
+        complexity = min(complexity_score / len(complexity_indicators), 1.0)
+        
+        query_type = "factual" if is_question else "analytical"
+        if complexity > 0.5:
+            query_type = "complex_analytical"
+        
+        return {
+            "type": query_type,
+            "complexity": complexity,
+            "is_question": is_question,
+            "indicators_found": complexity_score
+        }
+    
+    def _generate_secondary_queries(self, primary_query: str) -> List[str]:
+        """Generate secondary search queries"""
+        
+        # Extract key concepts
+        key_concepts = self._extract_concepts(primary_query)
+        
+        # Generate related queries
+        secondary_queries = []
+        
+        # Add concept-specific queries
+        for concept in key_concepts[:3]:
+            secondary_queries.append(f"what is {concept}")
+            secondary_queries.append(f"{concept} examples applications")
+        
+        # Add comparative queries
+        if len(key_concepts) >= 2:
+            secondary_queries.append(f"{key_concepts[0]} vs {key_concepts[1]}")
+        
+        return secondary_queries[:4]  # Limit to 4 secondary queries
+    
+    def _extract_concepts(self, query: str) -> List[str]:
+        """Extract key concepts from query"""
+        # Simplified concept extraction
+        stop_words = {"what", "how", "when", "where", "why", "who", "is", "are", "the", "a", "an", "and", "or", "but"}
+        words = query.lower().split()
+        concepts = [word for word in words if word not in stop_words and len(word) > 3]
+        return concepts[:5]
+    
+    async def _arun(self, query: str, context: str = "") -> Dict:
+        """Async version"""
+        return self._run(query, context)
+
+class DocumentAnalyzerTool(BaseTool):
+    """Tool for analyzing retrieved documents"""
+    name = "document_analyzer"
+    description = "Analyze documents for relevance, quality, and information extraction"
+    
+    def _run(self, documents: List[Dict], query: str) -> Dict:
+        """Analyze documents and extract insights"""
+        
+        analysis_results = {
+            "total_documents": len(documents),
+            "relevant_documents": [],
+            "key_insights": [],
+            "confidence_scores": [],
+            "coverage_analysis": {},
+            "recommendation": "sufficient"  # sufficient, need_more, need_different
+        }
+        
+        # Analyze each document
+        for i, doc in enumerate(documents):
+            doc_analysis = self._analyze_single_document(doc, query)
+            
+            if doc_analysis["relevance_score"] > 0.6:
+                analysis_results["relevant_documents"].append({
+                    "index": i,
+                    "content": doc["content"],
+                    "relevance_score": doc_analysis["relevance_score"],
+                    "key_points": doc_analysis["key_points"]
+                })
+            
+            analysis_results["confidence_scores"].append(doc_analysis["relevance_score"])
+        
+        # Overall assessment
+        avg_confidence = sum(analysis_results["confidence_scores"]) / len(analysis_results["confidence_scores"])
+        
+        if avg_confidence < 0.5:
+            analysis_results["recommendation"] = "need_different"
+        elif len(analysis_results["relevant_documents"]) < 2:
+            analysis_results["recommendation"] = "need_more"
+        
+        # Extract key insights
+        analysis_results["key_insights"] = self._extract_key_insights(
+            analysis_results["relevant_documents"], query
+        )
+        
+        return analysis_results
+    
+    def _analyze_single_document(self, document: Dict, query: str) -> Dict:
+        """Analyze a single document"""
+        
+        content = document.get("content", "")
+        
+        # Simple relevance scoring
+        relevance_score = self._calculate_relevance(content, query)
+        
+        # Extract key points
+        key_points = self._extract_key_points(content)
+        
+        return {
+            "relevance_score": relevance_score,
+            "key_points": key_points,
+            "length": len(content),
+            "quality_score": min(relevance_score + 0.2, 1.0)  # Simple quality metric
+        }
+    
+    def _calculate_relevance(self, content: str, query: str) -> float:
+        """Calculate relevance score"""
+        query_tokens = set(query.lower().split())
+        content_tokens = set(content.lower().split())
+        
+        if not query_tokens:
+            return 0.0
+        
+        intersection = query_tokens.intersection(content_tokens)
+        return len(intersection) / len(query_tokens)
+    
+    def _extract_key_points(self, content: str) -> List[str]:
+        """Extract key points from content"""
+        sentences = content.split('.')
+        
+        # Simple key point extraction - use summarization models in production
+        key_points = []
+        for sentence in sentences[:5]:
+            sentence = sentence.strip()
+            if len(sentence) > 20 and sentence:
+                key_points.append(sentence)
+        
+        return key_points[:3]
+    
+    def _extract_key_insights(self, relevant_docs: List[Dict], query: str) -> List[str]:
+        """Extract key insights from relevant documents"""
+        insights = []
+        
+        # Aggregate key points
+        all_points = []
+        for doc in relevant_docs:
+            all_points.extend(doc["key_points"])
+        
+        # Simple insight extraction
+        if all_points:
+            insights.append(f"Found {len(all_points)} key information points")
+            insights.append(f"Average relevance: {sum(doc['relevance_score'] for doc in relevant_docs) / len(relevant_docs):.2f}")
+        
+        return insights
+    
+    async def _arun(self, documents: List[Dict], query: str) -> Dict:
+        """Async version"""
+        return self._run(documents, query)
+
+class AgenticRAGSystem:
+    """Agentic RAG system using LangGraph for orchestration"""
+    
+    def __init__(
+        self,
+        retriever,
+        llm_model: str = "gpt-3.5-turbo",
+        max_iterations: int = 5
+    ):
+        self.retriever = retriever
+        self.llm = ChatOpenAI(model=llm_model, temperature=0.1)
+        self.max_iterations = max_iterations
+        
+        # Initialize tools
+        self.tools = [
+            SearchPlannerTool(),
+            DocumentAnalyzerTool()
+        ]
+        
+        self.tool_executor = ToolExecutor(self.tools)
+        
+        # Build agent graph
+        self.graph = self._build_agent_graph()
+    
+    def _build_agent_graph(self) -> StateGraph:
+        """Build the agent workflow graph"""
+        
+        workflow = StateGraph(AgentState)
+        
+        # Add nodes
+        workflow.add_node("planner", self._planning_node)
+        workflow.add_node("retriever", self._retrieval_node)
+        workflow.add_node("analyzer", self._analysis_node)
+        workflow.add_node("synthesizer", self._synthesis_node)
+        workflow.add_node("validator", self._validation_node)
+        
+        # Add edges
+        workflow.add_edge("planner", "retriever")
+        workflow.add_edge("retriever", "analyzer")
+        workflow.add_conditional_edges(
+            "analyzer",
+            self._should_continue_analysis,
+            {
+                "continue": "retriever",
+                "synthesize": "synthesizer"
+            }
+        )
+        workflow.add_edge("synthesizer", "validator")
+        workflow.add_conditional_edges(
+            "validator",
+            self._should_finish,
+            {
+                "finish": END,
+                "improve": "planner"
+            }
+        )
+        
+        # Set entry point
+        workflow.set_entry_point("planner")
+        
+        return workflow.compile()
+    
+    def _planning_node(self, state: AgentState) -> AgentState:
+        """Planning node - creates search strategy"""
+        
+        # Use search planner tool
+        planner_result = self.tools[0]._run(state["query"])
+        
+        # Update state
+        state["search_queries"] = [planner_result["primary_search"]] + planner_result.get("secondary_searches", [])
+        state["messages"].append(
+            AIMessage(content=f"Planned search strategy: {json.dumps(planner_result, indent=2)}")
+        )
+        
+        return state
+    
+    def _retrieval_node(self, state: AgentState) -> AgentState:
+        """Retrieval node - executes document retrieval"""
+        
+        all_documents = []
+        
+        # Execute each search query
+        for search_query in state["search_queries"]:
+            try:
+                results = self.retriever.search(search_query, top_k=5)
+                
+                # Convert results to standard format
+                docs = [
+                    {
+                        "content": result.content if hasattr(result, "content") else result["content"],
+                        "score": getattr(result, "fusion_score", result.get("score", 1.0)),
+                        "query": search_query,
+                        "id": getattr(result, "doc_id", result.get("id", f"doc_{len(all_documents)}"))
+                    }
+                    for result in results
+                ]
+                
+                all_documents.extend(docs)
+                
+            except Exception as e:
+                state["messages"].append(
+                    AIMessage(content=f"Retrieval failed for query '{search_query}': {str(e)}")
+                )
+        
+        # Remove duplicates
+        unique_docs = []
+        seen_ids = set()
+        for doc in all_documents:
+            if doc["id"] not in seen_ids:
+                unique_docs.append(doc)
+                seen_ids.add(doc["id"])
+        
+        state["retrieved_documents"] = unique_docs
+        state["messages"].append(
+            AIMessage(content=f"Retrieved {len(unique_docs)} unique documents")
+        )
+        
+        return state
+    
+    def _analysis_node(self, state: AgentState) -> AgentState:
+        """Analysis node - analyzes retrieved documents"""
+        
+        # Use document analyzer tool
+        analysis_result = self.tools[1]._run(state["retrieved_documents"], state["query"])
+        
+        # Update state based on analysis
+        state["confidence_score"] = sum(analysis_result["confidence_scores"]) / len(analysis_result["confidence_scores"])
+        state["needs_more_info"] = analysis_result["recommendation"] != "sufficient"
+        
+        state["messages"].append(
+            AIMessage(content=f"Document analysis: {json.dumps(analysis_result, indent=2)}")
+        )
+        
+        return state
+    
+    def _synthesis_node(self, state: AgentState) -> AgentState:
+        """Synthesis node - generates final response"""
+        
+        # Create synthesis prompt
+        relevant_docs = [doc for doc in state["retrieved_documents"] if doc.get("score", 0) > 0.5]
+        
+        context = "\n\n".join([
+            f"Document {i+1}: {doc['content'][:300]}..."
+            for i, doc in enumerate(relevant_docs[:5])
+        ])
+        
+        synthesis_prompt = ChatPromptTemplate.from_messages([
+            SystemMessage(content="""You are an expert at synthesizing information from multiple sources.
+            Create a comprehensive, accurate response based on the retrieved documents.
+            Cite sources when making specific claims."""),
+            HumanMessage(content=f"""
+            Query: {state["query"]}
+            
+            Retrieved Information:
+            {context}
+            
+            Please provide a comprehensive answer to the query based on the retrieved information.
+            """)
+        ])
+        
+        # Generate response
+        response = self.llm.invoke(synthesis_prompt.format_messages())
+        
+        state["final_response"] = response.content
+        state["messages"].append(response)
+        
+        return state
+    
+    def _validation_node(self, state: AgentState) -> AgentState:
+        """Validation node - validates response quality"""
+        
+        # Simple validation logic
+        response_length = len(state["final_response"])
+        has_sufficient_info = state["confidence_score"] > 0.6
+        
+        if response_length < 100 or not has_sufficient_info:
+            state["needs_more_info"] = True
+        else:
+            state["needs_more_info"] = False
+        
+        state["iteration_count"] = state.get("iteration_count", 0) + 1
+        
+        return state
+    
+    def _should_continue_analysis(self, state: AgentState) -> str:
+        """Decide whether to continue analysis or move to synthesis"""
+        
+        if (state.get("needs_more_info", True) and 
+            state.get("iteration_count", 0) < self.max_iterations and
+            len(state["retrieved_documents"]) < 10):
+            return "continue"
+        else:
+            return "synthesize"
+    
+    def _should_finish(self, state: AgentState) -> str:
+        """Decide whether to finish or improve"""
+        
+        if (state.get("needs_more_info", True) and 
+            state.get("iteration_count", 0) < self.max_iterations):
+            return "improve"
+        else:
+            return "finish"
+    
+    def process_query(self, query: str) -> Dict[str, Any]:
+        """Process query using agentic RAG"""
+        
+        # Initialize state
+        initial_state = AgentState(
+            query=query,
+            messages=[HumanMessage(content=query)],
+            retrieved_documents=[],
+            search_queries=[],
+            final_response="",
+            tool_calls=[],
+            iteration_count=0,
+            confidence_score=0.0,
+            needs_more_info=True
+        )
+        
+        # Run the agent
+        final_state = self.graph.invoke(initial_state)
+        
+        return {
+            "response": final_state["final_response"],
+            "documents": final_state["retrieved_documents"],
+            "confidence": final_state["confidence_score"],
+            "iterations": final_state["iteration_count"],
+            "search_queries": final_state["search_queries"],
+            "conversation": [msg.content for msg in final_state["messages"]]
+        }
+
+# Multi-Agent Collaborative RAG
+class MultiAgentRAGSystem:
+    """Multi-agent system where specialized agents collaborate"""
+    
+    def __init__(self, retrievers: Dict[str, Any]):
+        self.specialist_agents = {
+            "researcher": ResearchAgent(retrievers.get("academic")),
+            "fact_checker": FactCheckingAgent(retrievers.get("factual")),
+            "synthesizer": SynthesisAgent(),
+            "coordinator": CoordinationAgent()
+        }
+    
+    def process_complex_query(self, query: str) -> Dict[str, Any]:
+        """Process query using multiple specialized agents"""
+        
+        # Coordinator decides which agents to involve
+        agent_plan = self.specialist_agents["coordinator"].plan_agents(query)
+        
+        # Execute agents in parallel or sequence
+        agent_results = {}
+        for agent_name in agent_plan["agents_needed"]:
+            agent = self.specialist_agents[agent_name]
+            result = agent.process(query, context=agent_results)
+            agent_results[agent_name] = result
+        
+        # Synthesize final response
+        final_result = self.specialist_agents["synthesizer"].synthesize(
+            query, agent_results
+        )
+        
+        return final_result
+
+# Usage example
+def agentic_rag_example():
+    """Example of agentic RAG system"""
+    
+    print("Agentic RAG System Features:")
+    print("• Autonomous planning and strategy selection")
+    print("• Multi-step reasoning and tool usage")
+    print("• Adaptive retrieval based on intermediate results")
+    print("• Self-validation and iterative improvement")
+    print("• Collaborative multi-agent architectures")
+    
+    return "Agentic RAG system example completed"
+                    </pre>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h4>Agentic RAG Advantages</h4>
+                <p>
+                    • <strong>Autonomous Operation:</strong> Reduces need for manual intervention and query refinement<br>
+                    • <strong>Dynamic Strategy:</strong> Adapts retrieval approach based on query complexity and results<br>
+                    • <strong>Tool Integration:</strong> Can use external tools and APIs as needed<br>
+                    • <strong>Quality Assurance:</strong> Built-in validation and iterative improvement mechanisms
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Modal Section -->
+    <section id="multimodal" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Multi-Modal RAG Systems</h2>
+
+            <h3 class="subsection-title">1. Vision-Language Integration</h3>
+            <p class="content-text">
+                Multi-modal RAG systems can process and retrieve information from text, images, audio, 
+                and other modalities, enabling richer and more comprehensive question-answering capabilities.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Multi-Modal RAG Implementation</div>
+                <div class="code-block">
+                    <pre>
+from typing import Dict, List, Union, Optional, Any
+from dataclasses import dataclass
+import base64
+import requests
+from PIL import Image
+import torch
+from transformers import (
+    BlipProcessor, BlipForConditionalGeneration,
+    CLIPProcessor, CLIPModel,
+    Wav2Vec2Processor, Wav2Vec2ForCTC
+)
+import cv2
+import numpy as np
+from abc import ABC, abstractmethod
+
+@dataclass
+class MultiModalDocument:
+    """Document that can contain multiple modalities"""
+    id: str
+    text_content: str = ""
+    image_content: Optional[bytes] = None
+    audio_content: Optional[bytes] = None
+    video_content: Optional[bytes] = None
+    metadata: Dict = None
+    modality_embeddings: Dict[str, np.ndarray] = None
+    
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+        if self.modality_embeddings is None:
+            self.modality_embeddings = {}
+
+class ModalityEncoder(ABC):
+    """Abstract base class for modality encoders"""
+    
+    @abstractmethod
+    def encode(self, content: Any) -> np.ndarray:
+        pass
+    
+    @abstractmethod
+    def can_process(self, content_type: str) -> bool:
+        pass
+
+class TextEncoder(ModalityEncoder):
+    """Text content encoder"""
+    
+    def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
+        from sentence_transformers import SentenceTransformer
+        self.model = SentenceTransformer(model_name)
+    
+    def encode(self, content: str) -> np.ndarray:
+        """Encode text content to embeddings"""
+        if not content or not content.strip():
+            return np.zeros(self.model.get_sentence_embedding_dimension())
+        
+        return self.model.encode(content)
+    
+    def can_process(self, content_type: str) -> bool:
+        return content_type in ["text", "text/plain"]
+
+class ImageEncoder(ModalityEncoder):
+    """Image content encoder using CLIP"""
+    
+    def __init__(self, model_name: str = "openai/clip-vit-base-patch32"):
+        self.processor = CLIPProcessor.from_pretrained(model_name)
+        self.model = CLIPModel.from_pretrained(model_name)
+        
+        # Also initialize BLIP for image captioning
+        self.caption_processor = BlipProcessor.from_pretrained("Salesforce/blip-image-captioning-base")
+        self.caption_model = BlipForConditionalGeneration.from_pretrained("Salesforce/blip-image-captioning-base")
+    
+    def encode(self, content: Union[bytes, Image.Image, np.ndarray]) -> np.ndarray:
+        """Encode image content to embeddings"""
+        
+        # Convert to PIL Image if needed
+        if isinstance(content, bytes):
+            image = Image.open(io.BytesIO(content))
+        elif isinstance(content, np.ndarray):
+            image = Image.fromarray(content)
+        else:
+            image = content
+        
+        # Get CLIP embeddings
+        inputs = self.processor(images=image, return_tensors="pt")
+        
+        with torch.no_grad():
+            image_features = self.model.get_image_features(**inputs)
+        
+        return image_features.numpy().flatten()
+    
+    def generate_caption(self, image: Union[bytes, Image.Image]) -> str:
+        """Generate caption for image"""
+        
+        if isinstance(image, bytes):
+            image = Image.open(io.BytesIO(image))
+        
+        inputs = self.caption_processor(image, return_tensors="pt")
+        
+        with torch.no_grad():
+            out = self.caption_model.generate(**inputs, max_length=50)
+        
+        caption = self.caption_processor.decode(out[0], skip_special_tokens=True)
+        return caption
+    
+    def can_process(self, content_type: str) -> bool:
+        return content_type.startswith("image/")
+
+class AudioEncoder(ModalityEncoder):
+    """Audio content encoder"""
+    
+    def __init__(self, model_name: str = "facebook/wav2vec2-base-960h"):
+        self.processor = Wav2Vec2Processor.from_pretrained(model_name)
+        self.model = Wav2Vec2ForCTC.from_pretrained(model_name)
+    
+    def encode(self, content: Union[bytes, np.ndarray]) -> np.ndarray:
+        """Encode audio content to embeddings"""
+        
+        # Convert audio to appropriate format
+        if isinstance(content, bytes):
+            # Convert bytes to numpy array (simplified)
+            audio_array = np.frombuffer(content, dtype=np.float32)
+        else:
+            audio_array = content
+        
+        # Process audio
+        inputs = self.processor(
+            audio_array, 
+            sampling_rate=16000, 
+            return_tensors="pt", 
+            padding=True
+        )
+        
+        with torch.no_grad():
+            features = self.model.wav2vec2.feature_extractor(inputs.input_values)
+            features = self.model.wav2vec2.feature_projection(features.transpose(1, 2))
+        
+        # Return mean pooled features
+        return features.mean(dim=1).numpy().flatten()
+    
+    def transcribe(self, audio: Union[bytes, np.ndarray]) -> str:
+        """Transcribe audio to text"""
+        
+        if isinstance(audio, bytes):
+            audio_array = np.frombuffer(audio, dtype=np.float32)
+        else:
+            audio_array = audio
+        
+        inputs = self.processor(
+            audio_array, 
+            sampling_rate=16000, 
+            return_tensors="pt"
+        )
+        
+        with torch.no_grad():
+            logits = self.model(inputs.input_values).logits
+        
+        predicted_ids = torch.argmax(logits, dim=-1)
+        transcription = self.processor.decode(predicted_ids[0])
+        
+        return transcription
+    
+    def can_process(self, content_type: str) -> bool:
+        return content_type.startswith("audio/")
+
+class VideoEncoder(ModalityEncoder):
+    """Video content encoder (frame-based)"""
+    
+    def __init__(self):
+        self.image_encoder = ImageEncoder()
+        self.frame_sample_rate = 1  # Extract 1 frame per second
+    
+    def encode(self, content: bytes) -> np.ndarray:
+        """Encode video by sampling frames"""
+        
+        # Extract frames from video
+        frames = self._extract_frames(content)
+        
+        if not frames:
+            return np.zeros(512)  # Default embedding size
+        
+        # Encode each frame
+        frame_embeddings = []
+        for frame in frames:
+            frame_emb = self.image_encoder.encode(frame)
+            frame_embeddings.append(frame_emb)
+        
+        # Aggregate frame embeddings (mean pooling)
+        video_embedding = np.mean(frame_embeddings, axis=0)
+        
+        return video_embedding
+    
+    def _extract_frames(self, video_bytes: bytes, max_frames: int = 10) -> List[np.ndarray]:
+        """Extract frames from video bytes"""
+        
+        try:
+            # Save bytes to temporary file and process with OpenCV
+            import tempfile
+            import os
+            
+            with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tmp_file:
+                tmp_file.write(video_bytes)
+                tmp_path = tmp_file.name
+            
+            # Extract frames
+            cap = cv2.VideoCapture(tmp_path)
+            frames = []
+            frame_count = 0
+            
+            while cap.isOpened() and len(frames) < max_frames:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                
+                # Sample frames at specified rate
+                if frame_count % (int(cap.get(cv2.CAP_PROP_FPS)) * self.frame_sample_rate) == 0:
+                    frames.append(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                
+                frame_count += 1
+            
+            cap.release()
+            os.unlink(tmp_path)  # Clean up
+            
+            return frames
+            
+        except Exception as e:
+            print(f"Video processing failed: {e}")
+            return []
+    
+    def can_process(self, content_type: str) -> bool:
+        return content_type.startswith("video/")
+
+class MultiModalRetriever:
+    """Multi-modal document retrieval system"""
+    
+    def __init__(
+        self,
+        text_encoder: TextEncoder = None,
+        image_encoder: ImageEncoder = None,
+        audio_encoder: AudioEncoder = None,
+        video_encoder: VideoEncoder = None
+    ):
+        self.encoders = {
+            "text": text_encoder or TextEncoder(),
+            "image": image_encoder or ImageEncoder(), 
+            "audio": audio_encoder or AudioEncoder(),
+            "video": video_encoder or VideoEncoder()
+        }
+        
+        self.document_store: List[MultiModalDocument] = []
+        self.modality_indices: Dict[str, Any] = {}
+        
+    def index_documents(self, documents: List[MultiModalDocument]):
+        """Index multi-modal documents"""
+        
+        print(f"Indexing {len(documents)} multi-modal documents...")
+        
+        for doc in documents:
+            # Encode each modality present in the document
+            if doc.text_content:
+                doc.modality_embeddings["text"] = self.encoders["text"].encode(doc.text_content)
+            
+            if doc.image_content:
+                doc.modality_embeddings["image"] = self.encoders["image"].encode(doc.image_content)
+                # Also generate caption for searchable text
+                caption = self.encoders["image"].generate_caption(doc.image_content)
+                doc.metadata["image_caption"] = caption
+            
+            if doc.audio_content:
+                doc.modality_embeddings["audio"] = self.encoders["audio"].encode(doc.audio_content)
+                # Also transcribe for searchable text
+                transcription = self.encoders["audio"].transcribe(doc.audio_content)
+                doc.metadata["audio_transcription"] = transcription
+            
+            if doc.video_content:
+                doc.modality_embeddings["video"] = self.encoders["video"].encode(doc.video_content)
+        
+        self.document_store.extend(documents)
+        print(f"Indexed {len(documents)} documents successfully")
+    
+    def search_multimodal(
+        self, 
+        query: str,
+        query_image: Optional[bytes] = None,
+        query_audio: Optional[bytes] = None,
+        modality_weights: Dict[str, float] = None,
+        top_k: int = 10
+    ) -> List[Dict[str, Any]]:
+        """Search across multiple modalities"""
+        
+        if modality_weights is None:
+            modality_weights = {"text": 0.4, "image": 0.3, "audio": 0.2, "video": 0.1}
+        
+        # Encode query in relevant modalities
+        query_embeddings = {}
+        
+        if query:
+            query_embeddings["text"] = self.encoders["text"].encode(query)
+        
+        if query_image:
+            query_embeddings["image"] = self.encoders["image"].encode(query_image)
+        
+        if query_audio:
+            query_embeddings["audio"] = self.encoders["audio"].encode(query_audio)
+        
+        # Score documents
+        document_scores = []
+        
+        for doc in self.document_store:
+            total_score = 0.0
+            total_weight = 0.0
+            
+            # Score each modality
+            for modality, query_emb in query_embeddings.items():
+                if modality in doc.modality_embeddings:
+                    doc_emb = doc.modality_embeddings[modality]
+                    similarity = self._cosine_similarity(query_emb, doc_emb)
+                    weight = modality_weights.get(modality, 0.0)
+                    
+                    total_score += similarity * weight
+                    total_weight += weight
+            
+            # Also check text-based matches for captions/transcriptions
+            if query:
+                caption_score = 0.0
+                if "image_caption" in doc.metadata:
+                    caption_similarity = self._text_similarity(query, doc.metadata["image_caption"])
+                    caption_score += caption_similarity * 0.1
+                
+                if "audio_transcription" in doc.metadata:
+                    transcript_similarity = self._text_similarity(query, doc.metadata["audio_transcription"])
+                    caption_score += transcript_similarity * 0.1
+                
+                total_score += caption_score
+                total_weight += 0.1
+            
+            # Normalize score
+            if total_weight > 0:
+                final_score = total_score / total_weight
+            else:
+                final_score = 0.0
+            
+            document_scores.append({
+                "document": doc,
+                "score": final_score,
+                "modality_breakdown": self._get_modality_breakdown(doc, query_embeddings, modality_weights)
+            })
+        
+        # Sort by score and return top-k
+        document_scores.sort(key=lambda x: x["score"], reverse=True)
+        
+        return document_scores[:top_k]
+    
+    def _cosine_similarity(self, emb1: np.ndarray, emb2: np.ndarray) -> float:
+        """Calculate cosine similarity between embeddings"""
+        
+        dot_product = np.dot(emb1, emb2)
+        norm1 = np.linalg.norm(emb1)
+        norm2 = np.linalg.norm(emb2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        
+        return dot_product / (norm1 * norm2)
+    
+    def _text_similarity(self, text1: str, text2: str) -> float:
+        """Simple text similarity"""
+        
+        tokens1 = set(text1.lower().split())
+        tokens2 = set(text2.lower().split())
+        
+        if not tokens1 or not tokens2:
+            return 0.0
+        
+        intersection = tokens1.intersection(tokens2)
+        union = tokens1.union(tokens2)
+        
+        return len(intersection) / len(union)
+    
+    def _get_modality_breakdown(
+        self, 
+        document: MultiModalDocument, 
+        query_embeddings: Dict[str, np.ndarray],
+        modality_weights: Dict[str, float]
+    ) -> Dict[str, float]:
+        """Get detailed modality-wise scores"""
+        
+        breakdown = {}
+        
+        for modality, query_emb in query_embeddings.items():
+            if modality in document.modality_embeddings:
+                doc_emb = document.modality_embeddings[modality]
+                similarity = self._cosine_similarity(query_emb, doc_emb)
+                breakdown[modality] = similarity
+            else:
+                breakdown[modality] = 0.0
+        
+        return breakdown
+
+class MultiModalRAGSystem:
+    """Complete multi-modal RAG system"""
+    
+    def __init__(self, retriever: MultiModalRetriever, llm_model: str = "gpt-4-vision-preview"):
+        self.retriever = retriever
+        self.llm_model = llm_model
+    
+    def answer_multimodal_query(
+        self,
+        query: str,
+        query_image: Optional[bytes] = None,
+        query_audio: Optional[bytes] = None,
+        top_k: int = 5
+    ) -> Dict[str, Any]:
+        """Answer query using multi-modal retrieval"""
+        
+        # Retrieve relevant documents
+        search_results = self.retriever.search_multimodal(
+            query=query,
+            query_image=query_image, 
+            query_audio=query_audio,
+            top_k=top_k
+        )
+        
+        # Extract content from retrieved documents
+        context_parts = []
+        
+        for result in search_results:
+            doc = result["document"]
+            score = result["score"]
+            
+            # Add text content
+            if doc.text_content:
+                context_parts.append(f"Text (score: {score:.3f}): {doc.text_content}")
+            
+            # Add image captions
+            if "image_caption" in doc.metadata:
+                context_parts.append(f"Image caption (score: {score:.3f}): {doc.metadata['image_caption']}")
+            
+            # Add audio transcriptions
+            if "audio_transcription" in doc.metadata:
+                context_parts.append(f"Audio transcript (score: {score:.3f}): {doc.metadata['audio_transcription']}")
+        
+        # Generate response using LLM
+        context = "\n\n".join(context_parts[:10])  # Limit context length
+        
+        response = self._generate_response(query, context, search_results)
+        
+        return {
+            "response": response,
+            "retrieved_documents": search_results,
+            "context_used": context,
+            "modality_breakdown": self._analyze_modalities_used(search_results)
+        }
+    
+    def _generate_response(self, query: str, context: str, search_results: List[Dict]) -> str:
+        """Generate response using context from multiple modalities"""
+        
+        # Build prompt that acknowledges multi-modal context
+        prompt = f"""
+Based on the following multi-modal information (text, image captions, audio transcripts):
+
+{context}
+
+Question: {query}
+
+Please provide a comprehensive answer that synthesizes information from all available modalities. 
+Indicate when you're referencing visual or audio information.
+
+Answer:"""
+        
+        # In practice, you would use an actual LLM API call here
+        # For demonstration, return a mock response
+        return f"Based on the retrieved multi-modal content, here's a comprehensive answer to '{query}' that incorporates text, visual, and audio information from {len(search_results)} relevant sources."
+    
+    def _analyze_modalities_used(self, search_results: List[Dict]) -> Dict[str, int]:
+        """Analyze which modalities were used in the results"""
+        
+        modality_counts = {"text": 0, "image": 0, "audio": 0, "video": 0}
+        
+        for result in search_results:
+            doc = result["document"]
+            
+            if doc.text_content:
+                modality_counts["text"] += 1
+            if doc.image_content:
+                modality_counts["image"] += 1  
+            if doc.audio_content:
+                modality_counts["audio"] += 1
+            if doc.video_content:
+                modality_counts["video"] += 1
+        
+        return modality_counts
+
+# Usage example
+def multimodal_rag_example():
+    """Example usage of multi-modal RAG"""
+    
+    print("Multi-Modal RAG System Features:")
+    print("• Text, image, audio, and video processing")
+    print("• Cross-modal similarity search")
+    print("• Automatic caption and transcription generation")
+    print("• Weighted multi-modal scoring")
+    print("• Comprehensive context synthesis")
+    
+    return "Multi-modal RAG system example completed"
+                    </pre>
+                </div>
+            </div>
+
+            <div class="error-box">
+                <h4>Multi-Modal RAG Challenges</h4>
+                <p>
+                    • <strong>Computational Complexity:</strong> Processing multiple modalities is resource-intensive<br>
+                    • <strong>Storage Requirements:</strong> Multi-modal documents require significantly more storage<br>
+                    • <strong>Synchronization:</strong> Ensuring modalities are properly aligned and referenced<br>
+                    • <strong>Quality Control:</strong> Validating accuracy across different content types<br>
+                    • <strong>Cost Considerations:</strong> Multi-modal processing can be expensive at scale
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back Navigation -->
+    <section class="back-nav">
+        <div class="container">
+            <a href="rag-advanced-rag-handbook.html" class="back-button">← Back to RAG Handbook</a>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.card, .code-container, .flow-diagram').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(element);
+        });
+
+        // Add interactive effects to pattern cards
+        document.querySelectorAll('.pattern-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = 'var(--accent-color)';
+                this.style.boxShadow = '0 8px 30px var(--shadow-color)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = 'var(--border-color)';
+                this.style.boxShadow = '0 2px 10px var(--shadow-color)';
+            });
+        });
+    </script>
+</body>
+</html>

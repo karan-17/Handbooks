@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Cleaning & Preprocessing - RAG Handbook</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #f59e0b;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --code-bg: #f1f5f9;
+            --code-border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 3rem 0;
+        }
+
+        .content-section:nth-child(even) {
+            background: var(--surface-color);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .subsection-title {
+            font-size: 1.6rem;
+            margin: 2.5rem 0 1.5rem 0;
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .code-header {
+            background: var(--text-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box h4 {
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Lists */
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Grid Layout */
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Back Navigation */
+        .back-nav {
+            background: var(--surface-color);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .two-column-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .subsection-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Data Cleaning & Preprocessing</h1>
+            <p class="subtitle">Master techniques for preparing documents for optimal RAG performance</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="nav-brand">RAG Handbook</div>
+            <ul class="nav-links">
+                <li><a href="rag-advanced-rag-handbook.html">← Back to Main</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#text-cleaning">Text Cleaning</a></li>
+                <li><a href="#normalization">Normalization</a></li>
+                <li><a href="#implementation">Implementation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Overview Section -->
+    <section id="overview" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Data Cleaning Overview</h2>
+            <p class="content-text">
+                Effective data cleaning and preprocessing are critical foundations for successful RAG systems. 
+                Poor quality input data leads to reduced retrieval accuracy, irrelevant responses, and degraded 
+                user experience. This chapter covers comprehensive techniques for transforming raw documents 
+                into clean, structured, and retrieval-optimized content.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="card">
+                    <h4>Why Data Cleaning Matters</h4>
+                    <ul class="feature-list">
+                        <li>Improves semantic similarity matching</li>
+                        <li>Reduces noise in vector embeddings</li>
+                        <li>Enhances retrieval precision</li>
+                        <li>Standardizes content format</li>
+                        <li>Removes irrelevant metadata</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Common Data Issues</h4>
+                    <ul class="feature-list">
+                        <li>OCR errors and garbled text</li>
+                        <li>Inconsistent formatting</li>
+                        <li>HTML/XML artifacts</li>
+                        <li>Duplicate content</li>
+                        <li>Encoding problems</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Text Cleaning Section -->
+    <section id="text-cleaning" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Advanced Text Cleaning Techniques</h2>
+
+            <h3 class="subsection-title">1. HTML and Markup Removal</h3>
+            <p class="content-text">
+                Web-scraped content often contains HTML tags, CSS, and JavaScript that can interfere 
+                with semantic understanding. Here's a comprehensive cleaning approach:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">HTML Cleaning Implementation</div>
+                <div class="code-block">
+                    <pre>
+import re
+import html
+from bs4 import BeautifulSoup
+from markdownify import markdownify
+import unicodedata
+
+class AdvancedTextCleaner:
+    def __init__(self):
+        # Compile regex patterns for efficiency
+        self.url_pattern = re.compile(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+        self.email_pattern = re.compile(r'\S+@\S+\.\S+')
+        self.phone_pattern = re.compile(r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b')
+        self.whitespace_pattern = re.compile(r'\s+')
+        self.special_chars = re.compile(r'[^\w\s\.\,\!\?\;\:\(\)\-\'\"]')
+        
+    def clean_html_content(self, html_content: str, preserve_structure: bool = True) -> str:
+        """
+        Clean HTML content while preserving semantic structure
+        """
+        try:
+            # Parse HTML
+            soup = BeautifulSoup(html_content, 'html.parser')
+            
+            # Remove script and style elements
+            for script in soup(["script", "style", "meta", "link", "noscript"]):
+                script.decompose()
+            
+            # Remove comments
+            for comment in soup.find_all(string=lambda text: isinstance(text, Comment)):
+                comment.extract()
+            
+            # Handle specific tags
+            self._process_semantic_tags(soup)
+            
+            if preserve_structure:
+                # Convert to markdown to preserve structure
+                text = markdownify(str(soup), heading_style="ATX")
+                # Clean up markdown artifacts
+                text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Remove excess newlines
+            else:
+                # Extract plain text
+                text = soup.get_text()
+            
+            return self._post_process_text(text)
+            
+        except Exception as e:
+            # Fallback to regex cleaning
+            return self._fallback_html_clean(html_content)
+    
+    def _process_semantic_tags(self, soup):
+        """Process semantic HTML tags to preserve meaning"""
+        # Convert headers to consistent format
+        for header in soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
+            level = int(header.name[1])
+            header.string = f"{'#' * level} {header.get_text().strip()}"
+        
+        # Handle lists
+        for ul in soup.find_all('ul'):
+            items = ul.find_all('li')
+            list_text = '\n'.join([f"• {item.get_text().strip()}" for item in items])
+            ul.replace_with(list_text + '\n')
+        
+        for ol in soup.find_all('ol'):
+            items = ol.find_all('li')
+            list_text = '\n'.join([f"{i+1}. {item.get_text().strip()}" 
+                                  for i, item in enumerate(items)])
+            ol.replace_with(list_text + '\n')
+    
+    def _fallback_html_clean(self, text: str) -> str:
+        """Regex-based HTML cleaning as fallback"""
+        # Remove HTML tags
+        text = re.sub(r'<[^>]+>', ' ', text)
+        # Decode HTML entities
+        text = html.unescape(text)
+        return self._post_process_text(text)
+    
+    def _post_process_text(self, text: str) -> str:
+        """Final text cleaning steps"""
+        # Normalize whitespace
+        text = self.whitespace_pattern.sub(' ', text)
+        # Remove excessive punctuation
+        text = re.sub(r'[\.]{3,}', '...', text)
+        text = re.sub(r'[!]{2,}', '!', text)
+        text = re.sub(r'[\?]{2,}', '?', text)
+        # Clean up spacing
+        text = text.strip()
+        return text
+                    </pre>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">2. OCR Error Correction</h3>
+            <p class="content-text">
+                OCR-processed documents often contain character recognition errors that can significantly 
+                impact retrieval quality. Here's an advanced correction system:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">OCR Error Correction</div>
+                <div class="code-block">
+                    <pre>
+import nltk
+from spellchecker import SpellChecker
+from difflib import SequenceMatcher
+import language_tool_python
+
+class OCRCorrector:
+    def __init__(self, custom_vocabulary: list = None):
+        self.spell_checker = SpellChecker()
+        self.grammar_tool = language_tool_python.LanguageTool('en-US')
+        
+        # Add custom vocabulary for domain-specific terms
+        if custom_vocabulary:
+            self.spell_checker.word_frequency.load_words(custom_vocabulary)
+        
+        # Common OCR character mappings
+        self.ocr_corrections = {
+            'rn': 'm', 'vv': 'w', 'cl': 'd', 'ii': 'll', 'Ii': 'Il',
+            '0': 'O', '5': 'S', '1': 'l', '6': 'G', '8': 'B',
+            'ﬁ': 'fi', 'ﬂ': 'fl', ''': "'", '"': '"', '"': '"'
+        }
+        
+    def correct_ocr_errors(self, text: str, confidence_threshold: float = 0.7) -> str:
+        """
+        Correct OCR errors using multiple strategies
+        """
+        # Stage 1: Character-level corrections
+        text = self._fix_character_errors(text)
+        
+        # Stage 2: Word-level corrections
+        text = self._fix_word_errors(text, confidence_threshold)
+        
+        # Stage 3: Context-aware corrections
+        text = self._fix_contextual_errors(text)
+        
+        return text
+    
+    def _fix_character_errors(self, text: str) -> str:
+        """Fix common OCR character substitution errors"""
+        for error, correction in self.ocr_corrections.items():
+            text = text.replace(error, correction)
+        
+        # Fix common spacing issues
+        text = re.sub(r'\b(\w)\s+(\w)\b', r'\1\2', text)  # Remove spaces in words
+        text = re.sub(r'(\w)([\.,:;!?])', r'\1 \2', text)  # Add space before punctuation
+        
+        return text
+    
+    def _fix_word_errors(self, text: str, threshold: float) -> str:
+        """Fix word-level spelling errors"""
+        words = text.split()
+        corrected_words = []
+        
+        for word in words:
+            # Skip words with numbers or special characters
+            if not word.isalpha():
+                corrected_words.append(word)
+                continue
+            
+            # Check if word needs correction
+            if word.lower() not in self.spell_checker:
+                candidates = self.spell_checker.candidates(word)
+                if candidates:
+                    # Find best match based on similarity
+                    best_match = max(candidates, 
+                                   key=lambda x: SequenceMatcher(None, word.lower(), x).ratio())
+                    similarity = SequenceMatcher(None, word.lower(), best_match).ratio()
+                    
+                    if similarity >= threshold:
+                        # Preserve original case
+                        corrected_word = self._preserve_case(word, best_match)
+                        corrected_words.append(corrected_word)
+                    else:
+                        corrected_words.append(word)
+                else:
+                    corrected_words.append(word)
+            else:
+                corrected_words.append(word)
+        
+        return ' '.join(corrected_words)
+    
+    def _fix_contextual_errors(self, text: str) -> str:
+        """Fix errors using grammatical context"""
+        try:
+            matches = self.grammar_tool.check(text)
+            corrected_text = language_tool_python.utils.correct(text, matches)
+            return corrected_text
+        except Exception:
+            return text
+    
+    def _preserve_case(self, original: str, correction: str) -> str:
+        """Preserve the case pattern of the original word"""
+        if original.isupper():
+            return correction.upper()
+        elif original.istitle():
+            return correction.capitalize()
+        else:
+            return correction.lower()
+                    </pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>OCR Correction Best Practices</h4>
+                <p>
+                    • Use domain-specific dictionaries for technical content<br>
+                    • Validate corrections manually for critical documents<br>
+                    • Consider confidence scores when applying corrections<br>
+                    • Preserve original formatting and structure when possible
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normalization Section -->
+    <section id="normalization" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Text Normalization and Standardization</h2>
+
+            <h3 class="subsection-title">1. Unicode Normalization</h3>
+            <p class="content-text">
+                Unicode normalization ensures consistent character representation across different 
+                sources and encoding schemes:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Unicode and Encoding Normalization</div>
+                <div class="code-block">
+                    <pre>
+import unicodedata
+import ftfy
+from unidecode import unidecode
+
+class UnicodeNormalizer:
+    def __init__(self, target_encoding='utf-8'):
+        self.target_encoding = target_encoding
+        
+    def normalize_unicode(self, text: str, form: str = 'NFC') -> str:
+        """
+        Normalize Unicode characters to a consistent form
+        
+        Forms:
+        - NFC: Canonical Decomposition, followed by Canonical Composition
+        - NFD: Canonical Decomposition
+        - NFKC: Compatibility Decomposition, followed by Canonical Composition
+        - NFKD: Compatibility Decomposition
+        """
+        # Fix encoding issues first
+        text = ftfy.fix_text(text)
+        
+        # Normalize Unicode
+        text = unicodedata.normalize(form, text)
+        
+        return text
+    
+    def handle_special_characters(self, text: str, strategy: str = 'preserve') -> str:
+        """
+        Handle special characters and accents
+        
+        Strategies:
+        - preserve: Keep original characters
+        - transliterate: Convert to ASCII equivalents
+        - remove: Remove non-ASCII characters
+        """
+        if strategy == 'transliterate':
+            # Convert accented characters to ASCII
+            text = unidecode(text)
+        elif strategy == 'remove':
+            # Remove non-ASCII characters
+            text = ''.join(char for char in text if ord(char) < 128)
+        elif strategy == 'preserve':
+            # Keep original but ensure proper encoding
+            text = text.encode(self.target_encoding, 'ignore').decode(self.target_encoding)
+        
+        return text
+    
+    def standardize_quotation_marks(self, text: str) -> str:
+        """Standardize different types of quotation marks"""
+        quote_mappings = {
+            '"': '"', '"': '"',  # Smart quotes to straight quotes
+            ''': "'", ''': "'",  # Smart apostrophes
+            '‚': "'", '„': '"',  # Various quote styles
+            '«': '"', '»': '"',  # French quotes
+            '‹': "'", '›': "'"   # Single French quotes
+        }
+        
+        for old_quote, new_quote in quote_mappings.items():
+            text = text.replace(old_quote, new_quote)
+        
+        return text
+    
+    def normalize_whitespace(self, text: str) -> str:
+        """Normalize different types of whitespace characters"""
+        # Replace various whitespace characters with regular space
+        whitespace_chars = [
+            '\u00A0',  # Non-breaking space
+            '\u2007',  # Figure space
+            '\u200B',  # Zero-width space
+            '\u2060',  # Word joiner
+            '\uFEFF',  # Zero-width no-break space
+        ]
+        
+        for ws_char in whitespace_chars:
+            text = text.replace(ws_char, ' ')
+        
+        # Normalize line endings
+        text = text.replace('\r\n', '\n').replace('\r', '\n')
+        
+        # Remove excessive whitespace
+        text = re.sub(r'\n\s*\n\s*\n', '\n\n', text)  # Multiple newlines to double
+        text = re.sub(r' +', ' ', text)  # Multiple spaces to single
+        
+        return text.strip()
+                    </pre>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">2. Content Structure Normalization</h3>
+            <p class="content-text">
+                Consistent content structure improves chunking and retrieval performance:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Structure Normalization</div>
+                <div class="code-block">
+                    <pre>
+import re
+from typing import Dict, List, Tuple
+
+class ContentStructureNormalizer:
+    def __init__(self):
+        self.section_patterns = {
+            'heading': re.compile(r'^#{1,6}\s+.+$', re.MULTILINE),
+            'list_item': re.compile(r'^\s*[•\-\*]\s+.+$', re.MULTILINE),
+            'numbered_item': re.compile(r'^\s*\d+\.\s+.+$', re.MULTILINE),
+            'table_row': re.compile(r'\|.+\|', re.MULTILINE)
+        }
+    
+    def normalize_headings(self, text: str) -> str:
+        """Standardize heading formats"""
+        lines = text.split('\n')
+        normalized_lines = []
+        
+        for line in lines:
+            stripped = line.strip()
+            
+            # Convert underlined headings to markdown style
+            if len(stripped) > 0 and all(c in '=-~^' for c in stripped):
+                if normalized_lines and normalized_lines[-1].strip():
+                    # Previous line is the heading text
+                    heading_text = normalized_lines[-1].strip()
+                    level = 1 if '=' in stripped else 2
+                    normalized_lines[-1] = f"{'#' * level} {heading_text}"
+                    continue
+            
+            # Standardize markdown headings spacing
+            heading_match = re.match(r'^(#{1,6})\s*(.+)$', stripped)
+            if heading_match:
+                level = len(heading_match.group(1))
+                title = heading_match.group(2).strip()
+                normalized_lines.append(f"{'#' * level} {title}")
+            else:
+                normalized_lines.append(line)
+        
+        return '\n'.join(normalized_lines)
+    
+    def normalize_lists(self, text: str) -> str:
+        """Standardize list formatting"""
+        lines = text.split('\n')
+        normalized_lines = []
+        in_list = False
+        list_level = 0
+        
+        for line in lines:
+            stripped = line.strip()
+            leading_spaces = len(line) - len(line.lstrip())
+            
+            # Detect list items
+            bullet_match = re.match(r'^[•\-\*\+]\s+(.+)$', stripped)
+            numbered_match = re.match(r'^(\d+)\.\s+(.+)$', stripped)
+            
+            if bullet_match:
+                content = bullet_match.group(1)
+                current_level = leading_spaces // 2  # Estimate indentation level
+                normalized_lines.append('  ' * current_level + f'• {content}')
+                in_list = True
+            elif numbered_match:
+                content = numbered_match.group(2)
+                current_level = leading_spaces // 2
+                normalized_lines.append('  ' * current_level + f'1. {content}')
+                in_list = True
+            else:
+                if in_list and not stripped:
+                    # Empty line in list
+                    normalized_lines.append('')
+                elif in_list and stripped:
+                    # End of list
+                    in_list = False
+                    normalized_lines.append('')
+                    normalized_lines.append(line)
+                else:
+                    normalized_lines.append(line)
+        
+        return '\n'.join(normalized_lines)
+    
+    def normalize_tables(self, text: str) -> str:
+        """Normalize table formatting"""
+        lines = text.split('\n')
+        normalized_lines = []
+        in_table = False
+        
+        for line in lines:
+            # Detect table rows (containing pipes)
+            if '|' in line and line.strip():
+                # Clean up table formatting
+                parts = [part.strip() for part in line.split('|')]
+                # Remove empty first/last parts if they exist
+                if parts and not parts[0]:
+                    parts = parts[1:]
+                if parts and not parts[-1]:
+                    parts = parts[:-1]
+                
+                if parts:  # Valid table row
+                    formatted_line = '| ' + ' | '.join(parts) + ' |'
+                    normalized_lines.append(formatted_line)
+                    in_table = True
+                else:
+                    normalized_lines.append(line)
+            else:
+                if in_table and not line.strip():
+                    # End of table
+                    in_table = False
+                normalized_lines.append(line)
+        
+        return '\n'.join(normalized_lines)
+    
+    def extract_metadata(self, text: str) -> Tuple[str, Dict]:
+        """Extract and normalize metadata from document"""
+        metadata = {}
+        content_lines = []
+        
+        lines = text.split('\n')
+        in_frontmatter = False
+        frontmatter_start = False
+        
+        for line in lines:
+            stripped = line.strip()
+            
+            # YAML frontmatter detection
+            if stripped == '---' and not frontmatter_start:
+                in_frontmatter = True
+                frontmatter_start = True
+                continue
+            elif stripped == '---' and in_frontmatter:
+                in_frontmatter = False
+                continue
+            
+            if in_frontmatter:
+                # Parse YAML-like metadata
+                if ':' in stripped:
+                    key, value = stripped.split(':', 1)
+                    metadata[key.strip()] = value.strip()
+            else:
+                content_lines.append(line)
+        
+        # Clean content
+        clean_content = '\n'.join(content_lines).strip()
+        
+        return clean_content, metadata
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Section -->
+    <section id="implementation" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Complete Cleaning Pipeline Implementation</h2>
+
+            <p class="content-text">
+                Here's a comprehensive implementation that combines all cleaning techniques into 
+                a production-ready pipeline:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Complete Data Cleaning Pipeline</div>
+                <div class="code-block">
+                    <pre>
+from typing import Dict, List, Optional, Callable
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+import json
+
+@dataclass
+class CleaningConfig:
+    """Configuration for the cleaning pipeline"""
+    preserve_structure: bool = True
+    correct_ocr: bool = True
+    normalize_unicode: bool = True
+    unicode_form: str = 'NFC'
+    character_strategy: str = 'preserve'  # preserve, transliterate, remove
+    confidence_threshold: float = 0.7
+    custom_vocabulary: Optional[List[str]] = None
+    remove_urls: bool = False
+    remove_emails: bool = False
+    remove_phone_numbers: bool = False
+    min_sentence_length: int = 10
+    max_sentence_length: int = 1000
+
+class DocumentCleaningPipeline:
+    def __init__(self, config: CleaningConfig = None):
+        self.config = config or CleaningConfig()
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize components
+        self.text_cleaner = AdvancedTextCleaner()
+        self.ocr_corrector = OCRCorrector(self.config.custom_vocabulary) if self.config.correct_ocr else None
+        self.unicode_normalizer = UnicodeNormalizer()
+        self.structure_normalizer = ContentStructureNormalizer()
+        
+        # Statistics tracking
+        self.stats = {
+            'documents_processed': 0,
+            'total_characters_before': 0,
+            'total_characters_after': 0,
+            'corrections_applied': 0
+        }
+    
+    def clean_document(self, content: str, metadata: Dict = None) -> Dict:
+        """
+        Clean a single document through the complete pipeline
+        """
+        if metadata is None:
+            metadata = {}
+        
+        original_length = len(content)
+        self.stats['total_characters_before'] += original_length
+        
+        try:
+            # Stage 1: Initial cleaning
+            cleaned_content = self._stage_1_initial_cleaning(content)
+            
+            # Stage 2: Structure normalization
+            cleaned_content = self._stage_2_structure_normalization(cleaned_content)
+            
+            # Stage 3: Content normalization
+            cleaned_content = self._stage_3_content_normalization(cleaned_content)
+            
+            # Stage 4: OCR correction (if enabled)
+            if self.config.correct_ocr and self.ocr_corrector:
+                cleaned_content = self._stage_4_ocr_correction(cleaned_content)
+            
+            # Stage 5: Final validation and filtering
+            cleaned_content = self._stage_5_final_validation(cleaned_content)
+            
+            # Extract metadata
+            cleaned_content, extracted_metadata = self.structure_normalizer.extract_metadata(cleaned_content)
+            metadata.update(extracted_metadata)
+            
+            # Update statistics
+            self.stats['documents_processed'] += 1
+            self.stats['total_characters_after'] += len(cleaned_content)
+            
+            return {
+                'content': cleaned_content,
+                'metadata': metadata,
+                'cleaning_stats': {
+                    'original_length': original_length,
+                    'cleaned_length': len(cleaned_content),
+                    'compression_ratio': len(cleaned_content) / original_length if original_length > 0 else 0
+                }
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error cleaning document: {str(e)}")
+            return {
+                'content': content,  # Return original on error
+                'metadata': metadata,
+                'cleaning_stats': {
+                    'error': str(e),
+                    'original_length': original_length,
+                    'cleaned_length': original_length,
+                    'compression_ratio': 1.0
+                }
+            }
+    
+    def _stage_1_initial_cleaning(self, content: str) -> str:
+        """Stage 1: Remove HTML, basic cleanup"""
+        # HTML cleaning
+        content = self.text_cleaner.clean_html_content(
+            content, 
+            preserve_structure=self.config.preserve_structure
+        )
+        
+        # URL/Email/Phone removal if configured
+        if self.config.remove_urls:
+            content = self.text_cleaner.url_pattern.sub('', content)
+        if self.config.remove_emails:
+            content = self.text_cleaner.email_pattern.sub('', content)
+        if self.config.remove_phone_numbers:
+            content = self.text_cleaner.phone_pattern.sub('', content)
+        
+        return content
+    
+    def _stage_2_structure_normalization(self, content: str) -> str:
+        """Stage 2: Normalize document structure"""
+        # Normalize headings
+        content = self.structure_normalizer.normalize_headings(content)
+        
+        # Normalize lists
+        content = self.structure_normalizer.normalize_lists(content)
+        
+        # Normalize tables
+        content = self.structure_normalizer.normalize_tables(content)
+        
+        return content
+    
+    def _stage_3_content_normalization(self, content: str) -> str:
+        """Stage 3: Unicode and character normalization"""
+        if self.config.normalize_unicode:
+            # Unicode normalization
+            content = self.unicode_normalizer.normalize_unicode(
+                content, 
+                form=self.config.unicode_form
+            )
+            
+            # Handle special characters
+            content = self.unicode_normalizer.handle_special_characters(
+                content, 
+                strategy=self.config.character_strategy
+            )
+            
+            # Standardize quotes and whitespace
+            content = self.unicode_normalizer.standardize_quotation_marks(content)
+            content = self.unicode_normalizer.normalize_whitespace(content)
+        
+        return content
+    
+    def _stage_4_ocr_correction(self, content: str) -> str:
+        """Stage 4: OCR error correction"""
+        try:
+            corrected = self.ocr_corrector.correct_ocr_errors(
+                content, 
+                confidence_threshold=self.config.confidence_threshold
+            )
+            return corrected
+        except Exception as e:
+            self.logger.warning(f"OCR correction failed: {str(e)}")
+            return content
+    
+    def _stage_5_final_validation(self, content: str) -> str:
+        """Stage 5: Final validation and filtering"""
+        lines = content.split('\n')
+        valid_lines = []
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Skip empty lines (but preserve paragraph breaks)
+            if not line:
+                if valid_lines and valid_lines[-1] != '':
+                    valid_lines.append('')
+                continue
+            
+            # Filter by length
+            if (len(line) >= self.config.min_sentence_length and 
+                len(line) <= self.config.max_sentence_length):
+                valid_lines.append(line)
+        
+        # Remove trailing empty lines
+        while valid_lines and valid_lines[-1] == '':
+            valid_lines.pop()
+        
+        return '\n'.join(valid_lines)
+    
+    def get_statistics(self) -> Dict:
+        """Get pipeline statistics"""
+        if self.stats['documents_processed'] > 0:
+            avg_compression = (self.stats['total_characters_after'] / 
+                             self.stats['total_characters_before'])
+        else:
+            avg_compression = 0
+        
+        return {
+            **self.stats,
+            'average_compression_ratio': avg_compression,
+            'total_size_reduction': (self.stats['total_characters_before'] - 
+                                   self.stats['total_characters_after'])
+        }
+
+# Usage example
+def clean_document_collection(documents: List[Dict], config: CleaningConfig = None) -> List[Dict]:
+    """
+    Clean a collection of documents
+    """
+    pipeline = DocumentCleaningPipeline(config)
+    cleaned_documents = []
+    
+    for doc in documents:
+        content = doc.get('content', '')
+        metadata = doc.get('metadata', {})
+        
+        cleaned_doc = pipeline.clean_document(content, metadata)
+        cleaned_documents.append(cleaned_doc)
+    
+    # Log statistics
+    stats = pipeline.get_statistics()
+    logging.info(f"Cleaned {stats['documents_processed']} documents")
+    logging.info(f"Average compression ratio: {stats['average_compression_ratio']:.2f}")
+    
+    return cleaned_documents
+
+# Example usage
+if __name__ == "__main__":
+    # Configure cleaning pipeline
+    config = CleaningConfig(
+        preserve_structure=True,
+        correct_ocr=True,
+        normalize_unicode=True,
+        confidence_threshold=0.8,
+        custom_vocabulary=['API', 'JSON', 'HTTP', 'REST'],
+        remove_urls=True,
+        min_sentence_length=15
+    )
+    
+    # Example document
+    sample_doc = {
+        'content': """
+        &lt;h1&gt;API Documentation&lt;/h1&gt;
+        &lt;p&gt;This is a sample document with HTML entities and OCR errors.&lt;/p&gt;
+        • Bullet point vvith errors
+        • Another poiut
+        
+        Visit https://example.com for more info.
+        Contact us at info@example.com
+        """,
+        'metadata': {'source': 'web_scrape', 'date': '2025-01-01'}
+    }
+    
+    # Clean the document
+    pipeline = DocumentCleaningPipeline(config)
+    result = pipeline.clean_document(sample_doc['content'], sample_doc['metadata'])
+    
+    print("Cleaned content:")
+    print(result['content'])
+    print("\nCleaning stats:")
+    print(result['cleaning_stats'])
+                    </pre>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Performance Considerations</h4>
+                <p>
+                    • OCR correction can be computationally expensive for large documents<br>
+                    • Consider processing documents in batches for better throughput<br>
+                    • Cache expensive operations like spell checking dictionaries<br>
+                    • Monitor memory usage when processing large document collections
+                </p>
+            </div>
+
+            <h3 class="subsection-title">Quality Assessment and Validation</h3>
+            <p class="content-text">
+                Implement quality assessment to ensure cleaning effectiveness:
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Quality Assessment Framework</div>
+                <div class="code-block">
+                    <pre>
+class CleaningQualityAssessor:
+    def __init__(self):
+        self.metrics = {}
+    
+    def assess_cleaning_quality(self, original: str, cleaned: str) -> Dict:
+        """Assess the quality of cleaning operations"""
+        return {
+            'content_preservation': self._assess_content_preservation(original, cleaned),
+            'readability_improvement': self._assess_readability(original, cleaned),
+            'structure_quality': self._assess_structure_quality(cleaned),
+            'encoding_quality': self._assess_encoding_quality(cleaned),
+            'overall_score': self._calculate_overall_score(original, cleaned)
+        }
+    
+    def _assess_content_preservation(self, original: str, cleaned: str) -> float:
+        """Measure how well important content is preserved"""
+        # Compare word overlap
+        original_words = set(original.lower().split())
+        cleaned_words = set(cleaned.lower().split())
+        
+        if len(original_words) == 0:
+            return 1.0
+        
+        overlap = len(original_words.intersection(cleaned_words))
+        return overlap / len(original_words)
+    
+    def _assess_readability(self, original: str, cleaned: str) -> float:
+        """Assess readability improvement"""
+        # Simple readability metrics
+        original_sentences = len([s for s in original.split('.') if s.strip()])
+        cleaned_sentences = len([s for s in cleaned.split('.') if s.strip()])
+        
+        original_avg_length = len(original) / max(original_sentences, 1)
+        cleaned_avg_length = len(cleaned) / max(cleaned_sentences, 1)
+        
+        # Prefer moderate sentence lengths (50-150 characters)
+        optimal_range = (50, 150)
+        
+        def score_length(avg_len):
+            if optimal_range[0] <= avg_len <= optimal_range[1]:
+                return 1.0
+            elif avg_len < optimal_range[0]:
+                return avg_len / optimal_range[0]
+            else:
+                return optimal_range[1] / avg_len
+        
+        return score_length(cleaned_avg_length) - score_length(original_avg_length) + 1.0
+    
+    def _assess_structure_quality(self, text: str) -> float:
+        """Assess structural quality of cleaned text"""
+        score = 0.0
+        
+        # Check for proper heading structure
+        lines = text.split('\n')
+        has_headings = any(line.strip().startswith('#') for line in lines)
+        if has_headings:
+            score += 0.3
+        
+        # Check for proper list formatting
+        has_lists = any(re.match(r'^\s*[•\-\*]\s+', line) for line in lines)
+        if has_lists:
+            score += 0.2
+        
+        # Check for consistent paragraph breaks
+        paragraph_breaks = text.count('\n\n')
+        total_lines = len(lines)
+        if total_lines > 0 and paragraph_breaks / total_lines > 0.1:
+            score += 0.3
+        
+        # Check for balanced text distribution
+        avg_line_length = sum(len(line) for line in lines) / max(len(lines), 1)
+        if 30 <= avg_line_length <= 200:
+            score += 0.2
+        
+        return min(score, 1.0)
+    
+    def _assess_encoding_quality(self, text: str) -> float:
+        """Assess encoding and character quality"""
+        # Count problematic characters
+        total_chars = len(text)
+        if total_chars == 0:
+            return 1.0
+        
+        problematic_chars = 0
+        
+        # Count encoding artifacts
+        problematic_chars += text.count('�')  # Replacement character
+        problematic_chars += text.count('?')  # Question marks (potential encoding issues)
+        problematic_chars += len(re.findall(r'&[a-zA-Z]+;', text))  # HTML entities
+        
+        # Count excessive whitespace
+        excessive_spaces = len(re.findall(r'  +', text))  # Multiple spaces
+        excessive_newlines = len(re.findall(r'\n\n\n+', text))  # Multiple newlines
+        
+        problematic_chars += excessive_spaces + excessive_newlines
+        
+        return max(0.0, 1.0 - (problematic_chars / total_chars))
+    
+    def _calculate_overall_score(self, original: str, cleaned: str) -> float:
+        """Calculate overall cleaning quality score"""
+        preservation = self._assess_content_preservation(original, cleaned)
+        readability = self._assess_readability(original, cleaned)
+        structure = self._assess_structure_quality(cleaned)
+        encoding = self._assess_encoding_quality(cleaned)
+        
+        # Weighted average
+        weights = {
+            'preservation': 0.4,
+            'readability': 0.2,
+            'structure': 0.2,
+            'encoding': 0.2
+        }
+        
+        return (preservation * weights['preservation'] +
+                readability * weights['readability'] +
+                structure * weights['structure'] +
+                encoding * weights['encoding'])
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back Navigation -->
+    <section class="back-nav">
+        <div class="container">
+            <a href="rag-advanced-rag-handbook.html" class="back-button">← Back to RAG Handbook</a>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.card, .code-container').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>

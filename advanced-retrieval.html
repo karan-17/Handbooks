@@ -1,0 +1,2822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Retrieval Techniques - RAG Handbook</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --accent-color: #f59e0b;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --code-bg: #f1f5f9;
+            --code-border: #e2e8f0;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 3rem 0;
+        }
+
+        .content-section:nth-child(even) {
+            background: var(--surface-color);
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .subsection-title {
+            font-size: 1.6rem;
+            margin: 2.5rem 0 1.5rem 0;
+            color: var(--primary-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .content-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .code-header {
+            background: var(--text-primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .warning-box h4 {
+            color: var(--warning-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .success-box {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            border-left: 4px solid var(--success-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .success-box h4 {
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Lists */
+        .feature-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Grid Layout */
+        .two-column-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .three-column-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .diagram-box {
+            background: var(--surface-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin: 0 1rem;
+        }
+
+        /* Back Navigation */
+        .back-nav {
+            background: var(--surface-color);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .back-button {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .two-column-grid, .three-column-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .subsection-title {
+                font-size: 1.4rem;
+            }
+
+            .diagram-box {
+                display: block;
+                margin: 1rem auto;
+            }
+
+            .arrow {
+                display: block;
+                margin: 1rem 0;
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>Advanced Retrieval Techniques</h1>
+            <p class="subtitle">Hybrid Search, Query Expansion, Re-ranking, and Multi-Stage Retrieval</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="nav-brand">RAG Handbook</div>
+            <ul class="nav-links">
+                <li><a href="rag-advanced-rag-handbook.html">← Back to Main</a></li>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#hybrid-search">Hybrid Search</a></li>
+                <li><a href="#query-expansion">Query Expansion</a></li>
+                <li><a href="#reranking">Re-ranking</a></li>
+                <li><a href="#multi-stage">Multi-Stage</a></li>
+                <li><a href="#implementation">Implementation</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Overview Section -->
+    <section id="overview" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Advanced Retrieval Architecture</h2>
+            <p class="content-text">
+                Modern RAG systems require sophisticated retrieval strategies that go beyond simple semantic similarity. 
+                Advanced retrieval combines multiple search modalities, query understanding, and intelligent ranking 
+                to deliver highly relevant context for generation tasks.
+            </p>
+
+            <div class="architecture-diagram">
+                <h4>Advanced Retrieval Pipeline</h4>
+                <div style="margin: 2rem 0;">
+                    <div class="diagram-box">Query Processing</div>
+                    <span class="arrow">→</span>
+                    <div class="diagram-box">Multi-Modal Search</div>
+                    <span class="arrow">→</span>
+                    <div class="diagram-box">Fusion & Ranking</div>
+                    <span class="arrow">→</span>
+                    <div class="diagram-box">Context Selection</div>
+                </div>
+            </div>
+
+            <div class="three-column-grid">
+                <div class="card">
+                    <h4>Hybrid Search</h4>
+                    <p>Combines dense vector search with sparse retrieval methods like BM25 for optimal coverage and precision.</p>
+                    <ul class="feature-list">
+                        <li>Dense + Sparse fusion</li>
+                        <li>Multi-vector approaches</li>
+                        <li>Cross-encoder refinement</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Query Understanding</h4>
+                    <p>Advanced query processing including expansion, reformulation, and intent detection.</p>
+                    <ul class="feature-list">
+                        <li>Semantic expansion</li>
+                        <li>Query decomposition</li>
+                        <li>Intent classification</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Intelligent Ranking</h4>
+                    <p>Multi-stage ranking with learned models and contextual relevance scoring.</p>
+                    <ul class="feature-list">
+                        <li>Neural re-ranking</li>
+                        <li>Contextual scoring</li>
+                        <li>Diversity optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hybrid Search Section -->
+    <section id="hybrid-search" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Hybrid Search Implementation</h2>
+
+            <h3 class="subsection-title">1. Dense-Sparse Fusion</h3>
+            <p class="content-text">
+                Hybrid search combines the semantic understanding of dense embeddings with the exact term 
+                matching capabilities of sparse methods like BM25. This approach provides comprehensive 
+                coverage across different query types and document characteristics.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Hybrid Search Implementation</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Tuple, Optional
+import numpy as np
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
+import faiss
+from rank_bm25 import BM25Okapi
+from sentence_transformers import SentenceTransformer
+import torch
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+@dataclass
+class SearchResult:
+    """Represents a search result with relevance scores"""
+    doc_id: str
+    content: str
+    dense_score: float
+    sparse_score: float
+    fusion_score: float
+    metadata: Dict = None
+
+class FusionStrategy(ABC):
+    """Abstract base class for score fusion strategies"""
+    
+    @abstractmethod
+    def fuse_scores(self, dense_scores: List[float], sparse_scores: List[float]) -> List[float]:
+        pass
+
+class ReciprocalRankFusion(FusionStrategy):
+    """Reciprocal Rank Fusion (RRF) for combining rankings"""
+    
+    def __init__(self, k: int = 60):
+        self.k = k
+    
+    def fuse_scores(self, dense_results: List[Tuple], sparse_results: List[Tuple]) -> List[SearchResult]:
+        """
+        Fuse results using Reciprocal Rank Fusion
+        
+        Args:
+            dense_results: List of (doc_id, score) tuples from dense search
+            sparse_results: List of (doc_id, score) tuples from sparse search
+        """
+        # Create rank mappings
+        dense_ranks = {doc_id: rank + 1 for rank, (doc_id, _) in enumerate(dense_results)}
+        sparse_ranks = {doc_id: rank + 1 for rank, (doc_id, _) in enumerate(sparse_results)}
+        
+        # Get all unique document IDs
+        all_doc_ids = set(dense_ranks.keys()) | set(sparse_ranks.keys())
+        
+        fused_scores = {}
+        for doc_id in all_doc_ids:
+            rrf_score = 0
+            
+            if doc_id in dense_ranks:
+                rrf_score += 1 / (self.k + dense_ranks[doc_id])
+            
+            if doc_id in sparse_ranks:
+                rrf_score += 1 / (self.k + sparse_ranks[doc_id])
+            
+            fused_scores[doc_id] = rrf_score
+        
+        # Sort by fused score
+        return sorted(fused_scores.items(), key=lambda x: x[1], reverse=True)
+
+class LinearCombination(FusionStrategy):
+    """Linear combination of normalized scores"""
+    
+    def __init__(self, dense_weight: float = 0.7, sparse_weight: float = 0.3):
+        self.dense_weight = dense_weight
+        self.sparse_weight = sparse_weight
+        assert abs(dense_weight + sparse_weight - 1.0) < 1e-6, "Weights must sum to 1"
+    
+    def fuse_scores(self, dense_scores: List[float], sparse_scores: List[float]) -> List[float]:
+        # Normalize scores to [0, 1] range
+        dense_normalized = self._min_max_normalize(dense_scores)
+        sparse_normalized = self._min_max_normalize(sparse_scores)
+        
+        # Combine linearly
+        return [self.dense_weight * d + self.sparse_weight * s 
+                for d, s in zip(dense_normalized, sparse_normalized)]
+    
+    def _min_max_normalize(self, scores: List[float]) -> List[float]:
+        if not scores or max(scores) == min(scores):
+            return [0.5] * len(scores)
+        
+        min_score, max_score = min(scores), max(scores)
+        return [(score - min_score) / (max_score - min_score) for score in scores]
+
+class HybridRetriever:
+    """Advanced hybrid retrieval system"""
+    
+    def __init__(
+        self,
+        embedding_model_name: str = "all-MiniLM-L6-v2",
+        fusion_strategy: FusionStrategy = None,
+        dense_top_k: int = 100,
+        sparse_top_k: int = 100,
+        final_top_k: int = 20
+    ):
+        # Initialize dense retrieval
+        self.embedding_model = SentenceTransformer(embedding_model_name)
+        self.dense_index = None
+        self.dense_top_k = dense_top_k
+        
+        # Initialize sparse retrieval
+        self.bm25 = None
+        self.sparse_top_k = sparse_top_k
+        
+        # Fusion configuration
+        self.fusion_strategy = fusion_strategy or ReciprocalRankFusion()
+        self.final_top_k = final_top_k
+        
+        # Document storage
+        self.documents = []
+        self.doc_embeddings = None
+        self.tokenized_docs = None
+        
+    def index_documents(self, documents: List[Dict]):
+        """
+        Index documents for both dense and sparse retrieval
+        
+        Args:
+            documents: List of document dictionaries with 'content' and 'metadata'
+        """
+        self.documents = documents
+        
+        # Extract content for indexing
+        doc_contents = [doc['content'] for doc in documents]
+        
+        # Build dense index
+        print("Building dense embeddings...")
+        self.doc_embeddings = self.embedding_model.encode(doc_contents, show_progress_bar=True)
+        
+        # Build FAISS index for efficient similarity search
+        self.dense_index = faiss.IndexFlatIP(self.doc_embeddings.shape[1])
+        # Normalize embeddings for cosine similarity
+        faiss.normalize_L2(self.doc_embeddings)
+        self.dense_index.add(self.doc_embeddings.astype(np.float32))
+        
+        # Build sparse index (BM25)
+        print("Building sparse index...")
+        self.tokenized_docs = [doc.lower().split() for doc in doc_contents]
+        self.bm25 = BM25Okapi(self.tokenized_docs)
+        
+        print(f"Indexed {len(documents)} documents")
+    
+    def search(self, query: str, top_k: int = None) -> List[SearchResult]:
+        """
+        Perform hybrid search combining dense and sparse retrieval
+        
+        Args:
+            query: Search query
+            top_k: Number of results to return (defaults to self.final_top_k)
+        
+        Returns:
+            List of SearchResult objects ranked by fusion score
+        """
+        if top_k is None:
+            top_k = self.final_top_k
+        
+        # Dense search
+        dense_results = self._dense_search(query, self.dense_top_k)
+        
+        # Sparse search
+        sparse_results = self._sparse_search(query, self.sparse_top_k)
+        
+        # Fuse results
+        if isinstance(self.fusion_strategy, ReciprocalRankFusion):
+            fused_rankings = self.fusion_strategy.fuse_scores(dense_results, sparse_results)
+            
+            # Create SearchResult objects
+            results = []
+            for doc_id, fusion_score in fused_rankings[:top_k]:
+                # Get original scores
+                dense_score = next((score for did, score in dense_results if did == doc_id), 0.0)
+                sparse_score = next((score for did, score in sparse_results if did == doc_id), 0.0)
+                
+                doc_idx = int(doc_id)
+                result = SearchResult(
+                    doc_id=doc_id,
+                    content=self.documents[doc_idx]['content'],
+                    dense_score=dense_score,
+                    sparse_score=sparse_score,
+                    fusion_score=fusion_score,
+                    metadata=self.documents[doc_idx].get('metadata', {})
+                )
+                results.append(result)
+            
+            return results
+        
+        else:
+            # For other fusion strategies, implement score-based fusion
+            # This is a simplified implementation - extend as needed
+            return self._score_based_fusion(dense_results, sparse_results, top_k)
+    
+    def _dense_search(self, query: str, top_k: int) -> List[Tuple[str, float]]:
+        """Perform dense vector search"""
+        # Encode query
+        query_embedding = self.embedding_model.encode([query])
+        faiss.normalize_L2(query_embedding)
+        
+        # Search
+        scores, indices = self.dense_index.search(query_embedding.astype(np.float32), top_k)
+        
+        # Return (doc_id, score) tuples
+        return [(str(idx), float(score)) for score, idx in zip(scores[0], indices[0]) if idx != -1]
+    
+    def _sparse_search(self, query: str, top_k: int) -> List[Tuple[str, float]]:
+        """Perform sparse BM25 search"""
+        query_tokens = query.lower().split()
+        scores = self.bm25.get_scores(query_tokens)
+        
+        # Get top-k indices
+        top_indices = np.argsort(scores)[-top_k:][::-1]
+        
+        # Return (doc_id, score) tuples
+        return [(str(idx), float(scores[idx])) for idx in top_indices]
+    
+    def _score_based_fusion(self, dense_results: List[Tuple], sparse_results: List[Tuple], top_k: int) -> List[SearchResult]:
+        """Alternative fusion method based on score combination"""
+        # Create score dictionaries
+        dense_scores = {doc_id: score for doc_id, score in dense_results}
+        sparse_scores = {doc_id: score for doc_id, score in sparse_results}
+        
+        # Get all document IDs
+        all_doc_ids = set(dense_scores.keys()) | set(sparse_scores.keys())
+        
+        # Calculate fusion scores
+        fusion_scores = []
+        for doc_id in all_doc_ids:
+            dense_score = dense_scores.get(doc_id, 0.0)
+            sparse_score = sparse_scores.get(doc_id, 0.0)
+            
+            # Use fusion strategy
+            fusion_score = self.fusion_strategy.fuse_scores([dense_score], [sparse_score])[0]
+            
+            fusion_scores.append((doc_id, dense_score, sparse_score, fusion_score))
+        
+        # Sort by fusion score
+        fusion_scores.sort(key=lambda x: x[3], reverse=True)
+        
+        # Create SearchResult objects
+        results = []
+        for doc_id, dense_score, sparse_score, fusion_score in fusion_scores[:top_k]:
+            doc_idx = int(doc_id)
+            result = SearchResult(
+                doc_id=doc_id,
+                content=self.documents[doc_idx]['content'],
+                dense_score=dense_score,
+                sparse_score=sparse_score,
+                fusion_score=fusion_score,
+                metadata=self.documents[doc_idx].get('metadata', {})
+            )
+            results.append(result)
+        
+        return results
+
+# Usage example
+def create_hybrid_search_system():
+    """Example of creating and using a hybrid search system"""
+    
+    # Sample documents
+    documents = [
+        {
+            "content": "Python is a high-level programming language known for its simplicity and readability.",
+            "metadata": {"category": "programming", "language": "python"}
+        },
+        {
+            "content": "Machine learning algorithms can be implemented efficiently using Python libraries like scikit-learn.",
+            "metadata": {"category": "ml", "language": "python"}
+        },
+        {
+            "content": "Natural language processing involves analyzing and understanding human language using computational methods.",
+            "metadata": {"category": "nlp", "field": "ai"}
+        },
+        # Add more documents...
+    ]
+    
+    # Initialize hybrid retriever with RRF fusion
+    retriever = HybridRetriever(
+        embedding_model_name="all-MiniLM-L6-v2",
+        fusion_strategy=ReciprocalRankFusion(k=60),
+        dense_top_k=50,
+        sparse_top_k=50,
+        final_top_k=10
+    )
+    
+    # Index documents
+    retriever.index_documents(documents)
+    
+    # Search
+    results = retriever.search("Python machine learning", top_k=5)
+    
+    # Display results
+    for i, result in enumerate(results, 1):
+        print(f"{i}. Score: {result.fusion_score:.4f}")
+        print(f"   Dense: {result.dense_score:.4f}, Sparse: {result.sparse_score:.4f}")
+        print(f"   Content: {result.content[:100]}...")
+        print()
+    
+    return retriever
+                    </pre>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">2. ColBERT-Style Late Interaction</h3>
+            <p class="content-text">
+                ColBERT introduces a novel approach to dense retrieval through late interaction, where 
+                query and document tokens interact at the similarity computation stage rather than 
+                during encoding.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">ColBERT Late Interaction Implementation</div>
+                <div class="code-block">
+                    <pre>
+import torch
+import torch.nn as nn
+from transformers import AutoTokenizer, AutoModel
+from typing import List, Tuple
+import numpy as np
+
+class ColBERTRetriever:
+    """Implementation of ColBERT-style late interaction retrieval"""
+    
+    def __init__(
+        self,
+        model_name: str = "colbert-ir/colbertv2.0",
+        max_query_length: int = 32,
+        max_doc_length: int = 180,
+        dim: int = 128
+    ):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.max_query_length = max_query_length
+        self.max_doc_length = max_doc_length
+        self.dim = dim
+        
+        # Load tokenizer and model
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name)
+        self.model.to(self.device)
+        self.model.eval()
+        
+        # Add special tokens
+        if "[Q]" not in self.tokenizer.get_vocab():
+            self.tokenizer.add_special_tokens({"additional_special_tokens": ["[Q]", "[D]"]})
+            self.model.resize_token_embeddings(len(self.tokenizer))
+        
+        # Linear layer for dimension reduction
+        self.linear = nn.Linear(self.model.config.hidden_size, self.dim)
+        self.linear.to(self.device)
+        
+    def encode_queries(self, queries: List[str]) -> torch.Tensor:
+        """Encode queries with [Q] prefix"""
+        encoded_queries = []
+        
+        for query in queries:
+            # Add query prefix
+            query = f"[Q] {query}"
+            
+            # Tokenize
+            tokens = self.tokenizer(
+                query,
+                max_length=self.max_query_length,
+                padding='max_length',
+                truncation=True,
+                return_tensors='pt'
+            )
+            
+            # Move to device
+            input_ids = tokens['input_ids'].to(self.device)
+            attention_mask = tokens['attention_mask'].to(self.device)
+            
+            with torch.no_grad():
+                # Get embeddings
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                embeddings = outputs.last_hidden_state
+                
+                # Apply linear layer
+                embeddings = self.linear(embeddings)
+                
+                # Normalize embeddings
+                embeddings = nn.functional.normalize(embeddings, p=2, dim=-1)
+                
+                # Mask padded tokens
+                embeddings = embeddings * attention_mask.unsqueeze(-1)
+                
+            encoded_queries.append(embeddings.squeeze(0))
+        
+        return torch.stack(encoded_queries)
+    
+    def encode_documents(self, documents: List[str]) -> torch.Tensor:
+        """Encode documents with [D] prefix"""
+        encoded_docs = []
+        
+        for doc in documents:
+            # Add document prefix
+            doc = f"[D] {doc}"
+            
+            # Tokenize
+            tokens = self.tokenizer(
+                doc,
+                max_length=self.max_doc_length,
+                padding='max_length',
+                truncation=True,
+                return_tensors='pt'
+            )
+            
+            # Move to device
+            input_ids = tokens['input_ids'].to(self.device)
+            attention_mask = tokens['attention_mask'].to(self.device)
+            
+            with torch.no_grad():
+                # Get embeddings
+                outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                embeddings = outputs.last_hidden_state
+                
+                # Apply linear layer
+                embeddings = self.linear(embeddings)
+                
+                # Normalize embeddings
+                embeddings = nn.functional.normalize(embeddings, p=2, dim=-1)
+                
+                # Mask padded tokens
+                embeddings = embeddings * attention_mask.unsqueeze(-1)
+                
+            encoded_docs.append(embeddings.squeeze(0))
+        
+        return torch.stack(encoded_docs)
+    
+    def late_interaction_score(
+        self, 
+        query_embeddings: torch.Tensor, 
+        doc_embeddings: torch.Tensor
+    ) -> float:
+        """
+        Compute late interaction score between query and document
+        
+        Args:
+            query_embeddings: [query_len, dim]
+            doc_embeddings: [doc_len, dim]
+        
+        Returns:
+            Interaction score
+        """
+        # Compute all pairwise similarities
+        # query_embeddings: [query_len, dim]
+        # doc_embeddings: [doc_len, dim]
+        # similarities: [query_len, doc_len]
+        similarities = torch.matmul(query_embeddings, doc_embeddings.T)
+        
+        # For each query token, find the maximum similarity with any document token
+        max_similarities = torch.max(similarities, dim=1)[0]
+        
+        # Sum over all query tokens (excluding padding)
+        # This requires checking for non-zero embeddings (non-padded tokens)
+        query_mask = torch.norm(query_embeddings, dim=1) > 0
+        score = torch.sum(max_similarities * query_mask)
+        
+        return score.item()
+    
+    def search(
+        self, 
+        query: str, 
+        document_embeddings: torch.Tensor, 
+        top_k: int = 10
+    ) -> List[Tuple[int, float]]:
+        """
+        Search for most relevant documents using late interaction
+        
+        Args:
+            query: Search query
+            document_embeddings: Pre-computed document embeddings [num_docs, max_doc_len, dim]
+            top_k: Number of results to return
+        
+        Returns:
+            List of (doc_index, score) tuples
+        """
+        # Encode query
+        query_embedding = self.encode_queries([query])[0]  # [query_len, dim]
+        
+        # Compute scores for all documents
+        scores = []
+        for doc_idx, doc_embedding in enumerate(document_embeddings):
+            score = self.late_interaction_score(query_embedding, doc_embedding)
+            scores.append((doc_idx, score))
+        
+        # Sort by score and return top-k
+        scores.sort(key=lambda x: x[1], reverse=True)
+        return scores[:top_k]
+    
+    def batch_search(
+        self, 
+        queries: List[str], 
+        document_embeddings: torch.Tensor, 
+        top_k: int = 10
+    ) -> List[List[Tuple[int, float]]]:
+        """Batch search for multiple queries"""
+        results = []
+        query_embeddings = self.encode_queries(queries)
+        
+        for query_embedding in query_embeddings:
+            doc_scores = []
+            for doc_idx, doc_embedding in enumerate(document_embeddings):
+                score = self.late_interaction_score(query_embedding, doc_embedding)
+                doc_scores.append((doc_idx, score))
+            
+            doc_scores.sort(key=lambda x: x[1], reverse=True)
+            results.append(doc_scores[:top_k])
+        
+        return results
+
+# Usage example
+def colbert_retrieval_example():
+    """Example usage of ColBERT retrieval"""
+    
+    # Sample documents
+    documents = [
+        "Python is a versatile programming language used for web development, data science, and AI.",
+        "Machine learning models require large datasets for training and validation.",
+        "Natural language processing enables computers to understand and generate human language.",
+        "Deep learning neural networks can learn complex patterns from data automatically.",
+        "Information retrieval systems help users find relevant documents from large collections."
+    ]
+    
+    # Initialize ColBERT retriever
+    retriever = ColBERTRetriever(dim=128)
+    
+    # Encode documents
+    print("Encoding documents...")
+    doc_embeddings = retriever.encode_documents(documents)
+    
+    # Search
+    query = "machine learning and neural networks"
+    print(f"Searching for: '{query}'")
+    
+    results = retriever.search(query, doc_embeddings, top_k=3)
+    
+    print("\nResults:")
+    for rank, (doc_idx, score) in enumerate(results, 1):
+        print(f"{rank}. Score: {score:.4f}")
+        print(f"   Document: {documents[doc_idx]}")
+        print()
+    
+    return retriever, doc_embeddings
+                    </pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Hybrid Search Benefits</h4>
+                <p>
+                    • <strong>Coverage:</strong> Dense retrieval captures semantic similarity while sparse methods ensure exact term matching<br>
+                    • <strong>Robustness:</strong> Performs well across diverse query types and document styles<br>
+                    • <strong>Precision:</strong> Fusion strategies optimize for both recall and relevance<br>
+                    • <strong>Flexibility:</strong> Can be tuned for specific domains and use cases
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Query Expansion Section -->
+    <section id="query-expansion" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Query Expansion and Reformulation</h2>
+
+            <h3 class="subsection-title">1. Semantic Query Expansion</h3>
+            <p class="content-text">
+                Query expansion enhances search effectiveness by adding semantically related terms, 
+                handling synonyms, and reformulating queries for better retrieval coverage.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Advanced Query Expansion System</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Set, Tuple
+import openai
+from sentence_transformers import SentenceTransformer
+import spacy
+from collections import defaultdict
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import nltk
+from nltk.corpus import wordnet
+from transformers import pipeline
+
+class QueryExpansionSystem:
+    """Advanced query expansion using multiple strategies"""
+    
+    def __init__(
+        self,
+        embedding_model: str = "all-MiniLM-L6-v2",
+        llm_model: str = "gpt-3.5-turbo",
+        use_wordnet: bool = True,
+        use_llm: bool = True
+    ):
+        # Initialize models
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.nlp = spacy.load("en_core_web_sm")
+        self.llm_model = llm_model
+        self.use_wordnet = use_wordnet
+        self.use_llm = use_llm
+        
+        # Initialize NLI pipeline for query relevance
+        self.nli_pipeline = pipeline(
+            "text-classification",
+            model="microsoft/DialoGPT-medium"
+        )
+        
+        # Download required NLTK data
+        if use_wordnet:
+            try:
+                nltk.data.find('corpora/wordnet')
+            except LookupError:
+                nltk.download('wordnet')
+        
+        # Knowledge base for domain-specific expansions
+        self.domain_expansions = defaultdict(list)
+        
+    def expand_query(
+        self, 
+        query: str, 
+        corpus: List[str] = None,
+        max_expansions: int = 5,
+        expansion_strategies: List[str] = None
+    ) -> Dict[str, List[str]]:
+        """
+        Expand query using multiple strategies
+        
+        Args:
+            query: Original query
+            corpus: Optional corpus for corpus-based expansion
+            max_expansions: Maximum number of expansion terms per strategy
+            expansion_strategies: List of strategies to use
+        
+        Returns:
+            Dictionary with expansion terms for each strategy
+        """
+        if expansion_strategies is None:
+            expansion_strategies = ["wordnet", "embedding", "llm", "corpus"]
+        
+        expansions = {}
+        
+        # Preprocess query
+        processed_query = self._preprocess_query(query)
+        
+        # WordNet-based expansion
+        if "wordnet" in expansion_strategies and self.use_wordnet:
+            expansions["wordnet"] = self._wordnet_expansion(
+                processed_query, max_expansions
+            )
+        
+        # Embedding-based expansion
+        if "embedding" in expansion_strategies:
+            expansions["embedding"] = self._embedding_expansion(
+                processed_query, corpus, max_expansions
+            )
+        
+        # LLM-based expansion
+        if "llm" in expansion_strategies and self.use_llm:
+            expansions["llm"] = self._llm_expansion(
+                processed_query, max_expansions
+            )
+        
+        # Corpus-based expansion
+        if "corpus" in expansion_strategies and corpus:
+            expansions["corpus"] = self._corpus_expansion(
+                processed_query, corpus, max_expansions
+            )
+        
+        # Combine and rank expansions
+        combined_expansions = self._combine_expansions(
+            expansions, processed_query, max_expansions
+        )
+        
+        return {
+            "original_query": query,
+            "processed_query": processed_query,
+            "expansions_by_strategy": expansions,
+            "final_expansions": combined_expansions,
+            "expanded_query": self._create_expanded_query(processed_query, combined_expansions)
+        }
+    
+    def _preprocess_query(self, query: str) -> str:
+        """Preprocess query for better expansion"""
+        # Parse with spaCy
+        doc = self.nlp(query)
+        
+        # Extract important terms (remove stop words, keep nouns and adjectives)
+        important_terms = []
+        for token in doc:
+            if (not token.is_stop and 
+                not token.is_punct and 
+                token.pos_ in ['NOUN', 'ADJ', 'VERB'] and
+                len(token.text) > 2):
+                important_terms.append(token.lemma_.lower())
+        
+        return " ".join(important_terms) if important_terms else query.lower()
+    
+    def _wordnet_expansion(self, query: str, max_terms: int) -> List[str]:
+        """Expand query using WordNet synonyms"""
+        if not self.use_wordnet:
+            return []
+        
+        expansion_terms = set()
+        words = query.split()
+        
+        for word in words:
+            # Get synonyms from WordNet
+            synsets = wordnet.synsets(word)
+            for synset in synsets[:3]:  # Limit to top 3 synsets
+                for lemma in synset.lemmas()[:2]:  # Top 2 lemmas per synset
+                    synonym = lemma.name().replace('_', ' ').lower()
+                    if synonym != word and len(synonym) > 2:
+                        expansion_terms.add(synonym)
+        
+        return list(expansion_terms)[:max_terms]
+    
+    def _embedding_expansion(
+        self, 
+        query: str, 
+        corpus: List[str], 
+        max_terms: int
+    ) -> List[str]:
+        """Expand query using embedding similarity"""
+        if not corpus:
+            return []
+        
+        # Get query embedding
+        query_embedding = self.embedding_model.encode([query])
+        
+        # Get corpus embeddings (sample for efficiency)
+        sample_size = min(1000, len(corpus))
+        sample_corpus = corpus[:sample_size]
+        corpus_embeddings = self.embedding_model.encode(sample_corpus)
+        
+        # Find most similar documents
+        similarities = cosine_similarity(query_embedding, corpus_embeddings)[0]
+        top_doc_indices = np.argsort(similarities)[-10:][::-1]
+        
+        # Extract terms from similar documents
+        expansion_terms = set()
+        for idx in top_doc_indices:
+            doc = sample_corpus[idx]
+            doc_processed = self.nlp(doc)
+            
+            for token in doc_processed:
+                if (not token.is_stop and 
+                    not token.is_punct and 
+                    token.pos_ in ['NOUN', 'ADJ'] and
+                    len(token.text) > 2 and
+                    token.lemma_.lower() not in query.lower()):
+                    expansion_terms.add(token.lemma_.lower())
+        
+        # Rank terms by frequency in similar documents
+        term_freq = defaultdict(int)
+        for idx in top_doc_indices:
+            doc_terms = set(token.lemma_.lower() for token in self.nlp(sample_corpus[idx])
+                           if not token.is_stop and not token.is_punct)
+            for term in expansion_terms:
+                if term in doc_terms:
+                    term_freq[term] += 1
+        
+        # Return top terms by frequency
+        ranked_terms = sorted(term_freq.items(), key=lambda x: x[1], reverse=True)
+        return [term for term, freq in ranked_terms[:max_terms]]
+    
+    def _llm_expansion(self, query: str, max_terms: int) -> List[str]:
+        """Expand query using Large Language Model"""
+        if not self.use_llm:
+            return []
+        
+        try:
+            prompt = f"""
+Given the search query: "{query}"
+
+Generate {max_terms} semantically related terms or phrases that would help improve search results. 
+Focus on synonyms, related concepts, and domain-specific terminology.
+
+Return only the terms, separated by commas, without explanations.
+
+Related terms:"""
+
+            response = openai.ChatCompletion.create(
+                model=self.llm_model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=100
+            )
+            
+            # Parse response
+            content = response.choices[0].message.content.strip()
+            terms = [term.strip().lower() for term in content.split(',')]
+            
+            # Filter and validate terms
+            valid_terms = []
+            for term in terms:
+                if (len(term) > 2 and 
+                    term not in query.lower() and
+                    not any(char.isdigit() for char in term)):
+                    valid_terms.append(term)
+            
+            return valid_terms[:max_terms]
+            
+        except Exception as e:
+            print(f"LLM expansion failed: {e}")
+            return []
+    
+    def _corpus_expansion(
+        self, 
+        query: str, 
+        corpus: List[str], 
+        max_terms: int
+    ) -> List[str]:
+        """Expand query using corpus statistics (co-occurrence)"""
+        # Build TF-IDF vectorizer
+        vectorizer = TfidfVectorizer(
+            max_features=5000,
+            ngram_range=(1, 2),
+            stop_words='english'
+        )
+        
+        try:
+            tfidf_matrix = vectorizer.fit_transform(corpus)
+            feature_names = vectorizer.get_feature_names_out()
+            
+            # Get query terms
+            query_terms = set(query.lower().split())
+            
+            # Find terms that co-occur with query terms
+            expansion_candidates = defaultdict(float)
+            
+            for doc_idx, doc in enumerate(corpus[:500]):  # Sample for efficiency
+                doc_lower = doc.lower()
+                if any(term in doc_lower for term in query_terms):
+                    # Get TF-IDF scores for this document
+                    doc_tfidf = tfidf_matrix[doc_idx].toarray()[0]
+                    
+                    # Add high-scoring terms as candidates
+                    for term_idx, score in enumerate(doc_tfidf):
+                        if score > 0.1:  # Threshold for relevance
+                            term = feature_names[term_idx]
+                            if term not in query_terms and len(term) > 2:
+                                expansion_candidates[term] += score
+            
+            # Return top candidates
+            ranked_candidates = sorted(
+                expansion_candidates.items(), 
+                key=lambda x: x[1], 
+                reverse=True
+            )
+            
+            return [term for term, score in ranked_candidates[:max_terms]]
+            
+        except Exception as e:
+            print(f"Corpus expansion failed: {e}")
+            return []
+    
+    def _combine_expansions(
+        self, 
+        expansions: Dict[str, List[str]], 
+        query: str, 
+        max_terms: int
+    ) -> List[str]:
+        """Combine and rank expansion terms from different strategies"""
+        # Count term frequencies across strategies
+        term_counts = defaultdict(int)
+        term_strategies = defaultdict(set)
+        
+        for strategy, terms in expansions.items():
+            for term in terms:
+                term_counts[term] += 1
+                term_strategies[term].add(strategy)
+        
+        # Score terms based on frequency and strategy diversity
+        term_scores = {}
+        for term, count in term_counts.items():
+            diversity_bonus = len(term_strategies[term]) * 0.2
+            term_scores[term] = count + diversity_bonus
+        
+        # Filter out terms too similar to original query
+        filtered_terms = []
+        for term in term_scores:
+            if not self._is_too_similar(term, query):
+                filtered_terms.append(term)
+        
+        # Sort by score and return top terms
+        ranked_terms = sorted(
+            [(term, term_scores[term]) for term in filtered_terms],
+            key=lambda x: x[1],
+            reverse=True
+        )
+        
+        return [term for term, score in ranked_terms[:max_terms]]
+    
+    def _is_too_similar(self, term: str, query: str) -> bool:
+        """Check if expansion term is too similar to original query"""
+        query_words = set(query.lower().split())
+        term_words = set(term.lower().split())
+        
+        # Check for exact matches or high overlap
+        if term.lower() in query.lower() or query.lower() in term.lower():
+            return True
+        
+        # Check word-level overlap
+        if len(term_words.intersection(query_words)) / max(len(term_words), 1) > 0.7:
+            return True
+        
+        return False
+    
+    def _create_expanded_query(self, query: str, expansions: List[str]) -> str:
+        """Create final expanded query string"""
+        if not expansions:
+            return query
+        
+        # Add expansions with boosting syntax (for Elasticsearch-style queries)
+        boosted_expansions = [f"{term}^0.5" for term in expansions[:3]]
+        
+        return f"{query} {' '.join(boosted_expansions)}"
+
+# Usage example and integration
+class EnhancedQueryProcessor:
+    """Enhanced query processing with expansion and reformulation"""
+    
+    def __init__(self, expansion_system: QueryExpansionSystem):
+        self.expansion_system = expansion_system
+    
+    def process_query(
+        self, 
+        query: str, 
+        corpus: List[str] = None,
+        intent: str = None
+    ) -> Dict:
+        """Process query with expansion and reformulation"""
+        
+        # Basic expansion
+        expansion_result = self.expansion_system.expand_query(
+            query, corpus, max_expansions=5
+        )
+        
+        # Intent-based modification
+        if intent:
+            reformulated_query = self._reformulate_for_intent(
+                expansion_result["expanded_query"], intent
+            )
+        else:
+            reformulated_query = expansion_result["expanded_query"]
+        
+        return {
+            **expansion_result,
+            "intent": intent,
+            "final_query": reformulated_query,
+            "query_variants": self._generate_query_variants(
+                expansion_result["processed_query"], 
+                expansion_result["final_expansions"]
+            )
+        }
+    
+    def _reformulate_for_intent(self, query: str, intent: str) -> str:
+        """Reformulate query based on detected intent"""
+        intent_templates = {
+            "definition": f"what is {query} definition meaning",
+            "how_to": f"how to {query} steps guide tutorial",
+            "comparison": f"{query} comparison differences versus",
+            "troubleshooting": f"{query} problem error solution fix",
+            "examples": f"{query} examples samples instances cases"
+        }
+        
+        return intent_templates.get(intent, query)
+    
+    def _generate_query_variants(
+        self, 
+        base_query: str, 
+        expansions: List[str]
+    ) -> List[str]:
+        """Generate multiple query variants for diverse retrieval"""
+        variants = [base_query]
+        
+        # Add expansion-based variants
+        for i, expansion in enumerate(expansions[:3]):
+            variant = f"{base_query} {expansion}"
+            variants.append(variant)
+        
+        # Add combinations
+        if len(expansions) >= 2:
+            combined = f"{base_query} {expansions[0]} {expansions[1]}"
+            variants.append(combined)
+        
+        return variants
+
+# Example usage
+def query_expansion_example():
+    """Example usage of query expansion system"""
+    
+    # Initialize expansion system
+    expansion_system = QueryExpansionSystem(use_llm=False)  # Set to True if OpenAI API available
+    
+    # Sample corpus
+    corpus = [
+        "Machine learning algorithms require large datasets for training.",
+        "Deep learning uses neural networks with multiple layers.",
+        "Natural language processing analyzes human language computationally.",
+        "Computer vision enables machines to interpret visual information.",
+        "Artificial intelligence simulates human intelligence in machines."
+    ]
+    
+    # Expand query
+    query = "machine learning models"
+    result = expansion_system.expand_query(
+        query, 
+        corpus=corpus, 
+        max_expansions=5,
+        expansion_strategies=["wordnet", "embedding", "corpus"]
+    )
+    
+    print("Query Expansion Results:")
+    print(f"Original: {result['original_query']}")
+    print(f"Processed: {result['processed_query']}")
+    print(f"Expanded: {result['expanded_query']}")
+    print(f"Expansions: {result['final_expansions']}")
+    
+    return expansion_system
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Re-ranking Section -->
+    <section id="reranking" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Neural Re-ranking and Refinement</h2>
+
+            <h3 class="subsection-title">1. Cross-Encoder Re-ranking</h3>
+            <p class="content-text">
+                Re-ranking refines initial retrieval results using more sophisticated models that 
+                can capture complex query-document interactions. Cross-encoders provide the highest 
+                accuracy by jointly encoding query and document pairs.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Cross-Encoder Re-ranking System</div>
+                <div class="code-block">
+                    <pre>
+from sentence_transformers import CrossEncoder
+from typing import List, Tuple, Dict
+import torch
+import numpy as np
+from dataclasses import dataclass
+
+@dataclass
+class RerankingResult:
+    """Result from re-ranking operation"""
+    doc_id: str
+    content: str
+    original_score: float
+    rerank_score: float
+    final_score: float
+    metadata: Dict = None
+
+class NeuralReranker:
+    """Neural re-ranking using cross-encoders and ensemble methods"""
+    
+    def __init__(
+        self,
+        cross_encoder_model: str = "cross-encoder/ms-marco-MiniLM-L-12-v2",
+        device: str = None,
+        batch_size: int = 32
+    ):
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.batch_size = batch_size
+        
+        # Initialize cross-encoder
+        self.cross_encoder = CrossEncoder(cross_encoder_model, device=self.device)
+        
+        # Model weights for ensemble (if using multiple models)
+        self.model_weights = {"cross_encoder": 1.0}
+    
+    def rerank(
+        self,
+        query: str,
+        documents: List[Dict],
+        initial_scores: List[float] = None,
+        top_k: int = None,
+        score_combination: str = "weighted_sum"
+    ) -> List[RerankingResult]:
+        """
+        Re-rank documents using cross-encoder
+        
+        Args:
+            query: Search query
+            documents: List of document dictionaries
+            initial_scores: Original retrieval scores
+            top_k: Number of results to return
+            score_combination: Method to combine scores
+        
+        Returns:
+            List of RerankingResult objects
+        """
+        if not documents:
+            return []
+        
+        if initial_scores is None:
+            initial_scores = [1.0] * len(documents)
+        
+        # Prepare query-document pairs
+        query_doc_pairs = [(query, doc['content']) for doc in documents]
+        
+        # Get cross-encoder scores
+        rerank_scores = self._get_cross_encoder_scores(query_doc_pairs)
+        
+        # Combine scores
+        final_scores = self._combine_scores(
+            initial_scores, rerank_scores, method=score_combination
+        )
+        
+        # Create results
+        results = []
+        for i, doc in enumerate(documents):
+            result = RerankingResult(
+                doc_id=doc.get('id', str(i)),
+                content=doc['content'],
+                original_score=initial_scores[i],
+                rerank_score=rerank_scores[i],
+                final_score=final_scores[i],
+                metadata=doc.get('metadata', {})
+            )
+            results.append(result)
+        
+        # Sort by final score
+        results.sort(key=lambda x: x.final_score, reverse=True)
+        
+        # Return top-k
+        if top_k:
+            return results[:top_k]
+        return results
+    
+    def _get_cross_encoder_scores(self, query_doc_pairs: List[Tuple[str, str]]) -> List[float]:
+        """Get scores from cross-encoder model"""
+        # Process in batches for efficiency
+        all_scores = []
+        
+        for i in range(0, len(query_doc_pairs), self.batch_size):
+            batch = query_doc_pairs[i:i + self.batch_size]
+            
+            # Get scores for batch
+            batch_scores = self.cross_encoder.predict(batch, show_progress_bar=False)
+            
+            # Convert to list if numpy array
+            if isinstance(batch_scores, np.ndarray):
+                batch_scores = batch_scores.tolist()
+            
+            all_scores.extend(batch_scores)
+        
+        return all_scores
+    
+    def _combine_scores(
+        self,
+        initial_scores: List[float],
+        rerank_scores: List[float],
+        method: str = "weighted_sum"
+    ) -> List[float]:
+        """Combine initial and re-ranking scores"""
+        
+        if method == "weighted_sum":
+            # Normalize scores to [0, 1] range
+            initial_norm = self._normalize_scores(initial_scores)
+            rerank_norm = self._normalize_scores(rerank_scores)
+            
+            # Weighted combination (favor re-ranking)
+            alpha = 0.3  # Weight for initial scores
+            beta = 0.7   # Weight for re-ranking scores
+            
+            return [alpha * init + beta * rerank 
+                    for init, rerank in zip(initial_norm, rerank_norm)]
+        
+        elif method == "rerank_only":
+            return rerank_scores
+        
+        elif method == "rank_fusion":
+            return self._rank_fusion(initial_scores, rerank_scores)
+        
+        else:
+            raise ValueError(f"Unknown score combination method: {method}")
+    
+    def _normalize_scores(self, scores: List[float]) -> List[float]:
+        """Normalize scores to [0, 1] range"""
+        if not scores or max(scores) == min(scores):
+            return [0.5] * len(scores)
+        
+        min_score, max_score = min(scores), max(scores)
+        return [(score - min_score) / (max_score - min_score) for score in scores]
+    
+    def _rank_fusion(self, scores1: List[float], scores2: List[float]) -> List[float]:
+        """Combine scores using rank fusion"""
+        # Convert scores to ranks
+        ranks1 = self._scores_to_ranks(scores1)
+        ranks2 = self._scores_to_ranks(scores2)
+        
+        # Reciprocal rank fusion
+        k = 60
+        fusion_scores = []
+        for r1, r2 in zip(ranks1, ranks2):
+            rrf_score = 1/(k + r1) + 1/(k + r2)
+            fusion_scores.append(rrf_score)
+        
+        return fusion_scores
+    
+    def _scores_to_ranks(self, scores: List[float]) -> List[int]:
+        """Convert scores to ranks (1-indexed)"""
+        indexed_scores = list(enumerate(scores))
+        indexed_scores.sort(key=lambda x: x[1], reverse=True)
+        
+        ranks = [0] * len(scores)
+        for rank, (original_idx, _) in enumerate(indexed_scores, 1):
+            ranks[original_idx] = rank
+        
+        return ranks
+
+class EnsembleReranker(NeuralReranker):
+    """Ensemble re-ranking using multiple models"""
+    
+    def __init__(
+        self,
+        models: List[str] = None,
+        model_weights: Dict[str, float] = None,
+        device: str = None,
+        batch_size: int = 16
+    ):
+        super().__init__(device=device, batch_size=batch_size)
+        
+        # Initialize multiple models
+        if models is None:
+            models = [
+                "cross-encoder/ms-marco-MiniLM-L-12-v2",
+                "cross-encoder/ms-marco-TinyBERT-L-6-v2"
+            ]
+        
+        self.models = {f"model_{i}": CrossEncoder(model, device=self.device) 
+                      for i, model in enumerate(models)}
+        
+        # Set model weights
+        if model_weights is None:
+            self.model_weights = {name: 1.0/len(self.models) for name in self.models.keys()}
+        else:
+            self.model_weights = model_weights
+    
+    def rerank(
+        self,
+        query: str,
+        documents: List[Dict],
+        initial_scores: List[float] = None,
+        top_k: int = None,
+        score_combination: str = "ensemble_weighted"
+    ) -> List[RerankingResult]:
+        """Re-rank using ensemble of models"""
+        
+        if not documents:
+            return []
+        
+        if initial_scores is None:
+            initial_scores = [1.0] * len(documents)
+        
+        # Prepare query-document pairs
+        query_doc_pairs = [(query, doc['content']) for doc in documents]
+        
+        # Get scores from all models
+        all_model_scores = {}
+        for model_name, model in self.models.items():
+            scores = self._get_model_scores(model, query_doc_pairs)
+            all_model_scores[model_name] = scores
+        
+        # Combine ensemble scores
+        ensemble_scores = self._combine_ensemble_scores(all_model_scores)
+        
+        # Combine with initial scores
+        final_scores = self._combine_scores(
+            initial_scores, ensemble_scores, method="weighted_sum"
+        )
+        
+        # Create results
+        results = []
+        for i, doc in enumerate(documents):
+            result = RerankingResult(
+                doc_id=doc.get('id', str(i)),
+                content=doc['content'],
+                original_score=initial_scores[i],
+                rerank_score=ensemble_scores[i],
+                final_score=final_scores[i],
+                metadata={
+                    **doc.get('metadata', {}),
+                    'model_scores': {name: scores[i] for name, scores in all_model_scores.items()}
+                }
+            )
+            results.append(result)
+        
+        # Sort and return
+        results.sort(key=lambda x: x.final_score, reverse=True)
+        return results[:top_k] if top_k else results
+    
+    def _get_model_scores(self, model: CrossEncoder, query_doc_pairs: List[Tuple[str, str]]) -> List[float]:
+        """Get scores from a specific model"""
+        all_scores = []
+        
+        for i in range(0, len(query_doc_pairs), self.batch_size):
+            batch = query_doc_pairs[i:i + self.batch_size]
+            batch_scores = model.predict(batch, show_progress_bar=False)
+            
+            if isinstance(batch_scores, np.ndarray):
+                batch_scores = batch_scores.tolist()
+            
+            all_scores.extend(batch_scores)
+        
+        return all_scores
+    
+    def _combine_ensemble_scores(self, model_scores: Dict[str, List[float]]) -> List[float]:
+        """Combine scores from multiple models"""
+        num_docs = len(next(iter(model_scores.values())))
+        ensemble_scores = []
+        
+        for i in range(num_docs):
+            weighted_score = 0.0
+            total_weight = 0.0
+            
+            for model_name, scores in model_scores.items():
+                weight = self.model_weights.get(model_name, 1.0)
+                weighted_score += weight * scores[i]
+                total_weight += weight
+            
+            ensemble_scores.append(weighted_score / total_weight if total_weight > 0 else 0.0)
+        
+        return ensemble_scores
+
+# Advanced re-ranking with context awareness
+class ContextAwareReranker(EnsembleReranker):
+    """Context-aware re-ranking that considers conversation history and user preferences"""
+    
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        # Additional context features
+        self.conversation_history = []
+        self.user_preferences = {}
+    
+    def rerank_with_context(
+        self,
+        query: str,
+        documents: List[Dict],
+        conversation_history: List[str] = None,
+        user_preferences: Dict = None,
+        initial_scores: List[float] = None,
+        top_k: int = None
+    ) -> List[RerankingResult]:
+        """Re-rank with conversation and user context"""
+        
+        # Update context
+        if conversation_history:
+            self.conversation_history = conversation_history[-5:]  # Keep last 5 turns
+        if user_preferences:
+            self.user_preferences.update(user_preferences)
+        
+        # Enhance query with context
+        enhanced_query = self._enhance_query_with_context(query)
+        
+        # Standard re-ranking
+        results = self.rerank(enhanced_query, documents, initial_scores, top_k)
+        
+        # Apply contextual adjustments
+        results = self._apply_contextual_adjustments(results, query)
+        
+        return results
+    
+    def _enhance_query_with_context(self, query: str) -> str:
+        """Enhance query with conversation history"""
+        if not self.conversation_history:
+            return query
+        
+        # Add recent context terms
+        context_terms = []
+        for turn in self.conversation_history[-2:]:  # Last 2 turns
+            # Extract key terms (simplified)
+            terms = [word for word in turn.lower().split() 
+                    if len(word) > 3 and word.isalpha()]
+            context_terms.extend(terms[:3])  # Top 3 terms per turn
+        
+        if context_terms:
+            # Add context with reduced weight
+            context_boost = " ".join(f"{term}^0.3" for term in context_terms[:5])
+            return f"{query} {context_boost}"
+        
+        return query
+    
+    def _apply_contextual_adjustments(
+        self, 
+        results: List[RerankingResult], 
+        original_query: str
+    ) -> List[RerankingResult]:
+        """Apply user preference and context-based adjustments"""
+        
+        # Preference-based boosting
+        for result in results:
+            boost_factor = 1.0
+            
+            # Check user preferences
+            if 'preferred_sources' in self.user_preferences:
+                source = result.metadata.get('source', '')
+                if source in self.user_preferences['preferred_sources']:
+                    boost_factor *= 1.2
+            
+            if 'preferred_content_type' in self.user_preferences:
+                content_type = result.metadata.get('type', '')
+                if content_type in self.user_preferences['preferred_content_type']:
+                    boost_factor *= 1.1
+            
+            # Apply boost
+            result.final_score *= boost_factor
+        
+        # Re-sort after adjustments
+        results.sort(key=lambda x: x.final_score, reverse=True)
+        
+        return results
+
+# Usage example
+def reranking_example():
+    """Example usage of neural re-ranking"""
+    
+    # Sample documents
+    documents = [
+        {
+            'id': '1',
+            'content': 'Machine learning algorithms learn patterns from data automatically.',
+            'metadata': {'source': 'textbook', 'type': 'definition'}
+        },
+        {
+            'id': '2', 
+            'content': 'Deep learning uses neural networks with multiple hidden layers.',
+            'metadata': {'source': 'research_paper', 'type': 'explanation'}
+        },
+        {
+            'id': '3',
+            'content': 'Artificial intelligence aims to simulate human intelligence in machines.',
+            'metadata': {'source': 'encyclopedia', 'type': 'overview'}
+        }
+    ]
+    
+    # Initialize re-ranker
+    reranker = EnsembleReranker(
+        models=[
+            "cross-encoder/ms-marco-MiniLM-L-12-v2",
+            "cross-encoder/ms-marco-TinyBERT-L-6-v2"
+        ],
+        model_weights={'model_0': 0.7, 'model_1': 0.3}
+    )
+    
+    # Re-rank
+    query = "what is machine learning"
+    initial_scores = [0.8, 0.6, 0.4]  # Simulated initial scores
+    
+    results = reranker.rerank(
+        query=query,
+        documents=documents,
+        initial_scores=initial_scores,
+        top_k=3,
+        score_combination="weighted_sum"
+    )
+    
+    # Display results
+    print("Re-ranking Results:")
+    for i, result in enumerate(results, 1):
+        print(f"{i}. Final Score: {result.final_score:.4f}")
+        print(f"   Original: {result.original_score:.4f}, Rerank: {result.rerank_score:.4f}")
+        print(f"   Content: {result.content[:80]}...")
+        print()
+    
+    return reranker
+                    </pre>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h4>Re-ranking Best Practices</h4>
+                <p>
+                    • <strong>Selective Application:</strong> Re-rank only top candidates to balance quality and efficiency<br>
+                    • <strong>Model Selection:</strong> Choose appropriate cross-encoders based on domain and language<br>
+                    • <strong>Batch Processing:</strong> Process multiple query-document pairs efficiently<br>
+                    • <strong>Score Calibration:</strong> Normalize and combine scores appropriately for fair comparison
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Stage Section -->
+    <section id="multi-stage" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Multi-Stage Retrieval Pipelines</h2>
+
+            <h3 class="subsection-title">1. Hierarchical Retrieval Architecture</h3>
+            <p class="content-text">
+                Multi-stage retrieval systems combine the efficiency of fast initial retrieval with the 
+                precision of sophisticated re-ranking, creating scalable solutions for large-scale applications.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Multi-Stage Retrieval Pipeline</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Optional, Callable, Any
+from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+import time
+import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+@dataclass
+class RetrievalStage:
+    """Configuration for a retrieval stage"""
+    name: str
+    retriever: Any
+    top_k: int
+    weight: float = 1.0
+    enabled: bool = True
+    parallel: bool = False
+    timeout: Optional[float] = None
+
+@dataclass
+class StageResult:
+    """Result from a single retrieval stage"""
+    stage_name: str
+    documents: List[Dict]
+    scores: List[float]
+    execution_time: float
+    metadata: Dict = field(default_factory=dict)
+
+@dataclass
+class PipelineResult:
+    """Final result from multi-stage pipeline"""
+    final_documents: List[Dict]
+    final_scores: List[float]
+    stage_results: List[StageResult]
+    total_execution_time: float
+    pipeline_metadata: Dict = field(default_factory=dict)
+
+class MultiStageRetriever:
+    """Multi-stage retrieval pipeline with configurable stages"""
+    
+    def __init__(
+        self,
+        stages: List[RetrievalStage],
+        fusion_strategy: str = "cascade",
+        max_workers: int = 3,
+        enable_caching: bool = True
+    ):
+        self.stages = stages
+        self.fusion_strategy = fusion_strategy
+        self.max_workers = max_workers
+        self.enable_caching = enable_caching
+        self.cache = {} if enable_caching else None
+        
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
+        
+        # Validate configuration
+        self._validate_stages()
+    
+    def _validate_stages(self):
+        """Validate pipeline configuration"""
+        if not self.stages:
+            raise ValueError("At least one retrieval stage must be defined")
+        
+        # Check stage names are unique
+        stage_names = [stage.name for stage in self.stages]
+        if len(stage_names) != len(set(stage_names)):
+            raise ValueError("Stage names must be unique")
+        
+        # Validate fusion strategy
+        valid_strategies = ["cascade", "parallel_fusion", "adaptive"]
+        if self.fusion_strategy not in valid_strategies:
+            raise ValueError(f"Fusion strategy must be one of {valid_strategies}")
+    
+    def retrieve(
+        self, 
+        query: str, 
+        final_top_k: int = 20,
+        stage_config: Dict[str, Any] = None
+    ) -> PipelineResult:
+        """
+        Execute multi-stage retrieval pipeline
+        
+        Args:
+            query: Search query
+            final_top_k: Number of final results to return
+            stage_config: Per-stage configuration overrides
+        
+        Returns:
+            PipelineResult with documents and metadata
+        """
+        start_time = time.time()
+        
+        # Check cache
+        cache_key = f"{query}:{final_top_k}:{self.fusion_strategy}"
+        if self.cache and cache_key in self.cache:
+            self.logger.info(f"Returning cached result for query: {query}")
+            return self.cache[cache_key]
+        
+        stage_results = []
+        current_candidates = None
+        
+        try:
+            if self.fusion_strategy == "cascade":
+                stage_results = self._execute_cascade_retrieval(
+                    query, final_top_k, stage_config
+                )
+            elif self.fusion_strategy == "parallel_fusion":
+                stage_results = self._execute_parallel_retrieval(
+                    query, final_top_k, stage_config
+                )
+            elif self.fusion_strategy == "adaptive":
+                stage_results = self._execute_adaptive_retrieval(
+                    query, final_top_k, stage_config
+                )
+            
+            # Combine results from all stages
+            final_documents, final_scores = self._combine_stage_results(
+                stage_results, final_top_k
+            )
+            
+            # Create result object
+            result = PipelineResult(
+                final_documents=final_documents,
+                final_scores=final_scores,
+                stage_results=stage_results,
+                total_execution_time=time.time() - start_time,
+                pipeline_metadata={
+                    "fusion_strategy": self.fusion_strategy,
+                    "num_stages": len([s for s in self.stages if s.enabled]),
+                    "query_length": len(query)
+                }
+            )
+            
+            # Cache result
+            if self.cache:
+                self.cache[cache_key] = result
+            
+            return result
+            
+        except Exception as e:
+            self.logger.error(f"Pipeline execution failed: {str(e)}")
+            raise
+    
+    def _execute_cascade_retrieval(
+        self, 
+        query: str, 
+        final_top_k: int, 
+        stage_config: Dict[str, Any]
+    ) -> List[StageResult]:
+        """Execute stages in cascade (each stage refines the previous)"""
+        stage_results = []
+        current_candidates = None
+        
+        for stage in self.stages:
+            if not stage.enabled:
+                continue
+            
+            stage_start = time.time()
+            
+            try:
+                if current_candidates is None:
+                    # First stage - retrieve from full corpus
+                    documents, scores = self._execute_stage(
+                        stage, query, None, stage_config
+                    )
+                else:
+                    # Subsequent stages - refine previous results
+                    documents, scores = self._execute_stage(
+                        stage, query, current_candidates, stage_config
+                    )
+                
+                # Create stage result
+                stage_result = StageResult(
+                    stage_name=stage.name,
+                    documents=documents,
+                    scores=scores,
+                    execution_time=time.time() - stage_start,
+                    metadata={"input_size": len(current_candidates) if current_candidates else "full_corpus"}
+                )
+                
+                stage_results.append(stage_result)
+                
+                # Update candidates for next stage
+                current_candidates = list(zip(documents, scores))
+                
+                self.logger.info(
+                    f"Stage {stage.name} completed: {len(documents)} results in "
+                    f"{stage_result.execution_time:.3f}s"
+                )
+                
+            except Exception as e:
+                self.logger.error(f"Stage {stage.name} failed: {str(e)}")
+                # Continue with previous results if available
+                if current_candidates is None:
+                    raise  # Can't continue without any results
+        
+        return stage_results
+    
+    def _execute_parallel_retrieval(
+        self, 
+        query: str, 
+        final_top_k: int, 
+        stage_config: Dict[str, Any]
+    ) -> List[StageResult]:
+        """Execute all stages in parallel and fuse results"""
+        stage_results = []
+        
+        # Prepare stages for parallel execution
+        enabled_stages = [stage for stage in self.stages if stage.enabled]
+        
+        # Execute stages in parallel
+        with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            # Submit all stages
+            future_to_stage = {}
+            for stage in enabled_stages:
+                future = executor.submit(
+                    self._execute_stage_with_timing, 
+                    stage, query, None, stage_config
+                )
+                future_to_stage[future] = stage
+            
+            # Collect results
+            for future in as_completed(future_to_stage, timeout=30):
+                stage = future_to_stage[future]
+                try:
+                    stage_result = future.result()
+                    stage_results.append(stage_result)
+                    
+                    self.logger.info(
+                        f"Stage {stage.name} completed: {len(stage_result.documents)} results"
+                    )
+                    
+                except Exception as e:
+                    self.logger.error(f"Stage {stage.name} failed: {str(e)}")
+        
+        return stage_results
+    
+    def _execute_adaptive_retrieval(
+        self, 
+        query: str, 
+        final_top_k: int, 
+        stage_config: Dict[str, Any]
+    ) -> List[StageResult]:
+        """Execute stages adaptively based on intermediate results"""
+        stage_results = []
+        current_quality_score = 0.0
+        quality_threshold = 0.8
+        
+        for stage in self.stages:
+            if not stage.enabled:
+                continue
+            
+            # Decide whether to execute this stage
+            if current_quality_score >= quality_threshold and len(stage_results) > 1:
+                self.logger.info(
+                    f"Skipping stage {stage.name} due to sufficient quality: {current_quality_score:.3f}"
+                )
+                continue
+            
+            stage_start = time.time()
+            
+            try:
+                # Execute stage
+                if not stage_results:
+                    documents, scores = self._execute_stage(stage, query, None, stage_config)
+                else:
+                    # Use best results from previous stages
+                    prev_candidates = list(zip(
+                        stage_results[-1].documents, 
+                        stage_results[-1].scores
+                    ))
+                    documents, scores = self._execute_stage(stage, query, prev_candidates, stage_config)
+                
+                # Create stage result
+                stage_result = StageResult(
+                    stage_name=stage.name,
+                    documents=documents,
+                    scores=scores,
+                    execution_time=time.time() - stage_start,
+                    metadata={"quality_threshold": quality_threshold}
+                )
+                
+                stage_results.append(stage_result)
+                
+                # Update quality score
+                current_quality_score = self._assess_result_quality(documents, scores, query)
+                stage_result.metadata["quality_score"] = current_quality_score
+                
+                self.logger.info(
+                    f"Stage {stage.name} completed: quality={current_quality_score:.3f}"
+                )
+                
+            except Exception as e:
+                self.logger.error(f"Adaptive stage {stage.name} failed: {str(e)}")
+        
+        return stage_results
+    
+    def _execute_stage(
+        self, 
+        stage: RetrievalStage, 
+        query: str, 
+        candidates: Optional[List[Tuple]], 
+        stage_config: Dict[str, Any]
+    ) -> Tuple[List[Dict], List[float]]:
+        """Execute a single retrieval stage"""
+        
+        # Get stage-specific configuration
+        config = stage_config.get(stage.name, {}) if stage_config else {}
+        top_k = config.get('top_k', stage.top_k)
+        
+        # Execute retriever
+        if candidates is None:
+            # First stage - search full corpus
+            if hasattr(stage.retriever, 'search'):
+                results = stage.retriever.search(query, top_k=top_k)
+            elif hasattr(stage.retriever, 'retrieve'):
+                results = stage.retriever.retrieve(query, top_k=top_k)
+            else:
+                raise ValueError(f"Stage {stage.name} retriever has no search/retrieve method")
+        else:
+            # Refinement stage - operate on candidates
+            if hasattr(stage.retriever, 'rerank'):
+                candidate_docs = [{'content': doc['content'] if isinstance(doc, dict) else doc[0]['content'], 
+                                  'id': str(i)} for i, doc in enumerate(candidates)]
+                candidate_scores = [score if isinstance(score, float) else score[1] 
+                                  for score in candidates]
+                
+                results = stage.retriever.rerank(
+                    query=query,
+                    documents=candidate_docs,
+                    initial_scores=candidate_scores,
+                    top_k=top_k
+                )
+            else:
+                # Fallback to search with limited candidates
+                results = stage.retriever.search(query, top_k=top_k)
+        
+        # Extract documents and scores
+        if isinstance(results, list) and results:
+            if hasattr(results[0], 'content'):  # SearchResult or RerankingResult objects
+                documents = [{'content': r.content, 'id': r.doc_id, 
+                            'metadata': getattr(r, 'metadata', {})} for r in results]
+                scores = [getattr(r, 'final_score', getattr(r, 'fusion_score', 1.0)) for r in results]
+            elif isinstance(results[0], dict):
+                documents = results
+                scores = [doc.get('score', 1.0) for doc in documents]
+            else:
+                raise ValueError(f"Unexpected result format from stage {stage.name}")
+        else:
+            documents, scores = [], []
+        
+        return documents, scores
+    
+    def _execute_stage_with_timing(
+        self, 
+        stage: RetrievalStage, 
+        query: str, 
+        candidates: Optional[List[Tuple]], 
+        stage_config: Dict[str, Any]
+    ) -> StageResult:
+        """Execute stage and return StageResult with timing"""
+        start_time = time.time()
+        
+        documents, scores = self._execute_stage(stage, query, candidates, stage_config)
+        
+        return StageResult(
+            stage_name=stage.name,
+            documents=documents,
+            scores=scores,
+            execution_time=time.time() - start_time,
+            metadata={"parallel_execution": True}
+        )
+    
+    def _combine_stage_results(
+        self, 
+        stage_results: List[StageResult], 
+        final_top_k: int
+    ) -> Tuple[List[Dict], List[float]]:
+        """Combine results from multiple stages"""
+        
+        if not stage_results:
+            return [], []
+        
+        if self.fusion_strategy == "cascade":
+            # Return results from last stage
+            last_result = stage_results[-1]
+            return last_result.documents[:final_top_k], last_result.scores[:final_top_k]
+        
+        elif self.fusion_strategy in ["parallel_fusion", "adaptive"]:
+            # Combine results using weighted fusion
+            doc_scores = {}  # doc_id -> (document, total_score, count)
+            
+            for stage_result in stage_results:
+                stage = next(s for s in self.stages if s.name == stage_result.stage_name)
+                weight = stage.weight
+                
+                for doc, score in zip(stage_result.documents, stage_result.scores):
+                    doc_id = doc.get('id', doc['content'][:50])  # Use content prefix as fallback ID
+                    
+                    if doc_id in doc_scores:
+                        current_doc, current_score, count = doc_scores[doc_id]
+                        doc_scores[doc_id] = (current_doc, current_score + weight * score, count + 1)
+                    else:
+                        doc_scores[doc_id] = (doc, weight * score, 1)
+            
+            # Calculate final scores and sort
+            final_items = []
+            for doc_id, (doc, total_score, count) in doc_scores.items():
+                # Average weighted score
+                final_score = total_score / count
+                final_items.append((doc, final_score))
+            
+            # Sort by final score
+            final_items.sort(key=lambda x: x[1], reverse=True)
+            
+            # Extract top-k
+            final_documents = [doc for doc, score in final_items[:final_top_k]]
+            final_scores = [score for doc, score in final_items[:final_top_k]]
+            
+            return final_documents, final_scores
+    
+    def _assess_result_quality(self, documents: List[Dict], scores: List[float], query: str) -> float:
+        """Assess quality of results for adaptive execution"""
+        if not documents or not scores:
+            return 0.0
+        
+        # Simple quality metrics
+        avg_score = sum(scores) / len(scores)
+        score_variance = sum((s - avg_score) ** 2 for s in scores) / len(scores)
+        
+        # Higher average score and lower variance indicate better quality
+        quality_score = avg_score * (1.0 - min(score_variance, 1.0))
+        
+        return quality_score
+
+# Usage example combining all techniques
+def complete_advanced_retrieval_example():
+    """Complete example demonstrating advanced retrieval techniques"""
+    
+    # This would be a complete implementation combining:
+    # 1. Hybrid retriever for initial search
+    # 2. Query expansion for better coverage  
+    # 3. Cross-encoder re-ranking for precision
+    # 4. Multi-stage pipeline for scalability
+    
+    print("Advanced Retrieval Pipeline Example")
+    print("This demonstrates the integration of:")
+    print("• Hybrid dense-sparse search")
+    print("• Query expansion and reformulation") 
+    print("• Neural re-ranking with cross-encoders")
+    print("• Multi-stage cascading pipeline")
+    print("• Adaptive execution based on quality metrics")
+    
+    # Sample implementation structure:
+    """
+    # Stage 1: Fast hybrid retrieval (top 1000)
+    stage1 = RetrievalStage(
+        name="hybrid_search",
+        retriever=HybridRetriever(...),
+        top_k=1000,
+        weight=0.3
+    )
+    
+    # Stage 2: Query expansion and re-search (top 500) 
+    stage2 = RetrievalStage(
+        name="expanded_search", 
+        retriever=ExpandedSearchRetriever(...),
+        top_k=500,
+        weight=0.4
+    )
+    
+    # Stage 3: Cross-encoder re-ranking (top 50)
+    stage3 = RetrievalStage(
+        name="neural_rerank",
+        retriever=EnsembleReranker(...),
+        top_k=50,
+        weight=0.8
+    )
+    
+    # Create pipeline
+    pipeline = MultiStageRetriever(
+        stages=[stage1, stage2, stage3],
+        fusion_strategy="cascade"
+    )
+    
+    # Execute search
+    results = pipeline.retrieve("machine learning algorithms", final_top_k=10)
+    """
+    
+    return "Pipeline configuration example completed"
+
+if __name__ == "__main__":
+    example_result = complete_advanced_retrieval_example()
+    print(example_result)
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Implementation Section -->
+    <section id="implementation" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Production Implementation Guide</h2>
+
+            <div class="two-column-grid">
+                <div class="card">
+                    <h4>Performance Optimization</h4>
+                    <ul class="feature-list">
+                        <li>Implement result caching for common queries</li>
+                        <li>Use asynchronous processing for parallel stages</li>
+                        <li>Batch similar queries for efficiency</li>
+                        <li>Profile and optimize bottleneck stages</li>
+                        <li>Implement circuit breakers for robustness</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h4>Scalability Considerations</h4>
+                    <ul class="feature-list">
+                        <li>Design for horizontal scaling of retrieval stages</li>
+                        <li>Use distributed vector databases</li>
+                        <li>Implement load balancing across instances</li>
+                        <li>Monitor resource usage and costs</li>
+                        <li>Plan for index updates and maintenance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Implementation Checklist</h4>
+                <p>
+                    ✓ Test retrieval quality across different query types<br>
+                    ✓ Benchmark performance at expected scale<br>
+                    ✓ Implement comprehensive monitoring and alerting<br>
+                    ✓ Plan for index updates and reindexing workflows<br>
+                    ✓ Document configuration parameters and tuning guidelines<br>
+                    ✓ Establish evaluation metrics and continuous improvement processes
+                </p>
+            </div>
+
+            <h3 class="subsection-title">Monitoring and Evaluation</h3>
+            <p class="content-text">
+                Continuous monitoring and evaluation are essential for maintaining retrieval quality 
+                in production environments. Implement comprehensive metrics tracking and automated 
+                quality assessment systems.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Retrieval Monitoring System</div>
+                <div class="code-block">
+                    <pre>
+import time
+from typing import Dict, List, Any
+from dataclasses import dataclass
+import logging
+from collections import defaultdict, deque
+import statistics
+
+@dataclass
+class RetrievalMetrics:
+    """Metrics for retrieval system monitoring"""
+    query_count: int = 0
+    avg_response_time: float = 0.0
+    avg_retrieval_score: float = 0.0
+    cache_hit_rate: float = 0.0
+    error_rate: float = 0.0
+    stage_performance: Dict[str, float] = None
+    
+    def __post_init__(self):
+        if self.stage_performance is None:
+            self.stage_performance = {}
+
+class RetrievalMonitor:
+    """Monitor and track retrieval system performance"""
+    
+    def __init__(self, window_size: int = 1000):
+        self.window_size = window_size
+        self.query_times = deque(maxlen=window_size)
+        self.query_scores = deque(maxlen=window_size)
+        self.cache_hits = deque(maxlen=window_size)
+        self.errors = deque(maxlen=window_size)
+        self.stage_times = defaultdict(lambda: deque(maxlen=window_size))
+        
+        self.logger = logging.getLogger(__name__)
+    
+    def record_query(
+        self,
+        query: str,
+        response_time: float,
+        avg_score: float,
+        cache_hit: bool = False,
+        error: bool = False,
+        stage_times: Dict[str, float] = None
+    ):
+        """Record metrics for a single query"""
+        
+        self.query_times.append(response_time)
+        self.query_scores.append(avg_score)
+        self.cache_hits.append(1 if cache_hit else 0)
+        self.errors.append(1 if error else 0)
+        
+        if stage_times:
+            for stage_name, stage_time in stage_times.items():
+                self.stage_times[stage_name].append(stage_time)
+    
+    def get_metrics(self) -> RetrievalMetrics:
+        """Get current performance metrics"""
+        
+        if not self.query_times:
+            return RetrievalMetrics()
+        
+        return RetrievalMetrics(
+            query_count=len(self.query_times),
+            avg_response_time=statistics.mean(self.query_times),
+            avg_retrieval_score=statistics.mean(self.query_scores),
+            cache_hit_rate=statistics.mean(self.cache_hits),
+            error_rate=statistics.mean(self.errors),
+            stage_performance={
+                stage: statistics.mean(times) 
+                for stage, times in self.stage_times.items()
+            }
+        )
+    
+    def log_performance_summary(self):
+        """Log current performance summary"""
+        metrics = self.get_metrics()
+        
+        self.logger.info(f"Retrieval Performance Summary:")
+        self.logger.info(f"  Queries processed: {metrics.query_count}")
+        self.logger.info(f"  Avg response time: {metrics.avg_response_time:.3f}s")
+        self.logger.info(f"  Avg retrieval score: {metrics.avg_retrieval_score:.3f}")
+        self.logger.info(f"  Cache hit rate: {metrics.cache_hit_rate:.3f}")
+        self.logger.info(f"  Error rate: {metrics.error_rate:.3f}")
+        
+        for stage, avg_time in metrics.stage_performance.items():
+            self.logger.info(f"  {stage}: {avg_time:.3f}s")
+
+# Example integration with advanced retrieval system
+class MonitoredAdvancedRetriever:
+    """Advanced retriever with integrated monitoring"""
+    
+    def __init__(self, retrieval_pipeline, monitor: RetrievalMonitor = None):
+        self.pipeline = retrieval_pipeline
+        self.monitor = monitor or RetrievalMonitor()
+    
+    def search(self, query: str, top_k: int = 20) -> Dict[str, Any]:
+        """Search with monitoring"""
+        start_time = time.time()
+        error = False
+        cache_hit = False
+        
+        try:
+            # Execute search
+            result = self.pipeline.retrieve(query, final_top_k=top_k)
+            
+            # Calculate metrics
+            response_time = time.time() - start_time
+            avg_score = statistics.mean(result.final_scores) if result.final_scores else 0.0
+            
+            # Check if result was cached
+            cache_hit = response_time < 0.01  # Simplified cache detection
+            
+            # Extract stage timing
+            stage_times = {
+                stage_result.stage_name: stage_result.execution_time
+                for stage_result in result.stage_results
+            }
+            
+            # Record metrics
+            self.monitor.record_query(
+                query=query,
+                response_time=response_time,
+                avg_score=avg_score,
+                cache_hit=cache_hit,
+                error=error,
+                stage_times=stage_times
+            )
+            
+            return {
+                'documents': result.final_documents,
+                'scores': result.final_scores,
+                'metadata': {
+                    'response_time': response_time,
+                    'stage_count': len(result.stage_results),
+                    'total_pipeline_time': result.total_execution_time
+                }
+            }
+            
+        except Exception as e:
+            error = True
+            response_time = time.time() - start_time
+            
+            self.monitor.record_query(
+                query=query,
+                response_time=response_time,
+                avg_score=0.0,
+                cache_hit=False,
+                error=True
+            )
+            
+            raise e
+    
+    def get_performance_report(self) -> Dict[str, Any]:
+        """Get comprehensive performance report"""
+        metrics = self.monitor.get_metrics()
+        
+        return {
+            'summary': {
+                'total_queries': metrics.query_count,
+                'avg_response_time': metrics.avg_response_time,
+                'avg_score': metrics.avg_retrieval_score,
+                'cache_efficiency': metrics.cache_hit_rate,
+                'reliability': 1.0 - metrics.error_rate
+            },
+            'stage_breakdown': metrics.stage_performance,
+            'recommendations': self._generate_recommendations(metrics)
+        }
+    
+    def _generate_recommendations(self, metrics: RetrievalMetrics) -> List[str]:
+        """Generate performance optimization recommendations"""
+        recommendations = []
+        
+        if metrics.avg_response_time > 2.0:
+            recommendations.append("Consider optimizing slow retrieval stages")
+        
+        if metrics.cache_hit_rate < 0.3:
+            recommendations.append("Improve caching strategy for common queries")
+        
+        if metrics.error_rate > 0.05:
+            recommendations.append("Investigate and fix recurring errors")
+        
+        if metrics.avg_retrieval_score < 0.5:
+            recommendations.append("Review and tune retrieval relevance scoring")
+        
+        # Stage-specific recommendations
+        for stage_name, avg_time in metrics.stage_performance.items():
+            if avg_time > 1.0:
+                recommendations.append(f"Optimize {stage_name} stage performance")
+        
+        return recommendations
+                    </pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back Navigation -->
+    <section class="back-nav">
+        <div class="container">
+            <a href="rag-advanced-rag-handbook.html" class="back-button">← Back to RAG Handbook</a>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for animation
+        document.querySelectorAll('.card, .code-container, .architecture-diagram').forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
