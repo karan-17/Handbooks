@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Kubernetes Handbook - Production Ready Container Orchestration</title>
+    <style>
+        :root {
+            --primary-color: #326ce5;
+            --primary-dark: #2654c1;
+            --secondary-color: #ffffff;
+            --accent-color: #f39c12;
+            --success-color: #27ae60;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --surface-color: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #ecf0f1;
+            --shadow-color: rgba(50, 108, 229, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(135deg, #326ce5 0%, #667eea 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--surface-color);
+            box-shadow: 0 10px 30px var(--shadow-color);
+            border-radius: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 15px 15px 0 0;
+            margin: -20px -20px 40px -20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="kubernetes-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23kubernetes-grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .k8s-logo {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translatey(0px); }
+            50% { transform: translatey(-20px); }
+            100% { transform: translatey(0px); }
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Navigation */
+        .handbook-nav {
+            background: var(--surface-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-color);
+        }
+
+        /* Introduction Section */
+        .intro-section {
+            padding: 40px 0;
+            background: linear-gradient(135deg, var(--surface-color) 0%, var(--background-color) 100%);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .intro-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .intro-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            font-weight: 300;
+        }
+
+        .intro-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .intro-features {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .intro-features h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-list li:hover {
+            padding-left: 10px;
+            color: var(--primary-color);
+        }
+
+        .feature-list li::before {
+            content: '⚙️';
+            margin-right: 12px;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-list li:hover::before {
+            transform: rotate(180deg);
+        }
+
+        /* Architecture Overview */
+        .architecture-overview {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .architecture-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .architecture-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .cluster-component {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .cluster-component:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px var(--shadow-color);
+        }
+
+        .cluster-component h4 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+
+        .cluster-component ul {
+            list-style: none;
+            text-align: left;
+        }
+
+        .cluster-component li {
+            padding: 5px 0;
+            opacity: 0.9;
+        }
+
+        .cluster-component li::before {
+            content: '→';
+            margin-right: 8px;
+            color: var(--accent-color);
+        }
+
+        /* Handbook Grid */
+        .handbook-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .handbook-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .handbook-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+
+        .handbook-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+            border-color: var(--primary-color);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+            text-align: center;
+        }
+
+        .handbook-card h3 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .handbook-card p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .tech-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .handbook-card a {
+            display: block;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .handbook-card a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(50, 108, 229, 0.4);
+        }
+
+        /* Learning Path */
+        .learning-path {
+            background: linear-gradient(135deg, var(--background-color) 0%, var(--surface-color) 100%);
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+        }
+
+        .learning-path h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .learning-path h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .path-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .path-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px var(--shadow-color);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .path-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .path-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .path-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .path-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Quick Start Section */
+        .quick-start {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 40px 0;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border-left: 5px solid var(--success-color);
+        }
+
+        .quick-start h2 {
+            color: var(--success-color);
+            font-size: 2.2rem;
+            margin-bottom: 20px;
+        }
+
+        .command-preview {
+            background: var(--text-primary);
+            color: var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .command-preview::before {
+            content: '$ ';
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
+            margin: 40px -20px -20px -20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-section h4 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin: 8px 0;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .intro-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+            }
+
+            .handbook-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .k8s-logo {
+                font-size: 3rem;
+            }
+        }
+
+        /* Animation for cards on scroll */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .handbook-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .path-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Progress indicator */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progress-bar"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <span class="k8s-logo">☸️</span>
+                <h1>Complete Kubernetes Handbook</h1>
+                <p class="subtitle">
+                    Master container orchestration from fundamentals to production deployment
+                </p>
+                <div class="version-badge">Kubernetes 1.31+ • Production Ready • 2025 Edition</div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="handbook-nav">
+            <div class="nav-links">
+                <a href="docker-complete-handbook.html">Docker Handbook</a>
+                <a href="docker-ec2-deployment.html">EC2 Deployment</a>
+                <a href="#introduction">Introduction</a>
+                <a href="#handbooks">All Handbooks</a>
+                <a href="#learning-path">Learning Path</a>
+                <a href="#quick-start">Quick Start</a>
+            </div>
+        </nav>
+
+        <!-- Introduction -->
+        <section id="introduction" class="intro-section">
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h2>Why Kubernetes?</h2>
+                    <p>
+                        Kubernetes is the de facto standard for container orchestration, enabling organizations 
+                        to deploy, scale, and manage containerized applications efficiently. It provides automated 
+                        deployment, scaling, and operations of application containers across clusters of hosts.
+                    </p>
+                    <p>
+                        This comprehensive handbook covers everything from basic concepts to advanced production 
+                        scenarios, including AWS EKS, Kubeflow for ML workflows, advanced CI/CD patterns, 
+                        and microservices architecture.
+                    </p>
+                </div>
+                <div class="intro-features">
+                    <h3>What You'll Master</h3>
+                    <ul class="feature-list">
+                        <li>Kubernetes architecture and core concepts</li>
+                        <li>kubectl commands and cluster management</li>
+                        <li>Pod, Service, and Deployment configurations</li>
+                        <li>AWS EKS production deployment</li>
+                        <li>Kubeflow for machine learning workflows</li>
+                        <li>Advanced CI/CD with GitOps patterns</li>
+                        <li>Microservices orchestration</li>
+                        <li>Security, networking, and storage</li>
+                        <li>Monitoring and observability</li>
+                        <li>Troubleshooting and best practices</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Architecture Overview -->
+        <section class="architecture-overview">
+            <h2 class="architecture-title">Kubernetes Architecture</h2>
+            <div class="architecture-diagram">
+                <div class="cluster-component">
+                    <h4>Control Plane</h4>
+                    <ul>
+                        <li>API Server</li>
+                        <li>etcd Database</li>
+                        <li>Scheduler</li>
+                        <li>Controller Manager</li>
+                        <li>Cloud Controller</li>
+                    </ul>
+                </div>
+                <div class="cluster-component">
+                    <h4>Worker Nodes</h4>
+                    <ul>
+                        <li>Kubelet</li>
+                        <li>Container Runtime</li>
+                        <li>Kube-proxy</li>
+                        <li>Pods & Containers</li>
+                        <li>Node Components</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Handbook Grid -->
+        <section id="handbooks">
+            <h2 class="architecture-title">Complete Kubernetes Learning Path</h2>
+            <div class="handbook-grid">
+                <!-- Fundamentals -->
+                <div class="handbook-card">
+                    <span class="card-icon">📚</span>
+                    <h3>Kubernetes Fundamentals</h3>
+                    <p>Core concepts, architecture, and essential Kubernetes objects. Perfect starting point for beginners.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Pods</span>
+                        <span class="tech-tag">Services</span>
+                        <span class="tech-tag">Deployments</span>
+                        <span class="tech-tag">ConfigMaps</span>
+                    </div>
+                    <a href="kubernetes-fundamentals.html">Start Learning →</a>
+                </div>
+
+                <!-- AWS EKS -->
+                <div class="handbook-card">
+                    <span class="card-icon">☁️</span>
+                    <h3>AWS EKS Deployment</h3>
+                    <p>Production-ready Kubernetes on AWS with managed services, networking, and security best practices.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">EKS</span>
+                        <span class="tech-tag">Fargate</span>
+                        <span class="tech-tag">ALB</span>
+                        <span class="tech-tag">IAM</span>
+                    </div>
+                    <a href="kubernetes-eks-deployment.html">Deploy on AWS →</a>
+                </div>
+
+                <!-- Kubeflow -->
+                <div class="handbook-card">
+                    <span class="card-icon">🤖</span>
+                    <h3>Kubeflow & ML Workflows</h3>
+                    <p>Machine learning pipelines, model training, serving, and MLOps practices with Kubernetes.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Pipelines</span>
+                        <span class="tech-tag">Katib</span>
+                        <span class="tech-tag">KServe</span>
+                        <span class="tech-tag">MLOps</span>
+                    </div>
+                    <a href="kubernetes-kubeflow.html">Build ML Pipelines →</a>
+                </div>
+
+                <!-- CI/CD -->
+                <div class="handbook-card">
+                    <span class="card-icon">🔄</span>
+                    <h3>Kubernetes CI/CD</h3>
+                    <p>Advanced CI/CD patterns with GitOps, progressive delivery, and cloud-native tooling.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">ArgoCD</span>
+                        <span class="tech-tag">Tekton</span>
+                        <span class="tech-tag">GitOps</span>
+                        <span class="tech-tag">Canary</span>
+                    </div>
+                    <a href="kubernetes-cicd.html">Automate Deployments →</a>
+                </div>
+
+                <!-- Microservices -->
+                <div class="handbook-card">
+                    <span class="card-icon">🏗️</span>
+                    <h3>Microservices Architecture</h3>
+                    <p>Design and deploy microservices with service mesh, observability, and resilience patterns.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Istio</span>
+                        <span class="tech-tag">Service Mesh</span>
+                        <span class="tech-tag">Observability</span>
+                        <span class="tech-tag">Patterns</span>
+                    </div>
+                    <a href="kubernetes-microservices.html">Design Architecture →</a>
+                </div>
+
+                <!-- Security -->
+                <div class="handbook-card">
+                    <span class="card-icon">🔒</span>
+                    <h3>Kubernetes Security</h3>
+                    <p>Comprehensive security practices, RBAC, network policies, and compliance frameworks.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">RBAC</span>
+                        <span class="tech-tag">Network Policies</span>
+                        <span class="tech-tag">Pod Security</span>
+                        <span class="tech-tag">Compliance</span>
+                    </div>
+                    <a href="kubernetes-security.html">Secure Clusters →</a>
+                </div>
+
+                <!-- Monitoring -->
+                <div class="handbook-card">
+                    <span class="card-icon">📊</span>
+                    <h3>Monitoring & Observability</h3>
+                    <p>Complete observability stack with Prometheus, Grafana, logging, and distributed tracing.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Prometheus</span>
+                        <span class="tech-tag">Grafana</span>
+                        <span class="tech-tag">Jaeger</span>
+                        <span class="tech-tag">Logging</span>
+                    </div>
+                    <a href="kubernetes-monitoring.html">Monitor Everything →</a>
+                </div>
+
+                <!-- Troubleshooting -->
+                <div class="handbook-card">
+                    <span class="card-icon">🔧</span>
+                    <h3>Troubleshooting Guide</h3>
+                    <p>Debug clusters, resolve issues, performance tuning, and production incident response.</p>
+                    <div class="tech-tags">
+                        <span class="tech-tag">Debugging</span>
+                        <span class="tech-tag">Performance</span>
+                        <span class="tech-tag">Incident Response</span>
+                        <span class="tech-tag">Best Practices</span>
+                    </div>
+                    <a href="kubernetes-troubleshooting.html">Debug Issues →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Learning Path -->
+        <section id="learning-path" class="learning-path">
+            <h2>Your Kubernetes Journey</h2>
+            <div class="path-grid">
+                <div class="path-card">
+                    <span class="path-icon">🎯</span>
+                    <h4>Beginner Path</h4>
+                    <p>Start with fundamentals → Learn kubectl → Deploy first app → Understand services and networking</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">⚡</span>
+                    <h4>Intermediate Path</h4>
+                    <p>AWS EKS deployment → CI/CD pipelines → Monitoring setup → Security implementation</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">🏆</span>
+                    <h4>Advanced Path</h4>
+                    <p>Microservices design → Kubeflow ML → Service mesh → Multi-cluster management</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">🎓</span>
+                    <h4>Expert Path</h4>
+                    <p>Custom operators → Platform engineering → Performance optimization → Teaching others</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Start -->
+        <section id="quick-start" class="quick-start">
+            <h2>Quick Start Guide</h2>
+            <p>Get your first Kubernetes cluster running in minutes:</p>
+            
+            <h4>1. Install kubectl and minikube</h4>
+            <div class="command-preview">curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"</div>
+            
+            <h4>2. Start your first cluster</h4>
+            <div class="command-preview">minikube start --kubernetes-version=v1.31.0</div>
+            
+            <h4>3. Deploy your first application</h4>
+            <div class="command-preview">kubectl create deployment hello-k8s --image=nginx</div>
+            
+            <h4>4. Expose the application</h4>
+            <div class="command-preview">kubectl expose deployment hello-k8s --type=NodePort --port=80</div>
+            
+            <p style="margin-top: 20px;">
+                <strong>Ready to dive deeper?</strong> Start with the 
+                <a href="kubernetes-fundamentals.html" style="color: var(--primary-color); text-decoration: none; font-weight: 600;">Kubernetes Fundamentals</a> 
+                handbook for a complete understanding of core concepts.
+            </p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Core Concepts</h4>
+                    <ul>
+                        <li><a href="kubernetes-fundamentals.html">Fundamentals</a></li>
+                        <li><a href="kubernetes-fundamentals.html#architecture">Architecture</a></li>
+                        <li><a href="kubernetes-fundamentals.html#objects">Core Objects</a></li>
+                        <li><a href="kubernetes-fundamentals.html#networking">Networking</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Cloud Deployment</h4>
+                    <ul>
+                        <li><a href="kubernetes-eks-deployment.html">AWS EKS</a></li>
+                        <li><a href="kubernetes-eks-deployment.html#networking">VPC & Networking</a></li>
+                        <li><a href="kubernetes-eks-deployment.html#security">IAM & Security</a></li>
+                        <li><a href="kubernetes-eks-deployment.html#monitoring">Monitoring</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Advanced Topics</h4>
+                    <ul>
+                        <li><a href="kubernetes-kubeflow.html">Kubeflow ML</a></li>
+                        <li><a href="kubernetes-cicd.html">CI/CD Pipelines</a></li>
+                        <li><a href="kubernetes-microservices.html">Microservices</a></li>
+                        <li><a href="kubernetes-security.html">Security</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Operations</h4>
+                    <ul>
+                        <li><a href="kubernetes-monitoring.html">Monitoring</a></li>
+                        <li><a href="kubernetes-troubleshooting.html">Troubleshooting</a></li>
+                        <li><a href="kubernetes-security.html#compliance">Compliance</a></li>
+                        <li><a href="kubernetes-monitoring.html#alerting">Alerting</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Complete Kubernetes Handbook. Production-ready container orchestration for modern applications.</p>
+                <p>From fundamentals to enterprise deployment - Master Kubernetes with confidence.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Progress bar
+        window.addEventListener('scroll', () => {
+            const scrolled = (window.pageYOffset / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+            document.getElementById('progress-bar').style.width = scrolled + '%';
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.handbook-card, .path-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Add dynamic interaction to cluster components
+        document.querySelectorAll('.cluster-component').forEach(component => {
+            component.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05) rotateY(5deg)';
+            });
+            
+            component.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1) rotateY(0deg)';
+            });
+        });
+
+        // Add floating animation to feature list items
+        document.querySelectorAll('.feature-list li').forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.1}s`;
+            item.classList.add('fade-in-up');
+        });
+
+        // Dynamic tech tag hover effects
+        document.querySelectorAll('.tech-tag').forEach(tag => {
+            tag.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.boxShadow = '0 4px 8px rgba(50, 108, 229, 0.3)';
+            });
+            
+            tag.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Add typing effect to subtitle
+        const subtitle = document.querySelector('.header .subtitle');
+        const text = subtitle.textContent;
+        subtitle.textContent = '';
+        
+        let i = 0;
+        function typeWriter() {
+            if (i < text.length) {
+                subtitle.textContent += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 30);
+            }
+        }
+        
+        setTimeout(typeWriter, 1000);
+
+        // Add parallax effect to header
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const header = document.querySelector('.header::before');
+            if (header) {
+                header.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Command preview copy functionality
+        document.querySelectorAll('.command-preview').forEach(block => {
+            block.style.cursor = 'pointer';
+            block.title = 'Click to copy';
+            
+            block.addEventListener('click', function() {
+                const text = this.textContent.replace('$ ', '');
+                navigator.clipboard.writeText(text).then(() => {
+                    const original = this.style.backgroundColor;
+                    this.style.backgroundColor = '#27ae60';
+                    setTimeout(() => {
+                        this.style.backgroundColor = original;
+                    }, 500);
+                });
+            });
+        });
+
+        // Add CSS for fade-in-up animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .fade-in-up {
+                animation: fadeInUp 0.6s ease forwards;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
