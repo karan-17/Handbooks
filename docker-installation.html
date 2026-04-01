@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Installation Guide 2026 - Complete Installation for All Platforms</title>
+    <style>
+        :root {
+            --primary-color: #0db7ed;
+            --primary-dark: #0a9dd6;
+            --secondary-color: #384d54;
+            --accent-color: #ff6b6b;
+            --success-color: #4ecdc4;
+            --warning-color: #ffe66d;
+            --error-color: #ff4757;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #0db7ed 0%, #384d54 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --code-bg: #f7fafc;
+            --code-border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="docker-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23docker-grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .docker-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px var(--shadow-color);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+            background-color: var(--surface-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.8rem;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .section-subtitle {
+            font-size: 2.2rem;
+            margin: 3rem 0 1.5rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .subsection-title {
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .subsection-title::before {
+            content: '🔧';
+            font-size: 1.5rem;
+        }
+
+        /* Platform Cards */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .platform-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border-left: 5px solid var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .platform-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow-color);
+        }
+
+        .platform-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Requirements Lists */
+        .requirements {
+            background: var(--surface-color);
+            padding: 2rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .requirements h4 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .requirements ul {
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .requirements li {
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .requirements li::before {
+            content: '✓';
+            color: var(--success-color);
+            font-weight: bold;
+            margin-top: 0.1rem;
+        }
+
+        /* Code Blocks */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--code-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-header {
+            background: var(--text-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px 5px 0 0;
+            margin: -1.5rem -1.5rem 1rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert.warning {
+            background: var(--warning-color);
+            border-left-color: #f39c12;
+            color: #8B4513;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            border-left-color: var(--success-color);
+            color: #155724;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            border-left-color: var(--primary-color);
+            color: #0c5460;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            border-left-color: var(--error-color);
+            color: #721c24;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+            margin-top: 0.2rem;
+        }
+
+        /* Step Lists */
+        .step-list {
+            counter-reset: step-counter;
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            background: white;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px var(--shadow-color);
+            border-left: 4px solid var(--primary-color);
+            position: relative;
+            padding-left: 4rem;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Troubleshooting Section */
+        .troubleshooting {
+            background: var(--surface-color);
+            padding: 2.5rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            border: 2px solid var(--border-color);
+        }
+
+        .troubleshooting h4 {
+            color: var(--error-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .troubleshooting h4::before {
+            content: '⚠️';
+        }
+
+        .solution {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .solution h5 {
+            color: var(--success-color);
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        /* IDE Integration Section */
+        .ide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .ide-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px var(--shadow-color);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .ide-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ide-card .ide-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .ide-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* Performance Tips */
+        .performance-tips {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            margin: 3rem 0;
+        }
+
+        .performance-tips h3 {
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tip {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .tip h4 {
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .tip p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        /* Download Section */
+        .download-section {
+            background: var(--surface-color);
+            padding: 3rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .download-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(13, 183, 237, 0.4);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer p {
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .platform-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <span class="docker-logo">🐳</span>
+            <h1>Docker Installation Guide 2026</h1>
+            <p class="subtitle">
+                Complete installation instructions for Docker Desktop and Docker Engine across Windows, macOS, and Linux. 
+                Includes WSL2 setup, troubleshooting, IDE integration, and development environment configuration.
+            </p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="nav-brand">
+                <span>🐳</span> Docker Installation
+            </div>
+            <ul class="nav-links">
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#windows">Windows</a></li>
+                <li><a href="#macos">macOS</a></li>
+                <li><a href="#linux">Linux</a></li>
+                <li><a href="#verification">Verification</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#ide-integration">IDE Setup</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Overview Section -->
+    <section id="overview" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Installation Overview</h2>
+            
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🪟 Windows Installation</h3>
+                    <p>Docker Desktop with WSL2 backend for optimal performance. Includes Hyper-V setup, system requirements, and complete configuration guide.</p>
+                    <div class="requirements">
+                        <h4>System Requirements</h4>
+                        <ul>
+                            <li>Windows 10/11 64-bit (Build 19041 or later)</li>
+                            <li>WSL 2 enabled with virtualization support</li>
+                            <li>4 GB RAM minimum (8 GB recommended)</li>
+                            <li>BIOS virtualization enabled (VT-x/AMD-V)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🍎 macOS Installation</h3>
+                    <p>Native Docker Desktop for Intel and Apple Silicon Macs. Optimized for M1/M2/M3 chips with Rosetta 2 considerations.</p>
+                    <div class="requirements">
+                        <h4>System Requirements</h4>
+                        <ul>
+                            <li>macOS Monterey (12) or later</li>
+                            <li>4 GB RAM minimum (8 GB recommended)</li>
+                            <li>Intel or Apple Silicon processor</li>
+                            <li>Apple Virtualization Framework support</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🐧 Linux Installation</h3>
+                    <p>Docker Engine and Docker Desktop options. Support for Ubuntu, Debian, CentOS, Fedora, and other major distributions.</p>
+                    <div class="requirements">
+                        <h4>System Requirements</h4>
+                        <ul>
+                            <li>64-bit Linux distribution</li>
+                            <li>Kernel version 3.10 or higher</li>
+                            <li>2 GB RAM minimum</li>
+                            <li>SystemD or compatible init system</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <h3>Quick Download Links</h3>
+                <div class="download-buttons">
+                    <a href="https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" class="download-btn">
+                        🪟 Docker Desktop for Windows
+                    </a>
+                    <a href="https://desktop.docker.com/mac/main/amd64/Docker.dmg" class="download-btn">
+                        💻 Docker Desktop for Mac (Intel)
+                    </a>
+                    <a href="https://desktop.docker.com/mac/main/arm64/Docker.dmg" class="download-btn">
+                        🍎 Docker Desktop for Mac (Apple Silicon)
+                    </a>
+                    <a href="https://docs.docker.com/engine/install/" class="download-btn">
+                        🐧 Docker Engine for Linux
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Windows Installation Section -->
+    <section id="windows" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">🪟 Windows Installation with WSL2</h2>
+
+            <div class="alert info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>2026 Update:</strong> Docker Desktop now requires WSL2 for optimal performance on Windows. This guide covers the complete setup process including WSL2 configuration.
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Pre-Installation: Enable WSL2</h3>
+            
+            <ol class="step-list">
+                <li>
+                    <strong>Check System Compatibility</strong>
+                    <div class="code-block">
+                        <div class="code-header">PowerShell (Run as Administrator)</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Check Windows version
+winver
+
+# Check virtualization support
+systeminfo | findstr /C:"Hyper-V"
+
+# Verify system information
+Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Enable Windows Features</strong>
+                    <div class="code-block">
+                        <div class="code-header">PowerShell (Run as Administrator)</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Enable WSL
+dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+
+# Enable Virtual Machine Platform
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+# Restart Windows (Required)
+Restart-Computer</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Configure WSL2 After Restart</strong>
+                    <div class="code-block">
+                        <div class="code-header">PowerShell</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Set WSL2 as default version
+wsl --set-default-version 2
+
+# Update WSL to latest version
+wsl --update
+
+# Install Ubuntu (or preferred distribution)
+wsl --install -d Ubuntu
+
+# Check WSL status
+wsl --status</pre>
+                    </div>
+                </li>
+            </ol>
+
+            <h3 class="subsection-title">Install Docker Desktop</h3>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Download Docker Desktop</strong>
+                    <p>Download the latest Docker Desktop for Windows from the official Docker website or use the link above.</p>
+                </li>
+
+                <li>
+                    <strong>Run Installation</strong>
+                    <div class="code-block">
+                        <div class="code-header">Command Options</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Silent installation with WSL2 backend
+Start-Process -FilePath "Docker Desktop Installer.exe" -ArgumentList "install --quiet --accept-license --backend=wsl-2" -Wait
+
+# Standard installation (GUI)
+# Double-click Docker Desktop Installer.exe
+# Keep "Use WSL 2 instead of Hyper-V" checked</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Configure WSL Integration</strong>
+                    <p>After installation, open Docker Desktop Settings → Resources → WSL Integration and enable your WSL distributions.</p>
+                </li>
+            </ol>
+
+            <h3 class="subsection-title">Post-Installation Configuration</h3>
+
+            <div class="alert warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Important:</strong> Docker Desktop must be running for WSL integration to work. Check the system tray for the Docker icon.
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">WSL Terminal</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># Verify Docker installation in WSL
+docker --version
+
+# Test Docker functionality
+docker run hello-world
+
+# Check Docker context
+docker context ls</pre>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Common Windows Installation Issues</h4>
+                
+                <div class="solution">
+                    <h5>WSL Context Errors</h5>
+                    <p>If you see deprecated "wsl" context errors:</p>
+                    <div class="code-block">
+                        <div class="code-header">Fix Commands</div>
+                        <pre># Check contexts
+docker context ls
+
+# Remove deprecated context
+docker context rm wsl
+
+# Use default context
+docker context use default</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Virtualization Not Enabled</h5>
+                    <p>Error: "Hardware acceleration is not available"</p>
+                    <ol>
+                        <li>Restart computer and enter BIOS/UEFI settings</li>
+                        <li>Enable Intel VT-x or AMD-V virtualization</li>
+                        <li>Enable Hyper-V if using Hyper-V backend</li>
+                        <li>Save and restart</li>
+                    </ol>
+                </div>
+
+                <div class="solution">
+                    <h5>WSL Access Rights Issues</h5>
+                    <p>Docker shows "access rights not set correctly" warning:</p>
+                    <div class="code-block">
+                        <div class="code-header">PowerShell (Administrator)</div>
+                        <pre># Reset WSL permissions
+wsl --shutdown
+wsl --unregister docker-desktop
+wsl --unregister docker-desktop-data
+
+# Restart Docker Desktop</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- macOS Installation Section -->
+    <section id="macos" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">🍎 macOS Installation</h2>
+
+            <div class="alert info">
+                <span class="alert-icon">🚀</span>
+                <div>
+                    <strong>2026 Performance:</strong> Docker Desktop for Apple Silicon (M1/M2/M3) provides native ARM64 performance with excellent cross-platform compatibility.
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Choose Your Installation Method</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>📦 Homebrew Installation (Recommended)</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Install Docker Desktop via Homebrew
+brew install --cask docker
+
+# Start Docker Desktop
+open -a Docker</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>💾 Manual Installation</h3>
+                    <ol>
+                        <li>Download Docker Desktop for Mac (choose Intel or Apple Silicon)</li>
+                        <li>Drag Docker.app to Applications folder</li>
+                        <li>Launch Docker from Applications</li>
+                        <li>Complete setup wizard</li>
+                    </ol>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Architecture-Specific Setup</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🍎 Apple Silicon (M1/M2/M3/M4)</h3>
+                    <div class="requirements">
+                        <h4>Optimization Settings</h4>
+                        <ul>
+                            <li>Enable Apple Virtualization Framework</li>
+                            <li>Use VirtioFS for file sharing</li>
+                            <li>Install Rosetta 2 for x86 compatibility</li>
+                            <li>Enable "Use Docker Compose V2"</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Install Rosetta 2 (if needed)
+softwareupdate --install-rosetta
+
+# Verify platform support
+docker buildx ls
+
+# Test multi-platform build
+docker buildx build --platform linux/amd64,linux/arm64 -t test:multi .</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>💻 Intel Macs</h3>
+                    <div class="requirements">
+                        <h4>Standard Configuration</h4>
+                        <ul>
+                            <li>Use default hypervisor settings</li>
+                            <li>Enable file sharing for project directories</li>
+                            <li>Configure memory limits (4GB minimum)</li>
+                            <li>Enable experimental features as needed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Performance Optimization</h3>
+
+            <div class="performance-tips">
+                <h3>🚀 macOS Performance Tips</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <h4>🔧 Virtualization Framework</h4>
+                        <p>Use Apple's Virtualization Framework instead of HyperKit for better performance on Apple Silicon.</p>
+                    </div>
+                    <div class="tip">
+                        <h4>📁 File Sharing</h4>
+                        <p>Use VirtioFS for faster file operations between host and containers, especially for large codebases.</p>
+                    </div>
+                    <div class="tip">
+                        <h4>💾 Resource Limits</h4>
+                        <p>Allocate appropriate CPU and memory limits. Apple Silicon can handle higher limits efficiently.</p>
+                    </div>
+                    <div class="tip">
+                        <h4>🏗️ Multi-Platform Builds</h4>
+                        <p>Leverage buildx for building images that work on both ARM64 and x86_64 architectures.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Common macOS Installation Issues</h4>
+                
+                <div class="solution">
+                    <h5>Permission Denied Errors</h5>
+                    <p>Docker Desktop requires accessibility permissions on macOS:</p>
+                    <ol>
+                        <li>Go to System Preferences → Privacy & Security</li>
+                        <li>Click Accessibility in the sidebar</li>
+                        <li>Add Docker Desktop to the allowed applications</li>
+                        <li>Restart Docker Desktop</li>
+                    </ol>
+                </div>
+
+                <div class="solution">
+                    <h5>Slow File Performance</h5>
+                    <p>File operations are slow between host and containers:</p>
+                    <div class="code-block">
+                        <div class="code-header">Docker Desktop Settings</div>
+                        <pre># Enable VirtioFS file sharing
+# Go to Settings → General → Enable VirtioFS
+
+# Alternative: Use named volumes for better performance
+docker volume create myproject
+docker run -v myproject:/app myimage</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Rosetta 2 Issues</h5>
+                    <p>x86 containers failing on Apple Silicon:</p>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Force x86 platform
+docker run --platform linux/amd64 nginx
+
+# Build for specific architecture
+docker buildx build --platform linux/amd64 -t myapp:x86 .</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linux Installation Section -->
+    <section id="linux" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">🐧 Linux Installation</h2>
+
+            <div class="alert info">
+                <span class="alert-icon">🐧</span>
+                <div>
+                    <strong>Linux Options:</strong> Choose between Docker Desktop (GUI experience) or Docker Engine (lightweight, server-ideal). Both support the same container workflows.
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Ubuntu Installation</h3>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Remove Old Docker Packages</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Remove conflicting packages
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+# Clean up old configurations
+sudo apt-get purge docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Set Up Docker Repository</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Update package index
+sudo apt-get update
+
+# Install prerequisites
+sudo apt-get install ca-certificates curl gnupg lsb-release
+
+# Add Docker's official GPG key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Set up repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Install Docker Engine</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Update package index
+sudo apt-get update
+
+# Install Docker Engine, CLI, and plugins
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Verify installation
+sudo docker run hello-world</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Post-Installation Steps</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Add user to docker group (avoid sudo)
+sudo usermod -aG docker $USER
+
+# Enable Docker service
+sudo systemctl enable docker.service
+sudo systemctl enable containerd.service
+
+# Apply group changes (logout/login or use newgrp)
+newgrp docker
+
+# Test without sudo
+docker run hello-world</pre>
+                    </div>
+                </li>
+            </ol>
+
+            <h3 class="subsection-title">CentOS/RHEL Installation</h3>
+
+            <div class="code-block">
+                <div class="code-header">Terminal</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># Remove old Docker packages
+sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+
+# Install prerequisites
+sudo yum install -y yum-utils
+
+# Set up repository
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+# Install Docker Engine
+sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Start and enable Docker
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Add user to docker group
+sudo usermod -aG docker $USER</pre>
+            </div>
+
+            <h3 class="subsection-title">Debian Installation</h3>
+
+            <div class="code-block">
+                <div class="code-header">Terminal</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># Remove old packages
+sudo apt-get remove docker docker-engine docker.io containerd runc
+
+# Update and install prerequisites
+sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg lsb-release
+
+# Add Docker's GPG key and repository
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Install Docker Engine
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin</pre>
+            </div>
+
+            <h3 class="subsection-title">Docker Desktop for Linux</h3>
+
+            <div class="alert warning">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Note:</strong> Docker Desktop for Linux requires a desktop environment and is single-user only (UID 1000).
+                </div>
+            </div>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🎯 Ubuntu Desktop</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Download Docker Desktop
+wget https://desktop.docker.com/linux/main/amd64/docker-desktop-4.26.1-amd64.deb
+
+# Install DEB package
+sudo apt-get install ./docker-desktop-4.26.1-amd64.deb
+
+# Launch Docker Desktop
+systemctl --user start docker-desktop</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🎯 Fedora Desktop</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Download Docker Desktop
+wget https://desktop.docker.com/linux/main/amd64/docker-desktop-4.26.1-x86_64.rpm
+
+# Install RPM package
+sudo dnf install ./docker-desktop-4.26.1-x86_64.rpm
+
+# Start Docker Desktop
+systemctl --user start docker-desktop</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Linux Installation Troubleshooting</h4>
+                
+                <div class="solution">
+                    <h5>Permission Denied Socket Errors</h5>
+                    <p>Cannot connect to Docker daemon socket:</p>
+                    <div class="code-block">
+                        <div class="code-header">Fix Commands</div>
+                        <pre># Check Docker service status
+sudo systemctl status docker
+
+# Start Docker service
+sudo systemctl start docker
+
+# Add user to docker group
+sudo usermod -aG docker $USER
+
+# Apply group changes
+newgrp docker
+
+# Fix socket permissions
+sudo chown root:docker /var/run/docker.sock
+sudo chmod 660 /var/run/docker.sock</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Systemd Service Issues</h5>
+                    <p>Docker service fails to start:</p>
+                    <div class="code-block">
+                        <div class="code-header">Diagnostic Commands</div>
+                        <pre># Check service logs
+sudo journalctl -u docker.service
+
+# Reset service
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+# Check for conflicts
+sudo systemctl list-units --failed</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Docker Compose Installation -->
+    <section id="compose" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">🔧 Docker Compose Installation</h2>
+
+            <div class="alert success">
+                <span class="alert-icon">✅</span>
+                <div>
+                    <strong>Good News:</strong> Docker Compose v2 comes pre-installed with Docker Desktop and modern Docker Engine installations. No separate installation needed for most users!
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Verify Compose Installation</h3>
+
+            <div class="code-block">
+                <div class="code-header">Terminal</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># Check Compose version (v2 syntax)
+docker compose version
+
+# Legacy syntax (v1 - deprecated)
+docker-compose --version
+
+# Test Compose functionality
+docker compose config --help</pre>
+            </div>
+
+            <h3 class="subsection-title">Standalone Installation Methods</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>📦 Package Manager Installation</h3>
+                    <div class="code-block">
+                        <div class="code-header">Ubuntu/Debian</div>
+                        <pre># Install via apt (comes with Docker Engine)
+sudo apt-get install docker-compose-plugin
+
+# Verify installation
+docker compose version</pre>
+                    </div>
+                    <div class="code-block">
+                        <div class="code-header">macOS Homebrew</div>
+                        <pre># Install standalone Compose
+brew install docker-compose
+
+# Note: Docker Desktop includes Compose</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🐍 Python pip Installation</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Install Python prerequisites
+sudo apt install python3-pip
+
+# Install Compose via pip
+pip3 install docker-compose
+
+# Verify installation
+docker-compose --version</pre>
+                    </div>
+                    <div class="alert warning">
+                        <span class="alert-icon">⚠️</span>
+                        <div><strong>Note:</strong> pip installation installs v1 syntax. Use Docker Desktop or plugin for v2.</div>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>📥 Direct Binary Download</h3>
+                    <div class="code-block">
+                        <div class="code-header">Linux</div>
+                        <pre># Download latest release
+sudo curl -SL https://github.com/docker/compose/releases/download/v2.24.6/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+
+# Make executable
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Verify installation
+docker-compose --version</pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Compose Version Migration</h3>
+
+            <div class="alert info">
+                <span class="alert-icon">🔄</span>
+                <div>
+                    <strong>V1 to V2 Migration:</strong> Docker Compose v2 uses <code>docker compose</code> (space) instead of <code>docker-compose</code> (hyphen). The functionality is identical.
+                </div>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">Version Comparison</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># V1 Syntax (deprecated)
+docker-compose up -d
+docker-compose ps
+docker-compose down
+
+# V2 Syntax (current)
+docker compose up -d
+docker compose ps
+docker compose down
+
+# Both work the same way!</pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verification Section -->
+    <section id="verification" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">✅ Installation Verification & Testing</h2>
+
+            <h3 class="subsection-title">Basic Verification Steps</h3>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Check Docker Version</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Check Docker version
+docker --version
+
+# Get detailed version information
+docker version
+
+# Check system information
+docker system info</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Run Hello World Container</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Test basic Docker functionality
+docker run hello-world
+
+# Expected output includes:
+# "Hello from Docker! This message shows that your installation appears to be working correctly."</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Test Container Operations</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Run an interactive container
+docker run -it ubuntu:latest /bin/bash
+
+# In the container, run some commands:
+# cat /etc/os-release
+# exit
+
+# Check running containers
+docker ps
+
+# Check all containers
+docker ps -a</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Test Docker Compose</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre># Check Compose version
+docker compose version
+
+# Create a simple test file
+echo 'version: "3.8"
+services:
+  test:
+    image: nginx:alpine
+    ports:
+      - "8080:80"' > docker-compose.test.yml
+
+# Test Compose functionality
+docker compose -f docker-compose.test.yml up -d
+docker compose -f docker-compose.test.yml ps
+docker compose -f docker-compose.test.yml down
+
+# Clean up
+rm docker-compose.test.yml</pre>
+                    </div>
+                </li>
+            </ol>
+
+            <h3 class="subsection-title">Advanced Testing</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🔧 Build Testing</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Test Docker build functionality
+echo 'FROM alpine:latest
+RUN echo "Build test successful"
+CMD ["echo", "Hello from custom image"]' > Dockerfile.test
+
+# Build test image
+docker build -t test-build -f Dockerfile.test .
+
+# Run test image
+docker run test-build
+
+# Clean up
+docker rmi test-build
+rm Dockerfile.test</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🌐 Network Testing</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Test Docker networking
+docker network ls
+
+# Create custom network
+docker network create test-network
+
+# Test network connectivity
+docker run --network test-network --name container1 -d nginx:alpine
+docker run --network test-network --rm alpine ping -c 3 container1
+
+# Clean up
+docker stop container1
+docker rm container1
+docker network rm test-network</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>💾 Volume Testing</h3>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Test Docker volumes
+docker volume ls
+
+# Create and test volume
+docker volume create test-volume
+docker run --rm -v test-volume:/data alpine sh -c "echo 'Volume test' > /data/test.txt"
+docker run --rm -v test-volume:/data alpine cat /data/test.txt
+
+# Clean up
+docker volume rm test-volume</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert success">
+                <span class="alert-icon">🎉</span>
+                <div>
+                    <strong>Installation Complete!</strong> If all tests pass, your Docker installation is working correctly and ready for development work.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Troubleshooting Section -->
+    <section id="troubleshooting" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">🔍 Troubleshooting Common Issues</h2>
+
+            <div class="troubleshooting">
+                <h4>Universal Issues (All Platforms)</h4>
+                
+                <div class="solution">
+                    <h5>Docker Daemon Not Running</h5>
+                    <p><strong>Symptoms:</strong> "Cannot connect to the Docker daemon" error</p>
+                    <div class="code-block">
+                        <div class="code-header">Solutions</div>
+                        <pre># Check if Docker is running
+docker version
+
+# Start Docker service (Linux)
+sudo systemctl start docker
+
+# Start Docker Desktop (Windows/macOS)
+# Launch from Applications or Start Menu
+
+# Check Docker status
+docker system info</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Permission Denied Errors</h5>
+                    <p><strong>Symptoms:</strong> "permission denied while trying to connect to the Docker daemon socket"</p>
+                    <div class="code-block">
+                        <div class="code-header">Linux Fix</div>
+                        <pre># Add user to docker group
+sudo usermod -aG docker $USER
+
+# Apply group changes
+newgrp docker
+
+# Or logout and login again</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Container Won't Start</h5>
+                    <p><strong>Symptoms:</strong> Container exits immediately or fails to start</p>
+                    <div class="code-block">
+                        <div class="code-header">Diagnostic Commands</div>
+                        <pre># Check container logs
+docker logs <container_name>
+
+# Run container in interactive mode for debugging
+docker run -it <image_name> /bin/sh
+
+# Check container resource usage
+docker stats
+
+# Inspect container configuration
+docker inspect <container_name></pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Port Already in Use</h5>
+                    <p><strong>Symptoms:</strong> "bind: address already in use" error</p>
+                    <div class="code-block">
+                        <div class="code-header">Solutions</div>
+                        <pre># Find process using port
+sudo lsof -i :8080  # Replace 8080 with your port
+netstat -tulpn | grep :8080
+
+# Use different port
+docker run -p 8081:80 nginx  # Use 8081 instead
+
+# Stop conflicting service
+sudo systemctl stop apache2  # Example</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Windows-Specific Issues</h4>
+                
+                <div class="solution">
+                    <h5>WSL2 Backend Issues</h5>
+                    <div class="code-block">
+                        <div class="code-header">WSL2 Fixes</div>
+                        <pre># Update WSL2
+wsl --update
+
+# Reset WSL2 if corrupted
+wsl --shutdown
+wsl --unregister Ubuntu  # Or your distro name
+wsl --install -d Ubuntu
+
+# Check WSL integration in Docker Desktop settings</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Hyper-V Conflicts</h5>
+                    <p><strong>Issue:</strong> Virtualization conflicts with VirtualBox or VMware</p>
+                    <div class="code-block">
+                        <div class="code-header">PowerShell (Admin)</div>
+                        <pre># Disable Hyper-V temporarily
+bcdedit /set hypervisorlaunchtype off
+
+# Re-enable Hyper-V
+bcdedit /set hypervisorlaunchtype auto
+
+# Restart required after changes</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>macOS-Specific Issues</h4>
+                
+                <div class="solution">
+                    <h5>File Sharing Performance</h5>
+                    <p><strong>Issue:</strong> Slow file operations between host and containers</p>
+                    <ol>
+                        <li>Enable VirtioFS in Docker Desktop settings</li>
+                        <li>Use named volumes for better performance</li>
+                        <li>Avoid bind mounts for large directories</li>
+                        <li>Consider using Docker's file synchronization features</li>
+                    </ol>
+                </div>
+
+                <div class="solution">
+                    <h5>Apple Silicon Compatibility</h5>
+                    <p><strong>Issue:</strong> x86 images won't run on Apple Silicon</p>
+                    <div class="code-block">
+                        <div class="code-header">Solutions</div>
+                        <pre># Force x86 platform
+docker run --platform linux/amd64 <image_name>
+
+# Build for specific platform
+docker buildx build --platform linux/amd64 -t myapp:x86 .
+
+# Install Rosetta 2 if needed
+softwareupdate --install-rosetta</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="troubleshooting">
+                <h4>Linux-Specific Issues</h4>
+                
+                <div class="solution">
+                    <h5>Systemd Service Problems</h5>
+                    <div class="code-block">
+                        <div class="code-header">Service Management</div>
+                        <pre># Check service status
+sudo systemctl status docker
+
+# Restart Docker service
+sudo systemctl restart docker
+
+# Enable auto-start
+sudo systemctl enable docker
+
+# View service logs
+sudo journalctl -u docker.service</pre>
+                    </div>
+                </div>
+
+                <div class="solution">
+                    <h5>Storage Driver Issues</h5>
+                    <p><strong>Issue:</strong> Docker fails to start due to storage driver problems</p>
+                    <div class="code-block">
+                        <div class="code-header">Storage Fixes</div>
+                        <pre># Check storage driver
+docker info | grep "Storage Driver"
+
+# Reset Docker data (WARNING: removes all containers/images)
+sudo systemctl stop docker
+sudo rm -rf /var/lib/docker
+sudo systemctl start docker</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert error">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Need More Help?</strong> If issues persist, check the official Docker documentation, GitHub issues, or Docker Community forums. Include your platform, Docker version, and error messages when seeking help.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IDE Integration Section -->
+    <section id="ide-integration" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">💻 IDE Integration & Development Setup</h2>
+
+            <div class="alert info">
+                <span class="alert-icon">🚀</span>
+                <div>
+                    <strong>Modern Development:</strong> 2026 development workflows heavily rely on containerized environments. IDE integration makes Docker development seamless and productive.
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Visual Studio Code Integration</h3>
+
+            <div class="platform-card">
+                <h3>🔵 VS Code Docker Extension</h3>
+                <div class="code-block">
+                    <div class="code-header">Extensions to Install</div>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre># Essential Docker extensions for VS Code
+# 1. Docker (ms-azuretools.vscode-docker)
+# 2. Remote - Containers (ms-vscode-remote.remote-containers)
+# 3. Remote - WSL (ms-vscode-remote.remote-wsl) [Windows]
+
+# Install via command line
+code --install-extension ms-azuretools.vscode-docker
+code --install-extension ms-vscode-remote.remote-containers
+code --install-extension ms-vscode-remote.remote-wsl</pre>
+                </div>
+
+                <div class="requirements">
+                    <h4>VS Code Features</h4>
+                    <ul>
+                        <li>Docker container management from sidebar</li>
+                        <li>Dockerfile syntax highlighting and IntelliSense</li>
+                        <li>Docker Compose support with validation</li>
+                        <li>Dev Containers for isolated development</li>
+                        <li>Remote debugging in containers</li>
+                        <li>Image and container inspection</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">IntelliJ IDEA Integration</h3>
+
+            <div class="platform-card">
+                <h3>🟠 IntelliJ Docker Plugin</h3>
+                <p><strong>Note:</strong> Docker plugin is available in IntelliJ IDEA Ultimate by default.</p>
+                
+                <div class="requirements">
+                    <h4>IntelliJ Features</h4>
+                    <ul>
+                        <li>Docker tool window for container management</li>
+                        <li>Dockerfile editor with smart completion</li>
+                        <li>Docker Compose integration and deployment</li>
+                        <li>Development containers (Dev Containers)</li>
+                        <li>Multi-container debugging support</li>
+                        <li>Database integration with containerized DBs</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">IntelliJ Configuration</div>
+                    <pre># Configure Docker connection:
+# 1. Go to Settings → Build → Docker
+# 2. Add Docker connection (usually auto-detected)
+# 3. Test connection
+# 4. Configure deployment settings for projects</pre>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Development Container Setup</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>📁 Dev Container Configuration</h3>
+                    <p>Create <code>.devcontainer/devcontainer.json</code> for consistent development environments:</p>
+                    <div class="code-block">
+                        <div class="code-header">.devcontainer/devcontainer.json</div>
+                        <pre>{
+  "name": "Node.js Dev Container",
+  "image": "node:18-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+  "forwardPorts": [3000],
+  "postCreateCommand": "npm install"
+}</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🐳 Custom Development Dockerfile</h3>
+                    <div class="code-block">
+                        <div class="code-header">.devcontainer/Dockerfile</div>
+                        <pre>FROM ubuntu:22.04
+
+# Install development dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    vim \
+    build-essential \
+    python3 \
+    python3-pip \
+    nodejs \
+    npm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install development tools
+RUN npm install -g typescript @angular/cli
+
+# Create development user
+RUN useradd -m -s /bin/bash developer
+USER developer
+WORKDIR /home/developer
+
+# Configure git (will be overridden by user)
+RUN git config --global user.name "Developer" && \
+    git config --global user.email "dev@example.com"</pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Other IDE Integrations</h3>
+
+            <div class="ide-grid">
+                <div class="ide-card">
+                    <span class="ide-icon">⚡</span>
+                    <h4>WebStorm</h4>
+                    <p>Built-in Docker support in JetBrains WebStorm with container debugging and deployment configurations.</p>
+                </div>
+
+                <div class="ide-card">
+                    <span class="ide-icon">🎯</span>
+                    <h4>PyCharm</h4>
+                    <p>Professional Python development with Docker interpreters, remote debugging, and container management.</p>
+                </div>
+
+                <div class="ide-card">
+                    <span class="ide-icon">⚙️</span>
+                    <h4>Eclipse</h4>
+                    <p>Docker tooling plugin for Eclipse provides container management and development workflow integration.</p>
+                </div>
+
+                <div class="ide-card">
+                    <span class="ide-icon">🌟</span>
+                    <h4>Vim/Neovim</h4>
+                    <p>Command-line Docker management with plugins like vim-docker and integration with terminal workflows.</p>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Best Practices for Docker Development</h3>
+
+            <div class="performance-tips">
+                <h3>🎯 Development Environment Best Practices</h3>
+                <div class="tips-grid">
+                    <div class="tip">
+                        <h4>🔄 Consistent Environments</h4>
+                        <p>Use Dev Containers to ensure all team members work in identical environments, eliminating "works on my machine" issues.</p>
+                    </div>
+                    <div class="tip">
+                        <h4>🚀 Fast Iteration</h4>
+                        <p>Mount source code volumes for live reload during development while keeping dependencies in the container.</p>
+                    </div>
+                    <div class="tip">
+                        <h4>🔧 Multi-Service Development</h4>
+                        <p>Use Docker Compose for applications with multiple services (database, cache, API, frontend).</p>
+                    </div>
+                    <div class="tip">
+                        <h4>🐛 Debugging Support</h4>
+                        <p>Configure remote debugging in your IDE to debug code running inside containers seamlessly.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Development Workflow Example</h3>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Setup Project with Dev Container</strong>
+                    <div class="code-block">
+                        <div class="code-header">Terminal</div>
+                        <pre># Create new project
+mkdir my-docker-project
+cd my-docker-project
+
+# Initialize with Dev Container
+mkdir .devcontainer
+# Create devcontainer.json and Dockerfile</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Open in Container</strong>
+                    <p>VS Code: Open folder → Command Palette → "Dev Containers: Reopen in Container"</p>
+                    <p>IntelliJ: Configure remote interpreter pointing to Docker container</p>
+                </li>
+
+                <li>
+                    <strong>Develop with Live Reload</strong>
+                    <div class="code-block">
+                        <div class="code-header">docker-compose.yml</div>
+                        <pre>version: '3.8'
+services:
+  app:
+    build: .
+    volumes:
+      - .:/workspace
+      - /workspace/node_modules  # Prevent overwriting
+    ports:
+      - "3000:3000"
+    command: npm run dev</pre>
+                    </div>
+                </li>
+
+                <li>
+                    <strong>Debug in Container</strong>
+                    <p>Configure your IDE's debugger to connect to the containerized application. Most modern IDEs support remote debugging over network protocols.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- CLI Setup and Configuration -->
+    <section id="cli-configuration" class="content-section">
+        <div class="container">
+            <h2 class="section-subtitle">⌨️ Docker CLI Setup & Configuration</h2>
+
+            <h3 class="subsection-title">Essential CLI Configuration</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🔧 Docker CLI Configuration</h3>
+                    <div class="code-block">
+                        <div class="code-header">~/.docker/config.json</div>
+                        <pre>{
+  "auths": {},
+  "credsStore": "desktop",
+  "currentContext": "default",
+  "plugins": {
+    "compose": {
+      "version": "v2.24.6"
+    }
+  },
+  "features": {
+    "buildkit": true
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🚀 Useful CLI Aliases</h3>
+                    <div class="code-block">
+                        <div class="code-header">Bash/Zsh Aliases</div>
+                        <pre># Add to ~/.bashrc or ~/.zshrc
+
+# Docker shortcuts
+alias dc="docker compose"
+alias dcup="docker compose up -d"
+alias dcdown="docker compose down"
+alias dcps="docker compose ps"
+alias dclogs="docker compose logs -f"
+
+# Container management
+alias dps="docker ps"
+alias dpsa="docker ps -a"
+alias di="docker images"
+alias drmi="docker rmi"
+alias drmf="docker system prune -f"
+
+# Quick container access
+alias dexec="docker exec -it"
+alias drun="docker run --rm -it"</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🎯 Environment Variables</h3>
+                    <div class="code-block">
+                        <div class="code-header">Environment Setup</div>
+                        <pre># Docker environment variables
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+
+# For Docker Desktop resource limits
+export DOCKER_CLI_EXPERIMENTAL=enabled
+
+# Custom registry configuration
+export DOCKER_REGISTRY=your-registry.com</pre>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-title">Shell Completion Setup</h3>
+
+            <div class="code-block">
+                <div class="code-header">Bash Completion</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># Install bash completion (Ubuntu/Debian)
+sudo apt-get install bash-completion
+
+# Enable Docker completion
+sudo curl -L https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker -o /etc/bash_completion.d/docker
+
+# Enable Docker Compose completion
+sudo curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+
+# Reload bash completion
+source ~/.bashrc</pre>
+            </div>
+
+            <div class="code-block">
+                <div class="code-header">Zsh Completion</div>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre># For Oh My Zsh users
+echo 'plugins=(docker docker-compose)' >> ~/.zshrc
+
+# Manual setup for Zsh
+mkdir -p ~/.zsh/completion
+curl -L https://raw.githubusercontent.com/docker/cli/master/contrib/completion/zsh/_docker > ~/.zsh/completion/_docker
+curl -L https://raw.githubusercontent.com/docker/compose/master/contrib/completion/zsh/_docker-compose > ~/.zsh/completion/_docker-compose
+
+# Add to ~/.zshrc
+echo 'fpath=(~/.zsh/completion $fpath)' >> ~/.zshrc
+echo 'autoload -U compinit && compinit' >> ~/.zshrc</pre>
+            </div>
+
+            <h3 class="subsection-title">Docker CLI Tools & Extensions</h3>
+
+            <div class="platform-grid">
+                <div class="platform-card">
+                    <h3>🛠️ Essential CLI Tools</h3>
+                    <div class="code-block">
+                        <div class="code-header">Tool Installation</div>
+                        <pre># Docker buildx (multi-platform builds)
+docker buildx install
+
+# ctop (container monitoring)
+sudo wget https://github.com/bcicen/ctop/releases/download/0.7.7/ctop-0.7.7-linux-amd64 -O /usr/local/bin/ctop
+sudo chmod +x /usr/local/bin/ctop
+
+# dive (image analysis)
+wget https://github.com/wagoodman/dive/releases/download/v0.10.0/dive_0.10.0_linux_amd64.deb
+sudo apt install ./dive_0.10.0_linux_amd64.deb</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>📊 Monitoring & Management</h3>
+                    <div class="code-block">
+                        <div class="code-header">Useful Commands</div>
+                        <pre># Monitor containers in real-time
+ctop
+
+# Analyze image layers
+dive myimage:latest
+
+# Clean up system
+docker system prune -a --volumes
+
+# Export/Import containers
+docker export container_name > container.tar
+docker import container.tar new_image:tag</pre>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3>🔍 Debugging Tools</h3>
+                    <div class="code-block">
+                        <div class="code-header">Debug Commands</div>
+                        <pre># Inspect container details
+docker inspect container_name
+
+# View container processes
+docker top container_name
+
+# Copy files from/to container
+docker cp file.txt container_name:/path/
+docker cp container_name:/path/file.txt ./
+
+# Execute commands in running container
+docker exec -it container_name /bin/bash</pre>
+                    </div>
+                </li>
+            </div>
+
+            <div class="alert success">
+                <span class="alert-icon">🎉</span>
+                <div>
+                    <strong>CLI Setup Complete!</strong> Your Docker CLI is now configured for efficient container development and management.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="docker-complete-handbook.html">← Complete Handbook</a>
+                <a href="docker-fundamentals.html">Fundamentals</a>
+                <a href="docker-dockerfile.html">Dockerfile</a>
+                <a href="docker-examples.html">Examples</a>
+                <a href="docker-troubleshooting.html">Troubleshooting</a>
+                <a href="docker-fundamentals.html">Next: Docker Fundamentals →</a>
+            </div>
+            <p>&copy; 2026 Docker Installation Guide. Complete setup instructions for modern containerized development.</p>
+            <p>Successfully install Docker on Windows, macOS, and Linux with WSL2, IDE integration, and development optimization.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Copy code functionality
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const original = button.textContent;
+                button.textContent = 'Copied!';
+                button.style.background = 'var(--success-color)';
+                
+                setTimeout(function() {
+                    button.textContent = original;
+                    button.style.background = 'var(--primary-color)';
+                }, 2000);
+            });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.platform-card, .ide-card, .step-list li').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Add interactive effects
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Highlight active navigation item
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.color = 'var(--text-secondary)';
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.style.color = 'var(--primary-color)';
+                }
+            });
+        });
+
+        // Add loading states for external links
+        document.querySelectorAll('a[href^="http"]').forEach(link => {
+            link.addEventListener('click', function() {
+                this.style.opacity = '0.7';
+                this.innerHTML += ' <span style="animation: spin 1s linear infinite;">⟳</span>';
+            });
+        });
+
+        // Add CSS for spin animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

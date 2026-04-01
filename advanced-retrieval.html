@@ -443,6 +443,9 @@
                 <li><a href="#query-expansion">Query Expansion</a></li>
                 <li><a href="#reranking">Re-ranking</a></li>
                 <li><a href="#multi-stage">Multi-Stage</a></li>
+                <li><a href="#parent-child">Parent-Child</a></li>
+                <li><a href="#multi-vector">Multi-Vector</a></li>
+                <li><a href="#hybrid-rrf">Dense-Sparse RRF</a></li>
                 <li><a href="#implementation">Implementation</a></li>
             </ul>
         </div>
@@ -2523,6 +2526,1827 @@ if __name__ == "__main__":
     print(example_result)
                     </pre>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Parent-Child Retrieval Section -->
+    <section id="parent-child" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Parent-Child Retrieval</h2>
+
+            <h3 class="subsection-title">1. Document Hierarchy and Chunking Strategy</h3>
+            <p class="content-text">
+                Parent-Child retrieval leverages document hierarchies where child chunks contain detailed information 
+                while parent documents provide broader context. This approach improves retrieval precision by finding 
+                relevant passages while maintaining document-level context for better understanding.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Parent-Child Retrieval Implementation</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Optional, Tuple, Any
+from dataclasses import dataclass, field
+import hashlib
+from abc import ABC, abstractmethod
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+import uuid
+
+@dataclass
+class Document:
+    """Document with hierarchical structure"""
+    id: str
+    content: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    parent_id: Optional[str] = None
+    child_ids: List[str] = field(default_factory=list)
+    level: int = 0  # 0 = root, 1 = section, 2 = paragraph, etc.
+
+@dataclass
+class RetrievalResult:
+    """Result from parent-child retrieval"""
+    child_doc: Document
+    parent_doc: Optional[Document]
+    relevance_score: float
+    context_score: float
+    final_score: float
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+class HierarchicalChunker:
+    """Creates hierarchical document structure for parent-child retrieval"""
+    
+    def __init__(
+        self,
+        chunk_size: int = 1000,
+        chunk_overlap: int = 100,
+        parent_size: int = 4000,
+        max_levels: int = 3
+    ):
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
+        self.parent_size = parent_size
+        self.max_levels = max_levels
+    
+    def create_hierarchy(self, text: str, doc_id: str = None) -> List[Document]:
+        """Create hierarchical document structure"""
+        if doc_id is None:
+            doc_id = str(uuid.uuid4())
+        
+        documents = []
+        
+        # Create parent document (full or large section)
+        if len(text) <= self.parent_size:
+            # Small document - use as both parent and child
+            parent_doc = Document(
+                id=f"{doc_id}_parent",
+                content=text,
+                level=0,
+                metadata={"doc_type": "parent", "original_id": doc_id}
+            )
+            documents.append(parent_doc)
+            return documents
+        
+        # Large document - create hierarchy
+        parent_chunks = self._split_text(text, self.parent_size, self.chunk_overlap)
+        
+        for i, parent_chunk in enumerate(parent_chunks):
+            parent_id = f"{doc_id}_parent_{i}"
+            
+            # Create parent document
+            parent_doc = Document(
+                id=parent_id,
+                content=parent_chunk,
+                level=0,
+                metadata={
+                    "doc_type": "parent",
+                    "original_id": doc_id,
+                    "parent_index": i
+                }
+            )
+            
+            # Create child chunks from parent
+            child_chunks = self._split_text(parent_chunk, self.chunk_size, self.chunk_overlap)
+            child_ids = []
+            
+            for j, child_chunk in enumerate(child_chunks):
+                child_id = f"{parent_id}_child_{j}"
+                child_ids.append(child_id)
+                
+                child_doc = Document(
+                    id=child_id,
+                    content=child_chunk,
+                    parent_id=parent_id,
+                    level=1,
+                    metadata={
+                        "doc_type": "child",
+                        "original_id": doc_id,
+                        "parent_index": i,
+                        "child_index": j
+                    }
+                )
+                documents.append(child_doc)
+            
+            parent_doc.child_ids = child_ids
+            documents.append(parent_doc)
+        
+        return documents
+    
+    def _split_text(self, text: str, chunk_size: int, overlap: int) -> List[str]:
+        """Split text into chunks with overlap"""
+        words = text.split()
+        chunks = []
+        
+        for i in range(0, len(words), chunk_size - overlap):
+            chunk_words = words[i:i + chunk_size]
+            chunk = " ".join(chunk_words)
+            chunks.append(chunk)
+            
+            if i + chunk_size >= len(words):
+                break
+        
+        return chunks
+
+class ParentChildRetriever:
+    """Parent-Child retrieval system with context enhancement"""
+    
+    def __init__(
+        self,
+        embedding_model: str = "all-MiniLM-L6-v2",
+        child_weight: float = 0.7,
+        parent_weight: float = 0.3,
+        context_boost: float = 1.2
+    ):
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.child_weight = child_weight
+        self.parent_weight = parent_weight
+        self.context_boost = context_boost
+        
+        # Storage for documents and embeddings
+        self.documents: Dict[str, Document] = {}
+        self.child_embeddings: Dict[str, np.ndarray] = {}
+        self.parent_embeddings: Dict[str, np.ndarray] = {}
+        
+        # Index mappings
+        self.parent_to_children: Dict[str, List[str]] = {}
+        self.child_to_parent: Dict[str, str] = {}
+    
+    def add_documents(self, documents: List[Document]):
+        """Add hierarchical documents to the retriever"""
+        
+        # Separate parents and children
+        parent_docs = [doc for doc in documents if doc.level == 0]
+        child_docs = [doc for doc in documents if doc.level > 0]
+        
+        # Store documents
+        for doc in documents:
+            self.documents[doc.id] = doc
+        
+        # Build mappings
+        for doc in child_docs:
+            if doc.parent_id:
+                self.child_to_parent[doc.id] = doc.parent_id
+                if doc.parent_id not in self.parent_to_children:
+                    self.parent_to_children[doc.parent_id] = []
+                self.parent_to_children[doc.parent_id].append(doc.id)
+        
+        # Create embeddings
+        if parent_docs:
+            parent_contents = [doc.content for doc in parent_docs]
+            parent_embeds = self.embedding_model.encode(parent_contents)
+            
+            for doc, embedding in zip(parent_docs, parent_embeds):
+                self.parent_embeddings[doc.id] = embedding
+        
+        if child_docs:
+            child_contents = [doc.content for doc in child_docs]
+            child_embeds = self.embedding_model.encode(child_contents)
+            
+            for doc, embedding in zip(child_docs, child_embeds):
+                self.child_embeddings[doc.id] = embedding
+    
+    def search(
+        self,
+        query: str,
+        top_k: int = 20,
+        search_strategy: str = "hybrid",
+        include_parent_context: bool = True
+    ) -> List[RetrievalResult]:
+        """
+        Search using parent-child retrieval
+        
+        Args:
+            query: Search query
+            top_k: Number of results to return
+            search_strategy: "child_only", "parent_only", or "hybrid"
+            include_parent_context: Whether to include parent context in results
+        
+        Returns:
+            List of RetrievalResult objects
+        """
+        
+        query_embedding = self.embedding_model.encode([query])[0]
+        results = []
+        
+        if search_strategy in ["child_only", "hybrid"]:
+            # Search children for precise matches
+            child_results = self._search_children(query_embedding, top_k * 2)
+            results.extend(child_results)
+        
+        if search_strategy in ["parent_only", "hybrid"]:
+            # Search parents for broader context
+            parent_results = self._search_parents(query_embedding, top_k)
+            
+            if search_strategy == "parent_only":
+                results.extend(parent_results)
+            else:
+                # Enhance child results with parent context
+                results = self._enhance_with_parent_context(results, parent_results)
+        
+        # Calculate final scores and sort
+        for result in results:
+            result.final_score = self._calculate_final_score(result)
+        
+        results.sort(key=lambda x: x.final_score, reverse=True)
+        
+        return results[:top_k]
+    
+    def _search_children(self, query_embedding: np.ndarray, top_k: int) -> List[RetrievalResult]:
+        """Search child documents"""
+        if not self.child_embeddings:
+            return []
+        
+        child_ids = list(self.child_embeddings.keys())
+        child_embeds = np.array([self.child_embeddings[cid] for cid in child_ids])
+        
+        # Calculate similarities
+        similarities = cosine_similarity([query_embedding], child_embeds)[0]
+        
+        # Get top results
+        top_indices = np.argsort(similarities)[-top_k:][::-1]
+        
+        results = []
+        for idx in top_indices:
+            child_id = child_ids[idx]
+            child_doc = self.documents[child_id]
+            
+            # Get parent if available
+            parent_doc = None
+            if child_doc.parent_id and child_doc.parent_id in self.documents:
+                parent_doc = self.documents[child_doc.parent_id]
+            
+            result = RetrievalResult(
+                child_doc=child_doc,
+                parent_doc=parent_doc,
+                relevance_score=float(similarities[idx]),
+                context_score=0.0,  # Will be calculated later
+                final_score=0.0,  # Will be calculated later
+                metadata={"search_type": "child"}
+            )
+            results.append(result)
+        
+        return results
+    
+    def _search_parents(self, query_embedding: np.ndarray, top_k: int) -> List[RetrievalResult]:
+        """Search parent documents"""
+        if not self.parent_embeddings:
+            return []
+        
+        parent_ids = list(self.parent_embeddings.keys())
+        parent_embeds = np.array([self.parent_embeddings[pid] for pid in parent_ids])
+        
+        # Calculate similarities
+        similarities = cosine_similarity([query_embedding], parent_embeds)[0]
+        
+        # Get top results
+        top_indices = np.argsort(similarities)[-top_k:][::-1]
+        
+        results = []
+        for idx in top_indices:
+            parent_id = parent_ids[idx]
+            parent_doc = self.documents[parent_id]
+            
+            # For parent search, the parent serves as both parent and child context
+            result = RetrievalResult(
+                child_doc=parent_doc,  # Use parent as primary content
+                parent_doc=parent_doc,
+                relevance_score=float(similarities[idx]),
+                context_score=float(similarities[idx]),  # Parent provides its own context
+                final_score=0.0,
+                metadata={"search_type": "parent"}
+            )
+            results.append(result)
+        
+        return results
+    
+    def _enhance_with_parent_context(
+        self, 
+        child_results: List[RetrievalResult], 
+        parent_results: List[RetrievalResult]
+    ) -> List[RetrievalResult]:
+        """Enhance child results with parent context scores"""
+        
+        # Create parent score lookup
+        parent_scores = {result.parent_doc.id: result.relevance_score 
+                        for result in parent_results if result.parent_doc}
+        
+        # Enhance child results
+        enhanced_results = []
+        for result in child_results:
+            if result.parent_doc and result.parent_doc.id in parent_scores:
+                result.context_score = parent_scores[result.parent_doc.id]
+            else:
+                result.context_score = 0.0
+            
+            enhanced_results.append(result)
+        
+        return enhanced_results
+    
+    def _calculate_final_score(self, result: RetrievalResult) -> float:
+        """Calculate final score combining relevance and context"""
+        
+        base_score = (
+            self.child_weight * result.relevance_score + 
+            self.parent_weight * result.context_score
+        )
+        
+        # Apply context boost if parent context is available
+        if result.parent_doc and result.context_score > 0:
+            base_score *= self.context_boost
+        
+        return base_score
+    
+    def get_enhanced_context(self, result: RetrievalResult) -> str:
+        """Get enhanced context combining child and parent content"""
+        
+        context_parts = []
+        
+        # Add parent context if available
+        if result.parent_doc and result.parent_doc.id != result.child_doc.id:
+            context_parts.append(f"Context: {result.parent_doc.content[:500]}...")
+        
+        # Add child content
+        context_parts.append(f"Content: {result.child_doc.content}")
+        
+        # Add sibling context if available
+        if result.child_doc.parent_id in self.parent_to_children:
+            sibling_ids = self.parent_to_children[result.child_doc.parent_id]
+            for sibling_id in sibling_ids[:2]:  # Add up to 2 siblings
+                if sibling_id != result.child_doc.id:
+                    sibling = self.documents[sibling_id]
+                    context_parts.append(f"Related: {sibling.content[:200]}...")
+        
+        return "\n\n".join(context_parts)
+
+# Integration with vector databases
+class WeaviateParentChildRetriever(ParentChildRetriever):
+    """Parent-Child retriever with Weaviate backend"""
+    
+    def __init__(self, client, **kwargs):
+        super().__init__(**kwargs)
+        self.client = client
+        self.parent_class = "ParentDocument"
+        self.child_class = "ChildDocument"
+    
+    def setup_schema(self):
+        """Setup Weaviate schema for parent-child structure"""
+        
+        parent_schema = {
+            "class": self.parent_class,
+            "properties": [
+                {"name": "content", "dataType": ["text"]},
+                {"name": "doc_id", "dataType": ["string"]},
+                {"name": "metadata", "dataType": ["object"]},
+                {"name": "child_count", "dataType": ["int"]}
+            ],
+            "vectorizer": "text2vec-transformers"
+        }
+        
+        child_schema = {
+            "class": self.child_class,
+            "properties": [
+                {"name": "content", "dataType": ["text"]},
+                {"name": "doc_id", "dataType": ["string"]},
+                {"name": "parent_id", "dataType": ["string"]},
+                {"name": "metadata", "dataType": ["object"]},
+                {"name": "hasParent", "dataType": [self.parent_class]}
+            ],
+            "vectorizer": "text2vec-transformers"
+        }
+        
+        # Create schemas
+        try:
+            self.client.schema.create_class(parent_schema)
+            self.client.schema.create_class(child_schema)
+        except Exception as e:
+            print(f"Schema creation error (may already exist): {e}")
+    
+    def add_documents_to_weaviate(self, documents: List[Document]):
+        """Add hierarchical documents to Weaviate"""
+        
+        # Add parents first
+        parent_docs = [doc for doc in documents if doc.level == 0]
+        for parent in parent_docs:
+            self.client.data_object.create(
+                data_object={
+                    "content": parent.content,
+                    "doc_id": parent.id,
+                    "metadata": parent.metadata,
+                    "child_count": len(parent.child_ids)
+                },
+                class_name=self.parent_class,
+                uuid=parent.id
+            )
+        
+        # Add children with parent references
+        child_docs = [doc for doc in documents if doc.level > 0]
+        for child in child_docs:
+            self.client.data_object.create(
+                data_object={
+                    "content": child.content,
+                    "doc_id": child.id,
+                    "parent_id": child.parent_id,
+                    "metadata": child.metadata,
+                    "hasParent": [{"beacon": f"weaviate://localhost/{self.parent_class}/{child.parent_id}"}]
+                },
+                class_name=self.child_class,
+                uuid=child.id
+            )
+    
+    def search_weaviate(self, query: str, top_k: int = 20) -> List[RetrievalResult]:
+        """Search using Weaviate with parent-child relationships"""
+        
+        # Search children with parent context
+        child_query = {
+            "query": query,
+            "limit": top_k * 2
+        }
+        
+        child_results = (
+            self.client.query
+            .get(self.child_class, ["content", "doc_id", "parent_id", "metadata"])
+            .with_additional(["score", "id"])
+            .with_near_text(child_query)
+            .with_where({
+                "path": ["parent_id"],
+                "operator": "IsNull",
+                "valueBoolean": False
+            })
+            .do()
+        )
+        
+        # Get parent information for context
+        parent_ids = set()
+        for result in child_results["data"]["Get"][self.child_class]:
+            if result["parent_id"]:
+                parent_ids.add(result["parent_id"])
+        
+        # Fetch parent documents
+        parent_docs = {}
+        for parent_id in parent_ids:
+            parent_result = (
+                self.client.query
+                .get(self.parent_class, ["content", "doc_id", "metadata"])
+                .with_additional(["id"])
+                .with_where({
+                    "path": ["doc_id"],
+                    "operator": "Equal",
+                    "valueString": parent_id
+                })
+                .do()
+            )
+            
+            if parent_result["data"]["Get"][self.parent_class]:
+                parent_data = parent_result["data"]["Get"][self.parent_class][0]
+                parent_docs[parent_id] = Document(
+                    id=parent_data["doc_id"],
+                    content=parent_data["content"],
+                    metadata=parent_data["metadata"],
+                    level=0
+                )
+        
+        # Create retrieval results
+        retrieval_results = []
+        for result in child_results["data"]["Get"][self.child_class]:
+            child_doc = Document(
+                id=result["doc_id"],
+                content=result["content"],
+                parent_id=result["parent_id"],
+                metadata=result["metadata"],
+                level=1
+            )
+            
+            parent_doc = parent_docs.get(result["parent_id"])
+            
+            retrieval_result = RetrievalResult(
+                child_doc=child_doc,
+                parent_doc=parent_doc,
+                relevance_score=result["_additional"]["score"],
+                context_score=0.8 if parent_doc else 0.0,  # Boost if parent available
+                final_score=0.0,
+                metadata={"source": "weaviate"}
+            )
+            
+            retrieval_result.final_score = self._calculate_final_score(retrieval_result)
+            retrieval_results.append(retrieval_result)
+        
+        # Sort and return
+        retrieval_results.sort(key=lambda x: x.final_score, reverse=True)
+        return retrieval_results[:top_k]
+
+# Usage example
+def parent_child_example():
+    """Example usage of parent-child retrieval"""
+    
+    # Sample document
+    sample_text = """
+    Machine Learning Fundamentals
+    
+    Machine learning is a method of data analysis that automates analytical model building. 
+    It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+    identify patterns and make decisions with minimal human intervention.
+    
+    Types of Machine Learning
+    
+    Supervised Learning uses labeled training data to learn a mapping from inputs to outputs.
+    Common algorithms include linear regression, decision trees, and neural networks.
+    Applications include image classification, spam detection, and medical diagnosis.
+    
+    Unsupervised Learning finds hidden patterns in data without labeled examples.
+    Clustering algorithms group similar data points together.
+    Dimensionality reduction techniques help visualize high-dimensional data.
+    
+    Reinforcement Learning learns through interaction with an environment.
+    An agent takes actions and receives rewards or penalties.
+    This approach is used in game playing, robotics, and autonomous vehicles.
+    """
+    
+    # Create hierarchical structure
+    chunker = HierarchicalChunker(chunk_size=200, parent_size=800)
+    documents = chunker.create_hierarchy(sample_text, "ml_guide")
+    
+    print(f"Created {len(documents)} documents:")
+    for doc in documents:
+        print(f"  {doc.id} (Level {doc.level}): {len(doc.content)} chars")
+    
+    # Initialize retriever and add documents
+    retriever = ParentChildRetriever()
+    retriever.add_documents(documents)
+    
+    # Search examples
+    queries = [
+        "What is supervised learning?",
+        "How does reinforcement learning work?",
+        "Types of machine learning algorithms"
+    ]
+    
+    for query in queries:
+        print(f"\nQuery: {query}")
+        results = retriever.search(query, top_k=3, search_strategy="hybrid")
+        
+        for i, result in enumerate(results, 1):
+            print(f"  {i}. Score: {result.final_score:.3f}")
+            print(f"     Child: {result.child_doc.content[:100]}...")
+            if result.parent_doc and result.parent_doc.id != result.child_doc.id:
+                print(f"     Parent Context Available: {len(result.parent_doc.content)} chars")
+    
+    return retriever
+
+if __name__ == "__main__":
+    example_retriever = parent_child_example()
+                    </pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4>Parent-Child Benefits</h4>
+                <p>
+                    • <strong>Context Preservation:</strong> Maintains document structure and broader context during retrieval<br>
+                    • <strong>Precision vs Coverage:</strong> Combines granular search with contextual understanding<br>
+                    • <strong>Flexible Retrieval:</strong> Supports child-only, parent-only, or hybrid search strategies<br>
+                    • <strong>Enhanced Results:</strong> Provides both specific answers and surrounding context
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-Vector Retrieval Section -->
+    <section id="multi-vector" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Multi-Vector Retrieval</h2>
+
+            <h3 class="subsection-title">1. Multiple Embedding Strategies</h3>
+            <p class="content-text">
+                Multi-vector retrieval creates multiple embeddings per document, each optimized for different aspects 
+                like semantic meaning, factual content, or structural features. This approach improves retrieval 
+                coverage by matching queries against the most appropriate representation.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Multi-Vector Retrieval System</div>
+                <div class="code-block">
+                    <pre>
+from typing import List, Dict, Optional, Tuple, Any, Union
+from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from transformers import pipeline, AutoTokenizer, AutoModel
+import torch
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import spacy
+from collections import defaultdict
+import uuid
+
+@dataclass
+class MultiVectorDocument:
+    """Document with multiple vector representations"""
+    id: str
+    content: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    vectors: Dict[str, np.ndarray] = field(default_factory=dict)
+    vector_metadata: Dict[str, Dict[str, Any]] = field(default_factory=dict)
+
+@dataclass
+class MultiVectorResult:
+    """Result from multi-vector retrieval"""
+    document: MultiVectorDocument
+    vector_scores: Dict[str, float] = field(default_factory=dict)
+    best_vector_type: str = ""
+    final_score: float = 0.0
+    explanation: str = ""
+
+class VectorGenerator(ABC):
+    """Abstract base class for vector generators"""
+    
+    @abstractmethod
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        pass
+    
+    @abstractmethod
+    def get_vector_name(self) -> str:
+        pass
+
+class SemanticVectorGenerator(VectorGenerator):
+    """Generates semantic embeddings using sentence transformers"""
+    
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)
+        self.model_name = model_name
+    
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        return self.model.encode(text)
+    
+    def get_vector_name(self) -> str:
+        return f"semantic_{self.model_name.replace('/', '_')}"
+
+class FactualVectorGenerator(VectorGenerator):
+    """Generates embeddings optimized for factual content"""
+    
+    def __init__(self, model_name: str = "sentence-transformers/all-mpnet-base-v2"):
+        self.model = SentenceTransformer(model_name)
+        self.nlp = spacy.load("en_core_web_sm")
+    
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        # Extract factual content (entities, numbers, specific terms)
+        doc = self.nlp(text)
+        
+        # Extract entities and important phrases
+        factual_elements = []
+        
+        # Named entities
+        for ent in doc.ents:
+            if ent.label_ in ["PERSON", "ORG", "GPE", "DATE", "MONEY", "PERCENT"]:
+                factual_elements.append(ent.text)
+        
+        # Numbers and measurements
+        for token in doc:
+            if token.like_num or token.pos_ == "NUM":
+                factual_elements.append(token.text)
+        
+        # Create factual text emphasis
+        if factual_elements:
+            factual_text = f"{text} FACTS: {' '.join(factual_elements[:10])}"
+        else:
+            factual_text = text
+        
+        return self.model.encode(factual_text)
+    
+    def get_vector_name(self) -> str:
+        return "factual_content"
+
+class StructuralVectorGenerator(VectorGenerator):
+    """Generates embeddings based on document structure"""
+    
+    def __init__(self):
+        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.nlp = spacy.load("en_core_web_sm")
+    
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        # Analyze document structure
+        doc = self.nlp(text)
+        
+        structural_features = []
+        
+        # Document length and complexity
+        structural_features.append(f"length_{len(text)//100*100}")  # Bucketed length
+        structural_features.append(f"sentences_{len(list(doc.sents))}")
+        
+        # POS tag distribution
+        pos_counts = defaultdict(int)
+        for token in doc:
+            pos_counts[token.pos_] += 1
+        
+        # Add major POS tags
+        for pos in ["NOUN", "VERB", "ADJ"]:
+            if pos in pos_counts:
+                structural_features.append(f"{pos.lower()}_{pos_counts[pos]//5*5}")
+        
+        # Question vs statement
+        if text.strip().endswith("?"):
+            structural_features.append("question_format")
+        else:
+            structural_features.append("statement_format")
+        
+        # Create structural representation
+        structural_text = f"{text[:200]}... STRUCTURE: {' '.join(structural_features)}"
+        
+        return self.model.encode(structural_text)
+    
+    def get_vector_name(self) -> str:
+        return "structural_features"
+
+class KeywordVectorGenerator(VectorGenerator):
+    """Generates TF-IDF based keyword vectors"""
+    
+    def __init__(self, max_features: int = 5000):
+        self.vectorizer = None
+        self.max_features = max_features
+        self.is_fitted = False
+    
+    def fit_vectorizer(self, texts: List[str]):
+        """Fit TF-IDF vectorizer on corpus"""
+        self.vectorizer = TfidfVectorizer(
+            max_features=self.max_features,
+            stop_words='english',
+            ngram_range=(1, 2)
+        )
+        self.vectorizer.fit(texts)
+        self.is_fitted = True
+    
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        if not self.is_fitted or self.vectorizer is None:
+            raise ValueError("Vectorizer must be fitted before generating vectors")
+        
+        vector = self.vectorizer.transform([text]).toarray()[0]
+        return vector.astype(np.float32)
+    
+    def get_vector_name(self) -> str:
+        return "keyword_tfidf"
+
+class DomainSpecificVectorGenerator(VectorGenerator):
+    """Generates domain-specific embeddings"""
+    
+    def __init__(self, domain: str, model_name: str = None):
+        self.domain = domain
+        
+        # Use domain-specific models if available
+        domain_models = {
+            "biomedical": "dmis-lab/biobert-base-cased-v1.2",
+            "legal": "nlpaueb/legal-bert-base-uncased",
+            "scientific": "allenai/scibert_scivocab_uncased",
+            "financial": "ProsusAI/finbert"
+        }
+        
+        model_to_use = model_name or domain_models.get(domain, "all-MiniLM-L6-v2")
+        
+        try:
+            self.model = SentenceTransformer(model_to_use)
+        except:
+            # Fallback to general model
+            self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        
+        self.domain_keywords = self._get_domain_keywords(domain)
+    
+    def _get_domain_keywords(self, domain: str) -> List[str]:
+        """Get domain-specific keywords for emphasis"""
+        domain_keywords = {
+            "biomedical": ["protein", "gene", "cell", "disease", "treatment", "patient"],
+            "legal": ["contract", "agreement", "liability", "clause", "jurisdiction", "defendant"],
+            "scientific": ["hypothesis", "experiment", "analysis", "data", "methodology", "results"],
+            "financial": ["revenue", "profit", "investment", "market", "risk", "portfolio"]
+        }
+        return domain_keywords.get(domain, [])
+    
+    def generate_vector(self, text: str, metadata: Dict[str, Any] = None) -> np.ndarray:
+        # Emphasize domain-specific content
+        enhanced_text = text
+        
+        # Boost domain keywords if present
+        if self.domain_keywords:
+            for keyword in self.domain_keywords:
+                if keyword in text.lower():
+                    enhanced_text += f" {keyword.upper()}"
+        
+        return self.model.encode(enhanced_text)
+    
+    def get_vector_name(self) -> str:
+        return f"domain_{self.domain}"
+
+class MultiVectorRetriever:
+    """Multi-vector retrieval system"""
+    
+    def __init__(
+        self,
+        vector_generators: List[VectorGenerator],
+        fusion_strategy: str = "weighted_sum",
+        vector_weights: Dict[str, float] = None
+    ):
+        self.vector_generators = vector_generators
+        self.fusion_strategy = fusion_strategy
+        self.vector_weights = vector_weights or {}
+        
+        # Storage
+        self.documents: Dict[str, MultiVectorDocument] = {}
+        self.vector_indices: Dict[str, Dict[str, np.ndarray]] = defaultdict(dict)
+        
+        # Auto-assign weights if not provided
+        if not self.vector_weights:
+            weight_per_vector = 1.0 / len(vector_generators)
+            for generator in vector_generators:
+                self.vector_weights[generator.get_vector_name()] = weight_per_vector
+    
+    def add_documents(self, texts: List[str], metadatas: List[Dict[str, Any]] = None):
+        """Add documents with multiple vector representations"""
+        
+        if metadatas is None:
+            metadatas = [{}] * len(texts)
+        
+        # Fit keyword vectorizer if present
+        keyword_generator = None
+        for generator in self.vector_generators:
+            if isinstance(generator, KeywordVectorGenerator):
+                keyword_generator = generator
+                break
+        
+        if keyword_generator and not keyword_generator.is_fitted:
+            keyword_generator.fit_vectorizer(texts)
+        
+        # Generate vectors for each document
+        for i, (text, metadata) in enumerate(zip(texts, metadatas)):
+            doc_id = metadata.get('id', str(uuid.uuid4()))
+            
+            # Create document with multiple vectors
+            doc = MultiVectorDocument(
+                id=doc_id,
+                content=text,
+                metadata=metadata
+            )
+            
+            # Generate each type of vector
+            for generator in self.vector_generators:
+                vector_name = generator.get_vector_name()
+                try:
+                    vector = generator.generate_vector(text, metadata)
+                    doc.vectors[vector_name] = vector
+                    doc.vector_metadata[vector_name] = {
+                        "generator_type": type(generator).__name__,
+                        "vector_dim": len(vector)
+                    }
+                    
+                    # Store in index
+                    self.vector_indices[vector_name][doc_id] = vector
+                    
+                except Exception as e:
+                    print(f"Error generating {vector_name} for doc {doc_id}: {e}")
+            
+            self.documents[doc_id] = doc
+    
+    def search(
+        self,
+        query: str,
+        top_k: int = 20,
+        vector_types: List[str] = None,
+        query_metadata: Dict[str, Any] = None
+    ) -> List[MultiVectorResult]:
+        """Search using multi-vector approach"""
+        
+        # Generate query vectors
+        query_vectors = {}
+        for generator in self.vector_generators:
+            vector_name = generator.get_vector_name()
+            
+            if vector_types is None or vector_name in vector_types:
+                try:
+                    query_vectors[vector_name] = generator.generate_vector(query, query_metadata)
+                except Exception as e:
+                    print(f"Error generating query vector {vector_name}: {e}")
+        
+        # Calculate similarities for each vector type
+        all_scores = defaultdict(dict)  # doc_id -> vector_type -> score
+        
+        for vector_name, query_vector in query_vectors.items():
+            if vector_name in self.vector_indices:
+                doc_vectors = self.vector_indices[vector_name]
+                
+                if doc_vectors:
+                    doc_ids = list(doc_vectors.keys())
+                    doc_vector_matrix = np.array([doc_vectors[doc_id] for doc_id in doc_ids])
+                    
+                    # Calculate cosine similarities
+                    similarities = cosine_similarity([query_vector], doc_vector_matrix)[0]
+                    
+                    # Store scores
+                    for doc_id, score in zip(doc_ids, similarities):
+                        all_scores[doc_id][vector_name] = float(score)
+        
+        # Combine scores using fusion strategy
+        results = []
+        for doc_id, vector_scores in all_scores.items():
+            if doc_id in self.documents:
+                final_score = self._combine_scores(vector_scores)
+                
+                # Find best vector type
+                best_vector_type = max(vector_scores, key=vector_scores.get)
+                
+                result = MultiVectorResult(
+                    document=self.documents[doc_id],
+                    vector_scores=vector_scores,
+                    best_vector_type=best_vector_type,
+                    final_score=final_score,
+                    explanation=self._generate_explanation(vector_scores, best_vector_type)
+                )
+                results.append(result)
+        
+        # Sort by final score
+        results.sort(key=lambda x: x.final_score, reverse=True)
+        
+        return results[:top_k]
+    
+    def _combine_scores(self, vector_scores: Dict[str, float]) -> float:
+        """Combine scores from different vector types"""
+        
+        if self.fusion_strategy == "weighted_sum":
+            total_score = 0.0
+            total_weight = 0.0
+            
+            for vector_name, score in vector_scores.items():
+                weight = self.vector_weights.get(vector_name, 1.0)
+                total_score += weight * score
+                total_weight += weight
+            
+            return total_score / total_weight if total_weight > 0 else 0.0
+        
+        elif self.fusion_strategy == "max":
+            return max(vector_scores.values()) if vector_scores else 0.0
+        
+        elif self.fusion_strategy == "rank_fusion":
+            # Convert scores to ranks and use reciprocal rank fusion
+            sorted_items = sorted(vector_scores.items(), key=lambda x: x[1], reverse=True)
+            rrf_score = 0.0
+            k = 60
+            
+            for rank, (vector_name, score) in enumerate(sorted_items, 1):
+                weight = self.vector_weights.get(vector_name, 1.0)
+                rrf_score += weight / (k + rank)
+            
+            return rrf_score
+        
+        else:
+            # Default to average
+            return sum(vector_scores.values()) / len(vector_scores) if vector_scores else 0.0
+    
+    def _generate_explanation(self, vector_scores: Dict[str, float], best_vector_type: str) -> str:
+        """Generate explanation for why this result was retrieved"""
+        
+        explanations = {
+            "semantic": "matched based on semantic meaning",
+            "factual_content": "matched based on factual information",
+            "structural_features": "matched based on document structure",
+            "keyword_tfidf": "matched based on keyword overlap",
+            "domain": "matched using domain-specific knowledge"
+        }
+        
+        explanation_parts = []
+        
+        # Explain best match
+        for vector_type in explanations:
+            if vector_type in best_vector_type.lower():
+                explanation_parts.append(f"Best match: {explanations[vector_type]}")
+                break
+        
+        # Add score breakdown
+        top_scores = sorted(vector_scores.items(), key=lambda x: x[1], reverse=True)[:3]
+        score_breakdown = []
+        for vector_name, score in top_scores:
+            clean_name = vector_name.replace("_", " ").title()
+            score_breakdown.append(f"{clean_name}: {score:.3f}")
+        
+        if score_breakdown:
+            explanation_parts.append(f"Scores - {', '.join(score_breakdown)}")
+        
+        return "; ".join(explanation_parts)
+    
+    def analyze_query_vector_preference(self, query: str, results: List[MultiVectorResult]) -> Dict[str, Any]:
+        """Analyze which vector types work best for this query"""
+        
+        if not results:
+            return {}
+        
+        # Analyze vector type performance
+        vector_performance = defaultdict(list)
+        for result in results[:10]:  # Top 10 results
+            for vector_name, score in result.vector_scores.items():
+                vector_performance[vector_name].append(score)
+        
+        # Calculate statistics
+        vector_stats = {}
+        for vector_name, scores in vector_performance.items():
+            if scores:
+                vector_stats[vector_name] = {
+                    "avg_score": np.mean(scores),
+                    "max_score": np.max(scores),
+                    "std_score": np.std(scores),
+                    "count": len(scores)
+                }
+        
+        # Determine best vector type for this query
+        if vector_stats:
+            best_vector = max(vector_stats.keys(), key=lambda x: vector_stats[x]["avg_score"])
+        else:
+            best_vector = None
+        
+        return {
+            "query": query,
+            "best_vector_type": best_vector,
+            "vector_statistics": vector_stats,
+            "recommendation": self._get_query_recommendation(query, vector_stats)
+        }
+    
+    def _get_query_recommendation(self, query: str, vector_stats: Dict[str, Any]) -> str:
+        """Get recommendation for optimizing this type of query"""
+        
+        if not vector_stats:
+            return "No performance data available"
+        
+        best_vector = max(vector_stats.keys(), key=lambda x: vector_stats[x]["avg_score"])
+        
+        recommendations = {
+            "semantic": "This query benefits from semantic understanding. Consider using more contextual language.",
+            "factual": "This query works well with factual matching. Include specific names, dates, or numbers.",
+            "structural": "This query matches document structure. Consider rephrasing to match typical document patterns.",
+            "keyword": "This query works well with keyword matching. Use specific terms from the target domain.",
+            "domain": "This query benefits from domain expertise. Use domain-specific terminology."
+        }
+        
+        for pattern, rec in recommendations.items():
+            if pattern in best_vector.lower():
+                return rec
+        
+        return f"Best performance with {best_vector} vector type."
+
+# Usage example
+def multi_vector_example():
+    """Example usage of multi-vector retrieval"""
+    
+    # Initialize vector generators
+    generators = [
+        SemanticVectorGenerator("all-MiniLM-L6-v2"),
+        FactualVectorGenerator(),
+        StructuralVectorGenerator(),
+        KeywordVectorGenerator(max_features=1000),
+        DomainSpecificVectorGenerator("scientific")
+    ]
+    
+    # Create retriever with custom weights
+    vector_weights = {
+        "semantic_all-MiniLM-L6-v2": 0.3,
+        "factual_content": 0.25,
+        "structural_features": 0.15,
+        "keyword_tfidf": 0.2,
+        "domain_scientific": 0.1
+    }
+    
+    retriever = MultiVectorRetriever(
+        vector_generators=generators,
+        fusion_strategy="weighted_sum",
+        vector_weights=vector_weights
+    )
+    
+    # Sample documents
+    documents = [
+        "Machine learning algorithms learn patterns from training data. Common algorithms include decision trees, neural networks, and support vector machines.",
+        "The study published in Nature (2023) found that protein folding prediction accuracy improved by 15% using deep learning methods. The experiment involved 10,000 protein sequences.",
+        "How do you implement gradient descent optimization? The mathematical formula involves computing partial derivatives with respect to each parameter.",
+        "Market volatility increased by 23% during Q4 2023. The S&P 500 index reached 4,800 points with daily trading volume exceeding $50 billion.",
+        "Climate change research indicates global temperature rise of 1.2°C since pre-industrial times. Ice sheet mass loss accelerated to 150 billion tons annually."
+    ]
+    
+    metadatas = [
+        {"id": "ml_overview", "category": "education"},
+        {"id": "protein_study", "category": "research"},
+        {"id": "ml_implementation", "category": "tutorial"},
+        {"id": "market_report", "category": "finance"},
+        {"id": "climate_data", "category": "science"}
+    ]
+    
+    # Add documents
+    print("Adding documents with multiple vector representations...")
+    retriever.add_documents(documents, metadatas)
+    
+    # Test queries
+    queries = [
+        "What are machine learning algorithms?",  # Should favor semantic
+        "Show me the 2023 study results with numbers",  # Should favor factual
+        "How to implement optimization?",  # Should favor structural/keyword
+        "Protein folding deep learning accuracy",  # Domain-specific
+    ]
+    
+    for query in queries:
+        print(f"\nQuery: {query}")
+        results = retriever.search(query, top_k=3)
+        
+        for i, result in enumerate(results, 1):
+            print(f"  {i}. Final Score: {result.final_score:.3f}")
+            print(f"     Best Vector: {result.best_vector_type}")
+            print(f"     Content: {result.document.content[:100]}...")
+            print(f"     Explanation: {result.explanation}")
+            
+        # Analyze vector performance
+        analysis = retriever.analyze_query_vector_preference(query, results)
+        if analysis:
+            print(f"     Best Vector Type: {analysis['best_vector_type']}")
+            print(f"     Recommendation: {analysis['recommendation']}")
+    
+    return retriever
+
+if __name__ == "__main__":
+    example_retriever = multi_vector_example()
+                    </pre>
+                </div>
+            </div>
+
+            <div class="success-box">
+                <h4>Multi-Vector Advantages</h4>
+                <p>
+                    • <strong>Comprehensive Coverage:</strong> Different embeddings capture various aspects of content<br>
+                    • <strong>Query Adaptability:</strong> System automatically selects best vector type for each query<br>
+                    • <strong>Domain Flexibility:</strong> Supports domain-specific and general-purpose embeddings<br>
+                    • <strong>Explainable Results:</strong> Provides insights into why documents were retrieved
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dense-Sparse Hybrid with RRF Section -->
+    <section id="hybrid-rrf" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Dense-Sparse Hybrid with Advanced RRF</h2>
+
+            <h3 class="subsection-title">1. Advanced Reciprocal Rank Fusion Implementation</h3>
+            <p class="content-text">
+                Advanced RRF algorithms improve upon basic rank fusion by incorporating score distributions, 
+                query characteristics, and adaptive weighting. This creates more sophisticated hybrid systems 
+                that dynamically balance dense and sparse retrieval based on query context.
+            </p>
+
+            <div class="code-container">
+                <div class="code-header">Advanced RRF Hybrid Retrieval</div>
+                <div class="code-block">
+                    <pre>
+import numpy as np
+from typing import List, Dict, Tuple, Any, Optional
+from dataclasses import dataclass, field
+from abc import ABC, abstractmethod
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import TfidfVectorizer
+import math
+from collections import defaultdict, Counter
+from sentence_transformers import SentenceTransformer
+import statistics
+
+@dataclass
+class RankedResult:
+    """A single ranked result with metadata"""
+    doc_id: str
+    content: str
+    score: float
+    rank: int
+    method: str  # "dense", "sparse", "hybrid"
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class FusionResult:
+    """Result from fusion process"""
+    doc_id: str
+    content: str
+    dense_score: float
+    sparse_score: float
+    dense_rank: int
+    sparse_rank: int
+    fusion_score: float
+    final_rank: int
+    confidence: float
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+class RankFusionStrategy(ABC):
+    """Abstract base class for rank fusion strategies"""
+    
+    @abstractmethod
+    def fuse_rankings(
+        self, 
+        dense_results: List[RankedResult],
+        sparse_results: List[RankedResult],
+        query: str = None
+    ) -> List[FusionResult]:
+        pass
+
+class StandardRRF(RankFusionStrategy):
+    """Standard Reciprocal Rank Fusion"""
+    
+    def __init__(self, k: int = 60):
+        self.k = k
+    
+    def fuse_rankings(
+        self, 
+        dense_results: List[RankedResult],
+        sparse_results: List[RankedResult],
+        query: str = None
+    ) -> List[FusionResult]:
+        
+        # Create document mappings
+        dense_docs = {r.doc_id: r for r in dense_results}
+        sparse_docs = {r.doc_id: r for r in sparse_results}
+        
+        # Get all unique documents
+        all_doc_ids = set(dense_docs.keys()) | set(sparse_docs.keys())
+        
+        fusion_results = []
+        
+        for doc_id in all_doc_ids:
+            # Get ranks (use len+1 if not found)
+            dense_rank = dense_docs[doc_id].rank if doc_id in dense_docs else len(dense_results) + 1
+            sparse_rank = sparse_docs[doc_id].rank if doc_id in sparse_docs else len(sparse_results) + 1
+            
+            # Calculate RRF score
+            rrf_score = 1/(self.k + dense_rank) + 1/(self.k + sparse_rank)
+            
+            # Get document content and scores
+            if doc_id in dense_docs:
+                content = dense_docs[doc_id].content
+                dense_score = dense_docs[doc_id].score
+            else:
+                content = sparse_docs[doc_id].content
+                dense_score = 0.0
+            
+            sparse_score = sparse_docs[doc_id].score if doc_id in sparse_docs else 0.0
+            
+            result = FusionResult(
+                doc_id=doc_id,
+                content=content,
+                dense_score=dense_score,
+                sparse_score=sparse_score,
+                dense_rank=dense_rank,
+                sparse_rank=sparse_rank,
+                fusion_score=rrf_score,
+                final_rank=0,  # Will be set after sorting
+                confidence=min(dense_score + sparse_score, 1.0),
+                metadata={"fusion_method": "standard_rrf"}
+            )
+            fusion_results.append(result)
+        
+        # Sort and assign final ranks
+        fusion_results.sort(key=lambda x: x.fusion_score, reverse=True)
+        for i, result in enumerate(fusion_results, 1):
+            result.final_rank = i
+        
+        return fusion_results
+
+class AdaptiveRRF(RankFusionStrategy):
+    """Adaptive RRF that adjusts based on query characteristics"""
+    
+    def __init__(self, base_k: int = 60, adaptation_factor: float = 0.3):
+        self.base_k = base_k
+        self.adaptation_factor = adaptation_factor
+        self.nlp = None
+        
+        # Try to load spacy for query analysis
+        try:
+            import spacy
+            self.nlp = spacy.load("en_core_web_sm")
+        except:
+            print("SpaCy not available for query analysis")
+    
+    def fuse_rankings(
+        self, 
+        dense_results: List[RankedResult],
+        sparse_results: List[RankedResult],
+        query: str = None
+    ) -> List[FusionResult]:
+        
+        # Analyze query to determine fusion parameters
+        dense_weight, sparse_weight, k_value = self._analyze_query_characteristics(query)
+        
+        # Create document mappings
+        dense_docs = {r.doc_id: r for r in dense_results}
+        sparse_docs = {r.doc_id: r for r in sparse_results}
+        all_doc_ids = set(dense_docs.keys()) | set(sparse_docs.keys())
+        
+        fusion_results = []
+        
+        for doc_id in all_doc_ids:
+            dense_rank = dense_docs[doc_id].rank if doc_id in dense_docs else len(dense_results) + 1
+            sparse_rank = sparse_docs[doc_id].rank if doc_id in sparse_docs else len(sparse_results) + 1
+            
+            # Adaptive RRF with query-specific weighting
+            adaptive_score = (
+                dense_weight * (1/(k_value + dense_rank)) + 
+                sparse_weight * (1/(k_value + sparse_rank))
+            )
+            
+            # Get document content and scores
+            if doc_id in dense_docs:
+                content = dense_docs[doc_id].content
+                dense_score = dense_docs[doc_id].score
+            else:
+                content = sparse_docs[doc_id].content
+                dense_score = 0.0
+            
+            sparse_score = sparse_docs[doc_id].score if doc_id in sparse_docs else 0.0
+            
+            # Calculate confidence based on score agreement
+            confidence = self._calculate_confidence(dense_score, sparse_score, dense_rank, sparse_rank)
+            
+            result = FusionResult(
+                doc_id=doc_id,
+                content=content,
+                dense_score=dense_score,
+                sparse_score=sparse_score,
+                dense_rank=dense_rank,
+                sparse_rank=sparse_rank,
+                fusion_score=adaptive_score,
+                final_rank=0,
+                confidence=confidence,
+                metadata={
+                    "fusion_method": "adaptive_rrf",
+                    "dense_weight": dense_weight,
+                    "sparse_weight": sparse_weight,
+                    "k_value": k_value
+                }
+            )
+            fusion_results.append(result)
+        
+        # Sort and assign final ranks
+        fusion_results.sort(key=lambda x: x.fusion_score, reverse=True)
+        for i, result in enumerate(fusion_results, 1):
+            result.final_rank = i
+        
+        return fusion_results
+    
+    def _analyze_query_characteristics(self, query: str) -> Tuple[float, float, int]:
+        """Analyze query to determine optimal fusion parameters"""
+        
+        if not query:
+            return 0.5, 0.5, self.base_k
+        
+        # Default weights
+        dense_weight = 0.5
+        sparse_weight = 0.5
+        k_value = self.base_k
+        
+        # Query length analysis
+        query_length = len(query.split())
+        
+        if query_length <= 3:
+            # Short queries: favor keyword matching
+            sparse_weight = 0.7
+            dense_weight = 0.3
+            k_value = int(self.base_k * 0.8)
+        elif query_length >= 10:
+            # Long queries: favor semantic matching
+            dense_weight = 0.7
+            sparse_weight = 0.3
+            k_value = int(self.base_k * 1.2)
+        
+        # Named entity analysis (if spacy available)
+        if self.nlp:
+            doc = self.nlp(query)
+            entity_count = len(doc.ents)
+            
+            if entity_count >= 2:
+                # Many entities: favor sparse matching
+                sparse_weight = min(0.8, sparse_weight + 0.2)
+                dense_weight = 1.0 - sparse_weight
+        
+        # Question detection
+        if query.strip().endswith('?'):
+            # Questions: favor semantic understanding
+            dense_weight = min(0.8, dense_weight + 0.2)
+            sparse_weight = 1.0 - dense_weight
+        
+        # Ensure weights sum to 1
+        total = dense_weight + sparse_weight
+        dense_weight /= total
+        sparse_weight /= total
+        
+        return dense_weight, sparse_weight, k_value
+    
+    def _calculate_confidence(self, dense_score: float, sparse_score: float, 
+                            dense_rank: int, sparse_rank: int) -> float:
+        """Calculate confidence based on score and rank agreement"""
+        
+        # Score agreement (both high or both low)
+        score_agreement = 1.0 - abs(dense_score - sparse_score)
+        
+        # Rank agreement (normalized)
+        max_rank = max(dense_rank, sparse_rank)
+        rank_disagreement = abs(dense_rank - sparse_rank) / max_rank if max_rank > 0 else 0
+        rank_agreement = 1.0 - rank_disagreement
+        
+        # Combined confidence
+        confidence = (score_agreement * 0.6 + rank_agreement * 0.4)
+        
+        # Boost confidence if both methods rank highly
+        if dense_rank <= 5 and sparse_rank <= 5:
+            confidence *= 1.2
+        
+        return min(confidence, 1.0)
+
+class ScoreDistributionRRF(RankFusionStrategy):
+    """RRF that considers score distributions for better fusion"""
+    
+    def __init__(self, k: int = 60, distribution_weight: float = 0.3):
+        self.k = k
+        self.distribution_weight = distribution_weight
+    
+    def fuse_rankings(
+        self, 
+        dense_results: List[RankedResult],
+        sparse_results: List[RankedResult],
+        query: str = None
+    ) -> List[FusionResult]:
+        
+        # Analyze score distributions
+        dense_scores = [r.score for r in dense_results]
+        sparse_scores = [r.score for r in sparse_results]
+        
+        dense_stats = self._calculate_distribution_stats(dense_scores)
+        sparse_stats = self._calculate_distribution_stats(sparse_scores)
+        
+        # Create document mappings
+        dense_docs = {r.doc_id: r for r in dense_results}
+        sparse_docs = {r.doc_id: r for r in sparse_results}
+        all_doc_ids = set(dense_docs.keys()) | set(sparse_docs.keys())
+        
+        fusion_results = []
+        
+        for doc_id in all_doc_ids:
+            dense_rank = dense_docs[doc_id].rank if doc_id in dense_docs else len(dense_results) + 1
+            sparse_rank = sparse_docs[doc_id].rank if doc_id in sparse_docs else len(sparse_results) + 1
+            
+            dense_score = dense_docs[doc_id].score if doc_id in dense_docs else 0.0
+            sparse_score = sparse_docs[doc_id].score if doc_id in sparse_docs else 0.0
+            
+            # Standard RRF
+            rrf_score = 1/(self.k + dense_rank) + 1/(self.k + sparse_rank)
+            
+            # Distribution-adjusted score
+            dense_z_score = (dense_score - dense_stats['mean']) / dense_stats['std'] if dense_stats['std'] > 0 else 0
+            sparse_z_score = (sparse_score - sparse_stats['mean']) / sparse_stats['std'] if sparse_stats['std'] > 0 else 0
+            
+            distribution_bonus = (dense_z_score + sparse_z_score) * self.distribution_weight
+            
+            final_score = rrf_score + distribution_bonus
+            
+            # Get content
+            content = dense_docs[doc_id].content if doc_id in dense_docs else sparse_docs[doc_id].content
+            
+            result = FusionResult(
+                doc_id=doc_id,
+                content=content,
+                dense_score=dense_score,
+                sparse_score=sparse_score,
+                dense_rank=dense_rank,
+                sparse_rank=sparse_rank,
+                fusion_score=final_score,
+                final_rank=0,
+                confidence=self._calculate_distribution_confidence(dense_z_score, sparse_z_score),
+                metadata={
+                    "fusion_method": "distribution_rrf",
+                    "dense_z_score": dense_z_score,
+                    "sparse_z_score": sparse_z_score
+                }
+            )
+            fusion_results.append(result)
+        
+        # Sort and assign final ranks
+        fusion_results.sort(key=lambda x: x.fusion_score, reverse=True)
+        for i, result in enumerate(fusion_results, 1):
+            result.final_rank = i
+        
+        return fusion_results
+    
+    def _calculate_distribution_stats(self, scores: List[float]) -> Dict[str, float]:
+        """Calculate distribution statistics"""
+        if not scores:
+            return {"mean": 0.0, "std": 1.0, "min": 0.0, "max": 1.0}
+        
+        return {
+            "mean": statistics.mean(scores),
+            "std": statistics.stdev(scores) if len(scores) > 1 else 1.0,
+            "min": min(scores),
+            "max": max(scores)
+        }
+    
+    def _calculate_distribution_confidence(self, dense_z: float, sparse_z: float) -> float:
+        """Calculate confidence based on z-scores"""
+        # High confidence when both z-scores are positive (above average)
+        avg_z = (dense_z + sparse_z) / 2
+        confidence = 0.5 + (avg_z * 0.2)  # Base 0.5, adjust by z-score
+        return max(0.0, min(1.0, confidence))
+
+class AdvancedHybridRetriever:
+    """Advanced hybrid retriever with sophisticated RRF fusion"""
+    
+    def __init__(
+        self,
+        embedding_model: str = "all-MiniLM-L6-v2",
+        fusion_strategy: RankFusionStrategy = None,
+        sparse_weight: float = 0.5,
+        dense_weight: float = 0.5
+    ):
+        # Dense retrieval setup
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.document_embeddings = None
+        self.documents = []
+        
+        # Sparse retrieval setup
+        self.tfidf_vectorizer = TfidfVectorizer(
+            max_features=10000,
+            stop_words='english',
+            ngram_range=(1, 2)
+        )
+        self.tfidf_matrix = None
+        
+        # Fusion setup
+        self.fusion_strategy = fusion_strategy or AdaptiveRRF()
+        self.sparse_weight = sparse_weight
+        self.dense_weight = dense_weight
+        
+        # Performance tracking
+        self.query_performance = []
+    
+    def add_documents(self, documents: List[str], metadatas: List[Dict[str, Any]] = None):
+        """Add documents to both dense and sparse indices"""
+        
+        if metadatas is None:
+            metadatas = [{}] * len(documents)
+        
+        self.documents = [
+            {"content": doc, "metadata": meta, "id": meta.get("id", str(i))}
+            for i, (doc, meta) in enumerate(zip(documents, metadatas))
+        ]
+        
+        # Create dense embeddings
+        print("Creating dense embeddings...")
+        self.document_embeddings = self.embedding_model.encode(documents)
+        
+        # Create sparse index
+        print("Creating sparse index...")
+        self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(documents)
+    
+    def search(
+        self,
+        query: str,
+        top_k: int = 20,
+        dense_top_k: int = None,
+        sparse_top_k: int = None,
+        return_fusion_details: bool = False
+    ) -> List[FusionResult]:
+        """Perform hybrid search with advanced RRF fusion"""
+        
+        # Set individual top_k values
+        if dense_top_k is None:
+            dense_top_k = min(top_k * 2, 100)
+        if sparse_top_k is None:
+            sparse_top_k = min(top_k * 2, 100)
+        
+        # Perform dense search
+        dense_results = self._dense_search(query, dense_top_k)
+        
+        # Perform sparse search
+        sparse_results = self._sparse_search(query, sparse_top_k)
+        
+        # Fuse results
+        fusion_results = self.fusion_strategy.fuse_rankings(
+            dense_results, sparse_results, query
+        )
+        
+        # Track performance
+        self._track_performance(query, dense_results, sparse_results, fusion_results)
+        
+        return fusion_results[:top_k]
+    
+    def _dense_search(self, query: str, top_k: int) -> List[RankedResult]:
+        """Perform dense vector search"""
+        
+        query_embedding = self.embedding_model.encode([query])
+        similarities = cosine_similarity(query_embedding, self.document_embeddings)[0]
+        
+        # Get top results
+        top_indices = np.argsort(similarities)[-top_k:][::-1]
+        
+        results = []
+        for rank, idx in enumerate(top_indices, 1):
+            result = RankedResult(
+                doc_id=self.documents[idx]["id"],
+                content=self.documents[idx]["content"],
+                score=float(similarities[idx]),
+                rank=rank,
+                method="dense",
+                metadata=self.documents[idx]["metadata"]
+            )
+            results.append(result)
+        
+        return results
+    
+    def _sparse_search(self, query: str, top_k: int) -> List[RankedResult]:
+        """Perform sparse TF-IDF search"""
+        
+        query_vector = self.tfidf_vectorizer.transform([query])
+        similarities = cosine_similarity(query_vector, self.tfidf_matrix)[0]
+        
+        # Get top results
+        top_indices = np.argsort(similarities)[-top_k:][::-1]
+        
+        results = []
+        for rank, idx in enumerate(top_indices, 1):
+            result = RankedResult(
+                doc_id=self.documents[idx]["id"],
+                content=self.documents[idx]["content"],
+                score=float(similarities[idx]),
+                rank=rank,
+                method="sparse",
+                metadata=self.documents[idx]["metadata"]
+            )
+            results.append(result)
+        
+        return results
+    
+    def _track_performance(
+        self, 
+        query: str, 
+        dense_results: List[RankedResult],
+        sparse_results: List[RankedResult], 
+        fusion_results: List[FusionResult]
+    ):
+        """Track fusion performance metrics"""
+        
+        # Calculate overlap metrics
+        dense_docs = set(r.doc_id for r in dense_results[:10])
+        sparse_docs = set(r.doc_id for r in sparse_results[:10])
+        fusion_docs = set(r.doc_id for r in fusion_results[:10])
+        
+        overlap = len(dense_docs & sparse_docs)
+        fusion_novelty = len(fusion_docs - (dense_docs | sparse_docs))
+        
+        performance = {
+            "query": query,
+            "query_length": len(query.split()),
+            "dense_sparse_overlap": overlap / 10,
+            "fusion_novelty": fusion_novelty / 10,
+            "avg_confidence": statistics.mean([r.confidence for r in fusion_results[:10]]),
+            "fusion_method": fusion_results[0].metadata.get("fusion_method", "unknown") if fusion_results else "none"
+        }
+        
+        self.query_performance.append(performance)
+    
+    def get_performance_analysis(self) -> Dict[str, Any]:
+        """Analyze retrieval performance across queries"""
+        
+        if not self.query_performance:
+            return {"message": "No performance data available"}
+        
+        # Aggregate statistics
+        overlaps = [p["dense_sparse_overlap"] for p in self.query_performance]
+        novelties = [p["fusion_novelty"] for p in self.query_performance]
+        confidences = [p["avg_confidence"] for p in self.query_performance]
+        
+        # Method usage
+        method_counts = Counter(p["fusion_method"] for p in self.query_performance)
+        
+        return {
+            "total_queries": len(self.query_performance),
+            "avg_overlap": statistics.mean(overlaps),
+            "avg_fusion_novelty": statistics.mean(novelties),
+            "avg_confidence": statistics.mean(confidences),
+            "fusion_methods": dict(method_counts),
+            "recommendations": self._generate_performance_recommendations()
+        }
+    
+    def _generate_performance_recommendations(self) -> List[str]:
+        """Generate recommendations based on performance analysis"""
+        
+        recommendations = []
+        
+        if not self.query_performance:
+            return ["Insufficient data for recommendations"]
+        
+        avg_overlap = statistics.mean([p["dense_sparse_overlap"] for p in self.query_performance])
+        avg_confidence = statistics.mean([p["avg_confidence"] for p in self.query_performance])
+        
+        if avg_overlap < 0.3:
+            recommendations.append("Low dense-sparse overlap suggests different retrieval patterns. Consider adjusting fusion weights.")
+        
+        if avg_confidence < 0.6:
+            recommendations.append("Low average confidence indicates uncertain fusion. Consider using more sophisticated fusion strategies.")
+        
+        short_queries = sum(1 for p in self.query_performance if p["query_length"] <= 3)
+        if short_queries > len(self.query_performance) * 0.5:
+            recommendations.append("Many short queries detected. Consider boosting sparse retrieval weight.")
+        
+        return recommendations
+
+# Usage example with integration
+def advanced_rrf_example():
+    """Example usage of advanced RRF hybrid retrieval"""
+    
+    # Sample documents
+    documents = [
+        "Machine learning algorithms learn patterns from training data to make predictions on new data.",
+        "Deep neural networks with multiple hidden layers can model complex nonlinear relationships.",
+        "Natural language processing enables computers to understand and generate human language.",
+        "Computer vision systems process and analyze digital images and videos automatically.",
+        "Reinforcement learning agents learn optimal behavior through trial and error interactions.",
+        "Supervised learning requires labeled examples to train predictive models effectively.",
+        "Unsupervised learning discovers hidden patterns in data without labeled examples.",
+        "Feature engineering transforms raw data into meaningful representations for machine learning."
+    ]
+    
+    metadatas = [
+        {"id": f"doc_{i}", "category": "ml_concepts"} for i in range(len(documents))
+    ]
+    
+    # Test different fusion strategies
+    fusion_strategies = [
+        ("Standard RRF", StandardRRF(k=60)),
+        ("Adaptive RRF", AdaptiveRRF(base_k=60)),
+        ("Distribution RRF", ScoreDistributionRRF(k=60))
+    ]
+    
+    test_queries = [
+        "neural networks deep learning",  # Short, technical
+        "How do machine learning algorithms work?",  # Question format
+        "What is the difference between supervised and unsupervised learning methods?",  # Long, comparative
+        "computer vision"  # Very short
+    ]
+    
+    for strategy_name, fusion_strategy in fusion_strategies:
+        print(f"\n=== Testing {strategy_name} ===")
+        
+        # Initialize retriever with this strategy
+        retriever = AdvancedHybridRetriever(fusion_strategy=fusion_strategy)
+        retriever.add_documents(documents, metadatas)
+        
+        for query in test_queries:
+            print(f"\nQuery: {query}")
+            results = retriever.search(query, top_k=3)
+            
+            for i, result in enumerate(results, 1):
+                print(f"  {i}. Fusion Score: {result.fusion_score:.3f}, Confidence: {result.confidence:.3f}")
+                print(f"     Dense: {result.dense_score:.3f} (rank {result.dense_rank})")
+                print(f"     Sparse: {result.sparse_score:.3f} (rank {result.sparse_rank})")
+                print(f"     Content: {result.content[:80]}...")
+                if "fusion_method" in result.metadata:
+                    print(f"     Method: {result.metadata['fusion_method']}")
+        
+        # Performance analysis
+        analysis = retriever.get_performance_analysis()
+        print(f"\nPerformance Analysis for {strategy_name}:")
+        print(f"  Average Overlap: {analysis['avg_overlap']:.3f}")
+        print(f"  Average Confidence: {analysis['avg_confidence']:.3f}")
+        print(f"  Recommendations: {analysis['recommendations']}")
+    
+    return "Advanced RRF comparison completed"
+
+if __name__ == "__main__":
+    result = advanced_rrf_example()
+    print(f"\n{result}")
+                    </pre>
+                </div>
+            </div>
+
+            <div class="warning-box">
+                <h4>Advanced RRF Considerations</h4>
+                <p>
+                    • <strong>Query Analysis:</strong> Adaptive fusion requires understanding query characteristics<br>
+                    • <strong>Score Normalization:</strong> Consider score distributions when combining different methods<br>
+                    • <strong>Performance Monitoring:</strong> Track fusion effectiveness across different query types<br>
+                    • <strong>Parameter Tuning:</strong> Adjust k-values and weights based on domain and use case
+                </p>
             </div>
         </div>
     </section>

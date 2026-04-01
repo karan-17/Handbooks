@@ -1,0 +1,2981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Dockerfile Handbook - Complete Guide 2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            border-radius: 10px 10px 0 0;
+            margin: -20px -20px 30px -20px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .handbook-nav {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+
+        .toc h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            gap: 20px;
+        }
+
+        .toc li {
+            margin: 8px 0;
+            break-inside: avoid;
+        }
+
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .toc a:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .section {
+            margin: 40px 0;
+        }
+
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+            margin: 30px 0 15px 0;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h3 { font-size: 1.5rem; color: #e74c3c; }
+        h4 { font-size: 1.2rem; }
+
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            position: relative;
+            border-left: 4px solid #3498db;
+        }
+
+        .code-block::before {
+            content: attr(data-lang);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #55a3ff, #003d82);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(85, 163, 255, 0.3);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+        }
+
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .comparison-table tr:hover {
+            background: #e3f2fd;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .example-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .example-card h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .size-comparison {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .size-bar {
+            height: 20px;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .size-bar.before {
+            background: #e74c3c;
+            width: 100%;
+        }
+
+        .size-bar.after {
+            background: #27ae60;
+            width: 15%;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .badge.security { background: #e74c3c; color: white; }
+        .badge.performance { background: #3498db; color: white; }
+        .badge.best-practice { background: #27ae60; color: white; }
+
+        .tabs {
+            margin: 20px 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-button {
+            background: #f8f9fa;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 50px;
+            border-top: 2px solid #e9ecef;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+                margin: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .toc ul {
+                columns: 1;
+            }
+
+            .example-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Docker Dockerfile Handbook</h1>
+            <div class="subtitle">Complete Guide to Docker Best Practices - 2025 Edition</div>
+        </div>
+
+        <nav class="handbook-nav">
+            <div class="nav-links">
+                <a href="docker-complete-handbook.html">← Complete Handbook</a>
+                <a href="docker-fundamentals.html">Fundamentals</a>
+                <a href="docker-installation.html">Installation</a>
+                <a href="docker-examples.html">Examples</a>
+                <a href="docker-troubleshooting.html">Troubleshooting</a>
+            </div>
+        </nav>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#syntax">1. Dockerfile Syntax & Instructions</a></li>
+                <li><a href="#core-instructions">2. Core Instructions (FROM, RUN, COPY, etc.)</a></li>
+                <li><a href="#workdir-user">3. Working Directory & User Management</a></li>
+                <li><a href="#env-args">4. Environment Variables & Build Arguments</a></li>
+                <li><a href="#optimization">5. Layer Optimization & Caching</a></li>
+                <li><a href="#multistage">6. Multi-stage Builds for Production</a></li>
+                <li><a href="#security">7. Security Best Practices</a></li>
+                <li><a href="#size-optimization">8. Image Size Optimization</a></li>
+                <li><a href="#linting">9. Dockerfile Linting & Validation</a></li>
+                <li><a href="#language-patterns">10. Language-Specific Patterns</a></li>
+                <li><a href="#health-init">11. Health Checks & Initialization</a></li>
+                <li><a href="#antipatterns">12. Anti-patterns to Avoid</a></li>
+                <li><a href="#build-context">13. Build Context Optimization</a></li>
+                <li><a href="#signal-handling">14. Signal Handling & Init Systems</a></li>
+            </ul>
+        </div>
+
+        <div id="syntax" class="section">
+            <h2>1. Dockerfile Syntax & Instructions</h2>
+            
+            <p>A Dockerfile is a text document that contains all the commands needed to assemble an image. Docker builds images automatically by reading these instructions.</p>
+            
+            <div class="highlight-box">
+                <h4>Basic Syntax Rules</h4>
+                <ul>
+                    <li>Instructions are case-insensitive but convention is UPPERCASE</li>
+                    <li>First instruction must be FROM (except for ARG)</li>
+                    <li>Lines starting with # are comments</li>
+                    <li>Use \ to continue long instructions on multiple lines</li>
+                    <li>Each instruction creates a new layer in the image</li>
+                </ul>
+            </div>
+
+            <div class="code-block" data-lang="Dockerfile">
+                <pre># Dockerfile syntax example
+FROM ubuntu:22.04
+
+# Set metadata
+LABEL maintainer="your-email@example.com" \
+      version="1.0" \
+      description="Example application"
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        python3 \
+        python3-pip \
+        curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy application files
+COPY requirements.txt .
+COPY . .
+
+# Install Python dependencies
+RUN pip3 install -r requirements.txt
+
+# Expose port
+EXPOSE 8000
+
+# Create non-root user
+RUN useradd -m -u 1001 appuser
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Default command
+CMD ["python3", "app.py"]</pre>
+            </div>
+        </div>
+
+        <div id="core-instructions" class="section">
+            <h2>2. Core Instructions Explained</h2>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'from-tab')">FROM</button>
+                    <button class="tab-button" onclick="openTab(event, 'run-tab')">RUN</button>
+                    <button class="tab-button" onclick="openTab(event, 'copy-tab')">COPY & ADD</button>
+                    <button class="tab-button" onclick="openTab(event, 'cmd-tab')">CMD & ENTRYPOINT</button>
+                </div>
+
+                <div id="from-tab" class="tab-content active">
+                    <h3>FROM - Base Image Selection</h3>
+                    <p>The FROM instruction initializes a new build stage and sets the Base Image for subsequent instructions.</p>
+                    
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># 2025 Best Practices for FROM
+# ✅ Use specific tags with SHA digests for reproducible builds
+FROM node:20.10.0-alpine@sha256:5a1adf56c8bfa64a459d89e7d9dd18e8e0db...
+
+# ✅ Use minimal base images
+FROM alpine:3.19
+FROM gcr.io/distroless/java17-debian12
+
+# ✅ Use official images from trusted sources
+FROM python:3.12-slim
+FROM node:20-alpine
+FROM golang:1.22-bullseye
+
+# ❌ Avoid latest tags in production
+FROM ubuntu:latest  # Don't do this!
+
+# Multi-stage build example
+FROM node:20 AS builder
+# Build stage...
+
+FROM nginx:1.25-alpine AS production
+# Production stage...</pre>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Security Alert</h4>
+                        <p>Always pin to specific versions and use SHA digests in production. The "latest" tag can introduce breaking changes and security vulnerabilities without notice.</p>
+                    </div>
+                </div>
+
+                <div id="run-tab" class="tab-content">
+                    <h3>RUN - Execute Commands</h3>
+                    <p>RUN executes commands in a new layer on top of the current image and commits the results.</p>
+                    
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># 2025 Best Practices for RUN
+# ✅ Combine commands to reduce layers
+RUN apt-get update && \
+    apt-get install -y \
+        curl \
+        wget \
+        git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# ✅ Use specific package versions
+RUN apt-get update && \
+    apt-get install -y \
+        nodejs=18.19.0-1nodesource1 \
+        npm=9.2.0+ds1-1 && \
+    rm -rf /var/lib/apt/lists/*
+
+# ✅ Clean up in the same layer
+RUN curl -O https://example.com/file.tar.gz && \
+    tar -xzf file.tar.gz && \
+    rm file.tar.gz && \
+    mv extracted-dir /opt/app
+
+# ✅ Use heredoc for complex scripts (Docker 23.0+)
+RUN <<EOF
+    apt-get update
+    apt-get install -y curl
+    curl -sSL https://get.docker.com | sh
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+EOF
+
+# ❌ Avoid multiple RUN instructions
+RUN apt-get update
+RUN apt-get install -y curl
+RUN rm -rf /var/lib/apt/lists/*</pre>
+                    </div>
+                </div>
+
+                <div id="copy-tab" class="tab-content">
+                    <h3>COPY vs ADD - File Operations</h3>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Feature</th>
+                                    <th>COPY</th>
+                                    <th>ADD</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Basic file copying</td>
+                                    <td>✅ Recommended</td>
+                                    <td>✅ Works</td>
+                                </tr>
+                                <tr>
+                                    <td>Remote URL download</td>
+                                    <td>❌ Not supported</td>
+                                    <td>✅ Supported (discouraged)</td>
+                                </tr>
+                                <tr>
+                                    <td>Auto-extraction of archives</td>
+                                    <td>❌ No</td>
+                                    <td>✅ Yes (.tar, .tar.gz, etc.)</td>
+                                </tr>
+                                <tr>
+                                    <td>Transparency</td>
+                                    <td>✅ Clear behavior</td>
+                                    <td>❌ "Magic" behavior</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ✅ Use COPY for simple file operations
+COPY package.json package-lock.json ./
+COPY src/ ./src/
+COPY --chown=1000:1000 app.py /app/
+
+# ✅ Use specific ownership
+COPY --chown=appuser:appgroup config.json /app/
+
+# ✅ Copy only what you need (use .dockerignore)
+COPY . .
+
+# ✅ Multi-stage copy
+COPY --from=builder /app/dist ./dist
+
+# ❌ Avoid ADD for simple copying
+ADD package.json .  # Use COPY instead
+
+# ✅ ADD only for auto-extraction
+ADD app.tar.gz /app/
+
+# ❌ Don't use ADD for URLs (use RUN + curl)
+ADD https://example.com/file.txt .  # Don't do this
+RUN curl -O https://example.com/file.txt  # Do this instead</pre>
+                    </div>
+                </div>
+
+                <div id="cmd-tab" class="tab-content">
+                    <h3>CMD vs ENTRYPOINT - Container Execution</h3>
+                    
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># CMD - Default command that can be overridden
+CMD ["python3", "app.py"]
+CMD ["nginx", "-g", "daemon off;"]
+
+# ENTRYPOINT - Fixed command that always executes
+ENTRYPOINT ["python3", "app.py"]
+
+# Best Practice: Combine ENTRYPOINT + CMD
+ENTRYPOINT ["python3", "app.py"]
+CMD ["--port", "8000"]
+# Usage: docker run myimage --port 3000
+
+# ✅ Use exec form (JSON array)
+CMD ["python3", "app.py"]
+ENTRYPOINT ["./entrypoint.sh"]
+
+# ❌ Avoid shell form
+CMD python3 app.py  # Creates unnecessary shell
+
+# ✅ Flexible entrypoint pattern
+#!/bin/bash
+# entrypoint.sh
+set -e
+
+# Initialize application
+if [ "$1" = 'app' ]; then
+    exec python3 app.py "${@:2}"
+fi
+
+# Allow running other commands
+exec "$@"</pre>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>When to Use Each</h4>
+                        <ul>
+                            <li><strong>CMD</strong>: Default behavior that users can override</li>
+                            <li><strong>ENTRYPOINT</strong>: Core application that should always run</li>
+                            <li><strong>Combined</strong>: Flexible applications with default options</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="workdir-user" class="section">
+            <h2>3. Working Directory & User Management</h2>
+            
+            <div class="success-box">
+                <h4>Security First: Always Run as Non-Root</h4>
+                <p>Running containers as root is a major security risk. Create and use dedicated users with UIDs above 10,000 for maximum security.</p>
+            </div>
+
+            <div class="code-block" data-lang="Dockerfile">
+                <pre># ✅ Secure user management (2025 best practices)
+FROM python:3.12-slim
+
+# Create non-root user with high UID
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -u 10001 -m -d /app appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy and install dependencies as root
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code with correct ownership
+COPY --chown=appuser:appgroup . .
+
+# Switch to non-root user
+USER appuser
+
+# ❌ Never do this in production
+USER root  # Security risk!
+
+# ✅ Advanced user setup with sudo access (if needed)
+RUN groupadd -r appgroup && \
+    useradd -r -g appgroup -u 10001 -m -d /app -s /bin/bash appuser && \
+    echo 'appuser ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+# ✅ Directory permissions and ownership
+WORKDIR /app
+RUN chown -R appuser:appgroup /app && \
+    chmod -R 755 /app
+USER appuser
+
+# ✅ Handle volumes properly
+VOLUME ["/app/data"]
+RUN mkdir -p /app/data && \
+    chown appuser:appgroup /app/data</pre>
+            </div>
+
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>User Practice</th>
+                        <th>Security Level</th>
+                        <th>Use Case</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>root (UID 0)</td>
+                        <td>❌ High Risk</td>
+                        <td>Never in production</td>
+                    </tr>
+                    <tr>
+                        <td>UID 1-999</td>
+                        <td>⚠️ Medium Risk</td>
+                        <td>System users, avoid</td>
+                    </tr>
+                    <tr>
+                        <td>UID 1000-9999</td>
+                        <td>⚠️ Medium Risk</td>
+                        <td>Regular users, less secure</td>
+                    </tr>
+                    <tr>
+                        <td>UID 10000+</td>
+                        <td>✅ Secure</td>
+                        <td>Recommended for apps</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="env-args" class="section">
+            <h2>4. Environment Variables & Build Arguments</h2>
+            
+            <div class="warning-box">
+                <h4>🔒 Never Put Secrets in ENV or ARG</h4>
+                <p>Environment variables and build arguments are visible in the image history. Use Docker secrets, external secret management, or runtime injection for sensitive data.</p>
+            </div>
+
+            <div class="code-block" data-lang="Dockerfile">
+                <pre># ✅ Proper environment variable usage
+# Build-time arguments
+ARG NODE_VERSION=20.10.0
+ARG BUILD_ENV=production
+
+# Environment variables
+ENV NODE_ENV=production \
+    APP_PORT=3000 \
+    LOG_LEVEL=info \
+    PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1
+
+# ✅ Use ARG for build-time customization
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y curl
+
+# ✅ Pass build args to ENV when needed
+ARG VERSION
+ENV APP_VERSION=$VERSION
+
+# ✅ Multi-line environment variables
+ENV DATABASE_CONFIG='{ \
+  "host": "localhost", \
+  "port": 5432, \
+  "database": "app", \
+  "ssl": true \
+}'
+
+# ❌ NEVER do this - secrets in build args/env
+ARG API_SECRET=super-secret-key  # Visible in history!
+ENV PASSWORD=admin123            # Stored in image!
+
+# ✅ Instead, inject at runtime
+docker run -e API_SECRET="$(cat secret.txt)" myimage
+
+# ✅ Use build-time args for conditional logic
+ARG ENABLE_FEATURE=false
+RUN if [ "$ENABLE_FEATURE" = "true" ]; then \
+        apt-get install -y extra-package; \
+    fi
+
+# ✅ Default values and documentation
+ARG PORT=8080
+ENV APP_PORT=$PORT
+LABEL port.description="Port the application listens on"
+EXPOSE $APP_PORT</pre>
+            </div>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>Build Arguments Best Practices</h4>
+                    <div class="code-block" data-lang="bash">
+                        <pre># Build with custom args
+docker build \
+  --build-arg NODE_VERSION=20.10.0 \
+  --build-arg BUILD_ENV=staging \
+  -t myapp:latest .</pre>
+                    </div>
+                </div>
+                <div class="example-card">
+                    <h4>Runtime Environment Injection</h4>
+                    <div class="code-block" data-lang="bash">
+                        <pre># Secure runtime configuration
+docker run \
+  -e DATABASE_URL="$(vault kv get -field=url db/config)" \
+  -e API_KEY="$(kubectl get secret api-key -o jsonpath='{.data.key}' | base64 -d)" \
+  myapp:latest</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="optimization" class="section">
+            <h2>5. Layer Optimization & Caching Strategies</h2>
+            
+            <p>Docker uses a layered filesystem where each instruction creates a new layer. Understanding layer caching is crucial for fast builds and efficient images.</p>
+
+            <div class="highlight-box">
+                <h4>Layer Caching Rules</h4>
+                <ul>
+                    <li>Docker caches layers based on instruction + content hash</li>
+                    <li>If a layer changes, all subsequent layers are invalidated</li>
+                    <li>Order instructions from least to most frequently changing</li>
+                    <li>Combine related commands to reduce layer count</li>
+                </ul>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'cache-before')">❌ Poor Caching</button>
+                    <button class="tab-button" onclick="openTab(event, 'cache-after')">✅ Optimized Caching</button>
+                    <button class="tab-button" onclick="openTab(event, 'advanced-cache')">Advanced Techniques</button>
+                </div>
+
+                <div id="cache-before" class="tab-content active">
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ❌ Poor caching - frequent changes invalidate dependencies
+FROM node:20-alpine
+
+# This changes frequently, breaking cache
+COPY . .
+
+# Dependencies get reinstalled every time code changes
+RUN npm install
+
+# Application gets rebuilt every time
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]</pre>
+                    </div>
+                    <div class="size-comparison">
+                        <span>Build time with code changes:</span>
+                        <div class="size-bar before">5-10 minutes (full rebuild)</div>
+                    </div>
+                </div>
+
+                <div id="cache-after" class="tab-content">
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ✅ Optimized caching - dependencies cached separately
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files first (changes less frequently)
+COPY package*.json ./
+
+# Install dependencies (cached until package.json changes)
+RUN npm ci --only=production
+
+# Copy source code last (changes most frequently)
+COPY . .
+
+# Build step (only runs if code changes)
+RUN npm run build
+
+EXPOSE 3000
+CMD ["npm", "start"]</pre>
+                    </div>
+                    <div class="size-comparison">
+                        <span>Build time with code changes:</span>
+                        <div class="size-bar after">30 seconds (cached dependencies)</div>
+                    </div>
+                </div>
+
+                <div id="advanced-cache" class="tab-content">
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ✅ Advanced caching techniques (2025)
+
+# Use cache mounts for package managers
+FROM python:3.12-slim
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install -r requirements.txt
+
+# Cache directories for different package managers
+FROM node:20-alpine
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --cache /root/.npm
+
+FROM golang:1.22
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    go mod download
+
+# Use .dockerignore to exclude unnecessary files
+# .dockerignore
+node_modules
+*.log
+.git
+.env
+coverage/
+*.md
+
+# Bind mounts for development
+FROM node:20-alpine
+WORKDIR /app
+RUN --mount=type=bind,source=package.json,target=package.json \
+    --mount=type=bind,source=package-lock.json,target=package-lock.json \
+    --mount=type=cache,target=/root/.npm \
+    npm ci
+
+# BuildKit secret mounts for private dependencies
+RUN --mount=type=secret,id=npmrc,target=/root/.npmrc \
+    npm install private-package</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="multistage" class="section">
+            <h2>6. Multi-stage Builds for Production</h2>
+            
+            <p>Multi-stage builds are the gold standard for production containers, reducing image size by 80-95% while improving security.</p>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>Node.js Multi-stage Build</h4>
+                    <div class="size-comparison">
+                        <span>Before: Single stage</span>
+                        <div class="size-bar before">1.2 GB</div>
+                    </div>
+                    <div class="size-comparison">
+                        <span>After: Multi-stage</span>
+                        <div class="size-bar after">150 MB (87% reduction)</div>
+                    </div>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production Node.js multi-stage build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production && \
+    npm cache clean --force
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runtime
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001
+WORKDIR /app
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+USER nextjs
+EXPOSE 3000
+CMD ["node", "dist/server.js"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>Python Multi-stage with UV</h4>
+                    <div class="size-comparison">
+                        <span>Before: Standard Python</span>
+                        <div class="size-bar before">1.0 GB</div>
+                    </div>
+                    <div class="size-comparison">
+                        <span>After: Distroless</span>
+                        <div class="size-bar after">80 MB (92% reduction)</div>
+                    </div>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Ultra-fast Python builds with UV
+FROM python:3.12-slim AS builder
+RUN pip install uv
+COPY pyproject.toml uv.lock ./
+RUN uv pip install --system --no-cache \
+    -r <(uv pip compile pyproject.toml)
+
+FROM gcr.io/distroless/python3-debian12
+COPY --from=builder /usr/local/lib/python3.12/site-packages \
+     /usr/local/lib/python3.12/site-packages
+COPY app ./app
+USER 10001
+EXPOSE 8000
+CMD ["app/main.py"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>Go Multi-stage (Minimal)</h4>
+                    <div class="size-comparison">
+                        <span>Before: golang:1.22</span>
+                        <div class="size-bar before">1.1 GB</div>
+                    </div>
+                    <div class="size-comparison">
+                        <span>After: scratch</span>
+                        <div class="size-bar after">8 MB (99% reduction)</div>
+                    </div>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Ultra-minimal Go build
+FROM golang:1.22-alpine AS builder
+WORKDIR /app
+COPY go.* ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux \
+    go build -ldflags="-s -w" \
+    -o binary .
+
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt \
+     /etc/ssl/certs/
+COPY --from=builder /app/binary /
+USER 10001:10001
+EXPOSE 8080
+CMD ["/binary"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>Java Multi-stage with JLink</h4>
+                    <div class="size-comparison">
+                        <span>Before: Full JDK</span>
+                        <div class="size-bar before">800 MB</div>
+                    </div>
+                    <div class="size-comparison">
+                        <span>After: Custom JRE</span>
+                        <div class="size-bar after">250 MB (69% reduction)</div>
+                    </div>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Java with custom JRE
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /app
+COPY . .
+RUN ./gradlew bootJar && \
+    jlink --add-modules \
+    java.base,java.logging,java.naming,java.security.jgss,java.instrument \
+    --output /custom-jre
+
+FROM debian:bookworm-slim
+RUN groupadd -r spring && useradd -r -g spring spring
+COPY --from=builder /custom-jre /usr/local/jre
+COPY --from=builder /app/build/libs/app.jar /app.jar
+USER spring:spring
+EXPOSE 8080
+ENV JAVA_HOME=/usr/local/jre
+CMD ["/usr/local/jre/bin/java", "-jar", "/app.jar"]</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="security" class="section">
+            <h2>7. Security Best Practices</h2>
+            
+            <div class="warning-box">
+                <h4>🛡️ 2025 Security Landscape</h4>
+                <p>Container attacks increased 300% in 2024. Supply chain security, vulnerability scanning, and runtime protection are now essential, not optional.</p>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'security-basics')">Basic Security</button>
+                    <button class="tab-button" onclick="openTab(event, 'vuln-scanning')">Vulnerability Scanning</button>
+                    <button class="tab-button" onclick="openTab(event, 'supply-chain')">Supply Chain Security</button>
+                    <button class="tab-button" onclick="openTab(event, 'runtime-security')">Runtime Security</button>
+                </div>
+
+                <div id="security-basics" class="tab-content active">
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ✅ Security-first Dockerfile (2025)
+FROM python:3.12-slim@sha256:adf2a8b7a935... AS base
+
+# Use specific, minimal base images
+FROM gcr.io/distroless/python3-debian12 AS runtime
+
+# Create high-UID user
+RUN groupadd -r appuser && \
+    useradd -r -g appuser -u 10001 appuser
+
+# Install only required packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl=7.88.1-10+deb12u5 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set secure file permissions
+WORKDIR /app
+COPY --chown=10001:10001 --chmod=755 app.py .
+COPY --chown=10001:10001 --chmod=644 config.json .
+
+# Remove setuid/setgid permissions
+RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
+
+# Don't run as root
+USER 10001:10001
+
+# Use read-only filesystem when possible
+# docker run --read-only myimage
+
+# Drop capabilities
+# docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE myimage</pre>
+                    </div>
+
+                    <div class="success-box">
+                        <h4>Security Checklist</h4>
+                        <ul>
+                            <li>✅ Use minimal, official base images</li>
+                            <li>✅ Pin image versions with SHA digests</li>
+                            <li>✅ Run as non-root user (UID > 10000)</li>
+                            <li>✅ Remove package managers after use</li>
+                            <li>✅ Set proper file permissions</li>
+                            <li>✅ Use multi-stage builds</li>
+                            <li>✅ Scan for vulnerabilities</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="vuln-scanning" class="tab-content">
+                    <h3>Automated Vulnerability Scanning</h3>
+                    
+                    <div class="code-block" data-lang="bash">
+                        <pre># Install Trivy for comprehensive scanning
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Scan image for vulnerabilities
+trivy image --severity HIGH,CRITICAL python:3.12-slim
+
+# Scan Dockerfile
+trivy config Dockerfile
+
+# Generate SBOM (Software Bill of Materials)
+trivy image --format spdx-json --output sbom.json myimage:latest
+
+# CI/CD Integration
+trivy image --exit-code 1 --severity HIGH,CRITICAL myimage:latest</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="yaml">
+                        <pre># GitHub Actions security scanning
+name: Container Security
+on: [push, pull_request]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build image
+        run: docker build -t test-image .
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: test-image
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: 1
+      
+      - name: Upload to Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif</pre>
+                    </div>
+                </div>
+
+                <div id="supply-chain" class="tab-content">
+                    <h3>Supply Chain Security</h3>
+                    
+                    <div class="code-block" data-lang="bash">
+                        <pre># Image signing with Docker Content Trust
+export DOCKER_CONTENT_TRUST=1
+docker push myregistry.com/myimage:latest
+
+# Modern signing with Sigstore Cosign
+cosign sign myregistry.com/myimage:latest
+
+# Verify signatures before deployment
+cosign verify --key cosign.pub myregistry.com/myimage:latest
+
+# Generate attestations
+cosign attest --predicate sbom.json myregistry.com/myimage:latest</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="yaml">
+                        <pre># OPA policy for image security
+package docker.security
+
+# Deny images without verified signatures
+deny[msg] {
+    input.image
+    not image_is_signed(input.image)
+    msg := "Image must be signed"
+}
+
+# Require non-root user
+deny[msg] {
+    input.user == "root"
+    msg := "Container must not run as root"
+}
+
+# Block known vulnerable images
+deny[msg] {
+    input.image
+    vulnerable_images[input.image]
+    msg := sprintf("Image %v has known vulnerabilities", [input.image])
+}</pre>
+                    </div>
+                </div>
+
+                <div id="runtime-security" class="tab-content">
+                    <h3>Runtime Security</h3>
+                    
+                    <div class="code-block" data-lang="bash">
+                        <pre># Secure container runtime options
+docker run \
+  --read-only \
+  --tmpfs /tmp:noexec,nosuid,size=100m \
+  --cap-drop=ALL \
+  --cap-add=NET_BIND_SERVICE \
+  --security-opt=no-new-privileges:true \
+  --user 10001:10001 \
+  --memory=512m \
+  --cpus=1.0 \
+  --pids-limit=100 \
+  --ulimit nofile=1024:1024 \
+  --restart=on-failure:3 \
+  myimage:latest
+
+# AppArmor/SELinux profiles
+docker run --security-opt apparmor:my-profile myimage
+
+# Seccomp profiles
+docker run --security-opt seccomp:profile.json myimage</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="yaml">
+                        <pre># Kubernetes Pod Security Standards
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: myimage:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL
+        add:
+        - NET_BIND_SERVICE
+    resources:
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+      requests:
+        memory: "256Mi"
+        cpu: "250m"</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="size-optimization" class="section">
+            <h2>8. Image Size Optimization Techniques</h2>
+            
+            <p>Smaller images mean faster deployments, reduced storage costs, and smaller attack surfaces. Here are proven techniques to minimize image size.</p>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Base Image</th>
+                            <th>Size</th>
+                            <th>Security</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ubuntu:22.04</td>
+                            <td>77 MB</td>
+                            <td>Medium</td>
+                            <td>Development, debugging</td>
+                        </tr>
+                        <tr>
+                            <td>python:3.12-slim</td>
+                            <td>45 MB</td>
+                            <td>Good</td>
+                            <td>Production Python apps</td>
+                        </tr>
+                        <tr>
+                            <td>alpine:3.19</td>
+                            <td>5 MB</td>
+                            <td>Very Good</td>
+                            <td>Minimal applications</td>
+                        </tr>
+                        <tr>
+                            <td>gcr.io/distroless/python3</td>
+                            <td>25 MB</td>
+                            <td>Excellent</td>
+                            <td>Production (no shell)</td>
+                        </tr>
+                        <tr>
+                            <td>scratch</td>
+                            <td>0 MB</td>
+                            <td>Maximum</td>
+                            <td>Static binaries only</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>🏗️ Build Optimization</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Minimize build context
+.dockerignore
+node_modules/
+*.log
+.git/
+coverage/
+*.md
+Dockerfile*
+
+# Combine RUN commands
+RUN apt-get update && \
+    apt-get install -y package1 package2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* /var/tmp/*
+
+# Use specific package versions
+RUN apt-get install -y \
+    curl=7.88.1-10+deb12u5 \
+    wget=1.21.3-1+b2</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>📦 Package Manager Optimization</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Python optimization
+RUN pip install --no-cache-dir \
+    --no-compile \
+    --disable-pip-version-check \
+    -r requirements.txt && \
+    find /usr/local -name '*.pyc' -delete && \
+    find /usr/local -name '__pycache__' -delete
+
+# Node.js optimization  
+RUN npm ci --only=production && \
+    npm cache clean --force && \
+    rm -rf ~/.npm /tmp/*
+
+# Go binary optimization
+RUN CGO_ENABLED=0 \
+    go build -ldflags="-s -w" \
+    -trimpath -o binary .</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🔧 Advanced Techniques</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># UPX compression (use carefully)
+FROM alpine AS compressor
+RUN apk add upx
+COPY --from=builder /app/binary .
+RUN upx --best --lzma binary
+
+# Strip debug symbols
+RUN strip --strip-debug /app/binary
+
+# Remove unnecessary files
+RUN find /app -type f -name "*.md" -delete && \
+    find /app -type f -name "LICENSE*" -delete && \
+    find /app -name "test*" -delete</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>📊 Size Analysis</h4>
+                    <div class="code-block" data-lang="bash">
+                        <pre># Analyze image layers
+docker history myimage:latest
+
+# Detailed size breakdown
+dive myimage:latest
+
+# Compare image sizes
+docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}"
+
+# Identify large files
+docker run --rm myimage:latest \
+  find / -size +10M 2>/dev/null</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlight-box">
+                <h4>Size Optimization Checklist</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h5>Build Time</h5>
+                        <ul>
+                            <li>Use .dockerignore</li>
+                            <li>Combine RUN commands</li>
+                            <li>Clean package caches</li>
+                            <li>Remove build dependencies</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h5>Runtime</h5>
+                        <ul>
+                            <li>Use minimal base images</li>
+                            <li>Multi-stage builds</li>
+                            <li>Remove unnecessary files</li>
+                            <li>Compress binaries (if applicable)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="linting" class="section">
+            <h2>9. Dockerfile Linting & Validation</h2>
+            
+            <p>Hadolint is the industry-standard Dockerfile linter that catches common mistakes and enforces best practices.</p>
+
+            <div class="code-block" data-lang="bash">
+                <pre># Install Hadolint
+# Linux/macOS
+wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+chmod +x /usr/local/bin/hadolint
+
+# Using Docker
+docker run --rm -i hadolint/hadolint < Dockerfile
+
+# Scan Dockerfile
+hadolint Dockerfile
+
+# Output formats
+hadolint --format json Dockerfile
+hadolint --format checkstyle Dockerfile > report.xml
+
+# Ignore specific rules
+hadolint --ignore DL3008 --ignore DL3009 Dockerfile</pre>
+            </div>
+
+            <div class="code-block" data-lang="yaml">
+                <pre># .hadolint.yaml configuration
+ignored:
+  - DL3008  # Pin versions in apt get install
+  - DL3009  # Delete the apt-get lists after installing something
+
+trustedRegistries:
+  - docker.io
+  - quay.io
+  - gcr.io
+
+allowed-registries:
+  - docker.io
+  - my-company.registry.com
+
+label-schema:
+  author: text
+  version: semver
+  
+failure-threshold: warning</pre>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'common-rules')">Common Rules</button>
+                    <button class="tab-button" onclick="openTab(event, 'ci-integration')">CI Integration</button>
+                    <button class="tab-button" onclick="openTab(event, 'advanced-linting')">Advanced Linting</button>
+                </div>
+
+                <div id="common-rules" class="tab-content active">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Rule</th>
+                                <th>Description</th>
+                                <th>Fix</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>DL3008</td>
+                                <td>Pin versions in apt-get install</td>
+                                <td><code>apt-get install -y curl=7.68.0-1ubuntu2</code></td>
+                            </tr>
+                            <tr>
+                                <td>DL3009</td>
+                                <td>Delete apt-get lists after installing</td>
+                                <td><code>rm -rf /var/lib/apt/lists/*</code></td>
+                            </tr>
+                            <tr>
+                                <td>DL3059</td>
+                                <td>Multiple consecutive RUN instructions</td>
+                                <td>Combine with <code>&&</code></td>
+                            </tr>
+                            <tr>
+                                <td>DL3025</td>
+                                <td>Use arguments JSON notation for CMD and ENTRYPOINT</td>
+                                <td><code>CMD ["python", "app.py"]</code></td>
+                            </tr>
+                            <tr>
+                                <td>DL4006</td>
+                                <td>Set the SHELL option -o pipefail</td>
+                                <td><code>SHELL ["/bin/bash", "-o", "pipefail", "-c"]</code></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="ci-integration" class="tab-content">
+                    <div class="code-block" data-lang="yaml">
+                        <pre># GitHub Actions integration
+name: Dockerfile Lint
+on: [push, pull_request]
+
+jobs:
+  hadolint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          format: sarif
+          output-file: hadolint-results.sarif
+          no-color: true
+          verbose: true
+      
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: hadolint-results.sarif</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="yaml">
+                        <pre># GitLab CI integration
+lint-dockerfile:
+  stage: test
+  image: hadolint/hadolint:latest-alpine
+  script:
+    - hadolint Dockerfile
+  rules:
+    - changes:
+        - Dockerfile
+        - .hadolint.yaml</pre>
+                    </div>
+                </div>
+
+                <div id="advanced-linting" class="tab-content">
+                    <div class="code-block" data-lang="bash">
+                        <pre># Advanced linting with multiple tools
+# 1. Hadolint for Dockerfile best practices
+hadolint Dockerfile
+
+# 2. Docker Scout for vulnerabilities (Docker Desktop)
+docker scout cves myimage:latest
+
+# 3. Dockle for security best practices
+dockle myimage:latest
+
+# 4. Trivy for comprehensive security scanning
+trivy image myimage:latest
+
+# Combined security and best practice check
+check_dockerfile() {
+    echo "🔍 Linting Dockerfile..."
+    hadolint Dockerfile || return 1
+    
+    echo "🏗️ Building image..."
+    docker build -t test-image:latest . || return 1
+    
+    echo "🔒 Security scanning..."
+    trivy image --severity HIGH,CRITICAL test-image:latest || return 1
+    
+    echo "✅ All checks passed!"
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="language-patterns" class="section">
+            <h2>10. Language-Specific Patterns</h2>
+            
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>🟢 Node.js Production Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production Node.js with security
+FROM node:20-alpine@sha256:... AS base
+RUN apk add --no-cache dumb-init
+WORKDIR /app
+RUN addgroup -g 1001 nodejs && \
+    adduser -S nextjs -u 1001
+
+FROM base AS deps
+COPY package*.json ./
+RUN npm ci --only=production --frozen-lockfile && \
+    npm cache clean --force
+
+FROM base AS builder
+COPY package*.json ./
+RUN npm ci --frozen-lockfile
+COPY . .
+RUN npm run build
+
+FROM base AS runtime
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
+
+USER nextjs
+EXPOSE 3000
+ENV NODE_ENV=production
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/server.js"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🐍 Python FastAPI Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production Python with UV and health checks
+FROM python:3.12-slim AS base
+RUN pip install uv
+ENV UV_SYSTEM_PYTHON=1
+
+FROM base AS deps
+COPY pyproject.toml uv.lock ./
+RUN uv pip install --no-cache --compile-bytecode \
+    -r <(uv pip compile pyproject.toml)
+
+FROM gcr.io/distroless/python3-debian12 AS runtime
+COPY --from=deps /usr/local/lib/python3.12/site-packages \
+     /usr/local/lib/python3.12/site-packages
+COPY app ./app
+
+USER 10001
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+CMD ["app/main.py"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>☕ Java Spring Boot Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production Java with custom JRE
+FROM eclipse-temurin:21-jdk AS builder
+WORKDIR /app
+COPY gradle* ./
+COPY build.gradle ./
+RUN ./gradlew dependencies --no-daemon
+
+COPY src ./src
+RUN ./gradlew bootJar --no-daemon && \
+    jlink --add-modules \
+    java.base,java.desktop,java.instrument,java.management,java.naming,java.net.http,java.security.jgss,java.sql \
+    --output /custom-jre
+
+FROM debian:bookworm-slim
+RUN groupadd -r spring && useradd -r -g spring spring
+COPY --from=builder /custom-jre /usr/local/jre
+COPY --from=builder /app/build/libs/app.jar /app.jar
+
+USER spring:spring
+EXPOSE 8080
+ENV JAVA_HOME=/usr/local/jre \
+    JAVA_OPTS="-XX:MaxRAMPercentage=75.0"
+HEALTHCHECK --interval=30s --timeout=10s \
+    CMD /usr/local/jre/bin/java -cp /app.jar org.springframework.boot.actuator.health.HealthEndpoint
+ENTRYPOINT ["/usr/local/jre/bin/java", "-jar", "/app.jar"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🐹 Go Microservice Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Ultra-minimal Go microservice
+FROM golang:1.22-alpine AS builder
+RUN apk add --no-cache git ca-certificates tzdata
+WORKDIR /app
+
+# Download dependencies
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+# Build
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build -ldflags="-s -w -X main.version=${VERSION}" \
+    -trimpath -o binary ./cmd/server
+
+FROM scratch
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=builder /app/binary /binary
+
+USER 10001:10001
+EXPOSE 8080
+ENTRYPOINT ["/binary"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🦀 Rust Production Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production Rust with chef cooking
+FROM rust:1.75-slim AS chef
+RUN cargo install cargo-chef
+WORKDIR /app
+
+FROM chef AS planner
+COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
+RUN cargo chef cook --release --recipe-path recipe.json
+COPY . .
+RUN cargo build --release --bin app
+
+FROM gcr.io/distroless/cc-debian12
+COPY --from=builder /app/target/release/app /app
+USER 10001
+EXPOSE 8080
+CMD ["/app"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🐘 PHP Production Pattern</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Production PHP with FrankenPHP
+FROM dunglas/frankenphp AS builder
+WORKDIR /app
+COPY composer*.json ./
+RUN composer install --no-dev --optimize-autoloader
+
+FROM dunglas/frankenphp AS runtime
+RUN addgroup -g 1001 www && \
+    adduser -D -s /bin/sh -u 1001 -G www www
+
+WORKDIR /app
+COPY --from=builder --chown=www:www /app/vendor ./vendor
+COPY --chown=www:www . .
+
+USER www
+EXPOSE 8000
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="health-init" class="section">
+            <h2>11. Health Checks & Container Initialization</h2>
+            
+            <p>Proper health checks and initialization ensure your containers start correctly and remain healthy in production.</p>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'healthchecks')">Health Checks</button>
+                    <button class="tab-button" onclick="openTab(event, 'init-systems')">Init Systems</button>
+                    <button class="tab-button" onclick="openTab(event, 'graceful-shutdown')">Graceful Shutdown</button>
+                </div>
+
+                <div id="healthchecks" class="tab-content active">
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Comprehensive health checks for different services
+
+# Web application health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+# Database connection health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD pg_isready -U postgres -d mydb || exit 1
+
+# Custom health check script
+COPY healthcheck.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh
+
+# Multi-service health check
+HEALTHCHECK --interval=30s --timeout=15s --start-period=60s --retries=3 \
+    CMD /usr/local/bin/healthcheck.sh && \
+        curl -f http://localhost:8080/ready && \
+        nc -z redis 6379</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="bash">
+                        <pre>#!/bin/bash
+# healthcheck.sh - Comprehensive health check script
+
+set -euo pipefail
+
+# Function to check HTTP endpoint
+check_http() {
+    local url="$1"
+    local expected_code="${2:-200}"
+    
+    response_code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || echo "000")
+    if [ "$response_code" != "$expected_code" ]; then
+        echo "Health check failed: HTTP $response_code from $url"
+        return 1
+    fi
+}
+
+# Function to check database connection
+check_database() {
+    if ! pg_isready -h localhost -p 5432 -U postgres > /dev/null 2>&1; then
+        echo "Database health check failed"
+        return 1
+    fi
+}
+
+# Function to check disk space
+check_disk_space() {
+    local threshold=90
+    usage=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
+    if [ "$usage" -gt "$threshold" ]; then
+        echo "Disk usage is ${usage}%, exceeding threshold of ${threshold}%"
+        return 1
+    fi
+}
+
+# Run all health checks
+main() {
+    echo "Running health checks..."
+    
+    check_http "http://localhost:8080/health"
+    check_database
+    check_disk_space
+    
+    echo "All health checks passed"
+}
+
+main "$@"</pre>
+                    </div>
+                </div>
+
+                <div id="init-systems" class="tab-content">
+                    <h3>Proper Init Systems</h3>
+                    
+                    <div class="highlight-box">
+                        <h4>Why Use an Init System?</h4>
+                        <ul>
+                            <li>Proper signal handling (SIGTERM, SIGKILL)</li>
+                            <li>Zombie process reaping</li>
+                            <li>Graceful shutdown coordination</li>
+                            <li>Child process management</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Method 1: Using tini (recommended)
+FROM alpine:3.19
+RUN apk add --no-cache tini
+ENTRYPOINT ["tini", "--"]
+CMD ["python3", "app.py"]
+
+# Method 2: Using dumb-init
+FROM node:20-alpine
+RUN apk add --no-cache dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+
+# Method 3: Using s6-overlay for complex services
+FROM alpine:3.19
+RUN apk add --no-cache s6-overlay
+ENTRYPOINT ["/init"]
+CMD []
+
+# Method 4: Custom init script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["python3", "app.py"]</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="bash">
+                        <pre>#!/bin/bash
+# docker-entrypoint.sh - Custom init script
+
+set -euo pipefail
+
+# Trap signals for graceful shutdown
+shutdown() {
+    echo "Received shutdown signal, stopping services..."
+    
+    # Stop background processes
+    if [ -n "${BACKGROUND_PID:-}" ]; then
+        kill -TERM "$BACKGROUND_PID" 2>/dev/null || true
+        wait "$BACKGROUND_PID" 2>/dev/null || true
+    fi
+    
+    # Cleanup
+    echo "Cleanup completed"
+    exit 0
+}
+
+trap shutdown TERM INT
+
+# Initialize application
+initialize() {
+    echo "Initializing application..."
+    
+    # Wait for dependencies
+    wait-for-it.sh database:5432 --timeout=30
+    
+    # Run migrations
+    python manage.py migrate
+    
+    # Start background services
+    python manage.py worker &
+    BACKGROUND_PID=$!
+}
+
+# Main execution
+main() {
+    initialize
+    
+    echo "Starting main application..."
+    exec "$@" &
+    MAIN_PID=$!
+    
+    # Wait for main process
+    wait $MAIN_PID
+}
+
+# Run main function with all arguments
+main "$@"</pre>
+                    </div>
+                </div>
+
+                <div id="graceful-shutdown" class="tab-content">
+                    <h3>Graceful Shutdown Implementation</h3>
+                    
+                    <div class="code-block" data-lang="python">
+                        <pre># Python graceful shutdown example
+import signal
+import sys
+import time
+import threading
+from typing import Optional
+
+class GracefulKiller:
+    def __init__(self):
+        self.kill_now = threading.Event()
+        signal.signal(signal.SIGTERM, self._handle_signal)
+        signal.signal(signal.SIGINT, self._handle_signal)
+    
+    def _handle_signal(self, signum, frame):
+        print(f"Received signal {signum}, initiating graceful shutdown...")
+        self.kill_now.set()
+
+class Application:
+    def __init__(self):
+        self.killer = GracefulKiller()
+        self.running = True
+        
+    def shutdown(self):
+        print("Shutting down gracefully...")
+        # Close database connections
+        # Stop background tasks
+        # Save state
+        self.running = False
+        print("Shutdown complete")
+        
+    def run(self):
+        print("Application starting...")
+        
+        try:
+            while self.running and not self.killer.kill_now.is_set():
+                # Application logic
+                time.sleep(1)
+                
+        except Exception as e:
+            print(f"Error: {e}")
+        finally:
+            self.shutdown()
+
+if __name__ == "__main__":
+    app = Application()
+    app.run()</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="javascript">
+                        <pre>// Node.js graceful shutdown example
+const express = require('express');
+const http = require('http');
+
+class GracefulServer {
+    constructor() {
+        this.app = express();
+        this.server = null;
+        this.isShuttingDown = false;
+        this.connections = new Set();
+        
+        this.setupRoutes();
+        this.setupGracefulShutdown();
+    }
+    
+    setupRoutes() {
+        this.app.get('/health', (req, res) => {
+            if (this.isShuttingDown) {
+                return res.status(503).json({ status: 'shutting down' });
+            }
+            res.json({ status: 'healthy' });
+        });
+    }
+    
+    setupGracefulShutdown() {
+        const shutdown = async (signal) => {
+            console.log(`Received ${signal}, starting graceful shutdown...`);
+            this.isShuttingDown = true;
+            
+            // Stop accepting new connections
+            this.server.close(() => {
+                console.log('HTTP server closed');
+            });
+            
+            // Close existing connections
+            for (const connection of this.connections) {
+                connection.destroy();
+            }
+            
+            // Wait for ongoing requests
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            
+            console.log('Graceful shutdown complete');
+            process.exit(0);
+        };
+        
+        process.on('SIGTERM', () => shutdown('SIGTERM'));
+        process.on('SIGINT', () => shutdown('SIGINT'));
+    }
+    
+    start(port = 3000) {
+        this.server = http.createServer(this.app);
+        
+        this.server.on('connection', (connection) => {
+            this.connections.add(connection);
+            connection.on('close', () => {
+                this.connections.delete(connection);
+            });
+        });
+        
+        this.server.listen(port, () => {
+            console.log(`Server running on port ${port}`);
+        });
+    }
+}
+
+const server = new GracefulServer();
+server.start();</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="antipatterns" class="section">
+            <h2>12. Anti-patterns to Avoid</h2>
+            
+            <div class="warning-box">
+                <h4>⚠️ Common Dockerfile Mistakes</h4>
+                <p>These anti-patterns can lead to security vulnerabilities, performance issues, and maintenance problems. Learn what NOT to do.</p>
+            </div>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>❌ Running as Root</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+FROM ubuntu:22.04
+COPY app.py /app/
+CMD ["python", "/app/app.py"]
+
+# Container runs as root (UID 0) - SECURITY RISK!</pre>
+                    </div>
+                    <div class="badge security">Security Risk</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DO THIS INSTEAD
+FROM ubuntu:22.04
+RUN useradd -r -u 10001 appuser
+COPY --chown=appuser:appuser app.py /app/
+USER appuser
+CMD ["python", "/app/app.py"]</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>❌ Using Latest Tags</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+FROM node:latest
+FROM ubuntu:latest
+FROM python:latest
+
+# Unpredictable builds, security risks</pre>
+                    </div>
+                    <div class="badge best-practice">Build Reproducibility</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DO THIS INSTEAD
+FROM node:20.10.0-alpine
+FROM ubuntu:22.04
+FROM python:3.12.1-slim
+
+# Even better - pin with digest
+FROM node:20-alpine@sha256:abc123...</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>❌ Secrets in Dockerfile</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+ENV API_KEY=sk-1234567890abcdef
+ARG DATABASE_PASSWORD=secret123
+RUN echo "password=secret" > config.ini
+
+# Secrets stored in image layers!</pre>
+                    </div>
+                    <div class="badge security">Secret Exposure</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DO THIS INSTEAD
+# Runtime injection
+docker run -e API_KEY="$(cat secret)" app
+
+# Build secrets (BuildKit)
+RUN --mount=type=secret,id=api_key \
+    API_KEY=$(cat /run/secrets/api_key) setup.sh</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>❌ Inefficient Layer Usage</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+RUN apt-get update
+RUN apt-get install -y curl
+RUN apt-get install -y wget
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
+
+# Multiple layers, poor caching</pre>
+                    </div>
+                    <div class="badge performance">Layer Inefficiency</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DO THIS INSTEAD
+RUN apt-get update && \
+    apt-get install -y curl wget && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Single layer, proper cleanup</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>❌ Ignoring .dockerignore</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+COPY . /app/
+
+# Copies everything including:
+# - node_modules/
+# - .git/
+# - *.log files
+# - test files</pre>
+                    </div>
+                    <div class="badge performance">Build Context Bloat</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="text">
+                        <pre># .dockerignore
+node_modules/
+.git/
+*.log
+coverage/
+.env
+README.md</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>❌ Shell Form Commands</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DON'T DO THIS
+CMD python app.py
+ENTRYPOINT /bin/bash startup.sh
+
+# Creates unnecessary shell process
+# Poor signal handling</pre>
+                    </div>
+                    <div class="badge performance">Process Management</div>
+                    
+                    <h4>✅ Correct Approach</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># DO THIS INSTEAD
+CMD ["python", "app.py"]
+ENTRYPOINT ["/bin/bash", "startup.sh"]
+
+# Direct execution, proper signals</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Anti-pattern</th>
+                            <th>Problem</th>
+                            <th>Solution</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Running as root</td>
+                            <td>Security vulnerability</td>
+                            <td>Create non-root user</td>
+                            <td>High security risk</td>
+                        </tr>
+                        <tr>
+                            <td>Using :latest tags</td>
+                            <td>Non-reproducible builds</td>
+                            <td>Pin specific versions</td>
+                            <td>Build instability</td>
+                        </tr>
+                        <tr>
+                            <td>Secrets in ENV/ARG</td>
+                            <td>Secret exposure</td>
+                            <td>Runtime injection</td>
+                            <td>Critical security risk</td>
+                        </tr>
+                        <tr>
+                            <td>Multiple RUN commands</td>
+                            <td>Layer bloat</td>
+                            <td>Combine with &&</td>
+                            <td>Larger images</td>
+                        </tr>
+                        <tr>
+                            <td>No .dockerignore</td>
+                            <td>Large build context</td>
+                            <td>Exclude unnecessary files</td>
+                            <td>Slow builds</td>
+                        </tr>
+                        <tr>
+                            <td>Shell form commands</td>
+                            <td>Poor signal handling</td>
+                            <td>Use exec form</td>
+                            <td>Graceful shutdown issues</td>
+                        </tr>
+                        <tr>
+                            <td>Installing unnecessary packages</td>
+                            <td>Bloated images</td>
+                            <td>Minimal dependencies</td>
+                            <td>Security & size</td>
+                        </tr>
+                        <tr>
+                            <td>No health checks</td>
+                            <td>Poor observability</td>
+                            <td>Add HEALTHCHECK</td>
+                            <td>Operational issues</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="build-context" class="section">
+            <h2>13. Build Context Optimization</h2>
+            
+            <p>The build context is all the files Docker sends to the daemon for building. Optimizing it reduces build time and network usage.</p>
+
+            <div class="highlight-box">
+                <h4>Build Context Best Practices</h4>
+                <ul>
+                    <li>Use .dockerignore to exclude unnecessary files</li>
+                    <li>Keep Dockerfile in the project root</li>
+                    <li>Copy only required files, not entire directory</li>
+                    <li>Use multi-stage builds to exclude build dependencies</li>
+                </ul>
+            </div>
+
+            <div class="example-grid">
+                <div class="example-card">
+                    <h4>📁 Comprehensive .dockerignore</h4>
+                    <div class="code-block" data-lang="text">
+                        <pre># .dockerignore - Complete example
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# Dependencies
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# Build artifacts
+dist/
+build/
+target/
+*.o
+*.so
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# Documentation
+*.md
+docs/
+LICENSE
+
+# Environment files
+.env*
+!.env.example
+
+# Test files
+test/
+tests/
+*_test.go
+*.test
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+
+# Docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>📊 Build Context Analysis</h4>
+                    <div class="code-block" data-lang="bash">
+                        <pre># Analyze build context size
+docker build --no-cache --progress=plain . 2>&1 | grep "transferring context"
+
+# List build context contents
+tar -czh . | tar -tz | head -20
+
+# Check .dockerignore effectiveness
+docker build --progress=plain --no-cache . 2>&1 | grep -E "(transferring|sending)"
+
+# Build context size comparison
+echo "Build context size:"
+du -sh .
+
+echo "After .dockerignore:"
+docker build --dry-run . 2>&1 | grep "transferring context"</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>🎯 Selective File Copying</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># ❌ Copies everything
+COPY . /app/
+
+# ✅ Copy specific files/directories
+COPY package.json package-lock.json ./
+COPY src/ ./src/
+COPY config/ ./config/
+COPY public/ ./public/
+
+# ✅ Use patterns for multiple files
+COPY *.json ./
+COPY requirements*.txt ./
+
+# ✅ Multi-stage selective copying
+FROM node:20-alpine AS builder
+COPY package.json ./
+RUN npm install
+
+FROM nginx:alpine AS runtime
+COPY --from=builder /app/dist /usr/share/nginx/html</pre>
+                    </div>
+                </div>
+
+                <div class="example-card">
+                    <h4>⚡ BuildKit Features</h4>
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Enable BuildKit features
+# syntax=docker/dockerfile:1
+
+# Bind mounts (don't copy to image)
+RUN --mount=type=bind,source=.,target=/src \
+    cd /src && npm run build
+
+# Cache mounts
+RUN --mount=type=cache,target=/root/.npm \
+    npm install
+
+# Secret mounts
+RUN --mount=type=secret,id=netrc,target=/root/.netrc \
+    git clone private-repo
+
+# SSH mounts
+RUN --mount=type=ssh \
+    git clone git@github.com:user/private-repo.git</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Context Size</th>
+                            <th>Build Time</th>
+                            <th>Network Transfer</th>
+                            <th>Optimization</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>< 10 MB</td>
+                            <td>Fast (< 5s transfer)</td>
+                            <td>Minimal</td>
+                            <td>Well optimized</td>
+                        </tr>
+                        <tr>
+                            <td>10-50 MB</td>
+                            <td>Good (5-15s transfer)</td>
+                            <td>Acceptable</td>
+                            <td>Could improve</td>
+                        </tr>
+                        <tr>
+                            <td>50-200 MB</td>
+                            <td>Slow (15-60s transfer)</td>
+                            <td>High</td>
+                            <td>Needs optimization</td>
+                        </tr>
+                        <tr>
+                            <td>> 200 MB</td>
+                            <td>Very slow (> 60s)</td>
+                            <td>Excessive</td>
+                            <td>Requires immediate attention</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="signal-handling" class="section">
+            <h2>14. Container Initialization & Signal Handling</h2>
+            
+            <p>Proper signal handling ensures containers can shut down gracefully and handle system signals correctly in orchestrated environments.</p>
+
+            <div class="warning-box">
+                <h4>⚠️ PID 1 Problem</h4>
+                <p>The process that runs as PID 1 in a container has special responsibilities for signal handling and zombie process reaping. Most applications aren't designed for this.</p>
+            </div>
+
+            <div class="tabs">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="openTab(event, 'init-process')">Init Process</button>
+                    <button class="tab-button" onclick="openTab(event, 'signal-handling-tab')">Signal Handling</button>
+                    <button class="tab-button" onclick="openTab(event, 'zombie-reaping')">Zombie Reaping</button>
+                </div>
+
+                <div id="init-process" class="tab-content active">
+                    <h3>Choosing the Right Init Process</h3>
+                    
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Init System</th>
+                                    <th>Size</th>
+                                    <th>Features</th>
+                                    <th>Use Case</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>tini</td>
+                                    <td>~8KB</td>
+                                    <td>Minimal, signal forwarding</td>
+                                    <td>Simple applications</td>
+                                </tr>
+                                <tr>
+                                    <td>dumb-init</td>
+                                    <td>~25KB</td>
+                                    <td>Signal forwarding, zombie reaping</td>
+                                    <td>Node.js, Python apps</td>
+                                </tr>
+                                <tr>
+                                    <td>s6-overlay</td>
+                                    <td>~500KB</td>
+                                    <td>Service supervision, logging</td>
+                                    <td>Complex multi-service containers</td>
+                                </tr>
+                                <tr>
+                                    <td>supervisord</td>
+                                    <td>~2MB</td>
+                                    <td>Process management, web UI</td>
+                                    <td>Legacy applications</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Method 1: tini (Docker's recommended)
+FROM alpine:3.19
+RUN apk add --no-cache tini
+ENTRYPOINT ["tini", "--"]
+CMD ["your-application"]
+
+# Method 2: Docker init (built-in)
+# docker run --init myimage
+
+# Method 3: dumb-init (Node.js ecosystem favorite)
+FROM node:20-alpine
+RUN apk add --no-cache dumb-init
+USER node
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
+
+# Method 4: s6-overlay (complex applications)
+FROM alpine:3.19
+RUN apk add --no-cache s6-overlay
+ENTRYPOINT ["/init"]
+
+# Method 5: Custom init script
+COPY init.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/init.sh
+ENTRYPOINT ["init.sh"]
+CMD ["app"]</pre>
+                    </div>
+                </div>
+
+                <div id="signal-handling-tab" class="tab-content">
+                    <h3>Proper Signal Handling</h3>
+                    
+                    <div class="code-block" data-lang="bash">
+                        <pre>#!/bin/bash
+# init.sh - Proper signal handling script
+
+set -euo pipefail
+
+# Global variables for process management
+MAIN_PID=""
+BACKGROUND_PIDS=()
+
+# Signal handler for graceful shutdown
+shutdown_handler() {
+    local signal=$1
+    echo "Received $signal, initiating graceful shutdown..."
+    
+    # Stop main process
+    if [[ -n "$MAIN_PID" ]]; then
+        echo "Stopping main process (PID: $MAIN_PID)"
+        kill -TERM "$MAIN_PID" 2>/dev/null || true
+        
+        # Wait for graceful shutdown
+        local count=0
+        while kill -0 "$MAIN_PID" 2>/dev/null && [[ $count -lt 10 ]]; do
+            sleep 1
+            ((count++))
+        done
+        
+        # Force kill if still running
+        if kill -0 "$MAIN_PID" 2>/dev/null; then
+            echo "Force killing main process"
+            kill -KILL "$MAIN_PID" 2>/dev/null || true
+        fi
+    fi
+    
+    # Stop background processes
+    for pid in "${BACKGROUND_PIDS[@]}"; do
+        if kill -0 "$pid" 2>/dev/null; then
+            echo "Stopping background process (PID: $pid)"
+            kill -TERM "$pid" 2>/dev/null || true
+        fi
+    done
+    
+    # Wait for background processes
+    for pid in "${BACKGROUND_PIDS[@]}"; do
+        wait "$pid" 2>/dev/null || true
+    done
+    
+    echo "Shutdown complete"
+    exit 0
+}
+
+# Set up signal traps
+trap 'shutdown_handler SIGTERM' TERM
+trap 'shutdown_handler SIGINT' INT
+
+# Function to start background services
+start_background_services() {
+    # Example: monitoring service
+    ./monitor.sh &
+    BACKGROUND_PIDS+=($!)
+    
+    # Example: health check service  
+    ./healthcheck.sh &
+    BACKGROUND_PIDS+=($!)
+}
+
+# Main execution
+main() {
+    echo "Starting container initialization..."
+    
+    # Pre-flight checks
+    echo "Running pre-flight checks..."
+    ./preflight.sh
+    
+    # Start background services
+    start_background_services
+    
+    # Start main application
+    echo "Starting main application: $*"
+    exec "$@" &
+    MAIN_PID=$!
+    
+    # Wait for main process
+    wait $MAIN_PID
+    local exit_code=$?
+    
+    echo "Main process exited with code $exit_code"
+    exit $exit_code
+}
+
+# Execute main function with all arguments
+main "$@"</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="python">
+                        <pre># Python signal handling example
+import signal
+import sys
+import time
+import threading
+import logging
+from typing import Callable, Optional
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class SignalHandler:
+    def __init__(self):
+        self._shutdown_event = threading.Event()
+        self._shutdown_callbacks: list[Callable] = []
+        
+        # Register signal handlers
+        signal.signal(signal.SIGTERM, self._signal_handler)
+        signal.signal(signal.SIGINT, self._signal_handler)
+        
+    def _signal_handler(self, signum: int, frame) -> None:
+        signal_name = signal.Signals(signum).name
+        logger.info(f"Received {signal_name}, initiating shutdown...")
+        
+        # Run shutdown callbacks
+        for callback in self._shutdown_callbacks:
+            try:
+                callback()
+            except Exception as e:
+                logger.error(f"Error in shutdown callback: {e}")
+        
+        self._shutdown_event.set()
+    
+    def register_shutdown_callback(self, callback: Callable) -> None:
+        self._shutdown_callbacks.append(callback)
+    
+    def wait_for_shutdown(self) -> None:
+        self._shutdown_event.wait()
+    
+    def should_shutdown(self) -> bool:
+        return self._shutdown_event.is_set()
+
+class Application:
+    def __init__(self):
+        self.signal_handler = SignalHandler()
+        self.running = True
+        
+        # Register cleanup callbacks
+        self.signal_handler.register_shutdown_callback(self._cleanup_database)
+        self.signal_handler.register_shutdown_callback(self._cleanup_cache)
+        
+    def _cleanup_database(self):
+        logger.info("Closing database connections...")
+        # Database cleanup logic
+        
+    def _cleanup_cache(self):
+        logger.info("Clearing cache...")
+        # Cache cleanup logic
+        
+    def run(self):
+        logger.info("Application started")
+        
+        try:
+            while not self.signal_handler.should_shutdown():
+                # Application logic
+                time.sleep(1)
+                
+        except Exception as e:
+            logger.error(f"Application error: {e}")
+        finally:
+            logger.info("Application stopped")
+
+if __name__ == "__main__":
+    app = Application()
+    app.run()</pre>
+                    </div>
+                </div>
+
+                <div id="zombie-reaping" class="tab-content">
+                    <h3>Zombie Process Reaping</h3>
+                    
+                    <div class="highlight-box">
+                        <h4>What are Zombie Processes?</h4>
+                        <p>When a child process exits, it becomes a "zombie" until its parent process reads its exit status. In containers, the PID 1 process must reap these zombies to prevent resource leaks.</p>
+                    </div>
+
+                    <div class="code-block" data-lang="c">
+                        <pre>/* Simple init implementation in C */
+#include <sys/wait.h>
+#include <signal.h>
+#include <unistd.h>
+
+volatile sig_atomic_t shutdown_requested = 0;
+pid_t child_pid = 0;
+
+void signal_handler(int sig) {
+    if (sig == SIGTERM || sig == SIGINT) {
+        shutdown_requested = 1;
+        if (child_pid > 0) {
+            kill(child_pid, SIGTERM);
+        }
+    }
+}
+
+void reap_children(int sig) {
+    while (waitpid(-1, NULL, WNOHANG) > 0) {
+        // Reap zombie children
+    }
+}
+
+int main(int argc, char *argv[]) {
+    signal(SIGTERM, signal_handler);
+    signal(SIGINT, signal_handler);
+    signal(SIGCHLD, reap_children);
+    
+    // Fork and exec the main process
+    child_pid = fork();
+    if (child_pid == 0) {
+        execvp(argv[1], &argv[1]);
+    }
+    
+    // Wait for shutdown signal
+    while (!shutdown_requested) {
+        pause();
+    }
+    
+    // Wait for child to exit
+    if (child_pid > 0) {
+        waitpid(child_pid, NULL, 0);
+    }
+    
+    return 0;
+}</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="bash">
+                        <pre>#!/bin/bash
+# Bash-based init with zombie reaping
+
+# Function to reap zombie processes
+reap_zombies() {
+    while true; do
+        # Non-blocking wait for any child process
+        if ! wait -n 2>/dev/null; then
+            # No more child processes
+            break
+        fi
+    done
+}
+
+# Signal handler that reaps zombies
+sigchld_handler() {
+    reap_zombies
+}
+
+# Shutdown signal handler
+shutdown_handler() {
+    echo "Shutting down..."
+    # Kill all child processes
+    kill -TERM 0
+    # Reap any remaining zombies
+    reap_zombies
+    exit 0
+}
+
+# Set up signal handlers
+trap shutdown_handler TERM INT
+trap sigchld_handler CHLD
+
+# Start the main application
+"$@" &
+MAIN_PID=$!
+
+# Monitor for zombie processes
+while kill -0 $MAIN_PID 2>/dev/null; do
+    sleep 1
+done
+
+# Reap any final zombies
+reap_zombies
+
+# Get exit code of main process
+wait $MAIN_PID
+exit $?</pre>
+                    </div>
+
+                    <div class="code-block" data-lang="Dockerfile">
+                        <pre># Testing zombie reaping
+FROM alpine:3.19
+
+# Install tini and test tools
+RUN apk add --no-cache tini ps procfs
+
+# Script that creates zombie processes (for testing)
+RUN cat > /test-zombies.sh << 'EOF'
+#!/bin/sh
+echo "Creating zombie processes..."
+for i in $(seq 1 5); do
+    (sleep 1 && exit 0) &
+done
+sleep 2
+echo "Checking for zombie processes:"
+ps aux | grep -E '(PID|<defunct>|Z)'
+EOF
+
+RUN chmod +x /test-zombies.sh
+
+# Without init system (will create zombies)
+# ENTRYPOINT ["/test-zombies.sh"]
+
+# With tini (will reap zombies)
+ENTRYPOINT ["tini", "--", "/test-zombies.sh"]</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Docker Dockerfile Handbook - 2025 Edition</p>
+            <p>Complete guide to modern container best practices</p>
+            <p>Stay updated with the latest Docker security and performance recommendations</p>
+        </div>
+    </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add copy functionality to code blocks
+        document.querySelectorAll('.code-block').forEach(block => {
+            const button = document.createElement('button');
+            button.innerHTML = 'Copy';
+            button.style.position = 'absolute';
+            button.style.top = '10px';
+            button.style.left = '10px';
+            button.style.background = '#e74c3c';
+            button.style.color = 'white';
+            button.style.border = 'none';
+            button.style.padding = '5px 10px';
+            button.style.borderRadius = '4px';
+            button.style.cursor = 'pointer';
+            button.style.fontSize = '0.8rem';
+            button.style.zIndex = '10';
+            
+            button.addEventListener('click', () => {
+                const text = block.querySelector('pre').textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.innerHTML = 'Copied!';
+                    setTimeout(() => {
+                        button.innerHTML = 'Copy';
+                    }, 2000);
+                });
+            });
+            
+            block.style.position = 'relative';
+            block.appendChild(button);
+        });
+    </script>
+</body>
+</html>

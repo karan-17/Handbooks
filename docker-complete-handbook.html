@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Docker Handbook - From Zero to Production</title>
+    <style>
+        :root {
+            --primary-color: #0db7ed;
+            --primary-dark: #0a9dd6;
+            --secondary-color: #384d54;
+            --accent-color: #ff6b6b;
+            --success-color: #4ecdc4;
+            --warning-color: #ffe66d;
+            --background-color: #ffffff;
+            --surface-color: #f8fafc;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --gradient-primary: linear-gradient(135deg, #0db7ed 0%, #384d54 100%);
+            --gradient-secondary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+        }
+
+        /* Header Styles */
+        .header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="docker-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23docker-grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.95;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .docker-logo {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Navigation */
+        .nav-container {
+            background: white;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px var(--shadow-color);
+        }
+
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+            background-color: var(--surface-color);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Introduction Section */
+        .intro-section {
+            padding: 4rem 0;
+            background: var(--surface-color);
+        }
+
+        .intro-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .intro-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .intro-text p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .intro-features {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 0.7rem 0;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .feature-list li::before {
+            content: '🐳';
+            margin-right: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Table of Contents */
+        .toc-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.8rem;
+            margin-bottom: 3rem;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+        }
+
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .toc-card {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toc-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: var(--gradient-primary);
+        }
+
+        .toc-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 35px var(--shadow-color);
+            border-color: var(--primary-color);
+        }
+
+        .toc-card .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .toc-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .toc-card p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+
+        .toc-card a {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .toc-card a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(13, 183, 237, 0.4);
+        }
+
+        /* Learning Path Section */
+        .learning-path {
+            padding: 4rem 0;
+            background: var(--surface-color);
+        }
+
+        .path-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .path-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px var(--shadow-color);
+            text-align: center;
+        }
+
+        .path-card .path-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .path-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .path-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--text-primary);
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .footer p {
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .header .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .intro-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .toc-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+
+        /* Scroll behavior */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .toc-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .path-card {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <span class="docker-logo">🐳</span>
+            <h1>Complete Docker Handbook</h1>
+            <p class="subtitle">
+                Master Docker from zero to production - Containers, Docker Compose, Docker Hub, 
+                Workflows, Best Practices, and Advanced Orchestration. Complete guide for Windows, macOS, and Linux.
+            </p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav">
+            <div class="nav-brand">
+                <span>🐳</span> Docker Handbook
+            </div>
+            <ul class="nav-links">
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#table-of-contents">Contents</a></li>
+                <li><a href="#learning-path">Learning Path</a></li>
+                <li><a href="#getting-started">Get Started</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Introduction Section -->
+    <section id="introduction" class="intro-section">
+        <div class="container">
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h2>What is Docker?</h2>
+                    <p>
+                        Docker is a revolutionary containerization platform that enables developers to package applications 
+                        and their dependencies into lightweight, portable containers. These containers can run consistently 
+                        across any environment - from development laptops to production servers.
+                    </p>
+                    <p>
+                        This comprehensive handbook covers everything from basic container concepts to advanced production 
+                        orchestration, making you proficient in modern containerized application development and deployment.
+                    </p>
+                </div>
+                <div class="intro-features">
+                    <h3>What You'll Master</h3>
+                    <ul class="feature-list">
+                        <li>Container fundamentals and Docker architecture</li>
+                        <li>Installation on Windows, macOS, and Linux</li>
+                        <li>Docker CLI commands and workflow automation</li>
+                        <li>Dockerfile creation and optimization</li>
+                        <li>Docker Compose for multi-container applications</li>
+                        <li>Docker Hub operations and registry management</li>
+                        <li>Networking, volumes, and persistent storage</li>
+                        <li>Security best practices and vulnerability scanning</li>
+                        <li>Production deployment and orchestration</li>
+                        <li>Troubleshooting and performance optimization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Table of Contents -->
+    <section id="table-of-contents" class="toc-section">
+        <div class="container">
+            <h2 class="section-title">Complete Docker Curriculum</h2>
+            <div class="toc-grid">
+                <div class="toc-card">
+                    <span class="card-icon">📚</span>
+                    <h3>1. Docker Fundamentals</h3>
+                    <p>Core concepts, container vs VM comparison, Docker architecture, and ecosystem overview.</p>
+                    <a href="docker-fundamentals.html">Learn Fundamentals →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">⚙️</span>
+                    <h3>2. Installation & Setup</h3>
+                    <p>Complete installation guides for Windows, macOS, and Linux with troubleshooting and configuration.</p>
+                    <a href="docker-installation.html">Install Docker →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">💻</span>
+                    <h3>3. Docker CLI Commands</h3>
+                    <p>Comprehensive command reference with examples, flags, and practical usage scenarios.</p>
+                    <a href="docker-cli-commands.html">Master CLI →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">📝</span>
+                    <h3>4. Dockerfile & Best Practices</h3>
+                    <p>Creating optimized Dockerfiles, multi-stage builds, layer caching, and security considerations.</p>
+                    <a href="docker-dockerfile.html">Build Images →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🔧</span>
+                    <h3>5. Docker Compose</h3>
+                    <p>Multi-container applications, YAML configuration, service orchestration, and development workflows.</p>
+                    <a href="docker-compose.html">Orchestrate Apps →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🔄</span>
+                    <h3>6. Container Workflows</h3>
+                    <p>Container lifecycle management, data persistence, environment configuration, and automation.</p>
+                    <a href="docker-workflows.html">Manage Containers →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🌐</span>
+                    <h3>7. Docker Hub & Registries</h3>
+                    <p>Pushing/pulling images, registry operations, automated builds, and private registry setup.</p>
+                    <a href="docker-hub.html">Use Registries →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🔗</span>
+                    <h3>8. Networking & Volumes</h3>
+                    <p>Container networking, bridge networks, volumes, bind mounts, and data management strategies.</p>
+                    <a href="docker-networking-volumes.html">Connect Services →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🚀</span>
+                    <h3>9. Multi-stage & Optimization</h3>
+                    <p>Advanced building techniques, image optimization, security scanning, and performance tuning.</p>
+                    <a href="docker-optimization.html">Optimize Images →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🏭</span>
+                    <h3>10. Production Deployment</h3>
+                    <p>Production-ready deployments, orchestration with Kubernetes, monitoring, and scaling strategies.</p>
+                    <a href="docker-production.html">Deploy at Scale →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🔒</span>
+                    <h3>11. Security & Scanning</h3>
+                    <p>Container security best practices, vulnerability scanning, secrets management, and compliance.</p>
+                    <a href="docker-security.html">Secure Containers →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">🔍</span>
+                    <h3>12. Troubleshooting</h3>
+                    <p>Debugging containers, log analysis, performance issues, and common problem resolution.</p>
+                    <a href="docker-troubleshooting.html">Debug Issues →</a>
+                </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">💡</span>
+                    <h3>13. Examples & Use Cases</h3>
+                    <p>Real-world applications, full-stack deployments, microservices, and industry-specific solutions.</p>
+                    <a href="docker-examples.html">See Examples →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Learning Path -->
+    <section id="learning-path" class="learning-path">
+        <div class="container">
+            <h2 class="section-title">Your Docker Learning Journey</h2>
+            <div class="path-grid">
+                <div class="path-card">
+                    <span class="path-icon">🎯</span>
+                    <h4>Beginner Path</h4>
+                    <p>Start with fundamentals → Installation → Basic commands → Simple Dockerfile → Single container apps</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">⚡</span>
+                    <h4>Intermediate Path</h4>
+                    <p>Docker Compose → Multi-container apps → Volumes & Networking → Docker Hub → Basic optimization</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">🏆</span>
+                    <h4>Advanced Path</h4>
+                    <p>Multi-stage builds → Security practices → Production deployment → Orchestration → Monitoring</p>
+                </div>
+
+                <div class="path-card">
+                    <span class="path-icon">🎓</span>
+                    <h4>Expert Path</h4>
+                    <p>Kubernetes integration → Custom solutions → Performance tuning → Enterprise patterns → Teaching others</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Getting Started -->
+    <section id="getting-started" class="intro-section">
+        <div class="container">
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h2>Ready to Containerize?</h2>
+                    <p>
+                        This handbook is designed for developers, DevOps engineers, and system administrators who want to 
+                        master Docker from the ground up. Whether you're new to containers or looking to deepen your 
+                        expertise, each section builds upon the previous to give you comprehensive knowledge.
+                    </p>
+                    <p>
+                        Start with the fundamentals and progress through increasingly advanced topics. By the end, 
+                        you'll be confident deploying containerized applications in any environment.
+                    </p>
+                </div>
+                <div class="intro-features">
+                    <h3>Prerequisites</h3>
+                    <ul class="feature-list">
+                        <li>Basic command line knowledge</li>
+                        <li>Understanding of software development</li>
+                        <li>Familiarity with web applications</li>
+                        <li>Basic networking concepts</li>
+                        <li>Willingness to experiment and learn</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#introduction">Introduction</a>
+                <a href="#table-of-contents">Contents</a>
+                <a href="#learning-path">Learning Path</a>
+                <a href="docker-fundamentals.html">Start Learning</a>
+            </div>
+            <p>&copy; 2024 Complete Docker Handbook. Comprehensive containerization guide for modern development.</p>
+            <p>From zero knowledge to production-ready Docker expertise.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll-based animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe cards for animation
+        document.querySelectorAll('.toc-card, .path-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Add interactive effects
+        document.querySelectorAll('.toc-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.borderColor = 'var(--primary-color)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.borderColor = 'transparent';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -487,6 +487,14 @@
                 <li><a href="#corrective-rag">Corrective RAG</a></li>
                 <li><a href="#agentic-rag">Agentic RAG</a></li>
                 <li><a href="#multimodal">Multi-Modal</a></li>
+                <li><a href="#rag-fusion">RAG-Fusion</a></li>
+                <li><a href="#hyde">HyDE</a></li>
+                <li><a href="#query-rewriting">Query Rewriting</a></li>
+                <li><a href="#multi-hop">Multi-hop Reasoning</a></li>
+                <li><a href="#graph-rag">Graph-enhanced RAG</a></li>
+                <li><a href="#iterative-rag">Iterative RAG</a></li>
+                <li><a href="#modular-rag">Modular RAG</a></li>
+                <li><a href="#long-context">Long-context RAG</a></li>
             </ul>
         </div>
     </nav>
@@ -2874,6 +2882,4832 @@ def multimodal_rag_example():
                     • <strong>Synchronization:</strong> Ensuring modalities are properly aligned and referenced<br>
                     • <strong>Quality Control:</strong> Validating accuracy across different content types<br>
                     • <strong>Cost Considerations:</strong> Multi-modal processing can be expensive at scale
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RAG-Fusion Section -->
+    <section id="rag-fusion" class="content-section">
+        <div class="container">
+            <h2 class="section-title">RAG-Fusion: Query Expansion and Fusion</h2>
+            <p class="content-text">
+                RAG-Fusion enhances retrieval by generating multiple query variations and fusing the results 
+                from different retrieval runs. This approach improves recall and handles ambiguous queries 
+                more effectively by casting a wider net during the retrieval phase.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Key Features</h4>
+                    <ul class="feature-list">
+                        <li>Multi-query generation using LLMs</li>
+                        <li>Parallel retrieval execution</li>
+                        <li>Result fusion and re-ranking</li>
+                        <li>Score normalization</li>
+                        <li>Reciprocal rank fusion (RRF)</li>
+                        <li>Semantic deduplication</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Benefits</h4>
+                    <p>
+                        • <strong>Improved Recall:</strong> Multiple queries capture different aspects<br>
+                        • <strong>Robust Performance:</strong> Less sensitive to query formulation<br>
+                        • <strong>Semantic Coverage:</strong> Better handling of synonyms and variations<br>
+                        • <strong>Ambiguity Resolution:</strong> Multiple perspectives on unclear queries
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">RAG-Fusion Implementation</div>
+                <pre class="code-content">
+import asyncio
+from typing import List, Dict, Any, Tuple
+from dataclasses import dataclass, field
+from collections import defaultdict
+import numpy as np
+import openai
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
+@dataclass
+class SearchResult:
+    """Individual search result with metadata"""
+    content: str
+    score: float
+    source: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def __hash__(self):
+        return hash(self.content[:100])  # Use first 100 chars for hashing
+
+@dataclass
+class FusedResult:
+    """Result after fusion with combined scores"""
+    content: str
+    fused_score: float
+    individual_scores: List[float]
+    sources: List[str]
+    original_ranks: List[int]
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+class QueryGenerator:
+    """Generate multiple query variations for RAG-Fusion"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo", num_variations: int = 4):
+        self.model_name = model_name
+        self.num_variations = num_variations
+        
+    async def generate_query_variations(self, original_query: str) -> List[str]:
+        """Generate multiple variations of the original query"""
+        
+        prompt = f"""
+You are an expert query generator. Given an original query, generate {self.num_variations} 
+different variations that capture the same information need but use different wording, 
+perspectives, or levels of specificity.
+
+Original Query: "{original_query}"
+
+Generate {self.num_variations} query variations:
+1. A more specific version
+2. A more general version  
+3. A version using synonyms/alternative terms
+4. A version from a different perspective
+
+Return only the queries, one per line, without numbering.
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=200
+            )
+            
+            variations = response.choices[0].message.content.strip().split('\n')
+            variations = [q.strip() for q in variations if q.strip()]
+            
+            # Always include the original query
+            all_queries = [original_query] + variations[:self.num_variations]
+            
+            print(f"Generated {len(all_queries)} query variations:")
+            for i, query in enumerate(all_queries):
+                print(f"  {i+1}. {query}")
+                
+            return all_queries
+            
+        except Exception as e:
+            print(f"Query generation failed: {e}")
+            return [original_query]  # Fallback to original query
+
+class ResultFusion:
+    """Fuse results from multiple retrieval runs"""
+    
+    def __init__(self, fusion_method: str = "rrf", k: int = 10):
+        self.fusion_method = fusion_method
+        self.k = k  # Parameter for RRF
+        self.semantic_model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+    def reciprocal_rank_fusion(
+        self, 
+        search_results_list: List[List[SearchResult]], 
+        queries: List[str]
+    ) -> List[FusedResult]:
+        """Apply Reciprocal Rank Fusion to combine results"""
+        
+        # Collect all unique results
+        all_results = {}
+        
+        for query_idx, results in enumerate(search_results_list):
+            for rank, result in enumerate(results):
+                if result.content not in all_results:
+                    all_results[result.content] = {
+                        'result': result,
+                        'scores': [],
+                        'ranks': [],
+                        'queries': []
+                    }
+                
+                # RRF score: 1 / (k + rank)
+                rrf_score = 1.0 / (self.k + rank + 1)
+                all_results[result.content]['scores'].append(rrf_score)
+                all_results[result.content]['ranks'].append(rank + 1)
+                all_results[result.content]['queries'].append(queries[query_idx])
+        
+        # Calculate fused scores
+        fused_results = []
+        for content, data in all_results.items():
+            fused_score = sum(data['scores'])
+            
+            fused_result = FusedResult(
+                content=content,
+                fused_score=fused_score,
+                individual_scores=data['scores'],
+                sources=data['queries'],
+                original_ranks=data['ranks'],
+                metadata=data['result'].metadata
+            )
+            fused_results.append(fused_result)
+        
+        # Sort by fused score
+        fused_results.sort(key=lambda x: x.fused_score, reverse=True)
+        
+        print(f"Fused {len(fused_results)} unique results from {len(search_results_list)} queries")
+        return fused_results
+    
+    def semantic_deduplication(
+        self, 
+        results: List[FusedResult], 
+        similarity_threshold: float = 0.85
+    ) -> List[FusedResult]:
+        """Remove semantically similar results"""
+        
+        if not results:
+            return results
+            
+        # Get embeddings for all results
+        contents = [r.content for r in results]
+        embeddings = self.semantic_model.encode(contents)
+        
+        # Calculate similarity matrix
+        similarity_matrix = cosine_similarity(embeddings)
+        
+        # Keep track of which results to keep
+        keep_indices = []
+        removed_indices = set()
+        
+        for i, result in enumerate(results):
+            if i in removed_indices:
+                continue
+                
+            keep_indices.append(i)
+            
+            # Find similar results to remove
+            for j in range(i + 1, len(results)):
+                if j not in removed_indices and similarity_matrix[i][j] > similarity_threshold:
+                    removed_indices.add(j)
+                    # Merge scores from similar results
+                    results[i].fused_score += results[j].fused_score * 0.5
+        
+        deduplicated = [results[i] for i in keep_indices]
+        
+        print(f"Deduplicated from {len(results)} to {len(deduplicated)} results "
+              f"(threshold: {similarity_threshold})")
+        
+        return deduplicated
+
+class RAGFusionRetriever:
+    """Main RAG-Fusion retrieval system"""
+    
+    def __init__(
+        self, 
+        base_retriever,  # Your existing retriever
+        query_generator: QueryGenerator = None,
+        result_fusion: ResultFusion = None,
+        max_results_per_query: int = 20
+    ):
+        self.base_retriever = base_retriever
+        self.query_generator = query_generator or QueryGenerator()
+        self.result_fusion = result_fusion or ResultFusion()
+        self.max_results_per_query = max_results_per_query
+    
+    async def retrieve_with_fusion(
+        self, 
+        query: str, 
+        top_k: int = 10,
+        enable_deduplication: bool = True
+    ) -> List[FusedResult]:
+        """Perform RAG-Fusion retrieval"""
+        
+        print(f"Starting RAG-Fusion retrieval for: '{query}'")
+        
+        # Step 1: Generate query variations
+        queries = await self.query_generator.generate_query_variations(query)
+        
+        # Step 2: Perform parallel retrieval
+        search_results_list = await self._parallel_retrieval(queries)
+        
+        # Step 3: Fuse results
+        fused_results = self.result_fusion.reciprocal_rank_fusion(
+            search_results_list, queries
+        )
+        
+        # Step 4: Optional semantic deduplication
+        if enable_deduplication:
+            fused_results = self.result_fusion.semantic_deduplication(fused_results)
+        
+        # Step 5: Return top-k results
+        final_results = fused_results[:top_k]
+        
+        print(f"Final fusion results: {len(final_results)} documents")
+        return final_results
+    
+    async def _parallel_retrieval(
+        self, 
+        queries: List[str]
+    ) -> List[List[SearchResult]]:
+        """Execute parallel retrieval for all queries"""
+        
+        tasks = []
+        for query in queries:
+            task = self._retrieve_single_query(query)
+            tasks.append(task)
+        
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Handle any exceptions
+        valid_results = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                print(f"Query {i+1} failed: {result}")
+                valid_results.append([])  # Empty results for failed query
+            else:
+                valid_results.append(result)
+        
+        return valid_results
+    
+    async def _retrieve_single_query(self, query: str) -> List[SearchResult]:
+        """Retrieve results for a single query"""
+        
+        try:
+            # Use your existing retriever here
+            # This is a placeholder - replace with your actual retriever
+            raw_results = await self.base_retriever.search(
+                query, 
+                limit=self.max_results_per_query
+            )
+            
+            # Convert to SearchResult objects
+            search_results = []
+            for i, result in enumerate(raw_results):
+                search_result = SearchResult(
+                    content=result.get('content', ''),
+                    score=result.get('score', 0.0),
+                    source=result.get('source', f'doc_{i}'),
+                    metadata=result.get('metadata', {})
+                )
+                search_results.append(search_result)
+            
+            return search_results
+            
+        except Exception as e:
+            print(f"Single query retrieval failed for '{query}': {e}")
+            return []
+
+# Example usage and integration
+async def rag_fusion_example():
+    """Example usage of RAG-Fusion"""
+    
+    # Initialize components
+    query_generator = QueryGenerator(num_variations=3)
+    result_fusion = ResultFusion(fusion_method="rrf", k=10)
+    
+    # Your existing retriever (placeholder)
+    class MockRetriever:
+        async def search(self, query: str, limit: int = 20):
+            # Mock results - replace with your actual retriever
+            return [
+                {
+                    'content': f'Result {i} for query: {query}',
+                    'score': 1.0 - (i * 0.1),
+                    'source': f'doc_{i}',
+                    'metadata': {'query': query}
+                }
+                for i in range(min(limit, 10))
+            ]
+    
+    base_retriever = MockRetriever()
+    
+    # Initialize RAG-Fusion retriever
+    fusion_retriever = RAGFusionRetriever(
+        base_retriever=base_retriever,
+        query_generator=query_generator,
+        result_fusion=result_fusion
+    )
+    
+    # Perform fusion retrieval
+    query = "What are the latest developments in artificial intelligence?"
+    results = await fusion_retriever.retrieve_with_fusion(
+        query=query,
+        top_k=5,
+        enable_deduplication=True
+    )
+    
+    # Display results
+    print(f"\nTop {len(results)} fused results:")
+    for i, result in enumerate(results):
+        print(f"\n{i+1}. Score: {result.fused_score:.3f}")
+        print(f"   Content: {result.content[:100]}...")
+        print(f"   Sources: {len(result.sources)} queries")
+        print(f"   Original ranks: {result.original_ranks}")
+    
+    return results
+
+# Integration with LangChain
+def create_langchain_rag_fusion():
+    """Create RAG-Fusion retriever for LangChain integration"""
+    
+    from langchain.schema import BaseRetriever, Document
+    
+    class LangChainRAGFusion(BaseRetriever):
+        def __init__(self, fusion_retriever: RAGFusionRetriever):
+            self.fusion_retriever = fusion_retriever
+        
+        def get_relevant_documents(self, query: str) -> List[Document]:
+            """Synchronous interface for LangChain"""
+            
+            # Run async method
+            loop = asyncio.get_event_loop()
+            results = loop.run_until_complete(
+                self.fusion_retriever.retrieve_with_fusion(query)
+            )
+            
+            # Convert to LangChain Documents
+            documents = []
+            for result in results:
+                doc = Document(
+                    page_content=result.content,
+                    metadata={
+                        'fused_score': result.fused_score,
+                        'sources': result.sources,
+                        'original_ranks': result.original_ranks,
+                        **result.metadata
+                    }
+                )
+                documents.append(doc)
+            
+            return documents
+        
+        async def aget_relevant_documents(self, query: str) -> List[Document]:
+            """Async interface for LangChain"""
+            
+            results = await self.fusion_retriever.retrieve_with_fusion(query)
+            
+            documents = []
+            for result in results:
+                doc = Document(
+                    page_content=result.content,
+                    metadata={
+                        'fused_score': result.fused_score,
+                        'sources': result.sources,
+                        'original_ranks': result.original_ranks,
+                        **result.metadata
+                    }
+                )
+                documents.append(doc)
+            
+            return documents
+    
+    return LangChainRAGFusion
+
+# Performance evaluation
+class RAGFusionEvaluator:
+    """Evaluate RAG-Fusion performance"""
+    
+    def __init__(self, fusion_retriever: RAGFusionRetriever):
+        self.fusion_retriever = fusion_retriever
+    
+    async def evaluate_recall_improvement(
+        self, 
+        test_queries: List[str],
+        ground_truth_docs: List[List[str]],
+        k_values: List[int] = [5, 10, 20]
+    ) -> Dict[str, float]:
+        """Evaluate recall improvement over baseline"""
+        
+        results = {}
+        
+        for k in k_values:
+            fusion_recall_scores = []
+            baseline_recall_scores = []
+            
+            for query, gt_docs in zip(test_queries, ground_truth_docs):
+                # RAG-Fusion retrieval
+                fusion_results = await self.fusion_retriever.retrieve_with_fusion(
+                    query, top_k=k
+                )
+                fusion_docs = {r.content for r in fusion_results}
+                
+                # Baseline retrieval (single query)
+                baseline_results = await self.fusion_retriever._retrieve_single_query(query)
+                baseline_docs = {r.content for r in baseline_results[:k]}
+                
+                # Calculate recall
+                gt_set = set(gt_docs)
+                fusion_recall = len(fusion_docs.intersection(gt_set)) / len(gt_set)
+                baseline_recall = len(baseline_docs.intersection(gt_set)) / len(gt_set)
+                
+                fusion_recall_scores.append(fusion_recall)
+                baseline_recall_scores.append(baseline_recall)
+            
+            avg_fusion_recall = np.mean(fusion_recall_scores)
+            avg_baseline_recall = np.mean(baseline_recall_scores)
+            
+            results[f'fusion_recall@{k}'] = avg_fusion_recall
+            results[f'baseline_recall@{k}'] = avg_baseline_recall
+            results[f'improvement@{k}'] = avg_fusion_recall - avg_baseline_recall
+        
+        return results
+
+if __name__ == "__main__":
+    # Run example
+    asyncio.run(rag_fusion_example())
+                </pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>RAG-Fusion Best Practices</h4>
+                <p>
+                    • <strong>Query Quality:</strong> Generate diverse, high-quality query variations<br>
+                    • <strong>Fusion Parameters:</strong> Tune RRF k-parameter based on your use case<br>
+                    • <strong>Computational Cost:</strong> Balance number of queries with latency requirements<br>
+                    • <strong>Deduplication:</strong> Use semantic similarity to avoid redundant results<br>
+                    • <strong>Result Ranking:</strong> Consider domain-specific ranking adjustments
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HyDE Section -->
+    <section id="hyde" class="content-section">
+        <div class="container">
+            <h2 class="section-title">HyDE: Hypothetical Document Embeddings</h2>
+            <p class="content-text">
+                HyDE (Hypothetical Document Embeddings) generates hypothetical answers to queries before 
+                retrieval, then uses these generated documents to find semantically similar real documents. 
+                This approach bridges the gap between query language and document language.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>HyDE Process</h4>
+                    <ul class="feature-list">
+                        <li>Generate hypothetical document</li>
+                        <li>Embed hypothetical content</li>
+                        <li>Search using hypothetical embeddings</li>
+                        <li>Retrieve semantically similar documents</li>
+                        <li>Generate final answer from retrieved docs</li>
+                        <li>Optional: hybrid scoring</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Advantages</h4>
+                    <p>
+                        • <strong>Language Bridge:</strong> Connects query style to document style<br>
+                        • <strong>Semantic Matching:</strong> Better handling of conceptual similarities<br>
+                        • <strong>Zero-shot:</strong> Works without training data<br>
+                        • <strong>Domain Adaptation:</strong> Adapts to specific domains naturally
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">HyDE Implementation</div>
+                <pre class="code-content">
+import asyncio
+import numpy as np
+from typing import List, Dict, Any, Optional, Union
+from dataclasses import dataclass
+from sentence_transformers import SentenceTransformer
+import openai
+from sklearn.metrics.pairwise import cosine_similarity
+
+@dataclass
+class HyDEResult:
+    """Result from HyDE retrieval"""
+    content: str
+    score: float
+    source: str
+    hyde_score: float  # Score from hypothetical document matching
+    direct_score: float  # Direct query-document score
+    hybrid_score: float  # Combined score
+    metadata: Dict[str, Any]
+
+class HypotheticalDocumentGenerator:
+    """Generate hypothetical documents for queries"""
+    
+    def __init__(
+        self, 
+        model_name: str = "gpt-3.5-turbo",
+        temperature: float = 0.7,
+        max_tokens: int = 500
+    ):
+        self.model_name = model_name
+        self.temperature = temperature
+        self.max_tokens = max_tokens
+        
+    async def generate_hypothetical_document(
+        self, 
+        query: str, 
+        domain_context: str = "",
+        document_type: str = "informative"
+    ) -> str:
+        """Generate a hypothetical document that would answer the query"""
+        
+        # Customize prompt based on document type
+        if document_type == "academic":
+            style_instruction = "Write in an academic style with technical terminology and formal language."
+        elif document_type == "technical":
+            style_instruction = "Write in a technical documentation style with precise details and examples."
+        elif document_type == "conversational":
+            style_instruction = "Write in a conversational, easy-to-understand style."
+        else:
+            style_instruction = "Write in a clear, informative style suitable for general audiences."
+        
+        domain_prompt = f"\nContext: {domain_context}" if domain_context else ""
+        
+        prompt = f"""
+You are an expert content generator. Your task is to write a hypothetical document that would 
+perfectly answer the following query. The document should contain the type of information 
+someone would be looking for when asking this question.
+
+Query: "{query}"{domain_prompt}
+
+Instructions:
+1. {style_instruction}
+2. Include specific details, examples, and explanations
+3. Structure the content logically
+4. Make it comprehensive but focused on the query
+5. Write as if this document exists in a knowledge base
+
+Generate the hypothetical document:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens
+            )
+            
+            hypothetical_doc = response.choices[0].message.content.strip()
+            
+            print(f"Generated hypothetical document ({len(hypothetical_doc)} chars)")
+            print(f"Preview: {hypothetical_doc[:150]}...")
+            
+            return hypothetical_doc
+            
+        except Exception as e:
+            print(f"Hypothetical document generation failed: {e}")
+            # Fallback to query expansion
+            return f"Document about {query}: This document provides comprehensive information about {query}, including detailed explanations, examples, and practical applications."
+
+class HyDERetriever:
+    """HyDE-based retrieval system"""
+    
+    def __init__(
+        self,
+        base_retriever,  # Your existing vector store retriever
+        doc_generator: HypotheticalDocumentGenerator,
+        embedding_model: str = "all-MiniLM-L6-v2",
+        hybrid_weight: float = 0.7  # Weight for HyDE vs direct retrieval
+    ):
+        self.base_retriever = base_retriever
+        self.doc_generator = doc_generator
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.hybrid_weight = hybrid_weight
+        
+    async def retrieve_with_hyde(
+        self,
+        query: str,
+        top_k: int = 10,
+        domain_context: str = "",
+        document_type: str = "informative",
+        use_hybrid: bool = True
+    ) -> List[HyDEResult]:
+        """Perform HyDE retrieval"""
+        
+        print(f"Starting HyDE retrieval for: '{query}'")
+        
+        # Step 1: Generate hypothetical document
+        hypothetical_doc = await self.doc_generator.generate_hypothetical_document(
+            query=query,
+            domain_context=domain_context,
+            document_type=document_type
+        )
+        
+        # Step 2: Retrieve using hypothetical document
+        hyde_results = await self._retrieve_with_hypothetical(
+            hypothetical_doc, top_k * 2  # Get more results for hybrid scoring
+        )
+        
+        # Step 3: Optional hybrid scoring
+        if use_hybrid:
+            direct_results = await self._retrieve_direct(query, top_k * 2)
+            final_results = self._combine_hybrid_scores(
+                query, hypothetical_doc, hyde_results, direct_results
+            )
+        else:
+            final_results = hyde_results
+        
+        # Step 4: Return top-k results
+        final_results = sorted(final_results, key=lambda x: x.hybrid_score, reverse=True)
+        return final_results[:top_k]
+    
+    async def _retrieve_with_hypothetical(
+        self, 
+        hypothetical_doc: str, 
+        limit: int
+    ) -> List[HyDEResult]:
+        """Retrieve documents using hypothetical document as query"""
+        
+        try:
+            # Use the hypothetical document as the search query
+            raw_results = await self.base_retriever.search(
+                hypothetical_doc, 
+                limit=limit
+            )
+            
+            results = []
+            for result in raw_results:
+                hyde_result = HyDEResult(
+                    content=result.get('content', ''),
+                    score=result.get('score', 0.0),
+                    source=result.get('source', ''),
+                    hyde_score=result.get('score', 0.0),
+                    direct_score=0.0,  # Will be calculated if hybrid mode is used
+                    hybrid_score=result.get('score', 0.0),
+                    metadata=result.get('metadata', {})
+                )
+                results.append(hyde_result)
+            
+            return results
+            
+        except Exception as e:
+            print(f"Hypothetical document retrieval failed: {e}")
+            return []
+    
+    async def _retrieve_direct(self, query: str, limit: int) -> List[Dict[str, Any]]:
+        """Direct retrieval using original query"""
+        
+        try:
+            return await self.base_retriever.search(query, limit=limit)
+        except Exception as e:
+            print(f"Direct retrieval failed: {e}")
+            return []
+    
+    def _combine_hybrid_scores(
+        self,
+        original_query: str,
+        hypothetical_doc: str,
+        hyde_results: List[HyDEResult],
+        direct_results: List[Dict[str, Any]]
+    ) -> List[HyDEResult]:
+        """Combine HyDE and direct retrieval scores"""
+        
+        # Create mapping of content to direct scores
+        direct_scores = {}
+        for result in direct_results:
+            content = result.get('content', '')
+            direct_scores[content] = result.get('score', 0.0)
+        
+        # Update HyDE results with hybrid scores
+        hybrid_results = []
+        for hyde_result in hyde_results:
+            content = hyde_result.content
+            
+            # Get direct score (0 if not found in direct results)
+            direct_score = direct_scores.get(content, 0.0)
+            
+            # Calculate hybrid score
+            hybrid_score = (
+                self.hybrid_weight * hyde_result.hyde_score +
+                (1 - self.hybrid_weight) * direct_score
+            )
+            
+            # Update result
+            hyde_result.direct_score = direct_score
+            hyde_result.hybrid_score = hybrid_score
+            
+            hybrid_results.append(hyde_result)
+        
+        # Add results that were only found in direct retrieval
+        hyde_contents = {r.content for r in hyde_results}
+        for result in direct_results:
+            content = result.get('content', '')
+            if content not in hyde_contents:
+                hybrid_result = HyDEResult(
+                    content=content,
+                    score=result.get('score', 0.0),
+                    source=result.get('source', ''),
+                    hyde_score=0.0,
+                    direct_score=result.get('score', 0.0),
+                    hybrid_score=(1 - self.hybrid_weight) * result.get('score', 0.0),
+                    metadata=result.get('metadata', {})
+                )
+                hybrid_results.append(hybrid_result)
+        
+        print(f"Combined {len(hyde_results)} HyDE + {len(direct_results)} direct = {len(hybrid_results)} hybrid results")
+        
+        return hybrid_results
+
+class AdaptiveHyDE:
+    """Adaptive HyDE that learns from feedback"""
+    
+    def __init__(self, base_hyde_retriever: HyDERetriever):
+        self.base_retriever = base_hyde_retriever
+        self.performance_history = {}
+        self.domain_templates = {
+            "technical": "This technical document explains {topic} with detailed implementation examples and best practices.",
+            "academic": "This research paper investigates {topic} through systematic analysis and empirical evaluation.",
+            "business": "This business analysis examines {topic} and its impact on organizational strategy and operations.",
+            "medical": "This medical reference describes {topic} including symptoms, diagnosis, and treatment approaches."
+        }
+    
+    async def adaptive_retrieve(
+        self,
+        query: str,
+        top_k: int = 10,
+        auto_detect_domain: bool = True
+    ) -> List[HyDEResult]:
+        """Perform adaptive HyDE retrieval with domain detection"""
+        
+        # Detect domain if requested
+        if auto_detect_domain:
+            domain = await self._detect_query_domain(query)
+            document_type = domain
+        else:
+            domain = "general"
+            document_type = "informative"
+        
+        print(f"Detected domain: {domain}")
+        
+        # Generate domain-specific hypothetical document
+        if domain in self.domain_templates:
+            template = self.domain_templates[domain]
+            domain_context = template.format(topic=query)
+        else:
+            domain_context = ""
+        
+        # Perform HyDE retrieval
+        results = await self.base_retriever.retrieve_with_hyde(
+            query=query,
+            top_k=top_k,
+            domain_context=domain_context,
+            document_type=document_type
+        )
+        
+        # Store performance metrics
+        self._update_performance_history(query, domain, len(results))
+        
+        return results
+    
+    async def _detect_query_domain(self, query: str) -> str:
+        """Detect the domain of a query using LLM"""
+        
+        prompt = f"""
+Analyze the following query and determine its primary domain category.
+
+Query: "{query}"
+
+Choose the most appropriate domain from:
+- technical: Programming, software, engineering, IT
+- academic: Research, scientific, theoretical concepts
+- business: Strategy, management, finance, marketing
+- medical: Health, medicine, treatments, symptoms
+- legal: Law, regulations, compliance, contracts
+- general: General knowledge, everyday topics
+
+Return only the domain name (one word).
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=10
+            )
+            
+            domain = response.choices[0].message.content.strip().lower()
+            return domain if domain in self.domain_templates else "general"
+            
+        except Exception as e:
+            print(f"Domain detection failed: {e}")
+            return "general"
+    
+    def _update_performance_history(self, query: str, domain: str, num_results: int):
+        """Update performance tracking"""
+        
+        if domain not in self.performance_history:
+            self.performance_history[domain] = {
+                'queries': 0,
+                'avg_results': 0.0,
+                'success_rate': 0.0
+            }
+        
+        history = self.performance_history[domain]
+        history['queries'] += 1
+        
+        # Update rolling average
+        alpha = 0.1  # Learning rate
+        history['avg_results'] = (
+            (1 - alpha) * history['avg_results'] + 
+            alpha * num_results
+        )
+        
+        # Success if we got results
+        success = 1.0 if num_results > 0 else 0.0
+        history['success_rate'] = (
+            (1 - alpha) * history['success_rate'] + 
+            alpha * success
+        )
+
+# Multi-perspective HyDE
+class MultiPerspectiveHyDE:
+    """Generate multiple hypothetical documents from different perspectives"""
+    
+    def __init__(self, base_retriever, doc_generator: HypotheticalDocumentGenerator):
+        self.base_retriever = base_retriever
+        self.doc_generator = doc_generator
+        
+    async def multi_perspective_retrieve(
+        self,
+        query: str,
+        perspectives: List[str] = None,
+        top_k: int = 10
+    ) -> List[HyDEResult]:
+        """Retrieve using multiple perspective hypothetical documents"""
+        
+        if perspectives is None:
+            perspectives = [
+                "technical expert explaining the topic",
+                "beginner asking for simple explanation", 
+                "researcher providing comprehensive analysis",
+                "practitioner sharing real-world experience"
+            ]
+        
+        print(f"Generating {len(perspectives)} perspective documents")
+        
+        # Generate hypothetical documents from different perspectives
+        perspective_docs = []
+        for perspective in perspectives:
+            doc = await self.doc_generator.generate_hypothetical_document(
+                query=query,
+                domain_context=f"Write from the perspective of a {perspective}",
+                document_type="informative"
+            )
+            perspective_docs.append(doc)
+        
+        # Retrieve using each perspective document
+        all_results = []
+        for i, doc in enumerate(perspective_docs):
+            results = await self._retrieve_with_doc(doc, top_k)
+            
+            # Add perspective metadata
+            for result in results:
+                result.metadata['perspective'] = perspectives[i]
+                result.metadata['perspective_index'] = i
+            
+            all_results.extend(results)
+        
+        # Deduplicate and rank
+        final_results = self._deduplicate_and_rank(all_results)
+        
+        return final_results[:top_k]
+    
+    async def _retrieve_with_doc(self, doc: str, limit: int) -> List[HyDEResult]:
+        """Helper to retrieve with a specific document"""
+        
+        try:
+            raw_results = await self.base_retriever.search(doc, limit=limit)
+            
+            results = []
+            for result in raw_results:
+                hyde_result = HyDEResult(
+                    content=result.get('content', ''),
+                    score=result.get('score', 0.0),
+                    source=result.get('source', ''),
+                    hyde_score=result.get('score', 0.0),
+                    direct_score=0.0,
+                    hybrid_score=result.get('score', 0.0),
+                    metadata=result.get('metadata', {})
+                )
+                results.append(hyde_result)
+            
+            return results
+            
+        except Exception as e:
+            print(f"Document retrieval failed: {e}")
+            return []
+    
+    def _deduplicate_and_rank(self, all_results: List[HyDEResult]) -> List[HyDEResult]:
+        """Remove duplicates and rank by aggregated scores"""
+        
+        # Group by content
+        content_groups = {}
+        for result in all_results:
+            if result.content not in content_groups:
+                content_groups[result.content] = []
+            content_groups[result.content].append(result)
+        
+        # Aggregate scores for each unique content
+        deduplicated = []
+        for content, results in content_groups.items():
+            # Take the highest scoring result as base
+            best_result = max(results, key=lambda x: x.hyde_score)
+            
+            # Aggregate scores from all perspectives
+            total_score = sum(r.hyde_score for r in results)
+            avg_score = total_score / len(results)
+            
+            # Update with aggregated score
+            best_result.hybrid_score = avg_score
+            best_result.metadata['perspectives_count'] = len(results)
+            best_result.metadata['total_score'] = total_score
+            
+            deduplicated.append(best_result)
+        
+        # Sort by aggregated score
+        deduplicated.sort(key=lambda x: x.hybrid_score, reverse=True)
+        
+        print(f"Deduplicated {len(all_results)} -> {len(deduplicated)} results")
+        
+        return deduplicated
+
+# Example usage and evaluation
+async def hyde_example():
+    """Example usage of HyDE"""
+    
+    # Mock retriever for demonstration
+    class MockRetriever:
+        async def search(self, query: str, limit: int = 20):
+            # Simulate document retrieval
+            return [
+                {
+                    'content': f'Document {i} about {query[:30]}...',
+                    'score': 1.0 - (i * 0.1),
+                    'source': f'doc_{i}',
+                    'metadata': {'index': i}
+                }
+                for i in range(min(limit, 10))
+            ]
+    
+    # Initialize components
+    base_retriever = MockRetriever()
+    doc_generator = HypotheticalDocumentGenerator()
+    
+    # Standard HyDE
+    hyde_retriever = HyDERetriever(
+        base_retriever=base_retriever,
+        doc_generator=doc_generator,
+        hybrid_weight=0.7
+    )
+    
+    # Perform HyDE retrieval
+    query = "How to implement transformer attention mechanisms?"
+    results = await hyde_retriever.retrieve_with_hyde(
+        query=query,
+        top_k=5,
+        domain_context="machine learning and neural networks",
+        document_type="technical"
+    )
+    
+    print(f"\nHyDE Results for: '{query}'")
+    for i, result in enumerate(results):
+        print(f"\n{i+1}. Hybrid Score: {result.hybrid_score:.3f}")
+        print(f"   HyDE Score: {result.hyde_score:.3f}, Direct: {result.direct_score:.3f}")
+        print(f"   Content: {result.content[:100]}...")
+    
+    # Adaptive HyDE
+    adaptive_hyde = AdaptiveHyDE(hyde_retriever)
+    adaptive_results = await adaptive_hyde.adaptive_retrieve(query, top_k=3)
+    
+    print(f"\nAdaptive HyDE Results: {len(adaptive_results)} documents")
+    
+    # Multi-perspective HyDE
+    mp_hyde = MultiPerspectiveHyDE(base_retriever, doc_generator)
+    mp_results = await mp_hyde.multi_perspective_retrieve(query, top_k=3)
+    
+    print(f"\nMulti-perspective HyDE Results: {len(mp_results)} documents")
+    
+    return results
+
+if __name__ == "__main__":
+    asyncio.run(hyde_example())
+                </pre>
+            </div>
+
+            <div class="info-box">
+                <h4>HyDE Performance Tips</h4>
+                <p>
+                    • <strong>Prompt Engineering:</strong> Customize hypothetical document generation for your domain<br>
+                    • <strong>Hybrid Scoring:</strong> Balance HyDE and direct retrieval based on query types<br>
+                    • <strong>Multi-perspective:</strong> Use different viewpoints for comprehensive coverage<br>
+                    • <strong>Domain Adaptation:</strong> Adapt document style to match your corpus<br>
+                    • <strong>Quality Control:</strong> Monitor hypothetical document quality regularly
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Query Rewriting and Expansion Section -->
+    <section id="query-rewriting" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Query Rewriting and Expansion</h2>
+            <p class="content-text">
+                Query rewriting and expansion techniques transform user queries to improve retrieval 
+                performance. These methods address vocabulary mismatches, clarify intent, and expand 
+                queries with relevant terms to increase recall and precision.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Techniques</h4>
+                    <ul class="feature-list">
+                        <li>Term expansion with synonyms</li>
+                        <li>Context-aware rewriting</li>
+                        <li>Intent clarification</li>
+                        <li>Domain-specific expansion</li>
+                        <li>Multi-step rewriting chains</li>
+                        <li>Neural query reformulation</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Benefits</h4>
+                    <p>
+                        • <strong>Better Recall:</strong> Expanded terms find more relevant documents<br>
+                        • <strong>Intent Clarity:</strong> Rewritten queries better capture user needs<br>
+                        • <strong>Domain Adaptation:</strong> Context-specific terminology handling<br>
+                        • <strong>Robustness:</strong> Handle various query formulations effectively
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Query Rewriting Implementation</div>
+                <pre class="code-content">
+import asyncio
+import re
+from typing import List, Dict, Set, Optional, Tuple, Any
+from dataclasses import dataclass, field
+from collections import defaultdict, Counter
+import openai
+from sentence_transformers import SentenceTransformer
+import nltk
+from nltk.corpus import wordnet
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+import spacy
+
+# Download required NLTK data
+try:
+    nltk.data.find('tokenizers/punkt')
+    nltk.data.find('corpora/wordnet')
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('punkt')
+    nltk.download('wordnet')
+    nltk.download('stopwords')
+
+@dataclass
+class RewrittenQuery:
+    """Container for a rewritten query with metadata"""
+    original_query: str
+    rewritten_query: str
+    rewrite_type: str
+    confidence: float
+    expanded_terms: List[str] = field(default_factory=list)
+    removed_terms: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class QueryExpansion:
+    """Container for query expansion results"""
+    original_query: str
+    expanded_query: str
+    expansion_terms: List[str]
+    expansion_sources: List[str]  # Source of each expansion term
+    confidence_scores: List[float]
+
+class TermExpander:
+    """Expand queries with synonyms and related terms"""
+    
+    def __init__(self):
+        self.stop_words = set(stopwords.words('english'))
+        try:
+            # Load spaCy model for better linguistic processing
+            self.nlp = spacy.load('en_core_web_sm')
+        except OSError:
+            print("spaCy model not found. Install with: python -m spacy download en_core_web_sm")
+            self.nlp = None
+    
+    def expand_with_wordnet(self, query: str, max_synonyms: int = 3) -> QueryExpansion:
+        """Expand query using WordNet synonyms"""
+        
+        tokens = word_tokenize(query.lower())
+        tokens = [token for token in tokens if token.isalnum() and token not in self.stop_words]
+        
+        expansion_terms = []
+        expansion_sources = []
+        confidence_scores = []
+        
+        for token in tokens:
+            synonyms = set()
+            
+            # Get synonyms from WordNet
+            for syn in wordnet.synsets(token):
+                for lemma in syn.lemmas():
+                    synonym = lemma.name().replace('_', ' ')
+                    if synonym != token and len(synonym) > 2:
+                        synonyms.add(synonym)
+            
+            # Add top synonyms
+            for synonym in list(synonyms)[:max_synonyms]:
+                expansion_terms.append(synonym)
+                expansion_sources.append('wordnet')
+                confidence_scores.append(0.7)  # Base confidence for WordNet
+        
+        # Build expanded query
+        expanded_query = query
+        if expansion_terms:
+            expanded_query += " " + " ".join(expansion_terms)
+        
+        return QueryExpansion(
+            original_query=query,
+            expanded_query=expanded_query,
+            expansion_terms=expansion_terms,
+            expansion_sources=expansion_sources,
+            confidence_scores=confidence_scores
+        )
+    
+    def expand_with_embeddings(
+        self, 
+        query: str, 
+        corpus_terms: List[str],
+        similarity_threshold: float = 0.7,
+        max_expansions: int = 5
+    ) -> QueryExpansion:
+        """Expand query using semantic similarity with corpus terms"""
+        
+        if not hasattr(self, 'embedding_model'):
+            self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+        
+        # Get query embedding
+        query_embedding = self.embedding_model.encode([query])
+        
+        # Get embeddings for corpus terms
+        term_embeddings = self.embedding_model.encode(corpus_terms)
+        
+        # Calculate similarities
+        from sklearn.metrics.pairwise import cosine_similarity
+        similarities = cosine_similarity(query_embedding, term_embeddings)[0]
+        
+        # Find similar terms
+        expansion_terms = []
+        expansion_sources = []
+        confidence_scores = []
+        
+        for i, similarity in enumerate(similarities):
+            if similarity > similarity_threshold:
+                term = corpus_terms[i]
+                if term.lower() not in query.lower():  # Don't add terms already in query
+                    expansion_terms.append(term)
+                    expansion_sources.append('embeddings')
+                    confidence_scores.append(float(similarity))
+        
+        # Sort by similarity and take top expansions
+        sorted_expansions = sorted(
+            zip(expansion_terms, expansion_sources, confidence_scores),
+            key=lambda x: x[2], reverse=True
+        )[:max_expansions]
+        
+        if sorted_expansions:
+            expansion_terms, expansion_sources, confidence_scores = zip(*sorted_expansions)
+            expansion_terms = list(expansion_terms)
+            expansion_sources = list(expansion_sources)
+            confidence_scores = list(confidence_scores)
+        else:
+            expansion_terms, expansion_sources, confidence_scores = [], [], []
+        
+        # Build expanded query
+        expanded_query = query
+        if expansion_terms:
+            expanded_query += " " + " ".join(expansion_terms)
+        
+        return QueryExpansion(
+            original_query=query,
+            expanded_query=expanded_query,
+            expansion_terms=expansion_terms,
+            expansion_sources=expansion_sources,
+            confidence_scores=confidence_scores
+        )
+
+class IntentClassifier:
+    """Classify query intent to guide rewriting strategy"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+        self.intent_patterns = {
+            'definition': ['what is', 'define', 'meaning of', 'definition'],
+            'howto': ['how to', 'how do', 'steps to', 'guide to', 'tutorial'],
+            'comparison': ['vs', 'versus', 'compare', 'difference between', 'better than'],
+            'factual': ['when', 'where', 'who', 'which', 'list of'],
+            'explanation': ['why', 'explain', 'reason for', 'cause of'],
+            'troubleshooting': ['error', 'problem', 'issue', 'fix', 'solve', 'troubleshoot']
+        }
+    
+    def classify_intent(self, query: str) -> Tuple[str, float]:
+        """Classify query intent using pattern matching and LLM"""
+        
+        query_lower = query.lower()
+        
+        # Pattern-based classification
+        intent_scores = {}
+        for intent, patterns in self.intent_patterns.items():
+            score = sum(1 for pattern in patterns if pattern in query_lower)
+            if score > 0:
+                intent_scores[intent] = score
+        
+        if intent_scores:
+            best_intent = max(intent_scores, key=intent_scores.get)
+            confidence = min(intent_scores[best_intent] / len(self.intent_patterns[best_intent]), 1.0)
+            return best_intent, confidence
+        
+        # Fallback to general intent
+        return 'general', 0.5
+    
+    async def classify_with_llm(self, query: str) -> Tuple[str, float]:
+        """Use LLM for more sophisticated intent classification"""
+        
+        prompt = f"""
+Analyze the following query and classify its intent. Choose the most appropriate category:
+
+Query: "{query}"
+
+Intent categories:
+- definition: Asking for definitions or meanings
+- howto: Seeking instructions or procedures
+- comparison: Comparing items or concepts
+- factual: Requesting factual information
+- explanation: Seeking explanations or reasoning
+- troubleshooting: Solving problems or errors
+- general: General information seeking
+
+Return only the intent category name and confidence (0.0-1.0) in format: "intent_name confidence_score"
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=20
+            )
+            
+            result = response.choices[0].message.content.strip().split()
+            intent = result[0] if result else 'general'
+            confidence = float(result[1]) if len(result) > 1 else 0.5
+            
+            return intent, confidence
+            
+        except Exception as e:
+            print(f"LLM intent classification failed: {e}")
+            return self.classify_intent(query)
+
+class ContextualRewriter:
+    """Rewrite queries based on context and intent"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+        self.intent_classifier = IntentClassifier()
+        
+        # Rewriting templates for different intents
+        self.rewrite_templates = {
+            'definition': "What is the definition and meaning of {query}?",
+            'howto': "Step-by-step guide on {query}",
+            'comparison': "Compare and contrast {query}",
+            'factual': "Provide factual information about {query}",
+            'explanation': "Explain the reasoning and causes behind {query}",
+            'troubleshooting': "Solutions and fixes for {query} problems"
+        }
+    
+    async def rewrite_for_clarity(
+        self, 
+        query: str, 
+        context: str = "",
+        domain: str = ""
+    ) -> RewrittenQuery:
+        """Rewrite query for better clarity and specificity"""
+        
+        # Classify intent
+        intent, confidence = await self.intent_classifier.classify_with_llm(query)
+        
+        # Build context for rewriting
+        context_prompt = ""
+        if context:
+            context_prompt = f"Context: {context}\n"
+        if domain:
+            context_prompt += f"Domain: {domain}\n"
+        
+        prompt = f"""
+Rewrite the following query to make it clearer and more specific for information retrieval.
+{context_prompt}
+Original Query: "{query}"
+Query Intent: {intent}
+
+Guidelines:
+1. Make the query more specific and targeted
+2. Add relevant keywords that would help find documents
+3. Maintain the original intent
+4. Use domain-appropriate terminology if applicable
+5. Avoid making the query too long or complex
+
+Return only the rewritten query:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=100
+            )
+            
+            rewritten = response.choices[0].message.content.strip()
+            
+            # Clean up the response
+            rewritten = rewritten.strip('"').strip()
+            
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=rewritten,
+                rewrite_type="clarity",
+                confidence=confidence,
+                metadata={
+                    'intent': intent,
+                    'context': context,
+                    'domain': domain
+                }
+            )
+            
+        except Exception as e:
+            print(f"Query rewriting failed: {e}")
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=query,  # Fallback to original
+                rewrite_type="none",
+                confidence=0.0
+            )
+    
+    def rewrite_with_template(self, query: str, intent: str) -> RewrittenQuery:
+        """Rewrite query using intent-specific templates"""
+        
+        if intent in self.rewrite_templates:
+            template = self.rewrite_templates[intent]
+            rewritten = template.format(query=query)
+            
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=rewritten,
+                rewrite_type="template",
+                confidence=0.8,
+                metadata={'intent': intent, 'template': template}
+            )
+        
+        return RewrittenQuery(
+            original_query=query,
+            rewritten_query=query,
+            rewrite_type="none",
+            confidence=0.0
+        )
+
+class ChainOfThoughtRewriter:
+    """Multi-step query rewriting using chain-of-thought"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+    
+    async def rewrite_with_cot(
+        self, 
+        query: str, 
+        max_steps: int = 3,
+        domain_knowledge: str = ""
+    ) -> List[RewrittenQuery]:
+        """Perform multi-step query rewriting with reasoning"""
+        
+        rewritten_queries = []
+        current_query = query
+        
+        for step in range(max_steps):
+            prompt = f"""
+You are helping to improve a search query through iterative refinement.
+
+Current query: "{current_query}"
+Step: {step + 1}/{max_steps}
+{f"Domain context: {domain_knowledge}" if domain_knowledge else ""}
+
+Think step by step:
+1. What information is the user really seeking?
+2. What specific terms would help find relevant documents?
+3. How can we make this query more precise?
+
+Provide your reasoning and then the improved query:
+
+Reasoning: [Your step-by-step analysis]
+Improved Query: [Your improved version]
+"""
+            
+            try:
+                response = await openai.ChatCompletion.acreate(
+                    model=self.model_name,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.3,
+                    max_tokens=200
+                )
+                
+                content = response.choices[0].message.content.strip()
+                
+                # Extract the improved query
+                lines = content.split('\n')
+                improved_query = current_query  # Default fallback
+                reasoning = ""
+                
+                for line in lines:
+                    if line.startswith('Reasoning:'):
+                        reasoning = line.replace('Reasoning:', '').strip()
+                    elif line.startswith('Improved Query:'):
+                        improved_query = line.replace('Improved Query:', '').strip()
+                        improved_query = improved_query.strip('"').strip()
+                
+                if improved_query != current_query:
+                    rewritten_query = RewrittenQuery(
+                        original_query=query,
+                        rewritten_query=improved_query,
+                        rewrite_type=f"cot_step_{step + 1}",
+                        confidence=0.7,
+                        metadata={
+                            'step': step + 1,
+                            'reasoning': reasoning,
+                            'previous_query': current_query
+                        }
+                    )
+                    rewritten_queries.append(rewritten_query)
+                    current_query = improved_query
+                else:
+                    # No improvement, stop the chain
+                    break
+                    
+            except Exception as e:
+                print(f"CoT rewriting step {step + 1} failed: {e}")
+                break
+        
+        return rewritten_queries
+
+class DomainAdaptiveRewriter:
+    """Domain-specific query rewriting"""
+    
+    def __init__(self):
+        self.domain_vocabularies = {
+            'medical': {
+                'symptoms': ['pain', 'ache', 'discomfort', 'swelling'],
+                'treatments': ['therapy', 'medication', 'procedure', 'intervention'],
+                'conditions': ['disease', 'disorder', 'syndrome', 'condition']
+            },
+            'technical': {
+                'programming': ['code', 'function', 'algorithm', 'implementation'],
+                'systems': ['architecture', 'framework', 'platform', 'infrastructure'],
+                'tools': ['software', 'library', 'package', 'utility']
+            },
+            'legal': {
+                'documents': ['contract', 'agreement', 'statute', 'regulation'],
+                'processes': ['litigation', 'compliance', 'filing', 'proceeding'],
+                'entities': ['corporation', 'plaintiff', 'defendant', 'party']
+            }
+        }
+    
+    def adapt_to_domain(
+        self, 
+        query: str, 
+        domain: str,
+        corpus_terms: Optional[List[str]] = None
+    ) -> RewrittenQuery:
+        """Adapt query to domain-specific terminology"""
+        
+        if domain not in self.domain_vocabularies:
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=query,
+                rewrite_type="none",
+                confidence=0.0
+            )
+        
+        domain_vocab = self.domain_vocabularies[domain]
+        query_lower = query.lower()
+        
+        # Find applicable domain terms
+        applicable_terms = []
+        for category, terms in domain_vocab.items():
+            for term in terms:
+                if any(word in query_lower for word in term.split()):
+                    applicable_terms.extend([t for t in terms if t != term])
+        
+        # Add domain-specific terms
+        if applicable_terms:
+            expanded_query = query + " " + " ".join(set(applicable_terms[:5]))
+            
+            return RewrittenQuery(
+                original_query=query,
+                rewritten_query=expanded_query,
+                rewrite_type="domain_adaptation",
+                confidence=0.8,
+                expanded_terms=list(set(applicable_terms[:5])),
+                metadata={'domain': domain, 'category_matches': len(applicable_terms)}
+            )
+        
+        return RewrittenQuery(
+            original_query=query,
+            rewritten_query=query,
+            rewrite_type="none",
+            confidence=0.0
+        )
+
+class ComprehensiveQueryRewriter:
+    """Main query rewriting system combining all techniques"""
+    
+    def __init__(
+        self,
+        model_name: str = "gpt-3.5-turbo",
+        corpus_terms: Optional[List[str]] = None
+    ):
+        self.term_expander = TermExpander()
+        self.contextual_rewriter = ContextualRewriter(model_name)
+        self.cot_rewriter = ChainOfThoughtRewriter(model_name)
+        self.domain_rewriter = DomainAdaptiveRewriter()
+        self.corpus_terms = corpus_terms or []
+    
+    async def comprehensive_rewrite(
+        self,
+        query: str,
+        strategies: List[str] = None,
+        context: str = "",
+        domain: str = "",
+        max_variants: int = 5
+    ) -> List[RewrittenQuery]:
+        """Apply multiple rewriting strategies"""
+        
+        if strategies is None:
+            strategies = ['clarity', 'expansion', 'domain', 'cot']
+        
+        rewritten_queries = []
+        
+        # Strategy 1: Clarity rewriting
+        if 'clarity' in strategies:
+            clarity_rewrite = await self.contextual_rewriter.rewrite_for_clarity(
+                query, context, domain
+            )
+            rewritten_queries.append(clarity_rewrite)
+        
+        # Strategy 2: Term expansion
+        if 'expansion' in strategies:
+            if self.corpus_terms:
+                expansion = self.term_expander.expand_with_embeddings(query, self.corpus_terms)
+            else:
+                expansion = self.term_expander.expand_with_wordnet(query)
+            
+            expansion_rewrite = RewrittenQuery(
+                original_query=query,
+                rewritten_query=expansion.expanded_query,
+                rewrite_type="expansion",
+                confidence=0.6,
+                expanded_terms=expansion.expansion_terms,
+                metadata={'sources': expansion.expansion_sources}
+            )
+            rewritten_queries.append(expansion_rewrite)
+        
+        # Strategy 3: Domain adaptation
+        if 'domain' in strategies and domain:
+            domain_rewrite = self.domain_rewriter.adapt_to_domain(query, domain, self.corpus_terms)
+            if domain_rewrite.rewrite_type != "none":
+                rewritten_queries.append(domain_rewrite)
+        
+        # Strategy 4: Chain-of-thought rewriting
+        if 'cot' in strategies:
+            cot_rewrites = await self.cot_rewriter.rewrite_with_cot(
+                query, max_steps=2, domain_knowledge=f"{context} {domain}".strip()
+            )
+            rewritten_queries.extend(cot_rewrites)
+        
+        # Rank and return top variants
+        rewritten_queries = sorted(rewritten_queries, key=lambda x: x.confidence, reverse=True)
+        return rewritten_queries[:max_variants]
+    
+    def analyze_rewrite_effectiveness(
+        self, 
+        original_results: List[Dict], 
+        rewritten_results: Dict[str, List[Dict]]
+    ) -> Dict[str, float]:
+        """Analyze effectiveness of different rewriting strategies"""
+        
+        baseline_score = len(original_results)
+        
+        effectiveness = {}
+        for rewrite_type, results in rewritten_results.items():
+            if baseline_score > 0:
+                improvement = (len(results) - baseline_score) / baseline_score
+            else:
+                improvement = 1.0 if results else 0.0
+            
+            effectiveness[rewrite_type] = improvement
+        
+        return effectiveness
+
+# Example usage and integration
+async def query_rewriting_example():
+    """Example usage of query rewriting system"""
+    
+    # Sample corpus terms for expansion
+    corpus_terms = [
+        "machine learning", "artificial intelligence", "deep learning",
+        "neural networks", "natural language processing", "computer vision",
+        "transformers", "attention mechanism", "BERT", "GPT"
+    ]
+    
+    # Initialize rewriter
+    rewriter = ComprehensiveQueryRewriter(corpus_terms=corpus_terms)
+    
+    # Test query
+    query = "How does AI attention work?"
+    
+    print(f"Original Query: '{query}'\n")
+    
+    # Apply comprehensive rewriting
+    rewrites = await rewriter.comprehensive_rewrite(
+        query=query,
+        strategies=['clarity', 'expansion', 'cot'],
+        context="machine learning research",
+        domain="technical",
+        max_variants=3
+    )
+    
+    print("Rewritten Queries:")
+    for i, rewrite in enumerate(rewrites):
+        print(f"\n{i+1}. Type: {rewrite.rewrite_type}")
+        print(f"   Confidence: {rewrite.confidence:.2f}")
+        print(f"   Query: '{rewrite.rewritten_query}'")
+        if rewrite.expanded_terms:
+            print(f"   Expanded terms: {rewrite.expanded_terms}")
+        if rewrite.metadata:
+            print(f"   Metadata: {rewrite.metadata}")
+    
+    return rewrites
+
+# Integration with RAG systems
+class RAGWithQueryRewriting:
+    """RAG system with integrated query rewriting"""
+    
+    def __init__(
+        self,
+        base_retriever,
+        rewriter: ComprehensiveQueryRewriter,
+        use_multiple_queries: bool = True
+    ):
+        self.base_retriever = base_retriever
+        self.rewriter = rewriter
+        self.use_multiple_queries = use_multiple_queries
+    
+    async def retrieve_with_rewriting(
+        self,
+        query: str,
+        top_k: int = 10,
+        context: str = "",
+        domain: str = ""
+    ) -> List[Dict]:
+        """Perform retrieval with query rewriting"""
+        
+        print(f"Retrieving with query rewriting: '{query}'")
+        
+        # Get rewritten queries
+        rewrites = await self.rewriter.comprehensive_rewrite(
+            query=query,
+            context=context,
+            domain=domain,
+            max_variants=3
+        )
+        
+        all_results = []
+        
+        # Use original query
+        try:
+            original_results = await self.base_retriever.search(query, limit=top_k)
+            for result in original_results:
+                result['query_type'] = 'original'
+                result['source_query'] = query
+            all_results.extend(original_results)
+        except Exception as e:
+            print(f"Original query retrieval failed: {e}")
+        
+        # Use rewritten queries if enabled
+        if self.use_multiple_queries:
+            for rewrite in rewrites:
+                try:
+                    rewrite_results = await self.base_retriever.search(
+                        rewrite.rewritten_query, limit=top_k
+                    )
+                    for result in rewrite_results:
+                        result['query_type'] = rewrite.rewrite_type
+                        result['source_query'] = rewrite.rewritten_query
+                        result['rewrite_confidence'] = rewrite.confidence
+                    all_results.extend(rewrite_results)
+                except Exception as e:
+                    print(f"Rewritten query retrieval failed: {e}")
+        
+        # Deduplicate and rank results
+        final_results = self._deduplicate_results(all_results)
+        
+        return final_results[:top_k]
+    
+    def _deduplicate_results(self, results: List[Dict]) -> List[Dict]:
+        """Deduplicate results while preserving best scores"""
+        
+        seen_content = {}
+        deduplicated = []
+        
+        for result in results:
+            content = result.get('content', '')
+            score = result.get('score', 0.0)
+            
+            if content not in seen_content or score > seen_content[content]['score']:
+                seen_content[content] = result
+        
+        deduplicated = list(seen_content.values())
+        deduplicated.sort(key=lambda x: x.get('score', 0.0), reverse=True)
+        
+        return deduplicated
+
+if __name__ == "__main__":
+    asyncio.run(query_rewriting_example())
+                </pre>
+            </div>
+
+            <div class="success-box">
+                <h4>Query Rewriting Strategies</h4>
+                <p>
+                    • <strong>Clarity Rewriting:</strong> Use LLMs to make queries more specific and clear<br>
+                    • <strong>Term Expansion:</strong> Add synonyms and related terms using WordNet or embeddings<br>
+                    • <strong>Domain Adaptation:</strong> Adapt vocabulary to specific domains or corpora<br>
+                    • <strong>Chain-of-Thought:</strong> Multi-step iterative improvement with reasoning<br>
+                    • <strong>Intent-Based:</strong> Rewrite based on detected query intent and context
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Multi-hop Reasoning Section -->
+    <section id="multi-hop" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Multi-hop Reasoning RAG</h2>
+            <p class="content-text">
+                Multi-hop reasoning enables RAG systems to answer complex questions that require 
+                information from multiple documents and intermediate reasoning steps. This approach 
+                builds chains of evidence and performs step-by-step reasoning across retrieved documents.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Multi-hop Process</h4>
+                    <ul class="feature-list">
+                        <li>Question decomposition</li>
+                        <li>Sub-query generation</li>
+                        <li>Iterative retrieval</li>
+                        <li>Evidence aggregation</li>
+                        <li>Reasoning chain construction</li>
+                        <li>Answer synthesis</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Capabilities</h4>
+                    <p>
+                        • <strong>Complex Questions:</strong> Handle multi-step reasoning problems<br>
+                        • <strong>Evidence Chains:</strong> Build logical reasoning paths<br>
+                        • <strong>Comprehensive Answers:</strong> Synthesize information from multiple sources<br>
+                        • <strong>Transparency:</strong> Show reasoning steps and evidence
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Multi-hop Reasoning Implementation</div>
+                <pre class="code-content">
+import asyncio
+from typing import List, Dict, Set, Optional, Tuple, Any
+from dataclasses import dataclass, field
+from collections import defaultdict, deque
+import openai
+from sentence_transformers import SentenceTransformer
+import networkx as nx
+import json
+
+@dataclass
+class ReasoningStep:
+    """Individual reasoning step in multi-hop process"""
+    step_id: str
+    question: str
+    retrieved_docs: List[Dict[str, Any]]
+    answer: str
+    confidence: float
+    evidence: List[str] = field(default_factory=list)
+    dependencies: List[str] = field(default_factory=list)
+    reasoning_type: str = "factual"
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class ReasoningChain:
+    """Complete reasoning chain for complex question"""
+    original_question: str
+    steps: List[ReasoningStep]
+    final_answer: str
+    confidence: float
+    evidence_graph: Dict[str, Any] = field(default_factory=dict)
+    reasoning_path: List[str] = field(default_factory=list)
+
+class QuestionDecomposer:
+    """Decompose complex questions into sub-questions"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+        
+    async def decompose_question(
+        self, 
+        question: str, 
+        max_subquestions: int = 5
+    ) -> List[Dict[str, Any]]:
+        """Decompose complex question into simpler sub-questions"""
+        
+        prompt = f"""
+You are an expert at breaking down complex questions into simpler sub-questions that can be answered step by step.
+
+Complex Question: "{question}"
+
+Decompose this into {max_subquestions} or fewer sub-questions that:
+1. Can be answered individually using document retrieval
+2. Build upon each other logically
+3. Together provide the information needed for the main question
+4. Are ordered from basic facts to more complex reasoning
+
+For each sub-question, also specify:
+- The type of information needed (factual, definitional, comparative, etc.)
+- Dependencies on other sub-questions (if any)
+
+Return a JSON list where each item has:
+{{
+    "sub_question": "the sub-question text",
+    "question_type": "factual|definitional|comparative|analytical",
+    "depends_on": ["list of sub-question indices this depends on"],
+    "priority": 1-5 (1=highest priority)
+}}
+
+JSON:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=500
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            # Extract JSON from response
+            json_start = content.find('[')
+            json_end = content.rfind(']') + 1
+            
+            if json_start != -1 and json_end != 0:
+                json_content = content[json_start:json_end]
+                sub_questions = json.loads(json_content)
+                
+                # Add step IDs
+                for i, sq in enumerate(sub_questions):
+                    sq['step_id'] = f"step_{i+1}"
+                
+                print(f"Decomposed question into {len(sub_questions)} sub-questions")
+                return sub_questions
+            
+        except Exception as e:
+            print(f"Question decomposition failed: {e}")
+        
+        # Fallback: create single sub-question
+        return [{
+            "step_id": "step_1",
+            "sub_question": question,
+            "question_type": "factual",
+            "depends_on": [],
+            "priority": 1
+        }]
+    
+    def create_dependency_graph(self, sub_questions: List[Dict]) -> nx.DiGraph:
+        """Create dependency graph for sub-questions"""
+        
+        graph = nx.DiGraph()
+        
+        # Add nodes
+        for sq in sub_questions:
+            graph.add_node(
+                sq['step_id'], 
+                question=sq['sub_question'],
+                question_type=sq['question_type'],
+                priority=sq['priority']
+            )
+        
+        # Add edges for dependencies
+        for sq in sub_questions:
+            for dep_idx in sq['depends_on']:
+                if isinstance(dep_idx, int) and 0 <= dep_idx < len(sub_questions):
+                    dep_step_id = sub_questions[dep_idx]['step_id']
+                    graph.add_edge(dep_step_id, sq['step_id'])
+        
+        return graph
+
+class EvidenceRetriever:
+    """Retrieve evidence for reasoning steps"""
+    
+    def __init__(self, base_retriever, embedding_model: str = "all-MiniLM-L6-v2"):
+        self.base_retriever = base_retriever
+        self.embedding_model = SentenceTransformer(embedding_model)
+        self.evidence_cache = {}
+    
+    async def retrieve_evidence(
+        self,
+        question: str,
+        previous_evidence: List[str] = None,
+        context_docs: List[Dict] = None,
+        top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """Retrieve evidence for a specific question"""
+        
+        # Check cache first
+        cache_key = f"{question}_{top_k}"
+        if cache_key in self.evidence_cache:
+            return self.evidence_cache[cache_key]
+        
+        try:
+            # Build enhanced query with context
+            enhanced_query = question
+            
+            if previous_evidence:
+                # Add context from previous evidence
+                context_terms = self._extract_key_terms(previous_evidence)
+                enhanced_query += " " + " ".join(context_terms[:5])
+            
+            # Retrieve documents
+            raw_results = await self.base_retriever.search(enhanced_query, limit=top_k * 2)
+            
+            # Filter and rank results
+            filtered_results = self._filter_relevant_evidence(
+                question, raw_results, context_docs
+            )
+            
+            # Cache results
+            self.evidence_cache[cache_key] = filtered_results[:top_k]
+            
+            return filtered_results[:top_k]
+            
+        except Exception as e:
+            print(f"Evidence retrieval failed for '{question}': {e}")
+            return []
+    
+    def _extract_key_terms(self, text_list: List[str]) -> List[str]:
+        """Extract key terms from previous evidence"""
+        
+        import nltk
+        from nltk.corpus import stopwords
+        from nltk.tokenize import word_tokenize
+        from collections import Counter
+        
+        try:
+            stop_words = set(stopwords.words('english'))
+        except LookupError:
+            nltk.download('stopwords')
+            stop_words = set(stopwords.words('english'))
+        
+        all_tokens = []
+        for text in text_list:
+            tokens = word_tokenize(text.lower())
+            filtered_tokens = [
+                token for token in tokens 
+                if token.isalnum() and len(token) > 2 and token not in stop_words
+            ]
+            all_tokens.extend(filtered_tokens)
+        
+        # Get most common terms
+        term_counts = Counter(all_tokens)
+        key_terms = [term for term, count in term_counts.most_common(10)]
+        
+        return key_terms
+    
+    def _filter_relevant_evidence(
+        self,
+        question: str,
+        raw_results: List[Dict],
+        context_docs: List[Dict] = None
+    ) -> List[Dict]:
+        """Filter and rank evidence by relevance"""
+        
+        if not raw_results:
+            return []
+        
+        # Get question embedding
+        question_embedding = self.embedding_model.encode([question])
+        
+        # Score documents
+        scored_results = []
+        
+        for result in raw_results:
+            content = result.get('content', '')
+            
+            if content:
+                # Calculate semantic similarity
+                content_embedding = self.embedding_model.encode([content])
+                from sklearn.metrics.pairwise import cosine_similarity
+                similarity = cosine_similarity(question_embedding, content_embedding)[0][0]
+                
+                # Boost score if document contains key question terms
+                question_terms = set(question.lower().split())
+                content_terms = set(content.lower().split())
+                term_overlap = len(question_terms.intersection(content_terms))
+                term_boost = min(term_overlap * 0.1, 0.3)
+                
+                final_score = float(similarity) + term_boost
+                
+                result['relevance_score'] = final_score
+                scored_results.append(result)
+        
+        # Sort by relevance score
+        scored_results.sort(key=lambda x: x['relevance_score'], reverse=True)
+        
+        return scored_results
+
+class ReasoningEngine:
+    """Core reasoning engine for multi-hop questions"""
+    
+    def __init__(self, model_name: str = "gpt-4"):
+        self.model_name = model_name
+        
+    async def reason_step(
+        self,
+        question: str,
+        evidence_docs: List[Dict],
+        previous_steps: List[ReasoningStep] = None,
+        reasoning_type: str = "factual"
+    ) -> ReasoningStep:
+        """Perform reasoning for a single step"""
+        
+        # Build context from previous steps
+        previous_context = ""
+        if previous_steps:
+            context_parts = []
+            for step in previous_steps:
+                context_parts.append(f"Q: {step.question}\nA: {step.answer}")
+            previous_context = "\n\n".join(context_parts)
+        
+        # Build evidence context
+        evidence_context = ""
+        if evidence_docs:
+            evidence_parts = []
+            for i, doc in enumerate(evidence_docs[:5]):  # Limit to top 5
+                content = doc.get('content', '')[:500]  # Truncate long content
+                source = doc.get('source', f'Document {i+1}')
+                evidence_parts.append(f"[{source}]: {content}")
+            evidence_context = "\n\n".join(evidence_parts)
+        
+        # Create reasoning prompt based on type
+        if reasoning_type == "comparative":
+            reasoning_instruction = """
+Compare and contrast the information from the evidence. Identify similarities, 
+differences, and relationships between the concepts or entities mentioned.
+"""
+        elif reasoning_type == "analytical":
+            reasoning_instruction = """
+Analyze the evidence to identify patterns, causes, effects, or underlying principles.
+Provide logical analysis based on the information provided.
+"""
+        elif reasoning_type == "definitional":
+            reasoning_instruction = """
+Provide a clear, comprehensive definition based on the evidence. Include key 
+characteristics, properties, or features mentioned in the sources.
+"""
+        else:  # factual
+            reasoning_instruction = """
+Extract and synthesize the factual information from the evidence to answer 
+the question directly and accurately.
+"""
+        
+        prompt = f"""
+You are an expert reasoning assistant. Answer the question using only the provided evidence.
+
+Question: {question}
+
+{f"Previous reasoning steps:\n{previous_context}\n" if previous_context else ""}
+
+Evidence:
+{evidence_context}
+
+Instructions:
+{reasoning_instruction}
+
+Requirements:
+1. Base your answer strictly on the provided evidence
+2. If the evidence is insufficient, state what information is missing
+3. Cite specific evidence sources when making claims
+4. Provide a confidence level (0.0-1.0) for your answer
+5. Identify the key evidence that supports your reasoning
+
+Format your response as:
+Answer: [Your answer]
+Confidence: [0.0-1.0]
+Key Evidence: [List of supporting evidence quotes]
+Reasoning: [Your step-by-step reasoning process]
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                max_tokens=600
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            # Parse response
+            answer = self._extract_section(content, "Answer:")
+            confidence_str = self._extract_section(content, "Confidence:")
+            key_evidence = self._extract_section(content, "Key Evidence:")
+            reasoning = self._extract_section(content, "Reasoning:")
+            
+            try:
+                confidence = float(confidence_str.split()[0]) if confidence_str else 0.5
+            except (ValueError, IndexError):
+                confidence = 0.5
+            
+            # Extract evidence quotes
+            evidence_quotes = []
+            if key_evidence:
+                # Simple extraction of quoted text
+                import re
+                quotes = re.findall(r'"([^"]*)"', key_evidence)
+                evidence_quotes.extend(quotes)
+            
+            step_id = f"step_{len(previous_steps) + 1}" if previous_steps else "step_1"
+            
+            return ReasoningStep(
+                step_id=step_id,
+                question=question,
+                retrieved_docs=evidence_docs,
+                answer=answer or "Unable to determine from available evidence",
+                confidence=confidence,
+                evidence=evidence_quotes,
+                reasoning_type=reasoning_type,
+                metadata={
+                    'raw_response': content,
+                    'reasoning': reasoning,
+                    'evidence_count': len(evidence_docs)
+                }
+            )
+            
+        except Exception as e:
+            print(f"Reasoning step failed: {e}")
+            
+            # Return fallback reasoning step
+            return ReasoningStep(
+                step_id=f"step_{len(previous_steps) + 1}" if previous_steps else "step_1",
+                question=question,
+                retrieved_docs=evidence_docs,
+                answer="Unable to process reasoning step due to error",
+                confidence=0.0,
+                reasoning_type=reasoning_type,
+                metadata={'error': str(e)}
+            )
+    
+    def _extract_section(self, content: str, section_name: str) -> str:
+        """Extract a section from formatted response"""
+        
+        lines = content.split('\n')
+        section_content = []
+        in_section = False
+        
+        for line in lines:
+            if line.startswith(section_name):
+                in_section = True
+                section_content.append(line.replace(section_name, '').strip())
+            elif in_section:
+                if line.strip() and any(line.startswith(s) for s in ['Answer:', 'Confidence:', 'Key Evidence:', 'Reasoning:']):
+                    break
+                section_content.append(line.strip())
+        
+        return '\n'.join(section_content).strip()
+
+class MultiHopRAGSystem:
+    """Complete multi-hop reasoning RAG system"""
+    
+    def __init__(
+        self,
+        base_retriever,
+        model_name: str = "gpt-4",
+        max_hops: int = 5
+    ):
+        self.decomposer = QuestionDecomposer(model_name)
+        self.evidence_retriever = EvidenceRetriever(base_retriever)
+        self.reasoning_engine = ReasoningEngine(model_name)
+        self.max_hops = max_hops
+    
+    async def answer_complex_question(
+        self,
+        question: str,
+        max_subquestions: int = 5
+    ) -> ReasoningChain:
+        """Answer complex question using multi-hop reasoning"""
+        
+        print(f"Starting multi-hop reasoning for: '{question}'")
+        
+        # Step 1: Decompose question
+        sub_questions = await self.decomposer.decompose_question(
+            question, max_subquestions
+        )
+        
+        # Step 2: Create dependency graph
+        dep_graph = self.decomposer.create_dependency_graph(sub_questions)
+        
+        # Step 3: Execute reasoning steps in topological order
+        reasoning_steps = []
+        completed_steps = {}
+        
+        # Get execution order (topological sort)
+        try:
+            execution_order = list(nx.topological_sort(dep_graph))
+        except nx.NetworkXError:
+            # Fallback to original order if graph has cycles
+            execution_order = [sq['step_id'] for sq in sub_questions]
+        
+        print(f"Executing {len(execution_order)} reasoning steps")
+        
+        for step_id in execution_order:
+            # Find corresponding sub-question
+            sub_q = next(sq for sq in sub_questions if sq['step_id'] == step_id)
+            
+            print(f"Processing {step_id}: {sub_q['sub_question']}")
+            
+            # Get evidence for this step
+            previous_evidence = []
+            context_docs = []
+            
+            # Collect evidence from dependent steps
+            for dep_step_id in sub_q.get('depends_on', []):
+                if isinstance(dep_step_id, int) and dep_step_id < len(sub_questions):
+                    dep_step_actual_id = sub_questions[dep_step_id]['step_id']
+                    if dep_step_actual_id in completed_steps:
+                        prev_step = completed_steps[dep_step_actual_id]
+                        previous_evidence.extend(prev_step.evidence)
+                        context_docs.extend(prev_step.retrieved_docs)
+            
+            # Retrieve evidence
+            evidence_docs = await self.evidence_retriever.retrieve_evidence(
+                sub_q['sub_question'],
+                previous_evidence=previous_evidence,
+                context_docs=context_docs
+            )
+            
+            # Perform reasoning
+            reasoning_step = await self.reasoning_engine.reason_step(
+                question=sub_q['sub_question'],
+                evidence_docs=evidence_docs,
+                previous_steps=[completed_steps[sid] for sid in completed_steps],
+                reasoning_type=sub_q['question_type']
+            )
+            
+            reasoning_steps.append(reasoning_step)
+            completed_steps[step_id] = reasoning_step
+        
+        # Step 4: Synthesize final answer
+        final_answer = await self._synthesize_final_answer(
+            question, reasoning_steps
+        )
+        
+        # Step 5: Calculate overall confidence
+        step_confidences = [step.confidence for step in reasoning_steps]
+        overall_confidence = sum(step_confidences) / len(step_confidences) if step_confidences else 0.0
+        
+        # Step 6: Create reasoning chain
+        reasoning_chain = ReasoningChain(
+            original_question=question,
+            steps=reasoning_steps,
+            final_answer=final_answer,
+            confidence=overall_confidence,
+            reasoning_path=[step.step_id for step in reasoning_steps]
+        )
+        
+        print(f"Multi-hop reasoning completed with {len(reasoning_steps)} steps")
+        
+        return reasoning_chain
+    
+    async def _synthesize_final_answer(
+        self,
+        original_question: str,
+        reasoning_steps: List[ReasoningStep]
+    ) -> str:
+        """Synthesize final answer from reasoning steps"""
+        
+        # Build context from all reasoning steps
+        step_summaries = []
+        for step in reasoning_steps:
+            step_summaries.append(f"Q: {step.question}\nA: {step.answer}\nConfidence: {step.confidence:.2f}")
+        
+        steps_context = "\n\n".join(step_summaries)
+        
+        prompt = f"""
+You are synthesizing a final answer from multiple reasoning steps.
+
+Original Question: {original_question}
+
+Reasoning Steps:
+{steps_context}
+
+Instructions:
+1. Synthesize a comprehensive answer that addresses the original question
+2. Use information from all relevant reasoning steps
+3. Ensure the answer is coherent and well-structured
+4. Highlight any uncertainties or limitations
+5. Make the answer self-contained and understandable
+
+Provide a clear, comprehensive final answer:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.reasoning_engine.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=400
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"Final answer synthesis failed: {e}")
+            
+            # Fallback: combine step answers
+            step_answers = [step.answer for step in reasoning_steps if step.answer]
+            return f"Based on the reasoning steps: {' '.join(step_answers)}"
+    
+    def visualize_reasoning_chain(self, reasoning_chain: ReasoningChain) -> str:
+        """Create a text visualization of the reasoning chain"""
+        
+        viz = f"Multi-hop Reasoning Chain for: '{reasoning_chain.original_question}'\n"
+        viz += "=" * 60 + "\n\n"
+        
+        for i, step in enumerate(reasoning_chain.steps):
+            viz += f"Step {i+1}: {step.step_id}\n"
+            viz += f"Question: {step.question}\n"
+            viz += f"Answer: {step.answer}\n"
+            viz += f"Confidence: {step.confidence:.2f}\n"
+            
+            if step.evidence:
+                viz += "Key Evidence:\n"
+                for evidence in step.evidence[:3]:  # Show top 3
+                    viz += f"  • {evidence}\n"
+            
+            viz += f"Documents Used: {len(step.retrieved_docs)}\n"
+            viz += "-" * 40 + "\n\n"
+        
+        viz += f"FINAL ANSWER (Confidence: {reasoning_chain.confidence:.2f}):\n"
+        viz += reasoning_chain.final_answer + "\n"
+        
+        return viz
+
+# Example usage and integration
+async def multi_hop_example():
+    """Example usage of multi-hop reasoning RAG"""
+    
+    # Mock retriever for demonstration
+    class MockRetriever:
+        async def search(self, query: str, limit: int = 10):
+            # Simulate different types of documents based on query
+            if "transformer" in query.lower():
+                return [
+                    {
+                        'content': 'Transformers are neural network architectures that use self-attention mechanisms to process sequences.',
+                        'source': 'ML_Textbook_Ch5',
+                        'score': 0.95
+                    },
+                    {
+                        'content': 'The attention mechanism allows transformers to focus on relevant parts of the input sequence.',
+                        'source': 'Attention_Paper_2017',
+                        'score': 0.88
+                    }
+                ]
+            elif "attention" in query.lower():
+                return [
+                    {
+                        'content': 'Attention mechanisms compute weighted combinations of input representations based on relevance scores.',
+                        'source': 'Deep_Learning_Book',
+                        'score': 0.92
+                    }
+                ]
+            else:
+                return [
+                    {
+                        'content': f'General information related to: {query}',
+                        'source': 'General_Knowledge',
+                        'score': 0.7
+                    }
+                ]
+    
+    # Initialize system
+    retriever = MockRetriever()
+    multi_hop_rag = MultiHopRAGSystem(retriever, model_name="gpt-3.5-turbo")
+    
+    # Complex question requiring multi-hop reasoning
+    question = "How do transformer architectures use attention mechanisms to improve natural language understanding compared to previous approaches?"
+    
+    # Perform multi-hop reasoning
+    reasoning_chain = await multi_hop_rag.answer_complex_question(
+        question, max_subquestions=4
+    )
+    
+    # Display results
+    print(multi_hop_rag.visualize_reasoning_chain(reasoning_chain))
+    
+    return reasoning_chain
+
+# Integration with LangGraph for complex workflows
+def create_langgraph_multihop():
+    """Create LangGraph integration for multi-hop reasoning"""
+    
+    from typing import TypedDict
+    
+    class MultiHopState(TypedDict):
+        original_question: str
+        sub_questions: List[Dict]
+        current_step: int
+        reasoning_steps: List[ReasoningStep]
+        final_answer: str
+        confidence: float
+    
+    def decompose_node(state: MultiHopState):
+        """LangGraph node for question decomposition"""
+        # Implementation would call decomposer
+        return state
+    
+    def reasoning_node(state: MultiHopState):
+        """LangGraph node for reasoning step"""
+        # Implementation would call reasoning engine
+        return state
+    
+    def synthesis_node(state: MultiHopState):
+        """LangGraph node for final synthesis"""
+        # Implementation would synthesize final answer
+        return state
+    
+    # Build graph
+    from langgraph.graph import StateGraph
+    
+    workflow = StateGraph(MultiHopState)
+    workflow.add_node("decompose", decompose_node)
+    workflow.add_node("reason", reasoning_node)
+    workflow.add_node("synthesize", synthesis_node)
+    
+    # Add edges
+    workflow.add_edge("decompose", "reason")
+    workflow.add_edge("reason", "synthesize")
+    
+    workflow.set_entry_point("decompose")
+    workflow.set_finish_point("synthesize")
+    
+    return workflow.compile()
+
+if __name__ == "__main__":
+    asyncio.run(multi_hop_example())
+                </pre>
+            </div>
+
+            <div class="error-box">
+                <h4>Multi-hop Challenges</h4>
+                <p>
+                    • <strong>Error Propagation:</strong> Mistakes in early steps affect later reasoning<br>
+                    • <strong>Context Management:</strong> Maintaining coherent context across steps<br>
+                    • <strong>Computational Cost:</strong> Multiple retrieval and generation cycles<br>
+                    • <strong>Evidence Quality:</strong> Ensuring high-quality evidence for each step<br>
+                    • <strong>Dependency Resolution:</strong> Managing complex question dependencies
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Graph-enhanced RAG Section -->
+    <section id="graph-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Graph-enhanced RAG</h2>
+            <p class="content-text">
+                Graph-enhanced RAG integrates knowledge graphs with retrieval systems to capture 
+                semantic relationships, entity connections, and structured knowledge for more 
+                informed retrieval and generation.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Graph Components</h4>
+                    <ul class="feature-list">
+                        <li>Knowledge graph construction</li>
+                        <li>Entity extraction and linking</li>
+                        <li>Relationship modeling</li>
+                        <li>Graph-based retrieval</li>
+                        <li>Path-based reasoning</li>
+                        <li>Hybrid vector-graph search</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Advantages</h4>
+                    <p>
+                        • <strong>Structured Knowledge:</strong> Capture explicit relationships<br>
+                        • <strong>Entity-centric:</strong> Better handling of named entities<br>
+                        • <strong>Reasoning Paths:</strong> Traceable inference chains<br>
+                        • <strong>Context Awareness:</strong> Rich contextual information
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Graph-enhanced RAG Implementation</div>
+                <pre class="code-content">
+import asyncio
+from typing import List, Dict, Set, Optional, Tuple, Any
+import networkx as nx
+from dataclasses import dataclass, field
+import openai
+from sentence_transformers import SentenceTransformer
+import spacy
+
+@dataclass
+class Entity:
+    id: str
+    name: str
+    type: str
+    properties: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class Relationship:
+    subject: str
+    predicate: str
+    object: str
+    confidence: float = 1.0
+    source: str = ""
+
+class KnowledgeGraphBuilder:
+    """Build knowledge graph from documents"""
+    
+    def __init__(self):
+        try:
+            self.nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            print("Please install spaCy model: python -m spacy download en_core_web_sm")
+            self.nlp = None
+        
+        self.graph = nx.MultiDiGraph()
+        self.entities = {}
+        self.relationships = []
+    
+    async def build_from_documents(self, documents: List[Dict]) -> nx.MultiDiGraph:
+        """Build knowledge graph from document collection"""
+        
+        for doc in documents:
+            content = doc.get('content', '')
+            source = doc.get('source', 'unknown')
+            
+            # Extract entities and relationships
+            entities = self._extract_entities(content)
+            relationships = await self._extract_relationships(content, entities, source)
+            
+            # Add to graph
+            self._add_to_graph(entities, relationships)
+        
+        return self.graph
+    
+    def _extract_entities(self, text: str) -> List[Entity]:
+        """Extract named entities from text"""
+        
+        if not self.nlp:
+            return []
+        
+        doc = self.nlp(text)
+        entities = []
+        
+        for ent in doc.ents:
+            entity = Entity(
+                id=f"ent_{len(self.entities)}",
+                name=ent.text.strip(),
+                type=ent.label_,
+                properties={
+                    'start_char': ent.start_char,
+                    'end_char': ent.end_char,
+                    'confidence': 1.0
+                }
+            )
+            
+            # Avoid duplicates
+            existing_id = self._find_existing_entity(entity.name, entity.type)
+            if existing_id:
+                entity.id = existing_id
+            else:
+                self.entities[entity.id] = entity
+            
+            entities.append(entity)
+        
+        return entities
+    
+    def _find_existing_entity(self, name: str, entity_type: str) -> Optional[str]:
+        """Find existing entity by name and type"""
+        
+        for ent_id, entity in self.entities.items():
+            if entity.name.lower() == name.lower() and entity.type == entity_type:
+                return ent_id
+        return None
+    
+    async def _extract_relationships(
+        self, 
+        text: str, 
+        entities: List[Entity], 
+        source: str
+    ) -> List[Relationship]:
+        """Extract relationships using LLM"""
+        
+        if len(entities) < 2:
+            return []
+        
+        entity_names = [ent.name for ent in entities]
+        
+        prompt = f"""
+Extract relationships between entities in the following text.
+
+Text: {text[:1000]}
+
+Entities: {', '.join(entity_names)}
+
+For each relationship, specify:
+- Subject entity
+- Relationship type (e.g., "is_part_of", "located_in", "works_for", etc.)
+- Object entity
+
+Format: Subject|Relationship|Object
+Only include relationships explicitly stated in the text.
+
+Relationships:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=300
+            )
+            
+            content = response.choices[0].message.content.strip()
+            relationships = []
+            
+            for line in content.split('\n'):
+                if '|' in line:
+                    parts = line.split('|')
+                    if len(parts) == 3:
+                        subj, pred, obj = [p.strip() for p in parts]
+                        
+                        # Map entity names to IDs
+                        subj_id = self._find_entity_id_by_name(subj, entities)
+                        obj_id = self._find_entity_id_by_name(obj, entities)
+                        
+                        if subj_id and obj_id:
+                            relationships.append(Relationship(
+                                subject=subj_id,
+                                predicate=pred.lower().replace(' ', '_'),
+                                object=obj_id,
+                                source=source
+                            ))
+            
+            return relationships
+            
+        except Exception as e:
+            print(f"Relationship extraction failed: {e}")
+            return []
+    
+    def _find_entity_id_by_name(self, name: str, entities: List[Entity]) -> Optional[str]:
+        """Find entity ID by name"""
+        
+        name_lower = name.lower()
+        for entity in entities:
+            if entity.name.lower() == name_lower:
+                return entity.id
+        return None
+    
+    def _add_to_graph(self, entities: List[Entity], relationships: List[Relationship]):
+        """Add entities and relationships to the graph"""
+        
+        # Add entity nodes
+        for entity in entities:
+            self.graph.add_node(
+                entity.id,
+                name=entity.name,
+                type=entity.type,
+                **entity.properties
+            )
+        
+        # Add relationship edges
+        for rel in relationships:
+            self.graph.add_edge(
+                rel.subject,
+                rel.object,
+                predicate=rel.predicate,
+                confidence=rel.confidence,
+                source=rel.source
+            )
+            
+            self.relationships.append(rel)
+
+class GraphRetriever:
+    """Retrieve information using graph structure"""
+    
+    def __init__(self, knowledge_graph: nx.MultiDiGraph, embedding_model: str = "all-MiniLM-L6-v2"):
+        self.graph = knowledge_graph
+        self.embedding_model = SentenceTransformer(embedding_model)
+        
+        # Create embeddings for entities
+        self.entity_embeddings = {}
+        self._create_entity_embeddings()
+    
+    def _create_entity_embeddings(self):
+        """Create embeddings for all entities in the graph"""
+        
+        for node_id in self.graph.nodes():
+            node_data = self.graph.nodes[node_id]
+            entity_text = f"{node_data.get('name', '')} {node_data.get('type', '')}"
+            
+            if entity_text.strip():
+                embedding = self.embedding_model.encode([entity_text])[0]
+                self.entity_embeddings[node_id] = embedding
+    
+    async def retrieve_by_entities(self, query_entities: List[str], max_hops: int = 2) -> List[Dict]:
+        """Retrieve information by finding paths between entities"""
+        
+        # Find entity nodes matching the query
+        matched_entities = []
+        
+        for entity_name in query_entities:
+            for node_id in self.graph.nodes():
+                node_data = self.graph.nodes[node_id]
+                if entity_name.lower() in node_data.get('name', '').lower():
+                    matched_entities.append(node_id)
+        
+        if not matched_entities:
+            return []
+        
+        # Find paths between matched entities
+        relevant_paths = []
+        
+        for i, start_entity in enumerate(matched_entities):
+            for end_entity in matched_entities[i+1:]:
+                try:
+                    # Find shortest path
+                    if nx.has_path(self.graph, start_entity, end_entity):
+                        path = nx.shortest_path(self.graph, start_entity, end_entity)
+                        if len(path) <= max_hops + 1:
+                            relevant_paths.append(path)
+                except nx.NetworkXNoPath:
+                    continue
+        
+        # Convert paths to readable information
+        results = []
+        
+        for path in relevant_paths:
+            path_info = self._path_to_info(path)
+            results.append({
+                'content': path_info['description'],
+                'entities': path_info['entities'],
+                'relationships': path_info['relationships'],
+                'path_length': len(path) - 1,
+                'confidence': path_info['confidence']
+            })
+        
+        return results
+    
+    def _path_to_info(self, path: List[str]) -> Dict:
+        """Convert graph path to readable information"""
+        
+        entities = []
+        relationships = []
+        descriptions = []
+        confidences = []
+        
+        for i, node_id in enumerate(path):
+            node_data = self.graph.nodes[node_id]
+            entity_name = node_data.get('name', node_id)
+            entity_type = node_data.get('type', 'Unknown')
+            
+            entities.append(f"{entity_name} ({entity_type})")
+            
+            if i < len(path) - 1:
+                # Get edge information
+                next_node = path[i + 1]
+                edge_data = self.graph.get_edge_data(node_id, next_node)
+                
+                if edge_data:
+                    # Handle multiple edges
+                    edge_info = list(edge_data.values())[0]
+                    predicate = edge_info.get('predicate', 'related_to')
+                    confidence = edge_info.get('confidence', 1.0)
+                    
+                    relationships.append(predicate)
+                    confidences.append(confidence)
+                    
+                    descriptions.append(f"{entity_name} {predicate.replace('_', ' ')} {self.graph.nodes[next_node].get('name', next_node)}")
+        
+        avg_confidence = sum(confidences) / len(confidences) if confidences else 1.0
+        
+        return {
+            'description': ' -> '.join(descriptions),
+            'entities': entities,
+            'relationships': relationships,
+            'confidence': avg_confidence
+        }
+    
+    async def semantic_graph_search(self, query: str, top_k: int = 5) -> List[Dict]:
+        """Combine semantic search with graph structure"""
+        
+        # Get query embedding
+        query_embedding = self.embedding_model.encode([query])[0]
+        
+        # Calculate similarities with entities
+        entity_scores = []
+        
+        for entity_id, entity_embedding in self.entity_embeddings.items():
+            from sklearn.metrics.pairwise import cosine_similarity
+            import numpy as np
+            
+            similarity = cosine_similarity([query_embedding], [entity_embedding])[0][0]
+            
+            if similarity > 0.3:  # Threshold for relevance
+                entity_scores.append((entity_id, similarity))
+        
+        # Sort by similarity
+        entity_scores.sort(key=lambda x: x[1], reverse=True)
+        top_entities = entity_scores[:top_k]
+        
+        # Expand results using graph structure
+        expanded_results = []
+        
+        for entity_id, score in top_entities:
+            # Get entity info
+            node_data = self.graph.nodes[entity_id]
+            entity_name = node_data.get('name', entity_id)
+            entity_type = node_data.get('type', 'Unknown')
+            
+            # Get connected entities
+            neighbors = list(self.graph.neighbors(entity_id))
+            neighbor_info = []
+            
+            for neighbor_id in neighbors[:3]:  # Limit to 3 neighbors
+                neighbor_data = self.graph.nodes[neighbor_id]
+                neighbor_name = neighbor_data.get('name', neighbor_id)
+                
+                # Get edge relationship
+                edge_data = self.graph.get_edge_data(entity_id, neighbor_id)
+                if edge_data:
+                    predicate = list(edge_data.values())[0].get('predicate', 'related_to')
+                    neighbor_info.append(f"{predicate.replace('_', ' ')} {neighbor_name}")
+            
+            result = {
+                'content': f"{entity_name} ({entity_type}): {'; '.join(neighbor_info)}",
+                'entity_id': entity_id,
+                'entity_name': entity_name,
+                'entity_type': entity_type,
+                'neighbors': neighbor_info,
+                'similarity_score': float(score),
+                'graph_context': True
+            }
+            
+            expanded_results.append(result)
+        
+        return expanded_results
+
+class GraphEnhancedRAG:
+    """Complete graph-enhanced RAG system"""
+    
+    def __init__(
+        self,
+        base_retriever,
+        knowledge_graph: nx.MultiDiGraph = None,
+        model_name: str = "gpt-4"
+    ):
+        self.base_retriever = base_retriever
+        self.knowledge_graph = knowledge_graph
+        self.graph_retriever = GraphRetriever(knowledge_graph) if knowledge_graph else None
+        self.model_name = model_name
+        
+        if not knowledge_graph:
+            self.kg_builder = KnowledgeGraphBuilder()
+    
+    async def build_knowledge_graph(self, documents: List[Dict]) -> nx.MultiDiGraph:
+        """Build knowledge graph from documents"""
+        
+        print(f"Building knowledge graph from {len(documents)} documents...")
+        
+        self.knowledge_graph = await self.kg_builder.build_from_documents(documents)
+        self.graph_retriever = GraphRetriever(self.knowledge_graph)
+        
+        print(f"Knowledge graph built with {self.knowledge_graph.number_of_nodes()} entities "
+              f"and {self.knowledge_graph.number_of_edges()} relationships")
+        
+        return self.knowledge_graph
+    
+    async def retrieve_with_graph(
+        self,
+        query: str,
+        use_semantic_search: bool = True,
+        use_entity_search: bool = True,
+        top_k: int = 5
+    ) -> List[Dict]:
+        """Retrieve using both traditional and graph-based methods"""
+        
+        all_results = []
+        
+        # Traditional retrieval
+        try:
+            traditional_results = await self.base_retriever.search(query, limit=top_k)
+            for result in traditional_results:
+                result['retrieval_method'] = 'traditional'
+            all_results.extend(traditional_results)
+        except Exception as e:
+            print(f"Traditional retrieval failed: {e}")
+        
+        # Graph-based retrieval
+        if self.graph_retriever:
+            try:
+                # Semantic graph search
+                if use_semantic_search:
+                    semantic_results = await self.graph_retriever.semantic_graph_search(query, top_k)
+                    for result in semantic_results:
+                        result['retrieval_method'] = 'graph_semantic'
+                    all_results.extend(semantic_results)
+                
+                # Entity-based search (if entities detected in query)
+                if use_entity_search:
+                    query_entities = self._extract_query_entities(query)
+                    if query_entities:
+                        entity_results = await self.graph_retriever.retrieve_by_entities(query_entities)
+                        for result in entity_results:
+                            result['retrieval_method'] = 'graph_entity'
+                        all_results.extend(entity_results)
+            
+            except Exception as e:
+                print(f"Graph retrieval failed: {e}")
+        
+        # Deduplicate and rank
+        final_results = self._merge_and_rank_results(all_results)
+        
+        return final_results[:top_k]
+    
+    def _extract_query_entities(self, query: str) -> List[str]:
+        """Extract entity mentions from query"""
+        
+        if not hasattr(self, 'kg_builder') or not self.kg_builder.nlp:
+            return []
+        
+        doc = self.kg_builder.nlp(query)
+        entities = [ent.text for ent in doc.ents if ent.label_ in ['PERSON', 'ORG', 'GPE', 'PRODUCT']]
+        
+        return entities
+    
+    def _merge_and_rank_results(self, results: List[Dict]) -> List[Dict]:
+        """Merge and rank results from different retrieval methods"""
+        
+        # Group by content similarity
+        merged_results = []
+        seen_content = set()
+        
+        for result in results:
+            content = result.get('content', '')
+            
+            # Simple deduplication based on content similarity
+            if content and len(content) > 20:
+                content_key = content[:100].lower().strip()
+                if content_key not in seen_content:
+                    seen_content.add(content_key)
+                    
+                    # Calculate combined score
+                    traditional_score = result.get('score', 0.0) if result.get('retrieval_method') == 'traditional' else 0.0
+                    graph_score = result.get('similarity_score', 0.0) if 'graph' in result.get('retrieval_method', '') else 0.0
+                    
+                    # Weighted combination
+                    combined_score = 0.6 * traditional_score + 0.4 * graph_score
+                    result['combined_score'] = combined_score
+                    
+                    merged_results.append(result)
+        
+        # Sort by combined score
+        merged_results.sort(key=lambda x: x.get('combined_score', 0.0), reverse=True)
+        
+        return merged_results
+    
+    async def answer_with_graph_context(self, query: str, top_k: int = 5) -> str:
+        """Generate answer using graph-enhanced retrieval"""
+        
+        # Retrieve with graph enhancement
+        results = await self.retrieve_with_graph(query, top_k=top_k)
+        
+        # Build context
+        context_parts = []
+        
+        for i, result in enumerate(results):
+            content = result.get('content', '')
+            method = result.get('retrieval_method', 'unknown')
+            
+            context_parts.append(f"[Source {i+1} - {method}]: {content}")
+        
+        context = "\n\n".join(context_parts)
+        
+        # Generate answer
+        prompt = f"""
+Answer the following question using the provided context. The context includes information 
+from both traditional document retrieval and knowledge graph-based retrieval.
+
+Question: {query}
+
+Context:
+{context}
+
+Instructions:
+1. Provide a comprehensive answer based on the available information
+2. When possible, mention specific entities and their relationships
+3. Indicate if information comes from structured knowledge (graph) vs. unstructured text
+4. If the information is incomplete, state what additional details would be helpful
+
+Answer:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=400
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"Answer generation failed: {e}")
+            return f"Based on the retrieved information: {context[:500]}..."
+
+# Example usage
+async def graph_rag_example():
+    """Example usage of graph-enhanced RAG"""
+    
+    # Mock retriever and documents
+    class MockRetriever:
+        async def search(self, query: str, limit: int = 10):
+            return [
+                {
+                    'content': 'OpenAI developed GPT models for natural language processing.',
+                    'source': 'AI_Report_2023',
+                    'score': 0.9
+                },
+                {
+                    'content': 'Transformers use attention mechanisms for sequence modeling.',
+                    'source': 'ML_Paper',
+                    'score': 0.8
+                }
+            ]
+    
+    sample_documents = [
+        {
+            'content': 'OpenAI is an artificial intelligence research company founded by Sam Altman and others. They developed GPT models.',
+            'source': 'company_info'
+        },
+        {
+            'content': 'GPT models are transformer-based language models that use attention mechanisms for text generation.',
+            'source': 'technical_docs'
+        }
+    ]
+    
+    # Initialize system
+    retriever = MockRetriever()
+    graph_rag = GraphEnhancedRAG(retriever, model_name="gpt-3.5-turbo")
+    
+    # Build knowledge graph
+    kg = await graph_rag.build_knowledge_graph(sample_documents)
+    
+    # Query with graph enhancement
+    query = "What is the relationship between OpenAI and GPT models?"
+    answer = await graph_rag.answer_with_graph_context(query)
+    
+    print(f"Query: {query}")
+    print(f"Answer: {answer}")
+    
+    return answer
+
+if __name__ == "__main__":
+    asyncio.run(graph_rag_example())
+                </pre>
+            </div>
+
+            <div class="warning-box">
+                <h4>Graph RAG Considerations</h4>
+                <p>
+                    • <strong>Graph Quality:</strong> Accuracy depends on entity extraction and relationship identification<br>
+                    • <strong>Scalability:</strong> Large graphs require efficient storage and querying<br>
+                    • <strong>Maintenance:</strong> Graphs need updates as new information becomes available<br>
+                    • <strong>Integration:</strong> Balance between graph-based and traditional retrieval methods
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Iterative RAG Section -->
+    <section id="iterative-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Iterative RAG</h2>
+            <p class="content-text">
+                Iterative RAG performs multiple rounds of retrieval and generation, refining the 
+                search and improving the answer quality through iterative feedback loops.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Iterative Process</h4>
+                    <ul class="feature-list">
+                        <li>Initial query processing</li>
+                        <li>Retrieval and generation</li>
+                        <li>Answer quality assessment</li>
+                        <li>Query refinement</li>
+                        <li>Additional retrieval rounds</li>
+                        <li>Final answer synthesis</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Benefits</h4>
+                    <p>
+                        • <strong>Progressive Improvement:</strong> Each iteration refines the answer<br>
+                        • <strong>Gap Filling:</strong> Identify and fill information gaps<br>
+                        • <strong>Quality Control:</strong> Self-assessment and correction<br>
+                        • <strong>Comprehensive Coverage:</strong> Explore multiple information angles
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Iterative RAG Implementation</div>
+                <pre class="code-content">
+import asyncio
+from typing import List, Dict, Optional, Tuple
+from dataclasses import dataclass, field
+import openai
+from sentence_transformers import SentenceTransformer
+
+@dataclass
+class IterationResult:
+    iteration: int
+    query: str
+    retrieved_docs: List[Dict]
+    generated_answer: str
+    confidence_score: float
+    gaps_identified: List[str] = field(default_factory=list)
+    refinement_needed: bool = True
+    metadata: Dict = field(default_factory=dict)
+
+class AnswerAssessor:
+    """Assess answer quality and identify gaps"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+    
+    async def assess_answer_quality(
+        self,
+        question: str,
+        answer: str,
+        retrieved_docs: List[Dict]
+    ) -> Tuple[float, List[str]]:
+        """Assess answer quality and identify information gaps"""
+        
+        doc_summaries = []
+        for i, doc in enumerate(retrieved_docs[:3]):  # Limit for prompt size
+            content = doc.get('content', '')[:200]
+            doc_summaries.append(f"Doc {i+1}: {content}")
+        
+        docs_context = "\n".join(doc_summaries)
+        
+        prompt = f"""
+Assess the quality of this answer and identify any information gaps.
+
+Question: {question}
+Answer: {answer}
+
+Retrieved Documents:
+{docs_context}
+
+Evaluate the answer on:
+1. Completeness: Does it fully address the question?
+2. Accuracy: Is the information correct based on the documents?
+3. Relevance: Does it stay focused on the question?
+4. Clarity: Is it well-structured and understandable?
+
+Provide:
+1. A confidence score (0.0-1.0)
+2. List of missing information or gaps (if any)
+
+Format:
+Confidence: [score]
+Gaps: [list specific information that's missing or unclear]
+Assessment: [brief explanation of the scoring]
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1,
+                max_tokens=300
+            )
+            
+            content = response.choices[0].message.content.strip()
+            
+            # Parse response
+            confidence_score = 0.5
+            gaps = []
+            
+            lines = content.split('\n')
+            for line in lines:
+                if line.startswith('Confidence:'):
+                    try:
+                        confidence_score = float(line.split(':')[1].strip())
+                    except ValueError:
+                        pass
+                elif line.startswith('Gaps:'):
+                    gap_text = line.split(':', 1)[1].strip()
+                    if gap_text.lower() not in ['none', 'no gaps', 'n/a']:
+                        gaps = [gap.strip() for gap in gap_text.split(',') if gap.strip()]
+            
+            return confidence_score, gaps
+            
+        except Exception as e:
+            print(f"Answer assessment failed: {e}")
+            return 0.5, []
+
+class QueryRefiner:
+    """Refine queries based on identified gaps"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        self.model_name = model_name
+    
+    async def refine_query(
+        self,
+        original_query: str,
+        current_answer: str,
+        identified_gaps: List[str],
+        previous_queries: List[str] = None
+    ) -> str:
+        """Generate refined query to address information gaps"""
+        
+        if not identified_gaps:
+            return original_query
+        
+        previous_context = ""
+        if previous_queries:
+            previous_context = f"\nPrevious queries tried: {', '.join(previous_queries[-3:])}"
+        
+        gaps_text = "; ".join(identified_gaps)
+        
+        prompt = f"""
+Refine the search query to address the identified information gaps.
+
+Original Question: {original_query}
+Current Answer: {current_answer[:300]}...
+Information Gaps: {gaps_text}
+{previous_context}
+
+Create a new, more specific search query that would help find the missing information.
+Focus on the most important gaps while keeping the query focused and searchable.
+
+Refined Query:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=100
+            )
+            
+            refined_query = response.choices[0].message.content.strip()
+            return refined_query
+            
+        except Exception as e:
+            print(f"Query refinement failed: {e}")
+            return original_query
+
+class IterativeRAGSystem:
+    """Complete iterative RAG system"""
+    
+    def __init__(
+        self,
+        base_retriever,
+        model_name: str = "gpt-4",
+        max_iterations: int = 3,
+        confidence_threshold: float = 0.8
+    ):
+        self.base_retriever = base_retriever
+        self.model_name = model_name
+        self.max_iterations = max_iterations
+        self.confidence_threshold = confidence_threshold
+        
+        self.assessor = AnswerAssessor(model_name)
+        self.refiner = QueryRefiner(model_name)
+    
+    async def iterative_answer(
+        self,
+        question: str,
+        initial_context: str = ""
+    ) -> List[IterationResult]:
+        """Perform iterative RAG to generate comprehensive answer"""
+        
+        print(f"Starting iterative RAG for: '{question}'")
+        
+        iterations = []
+        current_query = question
+        previous_queries = []
+        accumulated_context = initial_context
+        
+        for iteration in range(1, self.max_iterations + 1):
+            print(f"\nIteration {iteration}: {current_query}")
+            
+            # Retrieve documents
+            try:
+                retrieved_docs = await self.base_retriever.search(current_query, limit=5)
+            except Exception as e:
+                print(f"Retrieval failed: {e}")
+                retrieved_docs = []
+            
+            # Generate answer
+            answer = await self._generate_answer(
+                question, current_query, retrieved_docs, accumulated_context
+            )
+            
+            # Assess answer quality
+            confidence, gaps = await self.assessor.assess_answer_quality(
+                question, answer, retrieved_docs
+            )
+            
+            # Create iteration result
+            iteration_result = IterationResult(
+                iteration=iteration,
+                query=current_query,
+                retrieved_docs=retrieved_docs,
+                generated_answer=answer,
+                confidence_score=confidence,
+                gaps_identified=gaps,
+                refinement_needed=confidence < self.confidence_threshold and len(gaps) > 0,
+                metadata={
+                    'doc_count': len(retrieved_docs),
+                    'context_length': len(accumulated_context)
+                }
+            )
+            
+            iterations.append(iteration_result)
+            
+            # Update accumulated context
+            accumulated_context += f"\n\nIteration {iteration} findings: {answer}"
+            
+            print(f"Confidence: {confidence:.2f}, Gaps: {len(gaps)}")
+            
+            # Check if we should continue
+            if not iteration_result.refinement_needed or iteration == self.max_iterations:
+                print(f"Stopping after {iteration} iterations")
+                break
+            
+            # Refine query for next iteration
+            previous_queries.append(current_query)
+            current_query = await self.refiner.refine_query(
+                question, answer, gaps, previous_queries
+            )
+            
+            # Avoid infinite loops with identical queries
+            if current_query in previous_queries:
+                print("Query refinement converged, stopping")
+                break
+        
+        return iterations
+    
+    async def _generate_answer(
+        self,
+        original_question: str,
+        current_query: str,
+        retrieved_docs: List[Dict],
+        accumulated_context: str
+    ) -> str:
+        """Generate answer for current iteration"""
+        
+        # Build context from retrieved documents
+        doc_context = ""
+        if retrieved_docs:
+            doc_parts = []
+            for i, doc in enumerate(retrieved_docs):
+                content = doc.get('content', '')[:400]  # Limit length
+                source = doc.get('source', f'Document {i+1}')
+                doc_parts.append(f"[{source}]: {content}")
+            doc_context = "\n\n".join(doc_parts)
+        
+        # Include accumulated context from previous iterations
+        full_context = f"{accumulated_context}\n\n{doc_context}".strip()
+        
+        prompt = f"""
+Answer the question using the provided information. This is part of an iterative process 
+to build a comprehensive answer.
+
+Original Question: {original_question}
+Current Search Focus: {current_query}
+
+Information Available:
+{full_context}
+
+Instructions:
+1. Focus on directly answering the original question
+2. Use information from both current retrieval and previous iterations
+3. Be specific and cite sources when possible
+4. If information is incomplete, acknowledge gaps clearly
+5. Build upon previous findings rather than repeating them
+
+Answer:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=400
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"Answer generation failed: {e}")
+            return f"Unable to generate answer: {str(e)}"
+    
+    def synthesize_final_answer(self, iterations: List[IterationResult]) -> str:
+        """Synthesize final answer from all iterations"""
+        
+        if not iterations:
+            return "No iterations completed."
+        
+        # Use the last iteration as the base, but incorporate insights from all
+        final_iteration = iterations[-1]
+        
+        # Combine key insights from all iterations
+        all_insights = []
+        for iter_result in iterations:
+            if iter_result.generated_answer:
+                all_insights.append(f"Iteration {iter_result.iteration}: {iter_result.generated_answer}")
+        
+        # Return the most comprehensive answer (usually the last one)
+        return final_iteration.generated_answer
+    
+    def get_iteration_summary(self, iterations: List[IterationResult]) -> Dict:
+        """Get summary of iterative process"""
+        
+        if not iterations:
+            return {}
+        
+        total_docs = sum(len(iter_result.retrieved_docs) for iter_result in iterations)
+        final_confidence = iterations[-1].confidence_score if iterations else 0.0
+        queries_used = [iter_result.query for iter_result in iterations]
+        
+        return {
+            'total_iterations': len(iterations),
+            'final_confidence': final_confidence,
+            'total_documents_retrieved': total_docs,
+            'queries_explored': queries_used,
+            'improvement_trend': [iter_result.confidence_score for iter_result in iterations],
+            'final_gaps': iterations[-1].gaps_identified if iterations else []
+        }
+
+# Example usage
+async def iterative_rag_example():
+    """Example usage of iterative RAG"""
+    
+    # Mock retriever
+    class MockRetriever:
+        def __init__(self):
+            self.call_count = 0
+        
+        async def search(self, query: str, limit: int = 5):
+            self.call_count += 1
+            
+            # Simulate different results based on query refinement
+            if "transformer" in query.lower():
+                return [
+                    {
+                        'content': 'Transformers use self-attention mechanisms to process sequences efficiently.',
+                        'source': 'ML_Paper_2017',
+                        'score': 0.9
+                    }
+                ]
+            elif "attention" in query.lower():
+                return [
+                    {
+                        'content': 'Attention mechanisms allow models to focus on relevant parts of the input.',
+                        'source': 'Deep_Learning_Book',
+                        'score': 0.85
+                    }
+                ]
+            elif "application" in query.lower():
+                return [
+                    {
+                        'content': 'Transformers are used in language models, machine translation, and text summarization.',
+                        'source': 'NLP_Survey_2023',
+                        'score': 0.8
+                    }
+                ]
+            else:
+                return [
+                    {
+                        'content': f'General information about: {query}',
+                        'source': 'General_Reference',
+                        'score': 0.6
+                    }
+                ]
+    
+    # Initialize system
+    retriever = MockRetriever()
+    iterative_rag = IterativeRAGSystem(
+        base_retriever=retriever,
+        model_name="gpt-3.5-turbo",
+        max_iterations=3,
+        confidence_threshold=0.7
+    )
+    
+    # Perform iterative questioning
+    question = "How do transformers work and what are their main applications?"
+    iterations = await iterative_rag.iterative_answer(question)
+    
+    # Get results
+    final_answer = iterative_rag.synthesize_final_answer(iterations)
+    summary = iterative_rag.get_iteration_summary(iterations)
+    
+    print(f"\nFinal Answer: {final_answer}")
+    print(f"\nProcess Summary: {summary}")
+    
+    return iterations
+
+if __name__ == "__main__":
+    asyncio.run(iterative_rag_example())
+                </pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modular RAG Section -->
+    <section id="modular-rag" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Modular RAG Architecture</h2>
+            <p class="content-text">
+                Modular RAG breaks down the RAG pipeline into composable, interchangeable modules 
+                that can be mixed and matched based on specific requirements, enabling flexible 
+                and scalable RAG system design.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Core Modules</h4>
+                    <ul class="feature-list">
+                        <li>Query processing modules</li>
+                        <li>Retrieval strategy modules</li>
+                        <li>Context processing modules</li>
+                        <li>Generation modules</li>
+                        <li>Post-processing modules</li>
+                        <li>Evaluation modules</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Advantages</h4>
+                    <p>
+                        • <strong>Flexibility:</strong> Mix and match components as needed<br>
+                        • <strong>Scalability:</strong> Scale individual modules independently<br>
+                        • <strong>Maintainability:</strong> Easier to debug and update components<br>
+                        • <strong>Reusability:</strong> Share modules across different applications
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Modular RAG Implementation</div>
+                <pre class="code-content">
+from abc import ABC, abstractmethod
+from typing import List, Dict, Any, Optional, Protocol
+from dataclasses import dataclass
+from enum import Enum
+import asyncio
+
+@dataclass
+class RAGContext:
+    """Context passed between RAG modules"""
+    query: str
+    processed_query: str = ""
+    retrieved_docs: List[Dict] = None
+    processed_docs: List[Dict] = None
+    generated_response: str = ""
+    metadata: Dict[str, Any] = None
+    
+    def __post_init__(self):
+        if self.retrieved_docs is None:
+            self.retrieved_docs = []
+        if self.processed_docs is None:
+            self.processed_docs = []
+        if self.metadata is None:
+            self.metadata = {}
+
+class ModuleType(Enum):
+    QUERY_PROCESSOR = "query_processor"
+    RETRIEVER = "retriever"
+    CONTEXT_PROCESSOR = "context_processor"
+    GENERATOR = "generator"
+    POST_PROCESSOR = "post_processor"
+    EVALUATOR = "evaluator"
+
+class RAGModule(ABC):
+    """Base class for all RAG modules"""
+    
+    def __init__(self, name: str, module_type: ModuleType):
+        self.name = name
+        self.module_type = module_type
+        self.config = {}
+    
+    @abstractmethod
+    async def process(self, context: RAGContext) -> RAGContext:
+        """Process the RAG context and return updated context"""
+        pass
+    
+    def configure(self, **kwargs):
+        """Configure module parameters"""
+        self.config.update(kwargs)
+        return self
+
+# Query Processing Modules
+class BasicQueryProcessor(RAGModule):
+    """Basic query preprocessing"""
+    
+    def __init__(self):
+        super().__init__("BasicQueryProcessor", ModuleType.QUERY_PROCESSOR)
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        # Basic cleaning and normalization
+        processed = context.query.strip().lower()
+        context.processed_query = processed
+        context.metadata['query_length'] = len(processed)
+        return context
+
+class SemanticQueryProcessor(RAGModule):
+    """Advanced semantic query processing"""
+    
+    def __init__(self):
+        super().__init__("SemanticQueryProcessor", ModuleType.QUERY_PROCESSOR)
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        # Simulate semantic processing
+        processed = context.query.strip()
+        
+        # Add query expansion
+        if len(processed.split()) < 5:
+            processed += " related information details"
+        
+        context.processed_query = processed
+        context.metadata['semantic_processing'] = True
+        return context
+
+# Retrieval Modules
+class VectorRetriever(RAGModule):
+    """Vector-based document retrieval"""
+    
+    def __init__(self, top_k: int = 5):
+        super().__init__("VectorRetriever", ModuleType.RETRIEVER)
+        self.top_k = top_k
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        # Simulate vector retrieval
+        query = context.processed_query or context.query
+        
+        # Mock retrieved documents
+        docs = [
+            {
+                'content': f'Retrieved document {i+1} for query: {query}',
+                'score': 1.0 - (i * 0.1),
+                'source': f'doc_{i+1}',
+                'retrieval_method': 'vector'
+            }
+            for i in range(self.top_k)
+        ]
+        
+        context.retrieved_docs = docs
+        context.metadata['retrieval_count'] = len(docs)
+        return context
+
+class HybridRetriever(RAGModule):
+    """Hybrid retrieval combining multiple strategies"""
+    
+    def __init__(self, strategies: List[str] = None):
+        super().__init__("HybridRetriever", ModuleType.RETRIEVER)
+        self.strategies = strategies or ['vector', 'keyword', 'semantic']
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        query = context.processed_query or context.query
+        all_docs = []
+        
+        # Simulate multiple retrieval strategies
+        for strategy in self.strategies:
+            docs = [
+                {
+                    'content': f'{strategy.title()} result {i+1}: {query}',
+                    'score': 0.9 - (i * 0.1),
+                    'source': f'{strategy}_doc_{i+1}',
+                    'retrieval_method': strategy
+                }
+                for i in range(3)  # 3 docs per strategy
+            ]
+            all_docs.extend(docs)
+        
+        # Sort by score and take top results
+        all_docs.sort(key=lambda x: x['score'], reverse=True)
+        context.retrieved_docs = all_docs[:10]
+        context.metadata['hybrid_strategies'] = self.strategies
+        return context
+
+# Context Processing Modules
+class DocumentRanker(RAGModule):
+    """Re-rank retrieved documents"""
+    
+    def __init__(self):
+        super().__init__("DocumentRanker", ModuleType.CONTEXT_PROCESSOR)
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        if not context.retrieved_docs:
+            return context
+        
+        # Simulate re-ranking logic
+        query = context.processed_query or context.query
+        query_words = set(query.lower().split())
+        
+        for doc in context.retrieved_docs:
+            content_words = set(doc['content'].lower().split())
+            word_overlap = len(query_words.intersection(content_words))
+            
+            # Boost score based on word overlap
+            doc['rerank_score'] = doc.get('score', 0.0) + (word_overlap * 0.1)
+        
+        # Sort by re-rank score
+        context.processed_docs = sorted(
+            context.retrieved_docs, 
+            key=lambda x: x.get('rerank_score', 0.0), 
+            reverse=True
+        )
+        
+        context.metadata['reranking_applied'] = True
+        return context
+
+class ContextCompressor(RAGModule):
+    """Compress context to fit model limits"""
+    
+    def __init__(self, max_tokens: int = 2000):
+        super().__init__("ContextCompressor", ModuleType.CONTEXT_PROCESSOR)
+        self.max_tokens = max_tokens
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        docs_to_process = context.processed_docs or context.retrieved_docs
+        if not docs_to_process:
+            return context
+        
+        compressed_docs = []
+        current_tokens = 0
+        
+        for doc in docs_to_process:
+            content = doc['content']
+            # Rough token estimation (1 token ≈ 4 characters)
+            doc_tokens = len(content) // 4
+            
+            if current_tokens + doc_tokens <= self.max_tokens:
+                compressed_docs.append(doc)
+                current_tokens += doc_tokens
+            else:
+                # Truncate the document to fit
+                remaining_tokens = self.max_tokens - current_tokens
+                truncated_content = content[:remaining_tokens * 4]
+                
+                truncated_doc = doc.copy()
+                truncated_doc['content'] = truncated_content + "..."
+                truncated_doc['truncated'] = True
+                compressed_docs.append(truncated_doc)
+                break
+        
+        context.processed_docs = compressed_docs
+        context.metadata['compression_applied'] = True
+        context.metadata['compressed_doc_count'] = len(compressed_docs)
+        return context
+
+# Generation Modules
+class BasicGenerator(RAGModule):
+    """Basic response generation"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo"):
+        super().__init__("BasicGenerator", ModuleType.GENERATOR)
+        self.model_name = model_name
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        query = context.processed_query or context.query
+        docs = context.processed_docs or context.retrieved_docs
+        
+        # Build context from documents
+        doc_context = "\n".join([
+            f"[{doc.get('source', 'Unknown')}]: {doc.get('content', '')[:200]}"
+            for doc in docs[:5]
+        ])
+        
+        # Simulate response generation
+        response = f"Based on the retrieved information about '{query}', here is a comprehensive answer synthesized from {len(docs)} sources: {doc_context[:300]}..."
+        
+        context.generated_response = response
+        context.metadata['generation_model'] = self.model_name
+        return context
+
+class CitationGenerator(RAGModule):
+    """Generator that includes citations"""
+    
+    def __init__(self, model_name: str = "gpt-4"):
+        super().__init__("CitationGenerator", ModuleType.GENERATOR)
+        self.model_name = model_name
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        query = context.processed_query or context.query
+        docs = context.processed_docs or context.retrieved_docs
+        
+        # Generate response with citations
+        response_parts = []
+        citations = []
+        
+        for i, doc in enumerate(docs[:3]):
+            content = doc.get('content', '')[:150]
+            source = doc.get('source', f'Document {i+1}')
+            
+            response_parts.append(f"{content} [{i+1}]")
+            citations.append(f"[{i+1}] {source}")
+        
+        main_response = f"Regarding '{query}': " + " ".join(response_parts)
+        citation_text = "\n\nSources:\n" + "\n".join(citations)
+        
+        context.generated_response = main_response + citation_text
+        context.metadata['citations_included'] = True
+        context.metadata['citation_count'] = len(citations)
+        return context
+
+# Post-processing Modules
+class ResponseFormatter(RAGModule):
+    """Format the final response"""
+    
+    def __init__(self, format_type: str = "markdown"):
+        super().__init__("ResponseFormatter", ModuleType.POST_PROCESSOR)
+        self.format_type = format_type
+    
+    async def process(self, context: RAGContext) -> RAGContext:
+        if not context.generated_response:
+            return context
+        
+        response = context.generated_response
+        
+        if self.format_type == "markdown":
+            # Add markdown formatting
+            formatted = f"## Answer\n\n{response}\n"
+            
+            # Add metadata section
+            if context.metadata:
+                formatted += f"\n\n### Processing Details\n"
+                for key, value in context.metadata.items():
+                    formatted += f"- **{key.replace('_', ' ').title()}**: {value}\n"
+        
+        elif self.format_type == "json":
+            import json
+            formatted = json.dumps({
+                "answer": response,
+                "metadata": context.metadata
+            }, indent=2)
+        
+        else:  # plain text
+            formatted = response
+        
+        context.generated_response = formatted
+        context.metadata['formatting_applied'] = self.format_type
+        return context
+
+# Pipeline Management
+class RAGPipeline:
+    """Manages the execution of RAG modules"""
+    
+    def __init__(self, name: str):
+        self.name = name
+        self.modules = []
+        self.config = {}
+    
+    def add_module(self, module: RAGModule) -> 'RAGPipeline':
+        """Add a module to the pipeline"""
+        self.modules.append(module)
+        return self
+    
+    def configure(self, **kwargs) -> 'RAGPipeline':
+        """Configure pipeline parameters"""
+        self.config.update(kwargs)
+        return self
+    
+    async def execute(self, query: str, initial_context: Dict = None) -> RAGContext:
+        """Execute the pipeline"""
+        
+        # Initialize context
+        context = RAGContext(
+            query=query,
+            metadata=initial_context or {}
+        )
+        
+        context.metadata['pipeline_name'] = self.name
+        context.metadata['module_count'] = len(self.modules)
+        
+        # Execute modules in sequence
+        for i, module in enumerate(self.modules):
+            try:
+                print(f"Executing module {i+1}/{len(self.modules)}: {module.name}")
+                context = await module.process(context)
+                context.metadata[f'module_{i+1}_executed'] = module.name
+                
+            except Exception as e:
+                print(f"Module {module.name} failed: {e}")
+                context.metadata[f'module_{i+1}_error'] = str(e)
+                # Continue with next module or implement error handling strategy
+        
+        return context
+    
+    def get_module_by_name(self, name: str) -> Optional[RAGModule]:
+        """Get a module by name"""
+        for module in self.modules:
+            if module.name == name:
+                return module
+        return None
+    
+    def get_modules_by_type(self, module_type: ModuleType) -> List[RAGModule]:
+        """Get all modules of a specific type"""
+        return [m for m in self.modules if m.module_type == module_type]
+
+# Pre-configured Pipeline Templates
+class PipelineTemplates:
+    """Common pipeline configurations"""
+    
+    @staticmethod
+    def basic_rag() -> RAGPipeline:
+        """Basic RAG pipeline"""
+        return (RAGPipeline("BasicRAG")
+                .add_module(BasicQueryProcessor())
+                .add_module(VectorRetriever(top_k=5))
+                .add_module(BasicGenerator())
+                .add_module(ResponseFormatter("plain")))
+    
+    @staticmethod
+    def advanced_rag() -> RAGPipeline:
+        """Advanced RAG with all enhancements"""
+        return (RAGPipeline("AdvancedRAG")
+                .add_module(SemanticQueryProcessor())
+                .add_module(HybridRetriever(['vector', 'keyword', 'semantic']))
+                .add_module(DocumentRanker())
+                .add_module(ContextCompressor(max_tokens=1500))
+                .add_module(CitationGenerator())
+                .add_module(ResponseFormatter("markdown")))
+    
+    @staticmethod
+    def research_rag() -> RAGPipeline:
+        """Pipeline optimized for research tasks"""
+        return (RAGPipeline("ResearchRAG")
+                .add_module(SemanticQueryProcessor())
+                .add_module(HybridRetriever(['vector', 'semantic']))
+                .add_module(DocumentRanker())
+                .add_module(CitationGenerator("gpt-4"))
+                .add_module(ResponseFormatter("markdown")))
+
+# Example usage
+async def modular_rag_example():
+    """Example of using modular RAG system"""
+    
+    print("=== Basic RAG Pipeline ===")
+    basic_pipeline = PipelineTemplates.basic_rag()
+    
+    query = "What are the applications of machine learning?"
+    result = await basic_pipeline.execute(query)
+    
+    print(f"Query: {result.query}")
+    print(f"Response: {result.generated_response[:200]}...")
+    print(f"Metadata: {result.metadata}")
+    
+    print("\n=== Advanced RAG Pipeline ===")
+    advanced_pipeline = PipelineTemplates.advanced_rag()
+    
+    result = await advanced_pipeline.execute(query)
+    print(f"Advanced Response: {result.generated_response[:200]}...")
+    
+    print("\n=== Custom Pipeline ===")
+    # Build custom pipeline
+    custom_pipeline = (RAGPipeline("CustomRAG")
+                      .add_module(SemanticQueryProcessor())
+                      .add_module(VectorRetriever(top_k=8))
+                      .add_module(DocumentRanker())
+                      .add_module(BasicGenerator())
+                      .add_module(ResponseFormatter("json")))
+    
+    result = await custom_pipeline.execute(query)
+    print(f"Custom Response: {result.generated_response[:200]}...")
+    
+    return result
+
+# Pipeline Comparison and A/B Testing
+class PipelineComparator:
+    """Compare different pipeline configurations"""
+    
+    def __init__(self):
+        self.results = {}
+    
+    async def compare_pipelines(
+        self, 
+        pipelines: Dict[str, RAGPipeline], 
+        test_queries: List[str]
+    ) -> Dict[str, Any]:
+        """Compare multiple pipelines on test queries"""
+        
+        comparison_results = {}
+        
+        for query in test_queries:
+            print(f"\nTesting query: '{query}'")
+            query_results = {}
+            
+            for pipeline_name, pipeline in pipelines.items():
+                print(f"  Running {pipeline_name}...")
+                
+                import time
+                start_time = time.time()
+                result = await pipeline.execute(query)
+                execution_time = time.time() - start_time
+                
+                query_results[pipeline_name] = {
+                    'response': result.generated_response,
+                    'execution_time': execution_time,
+                    'metadata': result.metadata,
+                    'module_count': len(result.metadata.get('module_count', 0))
+                }
+            
+            comparison_results[query] = query_results
+        
+        return comparison_results
+    
+    def analyze_results(self, comparison_results: Dict) -> Dict[str, Any]:
+        """Analyze comparison results"""
+        
+        pipeline_stats = defaultdict(list)
+        
+        for query, results in comparison_results.items():
+            for pipeline_name, result in results.items():
+                pipeline_stats[pipeline_name].append({
+                    'execution_time': result['execution_time'],
+                    'response_length': len(result['response'])
+                })
+        
+        # Calculate averages
+        analysis = {}
+        for pipeline_name, stats in pipeline_stats.items():
+            avg_time = sum(s['execution_time'] for s in stats) / len(stats)
+            avg_length = sum(s['response_length'] for s in stats) / len(stats)
+            
+            analysis[pipeline_name] = {
+                'avg_execution_time': avg_time,
+                'avg_response_length': avg_length,
+                'queries_tested': len(stats)
+            }
+        
+        return analysis
+
+if __name__ == "__main__":
+    asyncio.run(modular_rag_example())
+                </pre>
+            </div>
+
+            <div class="info-box">
+                <h4>Modular Design Benefits</h4>
+                <p>
+                    • <strong>Component Reusability:</strong> Share modules across different pipelines<br>
+                    • <strong>Easy Testing:</strong> Test individual components in isolation<br>
+                    • <strong>Performance Optimization:</strong> Optimize specific modules independently<br>
+                    • <strong>Rapid Prototyping:</strong> Quickly test different pipeline configurations<br>
+                    • <strong>Maintenance:</strong> Update or replace modules without affecting the entire system
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Long-context RAG Section -->
+    <section id="long-context" class="content-section">
+        <div class="container">
+            <h2 class="section-title">Long-context RAG</h2>
+            <p class="content-text">
+                Long-context RAG handles very long documents and contexts that exceed typical model 
+                token limits, using techniques like chunking strategies, hierarchical processing, 
+                and context compression to work with extensive content.
+            </p>
+
+            <div class="two-column-grid">
+                <div class="pattern-card card">
+                    <h4>Long-context Techniques</h4>
+                    <ul class="feature-list">
+                        <li>Hierarchical document chunking</li>
+                        <li>Sliding window processing</li>
+                        <li>Context compression algorithms</li>
+                        <li>Multi-level summarization</li>
+                        <li>Adaptive context selection</li>
+                        <li>Token budget management</li>
+                    </ul>
+                </div>
+                
+                <div class="benefits-box">
+                    <h4>Use Cases</h4>
+                    <p>
+                        • <strong>Research Papers:</strong> Process entire academic papers<br>
+                        • <strong>Legal Documents:</strong> Handle contracts and legislation<br>
+                        • <strong>Technical Manuals:</strong> Work with comprehensive guides<br>
+                        • <strong>Book Analysis:</strong> Process full-length books and reports
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">Long-context RAG Implementation</div>
+                <pre class="code-content">
+import asyncio
+from typing import List, Dict, Optional, Tuple, Any
+from dataclasses import dataclass, field
+import openai
+from sentence_transformers import SentenceTransformer
+
+@dataclass
+class DocumentChunk:
+    """Represents a chunk of a long document"""
+    content: str
+    chunk_id: str
+    start_pos: int
+    end_pos: int
+    level: int = 0  # Hierarchical level
+    parent_chunk: Optional[str] = None
+    child_chunks: List[str] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    summary: str = ""
+
+@dataclass
+class LongContextResult:
+    """Result from long-context processing"""
+    original_query: str
+    selected_chunks: List[DocumentChunk]
+    compressed_context: str
+    generated_answer: str
+    processing_stats: Dict[str, Any] = field(default_factory=dict)
+
+class HierarchicalChunker:
+    """Create hierarchical chunks from long documents"""
+    
+    def __init__(
+        self, 
+        base_chunk_size: int = 1000,
+        overlap: int = 200,
+        max_levels: int = 3
+    ):
+        self.base_chunk_size = base_chunk_size
+        self.overlap = overlap
+        self.max_levels = max_levels
+    
+    def chunk_document(self, text: str, doc_id: str) -> List[DocumentChunk]:
+        """Create hierarchical chunks from document"""
+        
+        chunks = []
+        
+        # Level 0: Base chunks
+        base_chunks = self._create_base_chunks(text, doc_id)
+        chunks.extend(base_chunks)
+        
+        # Higher levels: Aggregate chunks
+        current_level_chunks = base_chunks
+        
+        for level in range(1, self.max_levels):
+            if len(current_level_chunks) <= 2:
+                break  # No need for more levels
+            
+            parent_chunks = self._create_parent_chunks(
+                current_level_chunks, doc_id, level
+            )
+            chunks.extend(parent_chunks)
+            current_level_chunks = parent_chunks
+        
+        return chunks
+    
+    def _create_base_chunks(self, text: str, doc_id: str) -> List[DocumentChunk]:
+        """Create base-level chunks"""
+        
+        chunks = []
+        words = text.split()
+        
+        for i in range(0, len(words), self.base_chunk_size - self.overlap):
+            chunk_words = words[i:i + self.base_chunk_size]
+            chunk_text = ' '.join(chunk_words)
+            
+            if not chunk_text.strip():
+                continue
+            
+            start_pos = len(' '.join(words[:i])) if i > 0 else 0
+            end_pos = start_pos + len(chunk_text)
+            
+            chunk = DocumentChunk(
+                content=chunk_text,
+                chunk_id=f"{doc_id}_chunk_{len(chunks)}",
+                start_pos=start_pos,
+                end_pos=end_pos,
+                level=0,
+                metadata={
+                    'word_count': len(chunk_words),
+                    'doc_id': doc_id
+                }
+            )
+            
+            chunks.append(chunk)
+        
+        return chunks
+    
+    def _create_parent_chunks(
+        self, 
+        child_chunks: List[DocumentChunk], 
+        doc_id: str, 
+        level: int
+    ) -> List[DocumentChunk]:
+        """Create parent chunks by combining child chunks"""
+        
+        parent_chunks = []
+        group_size = max(2, len(child_chunks) // 3)  # Group child chunks
+        
+        for i in range(0, len(child_chunks), group_size):
+            group = child_chunks[i:i + group_size]
+            
+            # Combine content
+            combined_content = ' '.join([chunk.content for chunk in group])
+            
+            # Truncate if too long
+            if len(combined_content) > self.base_chunk_size * 2:
+                combined_content = combined_content[:self.base_chunk_size * 2] + "..."
+            
+            parent_chunk = DocumentChunk(
+                content=combined_content,
+                chunk_id=f"{doc_id}_level{level}_chunk_{len(parent_chunks)}",
+                start_pos=group[0].start_pos,
+                end_pos=group[-1].end_pos,
+                level=level,
+                child_chunks=[chunk.chunk_id for chunk in group],
+                metadata={
+                    'child_count': len(group),
+                    'doc_id': doc_id
+                }
+            )
+            
+            # Update child chunks with parent reference
+            for chunk in group:
+                chunk.parent_chunk = parent_chunk.chunk_id
+            
+            parent_chunks.append(parent_chunk)
+        
+        return parent_chunks
+
+class ContextCompressor:
+    """Compress long contexts to fit model limits"""
+    
+    def __init__(self, model_name: str = "gpt-3.5-turbo", max_tokens: int = 3000):
+        self.model_name = model_name
+        self.max_tokens = max_tokens
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+    async def compress_context(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str,
+        compression_ratio: float = 0.5
+    ) -> str:
+        """Compress context using summarization and selection"""
+        
+        # Step 1: Rank chunks by relevance to query
+        ranked_chunks = await self._rank_chunks_by_relevance(chunks, query)
+        
+        # Step 2: Select chunks within token budget
+        selected_chunks = self._select_chunks_within_budget(
+            ranked_chunks, int(self.max_tokens * compression_ratio)
+        )
+        
+        # Step 3: Generate summaries for remaining chunks
+        compressed_content = await self._generate_compressed_summaries(
+            selected_chunks, query
+        )
+        
+        return compressed_content
+    
+    async def _rank_chunks_by_relevance(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str
+    ) -> List[Tuple[DocumentChunk, float]]:
+        """Rank chunks by semantic similarity to query"""
+        
+        # Get query embedding
+        query_embedding = self.embedding_model.encode([query])[0]
+        
+        # Calculate similarities
+        chunk_scores = []
+        
+        for chunk in chunks:
+            chunk_embedding = self.embedding_model.encode([chunk.content])[0]
+            
+            from sklearn.metrics.pairwise import cosine_similarity
+            similarity = cosine_similarity([query_embedding], [chunk_embedding])[0][0]
+            
+            chunk_scores.append((chunk, float(similarity)))
+        
+        # Sort by similarity score
+        return sorted(chunk_scores, key=lambda x: x[1], reverse=True)
+    
+    def _select_chunks_within_budget(
+        self, 
+        ranked_chunks: List[Tuple[DocumentChunk, float]], 
+        token_budget: int
+    ) -> List[DocumentChunk]:
+        """Select chunks that fit within token budget"""
+        
+        selected_chunks = []
+        current_tokens = 0
+        
+        for chunk, score in ranked_chunks:
+            # Rough token estimation (1 token ≈ 4 characters)
+            chunk_tokens = len(chunk.content) // 4
+            
+            if current_tokens + chunk_tokens <= token_budget:
+                selected_chunks.append(chunk)
+                current_tokens += chunk_tokens
+            else:
+                break
+        
+        return selected_chunks
+    
+    async def _generate_compressed_summaries(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str
+    ) -> str:
+        """Generate compressed summaries of selected chunks"""
+        
+        if not chunks:
+            return ""
+        
+        # Group chunks by level for better organization
+        chunks_by_level = {}
+        for chunk in chunks:
+            level = chunk.level
+            if level not in chunks_by_level:
+                chunks_by_level[level] = []
+            chunks_by_level[level].append(chunk)
+        
+        compressed_parts = []
+        
+        # Process each level
+        for level in sorted(chunks_by_level.keys()):
+            level_chunks = chunks_by_level[level]
+            
+            # Combine chunks for this level
+            level_content = '\n\n'.join([
+                f"[Chunk {chunk.chunk_id}]: {chunk.content[:500]}..."
+                for chunk in level_chunks
+            ])
+            
+            # Generate summary for this level
+            summary = await self._summarize_level_content(level_content, query, level)
+            compressed_parts.append(f"Level {level} Summary: {summary}")
+        
+        return '\n\n'.join(compressed_parts)
+    
+    async def _summarize_level_content(
+        self, 
+        content: str, 
+        query: str, 
+        level: int
+    ) -> str:
+        """Generate summary for content at specific level"""
+        
+        prompt = f"""
+Summarize the following content focusing on information relevant to this query: "{query}"
+
+Content (Level {level}):
+{content[:1500]}
+
+Instructions:
+1. Focus on information that helps answer the query
+2. Maintain key facts and important details
+3. Keep the summary concise but comprehensive
+4. Preserve any quantitative data or specific examples
+
+Summary:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                max_tokens=200
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"Summarization failed: {e}")
+            return content[:200] + "..."
+
+class AdaptiveContextSelector:
+    """Adaptively select context based on query complexity"""
+    
+    def __init__(self):
+        self.query_complexity_indicators = [
+            'compare', 'analyze', 'explain', 'relationship', 'difference',
+            'multiple', 'various', 'different', 'several', 'many'
+        ]
+    
+    async def select_optimal_context(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str,
+        base_token_limit: int = 2000
+    ) -> Tuple[List[DocumentChunk], int]:
+        """Select optimal context based on query complexity"""
+        
+        # Assess query complexity
+        complexity_score = self._assess_query_complexity(query)
+        
+        # Adjust token limit based on complexity
+        adjusted_limit = int(base_token_limit * (1 + complexity_score))
+        
+        # Select chunks using different strategies based on complexity
+        if complexity_score > 0.7:
+            # High complexity: use hierarchical selection
+            selected_chunks = await self._hierarchical_selection(
+                chunks, query, adjusted_limit
+            )
+        elif complexity_score > 0.3:
+            # Medium complexity: use relevance-based selection
+            selected_chunks = await self._relevance_selection(
+                chunks, query, adjusted_limit
+            )
+        else:
+            # Low complexity: use simple top-k selection
+            selected_chunks = await self._simple_selection(
+                chunks, query, adjusted_limit
+            )
+        
+        return selected_chunks, adjusted_limit
+    
+    def _assess_query_complexity(self, query: str) -> float:
+        """Assess query complexity (0.0 - 1.0)"""
+        
+        query_lower = query.lower()
+        
+        # Count complexity indicators
+        complexity_indicators = sum(
+            1 for indicator in self.query_complexity_indicators
+            if indicator in query_lower
+        )
+        
+        # Factor in query length
+        length_factor = min(len(query.split()) / 20.0, 1.0)
+        
+        # Factor in question words
+        question_words = ['what', 'how', 'why', 'when', 'where', 'which']
+        question_factor = sum(1 for word in question_words if word in query_lower) * 0.1
+        
+        complexity = (
+            (complexity_indicators * 0.3) +
+            (length_factor * 0.4) +
+            (question_factor * 0.3)
+        )
+        
+        return min(complexity, 1.0)
+    
+    async def _hierarchical_selection(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str, 
+        token_limit: int
+    ) -> List[DocumentChunk]:
+        """Select chunks using hierarchical strategy"""
+        
+        # Prefer higher-level chunks for overview, lower-level for details
+        chunks_by_level = {}
+        for chunk in chunks:
+            level = chunk.level
+            if level not in chunks_by_level:
+                chunks_by_level[level] = []
+            chunks_by_level[level].append(chunk)
+        
+        selected_chunks = []
+        remaining_tokens = token_limit
+        
+        # Start with highest level for overview
+        for level in sorted(chunks_by_level.keys(), reverse=True):
+            level_chunks = chunks_by_level[level][:2]  # Limit high-level chunks
+            
+            for chunk in level_chunks:
+                chunk_tokens = len(chunk.content) // 4
+                if chunk_tokens <= remaining_tokens:
+                    selected_chunks.append(chunk)
+                    remaining_tokens -= chunk_tokens
+        
+        # Add detailed chunks from lower levels
+        for level in sorted(chunks_by_level.keys()):
+            if remaining_tokens <= 0:
+                break
+                
+            level_chunks = chunks_by_level[level]
+            
+            for chunk in level_chunks:
+                if chunk in selected_chunks:
+                    continue
+                    
+                chunk_tokens = len(chunk.content) // 4
+                if chunk_tokens <= remaining_tokens:
+                    selected_chunks.append(chunk)
+                    remaining_tokens -= chunk_tokens
+        
+        return selected_chunks
+    
+    async def _relevance_selection(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str, 
+        token_limit: int
+    ) -> List[DocumentChunk]:
+        """Select chunks based on relevance scores"""
+        
+        # This would use the same logic as ContextCompressor._rank_chunks_by_relevance
+        # Simplified for brevity
+        selected_chunks = []
+        remaining_tokens = token_limit
+        
+        for chunk in chunks:
+            chunk_tokens = len(chunk.content) // 4
+            if chunk_tokens <= remaining_tokens:
+                selected_chunks.append(chunk)
+                remaining_tokens -= chunk_tokens
+            
+            if remaining_tokens <= 0:
+                break
+        
+        return selected_chunks[:10]  # Limit to top 10 chunks
+    
+    async def _simple_selection(
+        self, 
+        chunks: List[DocumentChunk], 
+        query: str, 
+        token_limit: int
+    ) -> List[DocumentChunk]:
+        """Simple selection of first chunks that fit"""
+        
+        selected_chunks = []
+        remaining_tokens = token_limit
+        
+        for chunk in chunks[:5]:  # Limit to first 5 chunks
+            chunk_tokens = len(chunk.content) // 4
+            if chunk_tokens <= remaining_tokens:
+                selected_chunks.append(chunk)
+                remaining_tokens -= chunk_tokens
+        
+        return selected_chunks
+
+class LongContextRAG:
+    """Complete long-context RAG system"""
+    
+    def __init__(
+        self,
+        model_name: str = "gpt-4",
+        max_context_tokens: int = 8000,
+        chunk_size: int = 1000
+    ):
+        self.model_name = model_name
+        self.max_context_tokens = max_context_tokens
+        
+        self.chunker = HierarchicalChunker(
+            base_chunk_size=chunk_size,
+            overlap=200,
+            max_levels=3
+        )
+        self.compressor = ContextCompressor(model_name, max_context_tokens)
+        self.selector = AdaptiveContextSelector()
+    
+    async def process_long_document(
+        self, 
+        document_text: str, 
+        query: str,
+        doc_id: str = "long_doc"
+    ) -> LongContextResult:
+        """Process a long document with the given query"""
+        
+        print(f"Processing long document ({len(document_text)} chars) for query: '{query}'")
+        
+        # Step 1: Create hierarchical chunks
+        chunks = self.chunker.chunk_document(document_text, doc_id)
+        print(f"Created {len(chunks)} chunks across multiple levels")
+        
+        # Step 2: Select optimal context
+        selected_chunks, adjusted_limit = await self.selector.select_optimal_context(
+            chunks, query, self.max_context_tokens // 2
+        )
+        print(f"Selected {len(selected_chunks)} chunks (limit: {adjusted_limit} tokens)")
+        
+        # Step 3: Compress context if needed
+        compressed_context = await self.compressor.compress_context(
+            selected_chunks, query, compression_ratio=0.7
+        )
+        
+        # Step 4: Generate answer
+        answer = await self._generate_answer(query, compressed_context)
+        
+        # Step 5: Compile results
+        result = LongContextResult(
+            original_query=query,
+            selected_chunks=selected_chunks,
+            compressed_context=compressed_context,
+            generated_answer=answer,
+            processing_stats={
+                'total_chunks': len(chunks),
+                'selected_chunks': len(selected_chunks),
+                'original_length': len(document_text),
+                'compressed_length': len(compressed_context),
+                'compression_ratio': len(compressed_context) / len(document_text) if document_text else 0,
+                'token_limit_used': adjusted_limit
+            }
+        )
+        
+        return result
+    
+    async def _generate_answer(self, query: str, context: str) -> str:
+        """Generate answer from compressed context"""
+        
+        prompt = f"""
+Answer the following question using the provided context. The context has been processed 
+and compressed from a much larger document to focus on relevant information.
+
+Question: {query}
+
+Context:
+{context}
+
+Instructions:
+1. Provide a comprehensive answer based on the context
+2. Reference specific information from different sections when relevant
+3. If the context seems incomplete, acknowledge any limitations
+4. Maintain accuracy and avoid hallucination
+
+Answer:
+"""
+        
+        try:
+            response = await openai.ChatCompletion.acreate(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                max_tokens=500
+            )
+            
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            print(f"Answer generation failed: {e}")
+            return f"Unable to generate answer due to error: {str(e)}"
+
+# Example usage
+async def long_context_example():
+    """Example of long-context RAG processing"""
+    
+    # Simulate a very long document
+    long_document = """
+    This is a comprehensive research paper on machine learning techniques. """ * 100 + """
+    
+    Machine learning has revolutionized many fields including computer vision, natural language processing,
+    and robotics. The fundamental algorithms include supervised learning methods like linear regression,
+    decision trees, and neural networks. Unsupervised learning encompasses clustering algorithms like
+    k-means and hierarchical clustering, as well as dimensionality reduction techniques like PCA.
+    
+    Deep learning, a subset of machine learning, uses neural networks with multiple layers to learn
+    complex patterns in data. Convolutional neural networks (CNNs) are particularly effective for
+    image processing tasks, while recurrent neural networks (RNNs) and transformers excel in
+    sequence modeling tasks like language translation and text generation.
+    
+    Recent advances include attention mechanisms, which allow models to focus on relevant parts
+    of the input, and transformer architectures like BERT and GPT, which have achieved
+    state-of-the-art performance on many NLP tasks.
+    """ * 50  # Make it very long
+    
+    # Initialize long-context RAG
+    long_rag = LongContextRAG(
+        model_name="gpt-3.5-turbo",
+        max_context_tokens=4000,
+        chunk_size=800
+    )
+    
+    # Process with different types of queries
+    queries = [
+        "What are the main types of machine learning algorithms?",
+        "How do attention mechanisms work in transformer models?",
+        "Compare supervised and unsupervised learning approaches"
+    ]
+    
+    for query in queries:
+        print(f"\n{'='*50}")
+        print(f"Query: {query}")
+        print('='*50)
+        
+        result = await long_rag.process_long_document(long_document, query)
+        
+        print(f"Answer: {result.generated_answer}")
+        print(f"\nProcessing Stats: {result.processing_stats}")
+    
+    return result
+
+if __name__ == "__main__":
+    asyncio.run(long_context_example())
+                </pre>
+            </div>
+
+            <div class="success-box">
+                <h4>Long-context Best Practices</h4>
+                <p>
+                    • <strong>Smart Chunking:</strong> Use hierarchical and semantic chunking strategies<br>
+                    • <strong>Relevance Filtering:</strong> Prioritize chunks most relevant to the query<br>
+                    • <strong>Context Compression:</strong> Summarize less critical information<br>
+                    • <strong>Token Management:</strong> Monitor and optimize token usage<br>
+                    • <strong>Progressive Processing:</strong> Handle very long documents in stages
                 </p>
             </div>
         </div>

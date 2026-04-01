@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Troubleshooting Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            border-radius: 8px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .handbook-nav {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            color: #3498db;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            background: #3498db;
+            color: white;
+        }
+
+        .toc {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+
+        .toc h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+            columns: 2;
+            column-gap: 30px;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .toc a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 30px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        h3 {
+            color: #34495e;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            margin-top: 25px;
+        }
+
+        h4 {
+            color: #555;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .problem-solution {
+            background-color: #f8f9fa;
+            border-left: 4px solid #e74c3c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .problem {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+
+        .solution {
+            margin-top: 10px;
+        }
+
+        .solution-header {
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .command-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+            border-left: 4px solid #3498db;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #b8daff;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .diagnostic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .diagnostic-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .diagnostic-card h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .best-practices {
+            background-color: #e8f5e8;
+            border: 1px solid #c8e6c8;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .best-practices h4 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .platform-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .platform-tab {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .platform-tab:hover {
+            background-color: #e9ecef;
+        }
+
+        .platform-tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .platform-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+        }
+
+        .platform-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Docker Troubleshooting Guide</h1>
+            <div class="subtitle">Comprehensive solutions for common Docker issues and debugging techniques</div>
+        </header>
+
+        <nav class="handbook-nav">
+            <div class="nav-links">
+                <a href="docker-complete-handbook.html">← Complete Handbook</a>
+                <a href="docker-fundamentals.html">Fundamentals</a>
+                <a href="docker-installation.html">Installation</a>
+                <a href="docker-dockerfile.html">Dockerfile</a>
+                <a href="docker-examples.html">Examples</a>
+            </div>
+        </nav>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#common-issues">1. Common Docker Issues</a></li>
+                <li><a href="#container-problems">2. Container Startup & Runtime</a></li>
+                <li><a href="#build-failures">3. Image Build Failures</a></li>
+                <li><a href="#network-issues">4. Network Connectivity</a></li>
+                <li><a href="#volume-storage">5. Volume & Storage Problems</a></li>
+                <li><a href="#performance">6. Performance Troubleshooting</a></li>
+                <li><a href="#memory-resources">7. Memory & Resource Constraints</a></li>
+                <li><a href="#log-analysis">8. Log Analysis & Debugging</a></li>
+                <li><a href="#daemon-issues">9. Docker Daemon Issues</a></li>
+                <li><a href="#platform-specific">10. Platform-Specific Problems</a></li>
+                <li><a href="#docker-compose">11. Docker Compose Troubleshooting</a></li>
+                <li><a href="#security-permissions">12. Security & Permission Issues</a></li>
+                <li><a href="#registry-auth">13. Registry & Authentication</a></li>
+                <li><a href="#monitoring-tools">14. Monitoring & Diagnostic Tools</a></li>
+                <li><a href="#best-practices">15. Prevention Best Practices</a></li>
+            </ul>
+        </div>
+
+        <section id="common-issues" class="section">
+            <h2>1. Common Docker Issues and Solutions</h2>
+            
+            <div class="problem-solution">
+                <div class="problem">Problem: "Cannot connect to the Docker daemon"</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check if Docker daemon is running:</li>
+                        <div class="command-block">sudo systemctl status docker</div>
+                        <li>Start Docker daemon if not running:</li>
+                        <div class="command-block">sudo systemctl start docker</div>
+                        <li>Add user to docker group (avoid sudo):</li>
+                        <div class="command-block">sudo usermod -aG docker $USER
+newgrp docker</div>
+                        <li>Check Docker socket permissions:</li>
+                        <div class="command-block">ls -la /var/run/docker.sock</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "Permission denied while trying to connect to Docker daemon socket"</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check current user groups:</li>
+                        <div class="command-block">groups $USER</div>
+                        <li>Add user to docker group:</li>
+                        <div class="command-block">sudo usermod -aG docker $USER</div>
+                        <li>Log out and log back in, or run:</li>
+                        <div class="command-block">newgrp docker</div>
+                        <li>Alternative temporary fix:</li>
+                        <div class="command-block">sudo chmod 666 /var/run/docker.sock</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "No space left on device"</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check Docker disk usage:</li>
+                        <div class="command-block">docker system df</div>
+                        <li>Clean up unused containers, networks, and images:</li>
+                        <div class="command-block">docker system prune -a</div>
+                        <li>Remove specific unused resources:</li>
+                        <div class="command-block">docker container prune
+docker image prune -a
+docker volume prune
+docker network prune</div>
+                        <li>Check available disk space:</li>
+                        <div class="command-block">df -h</div>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <section id="container-problems" class="section">
+            <h2>2. Container Startup and Runtime Problems</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container exits immediately after starting</div>
+                <div class="solution">
+                    <div class="solution-header">Diagnostic Steps:</div>
+                    <ol>
+                        <li>Check container logs:</li>
+                        <div class="command-block">docker logs &lt;container_id&gt;</div>
+                        <li>Inspect container configuration:</li>
+                        <div class="command-block">docker inspect &lt;container_id&gt;</div>
+                        <li>Check exit code:</li>
+                        <div class="command-block">docker ps -a</div>
+                        <li>Run container interactively for debugging:</li>
+                        <div class="command-block">docker run -it &lt;image&gt; /bin/bash</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container runs but application doesn't respond</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check if application is listening on correct port:</li>
+                        <div class="command-block">docker exec &lt;container_id&gt; netstat -tlnp</div>
+                        <li>Verify port mapping:</li>
+                        <div class="command-block">docker port &lt;container_id&gt;</div>
+                        <li>Check firewall rules:</li>
+                        <div class="command-block">sudo ufw status
+sudo iptables -L</div>
+                        <li>Test connectivity from host:</li>
+                        <div class="command-block">telnet localhost &lt;port&gt;
+curl -v localhost:&lt;port&gt;</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Common Exit Codes</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Exit Code</th>
+                        <th>Meaning</th>
+                        <th>Common Causes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td>
+                        <td>Success</td>
+                        <td>Normal termination</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>General errors</td>
+                        <td>Application error, misconfiguration</td>
+                    </tr>
+                    <tr>
+                        <td>125</td>
+                        <td>Docker daemon error</td>
+                        <td>Container failed to run</td>
+                    </tr>
+                    <tr>
+                        <td>126</td>
+                        <td>Container command not executable</td>
+                        <td>Permission issues, wrong executable</td>
+                    </tr>
+                    <tr>
+                        <td>127</td>
+                        <td>Container command not found</td>
+                        <td>Path issues, missing binary</td>
+                    </tr>
+                    <tr>
+                        <td>137</td>
+                        <td>SIGKILL</td>
+                        <td>Out of memory, manual kill</td>
+                    </tr>
+                    <tr>
+                        <td>143</td>
+                        <td>SIGTERM</td>
+                        <td>Graceful termination</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="build-failures" class="section">
+            <h2>3. Image Build Failures and Debugging</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "ADD failed: no source files were specified"</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check file paths in Dockerfile:</li>
+                        <div class="command-block">ls -la &lt;source_file&gt;</div>
+                        <li>Verify build context includes the files:</li>
+                        <div class="command-block">docker build --no-cache -t &lt;tag&gt; .</div>
+                        <li>Check .dockerignore file:</li>
+                        <div class="command-block">cat .dockerignore</div>
+                        <li>Use COPY instead of ADD for local files:</li>
+                        <div class="command-block">COPY ./app /app</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "Unable to find image" during build</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check base image name and tag:</li>
+                        <div class="command-block">docker search &lt;image_name&gt;</div>
+                        <li>Pull base image explicitly:</li>
+                        <div class="command-block">docker pull &lt;base_image&gt;:&lt;tag&gt;</div>
+                        <li>Check registry connectivity:</li>
+                        <div class="command-block">curl -I https://registry-1.docker.io/v2/</div>
+                        <li>Use specific registry URL if needed:</li>
+                        <div class="command-block">FROM registry.hub.docker.com/library/ubuntu:20.04</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Build Optimization Tips</h3>
+            <div class="best-practices">
+                <h4>Best Practices for Dockerfile</h4>
+                <ul>
+                    <li>Use multi-stage builds to reduce image size</li>
+                    <li>Order instructions by frequency of change (least to most)</li>
+                    <li>Combine RUN commands to reduce layers</li>
+                    <li>Use .dockerignore to exclude unnecessary files</li>
+                    <li>Specify exact versions for base images</li>
+                </ul>
+            </div>
+
+            <h4>Debug Build Issues</h4>
+            <div class="command-block">
+# Build with detailed output
+docker build --progress=plain --no-cache -t myapp .
+
+# Build up to specific stage
+docker build --target &lt;stage_name&gt; -t debug_image .
+
+# Run intermediate container for debugging
+docker run -it &lt;intermediate_image_id&gt; /bin/sh
+            </div>
+        </section>
+
+        <section id="network-issues" class="section">
+            <h2>4. Network Connectivity Issues</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container cannot access external internet</div>
+                <div class="solution">
+                    <div class="solution-header">Diagnostic Steps:</div>
+                    <ol>
+                        <li>Test DNS resolution inside container:</li>
+                        <div class="command-block">docker exec &lt;container&gt; nslookup google.com</div>
+                        <li>Test internet connectivity:</li>
+                        <div class="command-block">docker exec &lt;container&gt; ping 8.8.8.8</div>
+                        <li>Check Docker daemon DNS settings:</li>
+                        <div class="command-block">docker info | grep -i dns</div>
+                        <li>Restart Docker daemon with custom DNS:</li>
+                        <div class="command-block">sudo systemctl edit docker</div>
+                        <div class="info">
+                            Add to override.conf:<br>
+                            [Service]<br>
+                            ExecStart=<br>
+                            ExecStart=/usr/bin/dockerd --dns=8.8.8.8
+                        </div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Containers cannot communicate with each other</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check if containers are on same network:</li>
+                        <div class="command-block">docker network ls
+docker network inspect bridge</div>
+                        <li>Create custom network for container communication:</li>
+                        <div class="command-block">docker network create mynetwork
+docker run --network mynetwork --name container1 &lt;image1&gt;
+docker run --network mynetwork --name container2 &lt;image2&gt;</div>
+                        <li>Test connectivity between containers:</li>
+                        <div class="command-block">docker exec container1 ping container2</div>
+                        <li>Check iptables rules:</li>
+                        <div class="command-block">sudo iptables -L DOCKER-USER</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Network Diagnostic Commands</h3>
+            <div class="diagnostic-grid">
+                <div class="diagnostic-card">
+                    <h4>Network Inspection</h4>
+                    <div class="command-block">
+# List networks
+docker network ls
+
+# Inspect network details
+docker network inspect &lt;network_name&gt;
+
+# Show container network settings
+docker inspect &lt;container&gt; | grep -A 10 NetworkSettings
+                    </div>
+                </div>
+
+                <div class="diagnostic-card">
+                    <h4>Port and Connectivity</h4>
+                    <div class="command-block">
+# Check port mappings
+docker port &lt;container&gt;
+
+# Test port connectivity
+telnet &lt;host&gt; &lt;port&gt;
+nc -zv &lt;host&gt; &lt;port&gt;
+
+# Show listening ports in container
+docker exec &lt;container&gt; netstat -tlnp
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="volume-storage" class="section">
+            <h2>5. Volume and Storage Problems</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Volume mount not working or files not persisting</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check volume mount syntax:</li>
+                        <div class="command-block">docker run -v /host/path:/container/path &lt;image&gt;</div>
+                        <li>Verify host directory exists and has correct permissions:</li>
+                        <div class="command-block">ls -la /host/path
+sudo chown -R $USER:$USER /host/path</div>
+                        <li>Check SELinux context (if applicable):</li>
+                        <div class="command-block">ls -Z /host/path
+chcon -Rt svirt_sandbox_file_t /host/path</div>
+                        <li>Use named volumes instead of bind mounts:</li>
+                        <div class="command-block">docker volume create myvolume
+docker run -v myvolume:/container/path &lt;image&gt;</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "No space left on device" for volumes</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check Docker volume usage:</li>
+                        <div class="command-block">docker system df -v</div>
+                        <li>List and inspect volumes:</li>
+                        <div class="command-block">docker volume ls
+docker volume inspect &lt;volume_name&gt;</div>
+                        <li>Remove unused volumes:</li>
+                        <div class="command-block">docker volume prune</div>
+                        <li>Change Docker root directory:</li>
+                        <div class="command-block">sudo systemctl stop docker
+sudo mv /var/lib/docker /new/path/docker
+sudo ln -s /new/path/docker /var/lib/docker</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Volume Management Commands</h3>
+            <div class="command-block">
+# Create named volume
+docker volume create myvolume
+
+# List volumes with details
+docker volume ls --format "table {{.Name}}\t{{.Driver}}\t{{.Scope}}"
+
+# Inspect volume
+docker volume inspect myvolume
+
+# Remove unused volumes
+docker volume prune
+
+# Backup volume data
+docker run --rm -v myvolume:/data -v $(pwd):/backup ubuntu tar czf /backup/backup.tar.gz /data
+
+# Restore volume data
+docker run --rm -v myvolume:/data -v $(pwd):/backup ubuntu tar xzf /backup/backup.tar.gz -C /
+            </div>
+        </section>
+
+        <section id="performance" class="section">
+            <h2>6. Performance Troubleshooting</h2>
+
+            <h3>Container Performance Monitoring</h3>
+            <div class="diagnostic-grid">
+                <div class="diagnostic-card">
+                    <h4>Real-time Stats</h4>
+                    <div class="command-block">
+# Container resource usage
+docker stats
+
+# Detailed stats for specific container
+docker stats &lt;container_name&gt; --no-stream
+
+# Stats in JSON format
+docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
+                    </div>
+                </div>
+
+                <div class="diagnostic-card">
+                    <h4>Process Monitoring</h4>
+                    <div class="command-block">
+# Top processes in container
+docker exec &lt;container&gt; top
+
+# Process tree
+docker exec &lt;container&gt; ps aux
+
+# Resource limits
+docker inspect &lt;container&gt; | grep -i memory
+docker inspect &lt;container&gt; | grep -i cpu
+                    </div>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container is running slowly</div>
+                <div class="solution">
+                    <div class="solution-header">Diagnostic Steps:</div>
+                    <ol>
+                        <li>Check resource constraints:</li>
+                        <div class="command-block">docker stats &lt;container&gt;</div>
+                        <li>Monitor CPU and memory usage:</li>
+                        <div class="command-block">docker exec &lt;container&gt; top
+docker exec &lt;container&gt; free -h</div>
+                        <li>Check I/O performance:</li>
+                        <div class="command-block">docker exec &lt;container&gt; iostat -x 1</div>
+                        <li>Analyze container logs for bottlenecks:</li>
+                        <div class="command-block">docker logs &lt;container&gt; | grep -i "slow\|timeout\|error"</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Performance Optimization Tips</h3>
+            <div class="best-practices">
+                <h4>Container Optimization</h4>
+                <ul>
+                    <li>Use smaller base images (Alpine, distroless)</li>
+                    <li>Set appropriate resource limits</li>
+                    <li>Use multi-stage builds to reduce image size</li>
+                    <li>Optimize Dockerfile layer caching</li>
+                    <li>Use .dockerignore to reduce build context</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="memory-resources" class="section">
+            <h2>7. Memory and Resource Constraints</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container killed due to out of memory (OOMKilled)</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check container memory limits:</li>
+                        <div class="command-block">docker inspect &lt;container&gt; | grep -i memory</div>
+                        <li>Monitor memory usage:</li>
+                        <div class="command-block">docker stats &lt;container&gt;
+docker exec &lt;container&gt; cat /proc/meminfo</div>
+                        <li>Increase memory limit:</li>
+                        <div class="command-block">docker run --memory=2g &lt;image&gt;</div>
+                        <li>Check system memory:</li>
+                        <div class="command-block">free -h
+dmesg | grep -i "killed process"</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: High CPU usage by container</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check CPU usage:</li>
+                        <div class="command-block">docker stats &lt;container&gt;</div>
+                        <li>Limit CPU usage:</li>
+                        <div class="command-block">docker run --cpus="1.5" &lt;image&gt;
+docker run --cpu-shares=512 &lt;image&gt;</div>
+                        <li>Analyze CPU-intensive processes:</li>
+                        <div class="command-block">docker exec &lt;container&gt; top -p 1</div>
+                        <li>Check for CPU throttling:</li>
+                        <div class="command-block">docker exec &lt;container&gt; cat /sys/fs/cgroup/cpu/cpu.stat</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Resource Limits Configuration</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Resource</th>
+                        <th>Docker Flag</th>
+                        <th>Example</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Memory</td>
+                        <td>--memory</td>
+                        <td>--memory=1g</td>
+                        <td>Maximum memory usage</td>
+                    </tr>
+                    <tr>
+                        <td>CPU</td>
+                        <td>--cpus</td>
+                        <td>--cpus="1.5"</td>
+                        <td>Number of CPUs</td>
+                    </tr>
+                    <tr>
+                        <td>CPU Shares</td>
+                        <td>--cpu-shares</td>
+                        <td>--cpu-shares=512</td>
+                        <td>Relative CPU weight</td>
+                    </tr>
+                    <tr>
+                        <td>Swap</td>
+                        <td>--memory-swap</td>
+                        <td>--memory-swap=2g</td>
+                        <td>Memory + swap limit</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="log-analysis" class="section">
+            <h2>8. Log Analysis and Debugging Techniques</h2>
+
+            <h3>Container Logging Commands</h3>
+            <div class="command-block">
+# View container logs
+docker logs &lt;container&gt;
+
+# Follow logs in real-time
+docker logs -f &lt;container&gt;
+
+# Show last N lines
+docker logs --tail 50 &lt;container&gt;
+
+# Show logs since specific time
+docker logs --since "2023-01-01T00:00:00" &lt;container&gt;
+
+# Show logs with timestamps
+docker logs -t &lt;container&gt;
+
+# Export logs to file
+docker logs &lt;container&gt; > container.log 2>&1
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Container logs are not appearing</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check if application writes to stdout/stderr:</li>
+                        <div class="command-block">docker exec &lt;container&gt; ls -la /proc/1/fd/</div>
+                        <li>Configure logging driver:</li>
+                        <div class="command-block">docker run --log-driver=json-file &lt;image&gt;</div>
+                        <li>Check Docker daemon logging configuration:</li>
+                        <div class="command-block">docker info | grep -i logging</div>
+                        <li>Use log aggregation tools:</li>
+                        <div class="command-block">docker run --log-driver=syslog &lt;image&gt;</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Log Analysis Tools</h3>
+            <div class="diagnostic-grid">
+                <div class="diagnostic-card">
+                    <h4>Built-in Tools</h4>
+                    <div class="command-block">
+# Grep for errors
+docker logs &lt;container&gt; | grep -i error
+
+# Count log lines
+docker logs &lt;container&gt; | wc -l
+
+# Parse JSON logs
+docker logs &lt;container&gt; | jq '.'
+                    </div>
+                </div>
+
+                <div class="diagnostic-card">
+                    <h4>External Tools</h4>
+                    <div class="command-block">
+# Using ELK stack
+docker run -d --name elasticsearch elasticsearch:7.9.0
+docker run -d --name logstash logstash:7.9.0
+docker run -d --name kibana kibana:7.9.0
+
+# Using Fluentd
+docker run --log-driver=fluentd &lt;image&gt;
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="daemon-issues" class="section">
+            <h2>9. Docker Daemon Issues</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Docker daemon won't start</div>
+                <div class="solution">
+                    <div class="solution-header">Diagnostic Steps:</div>
+                    <ol>
+                        <li>Check daemon status:</li>
+                        <div class="command-block">sudo systemctl status docker</div>
+                        <li>Check daemon logs:</li>
+                        <div class="command-block">sudo journalctl -u docker.service -f</div>
+                        <li>Check for conflicting processes:</li>
+                        <div class="command-block">ps aux | grep docker</div>
+                        <li>Check daemon configuration:</li>
+                        <div class="command-block">cat /etc/docker/daemon.json</div>
+                        <li>Start daemon manually for debugging:</li>
+                        <div class="command-block">sudo dockerd --debug</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Docker daemon consuming high resources</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Monitor daemon resource usage:</li>
+                        <div class="command-block">ps aux | grep dockerd
+top -p $(pidof dockerd)</div>
+                        <li>Check for runaway containers:</li>
+                        <div class="command-block">docker stats --all</div>
+                        <li>Clean up Docker system:</li>
+                        <div class="command-block">docker system prune -a</div>
+                        <li>Restart Docker daemon:</li>
+                        <div class="command-block">sudo systemctl restart docker</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Daemon Configuration</h3>
+            <div class="info">
+                <h4>Common daemon.json settings:</h4>
+                <div class="command-block">
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  },
+  "storage-driver": "overlay2",
+  "dns": ["8.8.8.8", "8.8.4.4"],
+  "insecure-registries": ["myregistry:5000"]
+}
+                </div>
+            </div>
+        </section>
+
+        <section id="platform-specific" class="section">
+            <h2>10. Platform-Specific Problems</h2>
+
+            <div class="platform-tabs">
+                <div class="platform-tab active" onclick="showPlatform('windows')">Windows</div>
+                <div class="platform-tab" onclick="showPlatform('macos')">macOS</div>
+                <div class="platform-tab" onclick="showPlatform('linux')">Linux</div>
+            </div>
+
+            <div id="windows" class="platform-content active">
+                <h3>Windows Issues</h3>
+                
+                <div class="problem-solution">
+                    <div class="problem">Problem: "Drive has not been shared" on Windows</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Enable drive sharing in Docker Desktop settings</li>
+                            <li>Reset credentials in Docker Desktop</li>
+                            <li>Check Windows credentials manager</li>
+                            <li>Use UNC paths for network drives:</li>
+                            <div class="command-block">docker run -v //server/share:/data &lt;image&gt;</div>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="problem-solution">
+                    <div class="problem">Problem: Windows container cannot access Windows features</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Use Windows base images:</li>
+                            <div class="command-block">FROM mcr.microsoft.com/windows/servercore:ltsc2019</div>
+                            <li>Enable Windows containers mode in Docker Desktop</li>
+                            <li>Check Windows version compatibility</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div id="macos" class="platform-content">
+                <h3>macOS Issues</h3>
+                
+                <div class="problem-solution">
+                    <div class="problem">Problem: File sharing performance issues on macOS</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Use delegated or cached mount options:</li>
+                            <div class="command-block">docker run -v /host/path:/container/path:delegated &lt;image&gt;</div>
+                            <li>Enable file sharing for specific directories in Docker Desktop</li>
+                            <li>Use named volumes instead of bind mounts for better performance</li>
+                            <li>Consider using Docker volume plugins</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="problem-solution">
+                    <div class="problem">Problem: Docker Desktop crashes on macOS</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Check macOS compatibility</li>
+                            <li>Reset Docker Desktop to factory defaults</li>
+                            <li>Check system logs:</li>
+                            <div class="command-block">log show --predicate 'process == "Docker"' --last 1h</div>
+                            <li>Allocate more resources in Docker Desktop settings</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div id="linux" class="platform-content">
+                <h3>Linux Issues</h3>
+                
+                <div class="problem-solution">
+                    <div class="problem">Problem: SELinux preventing container operations</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Check SELinux status:</li>
+                            <div class="command-block">sestatus</div>
+                            <li>Use Z or z flags for volume mounts:</li>
+                            <div class="command-block">docker run -v /host/path:/container/path:Z &lt;image&gt;</div>
+                            <li>Set SELinux context:</li>
+                            <div class="command-block">chcon -Rt svirt_sandbox_file_t /host/path</div>
+                            <li>Check SELinux logs:</li>
+                            <div class="command-block">ausearch -m avc -ts recent</div>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="problem-solution">
+                    <div class="problem">Problem: AppArmor blocking container operations</div>
+                    <div class="solution">
+                        <div class="solution-header">Solutions:</div>
+                        <ol>
+                            <li>Check AppArmor status:</li>
+                            <div class="command-block">aa-status</div>
+                            <li>Disable AppArmor for Docker:</li>
+                            <div class="command-block">docker run --security-opt apparmor=unconfined &lt;image&gt;</div>
+                            <li>Check AppArmor logs:</li>
+                            <div class="command-block">dmesg | grep apparmor</div>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="docker-compose" class="section">
+            <h2>11. Docker Compose Troubleshooting</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "Service 'web' failed to build" in Docker Compose</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check compose file syntax:</li>
+                        <div class="command-block">docker-compose config</div>
+                        <li>Build with verbose output:</li>
+                        <div class="command-block">docker-compose build --progress=plain --no-cache</div>
+                        <li>Check build context and Dockerfile path:</li>
+                        <div class="command-block">ls -la ./path/to/Dockerfile</div>
+                        <li>Validate compose file version compatibility</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Services cannot communicate in Docker Compose</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check service names and network configuration:</li>
+                        <div class="command-block">docker-compose ps
+docker network ls</div>
+                        <li>Use service names for inter-service communication:</li>
+                        <div class="command-block"># Use 'db' instead of 'localhost'
+DATABASE_URL=postgresql://user:pass@db:5432/mydb</div>
+                        <li>Check port exposure vs publishing:</li>
+                        <div class="command-block"># Expose port to other services only
+expose:
+  - "5432"
+  
+# Publish port to host
+ports:
+  - "5432:5432"</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Docker Compose Debugging Commands</h3>
+            <div class="command-block">
+# Validate compose file
+docker-compose config
+
+# Check service logs
+docker-compose logs &lt;service_name&gt;
+
+# Check service status
+docker-compose ps
+
+# Restart specific service
+docker-compose restart &lt;service_name&gt;
+
+# Force recreate containers
+docker-compose up --force-recreate
+
+# Run one-off commands
+docker-compose exec &lt;service&gt; /bin/bash
+
+# Check networks created by compose
+docker network ls | grep &lt;project_name&gt;
+            </div>
+        </section>
+
+        <section id="security-permissions" class="section">
+            <h2>12. Security and Permission Issues</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "Permission denied" when accessing files in container</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Check file ownership and permissions:</li>
+                        <div class="command-block">ls -la /host/path
+docker exec &lt;container&gt; ls -la /container/path</div>
+                        <li>Fix ownership on host:</li>
+                        <div class="command-block">sudo chown -R $USER:$USER /host/path</div>
+                        <li>Use user namespace mapping:</li>
+                        <div class="command-block">docker run --user $(id -u):$(id -g) &lt;image&gt;</div>
+                        <li>Set proper permissions in Dockerfile:</li>
+                        <div class="command-block">RUN chown -R appuser:appuser /app
+USER appuser</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: Root privilege escalation concerns</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Run containers as non-root user:</li>
+                        <div class="command-block">docker run --user 1000:1000 &lt;image&gt;</div>
+                        <li>Use security options:</li>
+                        <div class="command-block">docker run --security-opt no-new-privileges &lt;image&gt;</div>
+                        <li>Drop capabilities:</li>
+                        <div class="command-block">docker run --cap-drop ALL --cap-add NET_ADMIN &lt;image&gt;</div>
+                        <li>Use read-only containers:</li>
+                        <div class="command-block">docker run --read-only &lt;image&gt;</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Security Best Practices</h3>
+            <div class="best-practices">
+                <h4>Container Security Checklist</h4>
+                <ul>
+                    <li>Run containers as non-root users</li>
+                    <li>Use minimal base images (Alpine, distroless)</li>
+                    <li>Regularly update base images and dependencies</li>
+                    <li>Scan images for vulnerabilities</li>
+                    <li>Use secrets management for sensitive data</li>
+                    <li>Implement resource limits</li>
+                    <li>Use read-only filesystems when possible</li>
+                    <li>Enable Docker Content Trust</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="registry-auth" class="section">
+            <h2>13. Registry and Authentication Problems</h2>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "Authentication required" when pulling images</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Login to registry:</li>
+                        <div class="command-block">docker login &lt;registry_url&gt;</div>
+                        <li>Check stored credentials:</li>
+                        <div class="command-block">cat ~/.docker/config.json</div>
+                        <li>Use credential helpers:</li>
+                        <div class="command-block"># For AWS ECR
+docker login --username AWS --password-stdin &lt;ecr_uri&gt;</div>
+                        <li>Set registry in image name:</li>
+                        <div class="command-block">docker pull registry.example.com/myimage:latest</div>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="problem-solution">
+                <div class="problem">Problem: "X509 certificate signed by unknown authority"</div>
+                <div class="solution">
+                    <div class="solution-header">Solutions:</div>
+                    <ol>
+                        <li>Add registry to insecure registries:</li>
+                        <div class="command-block"># In /etc/docker/daemon.json
+{
+  "insecure-registries": ["myregistry:5000"]
+}</div>
+                        <li>Add CA certificate:</li>
+                        <div class="command-block">sudo mkdir -p /etc/docker/certs.d/myregistry:5000
+sudo cp ca.crt /etc/docker/certs.d/myregistry:5000/</div>
+                        <li>Skip TLS verification (not recommended for production):</li>
+                        <div class="command-block">docker run --insecure-registry myregistry:5000 &lt;image&gt;</div>
+                    </ol>
+                </div>
+            </div>
+
+            <h3>Registry Configuration Examples</h3>
+            <div class="diagnostic-grid">
+                <div class="diagnostic-card">
+                    <h4>Docker Hub</h4>
+                    <div class="command-block">
+# Login
+docker login
+
+# Pull private image
+docker pull username/private-repo:tag
+
+# Push image
+docker push username/my-image:tag
+                    </div>
+                </div>
+
+                <div class="diagnostic-card">
+                    <h4>AWS ECR</h4>
+                    <div class="command-block">
+# Get login token
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
+
+# Pull image
+docker pull 123456789.dkr.ecr.us-east-1.amazonaws.com/my-repo:latest
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="monitoring-tools" class="section">
+            <h2>14. Monitoring and Diagnostic Tools</h2>
+
+            <h3>Built-in Docker Tools</h3>
+            <div class="diagnostic-grid">
+                <div class="diagnostic-card">
+                    <h4>System Information</h4>
+                    <div class="command-block">
+# Docker system info
+docker info
+
+# System-wide disk usage
+docker system df
+
+# Real-time events
+docker events
+
+# System version
+docker version
+                    </div>
+                </div>
+
+                <div class="diagnostic-card">
+                    <h4>Container Inspection</h4>
+                    <div class="command-block">
+# Container details
+docker inspect &lt;container&gt;
+
+# Process list
+docker top &lt;container&gt;
+
+# Port mappings
+docker port &lt;container&gt;
+
+# File changes
+docker diff &lt;container&gt;
+                    </div>
+                </div>
+            </div>
+
+            <h3>External Monitoring Tools</h3>
+            
+            <h4>cAdvisor (Container Advisor)</h4>
+            <div class="command-block">
+docker run \
+  --volume=/:/rootfs:ro \
+  --volume=/var/run:/var/run:ro \
+  --volume=/sys:/sys:ro \
+  --volume=/var/lib/docker/:/var/lib/docker:ro \
+  --volume=/dev/disk/:/dev/disk:ro \
+  --publish=8080:8080 \
+  --detach=true \
+  --name=cadvisor \
+  --privileged \
+  --device=/dev/kmsg \
+  gcr.io/cadvisor/cadvisor:latest
+            </div>
+
+            <h4>Prometheus + Grafana</h4>
+            <div class="command-block">
+# Prometheus
+docker run -d --name prometheus -p 9090:9090 prom/prometheus
+
+# Grafana
+docker run -d --name grafana -p 3000:3000 grafana/grafana
+
+# Node Exporter for host metrics
+docker run -d --name node-exporter -p 9100:9100 \
+  --path.rootfs=/host \
+  --net="host" \
+  --pid="host" \
+  prom/node-exporter
+            </div>
+
+            <h4>Portainer</h4>
+            <div class="command-block">
+# Create volume
+docker volume create portainer_data
+
+# Run Portainer
+docker run -d -p 8000:8000 -p 9000:9000 \
+  --name=portainer --restart=always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v portainer_data:/data \
+  portainer/portainer-ce
+            </div>
+        </section>
+
+        <section id="best-practices" class="section">
+            <h2>15. Prevention Best Practices</h2>
+
+            <div class="best-practices">
+                <h4>Development Best Practices</h4>
+                <ul>
+                    <li><strong>Use multi-stage builds</strong> to reduce final image size</li>
+                    <li><strong>Pin base image versions</strong> for reproducible builds</li>
+                    <li><strong>Leverage build cache</strong> by ordering Dockerfile instructions properly</li>
+                    <li><strong>Use .dockerignore</strong> to exclude unnecessary files</li>
+                    <li><strong>Run containers as non-root</strong> for security</li>
+                    <li><strong>Set resource limits</strong> to prevent resource exhaustion</li>
+                    <li><strong>Use health checks</strong> for container monitoring</li>
+                    <li><strong>Implement proper logging</strong> to stdout/stderr</li>
+                </ul>
+            </div>
+
+            <div class="best-practices">
+                <h4>Production Best Practices</h4>
+                <ul>
+                    <li><strong>Use orchestration platforms</strong> (Kubernetes, Docker Swarm)</li>
+                    <li><strong>Implement monitoring and alerting</strong></li>
+                    <li><strong>Regular security scanning</strong> of images</li>
+                    <li><strong>Backup strategy</strong> for volumes and data</li>
+                    <li><strong>Network segmentation</strong> for security</li>
+                    <li><strong>Secrets management</strong> for sensitive data</li>
+                    <li><strong>Regular updates</strong> of Docker and base images</li>
+                    <li><strong>Disaster recovery planning</strong></li>
+                </ul>
+            </div>
+
+            <h3>Preventive Maintenance Commands</h3>
+            <div class="command-block">
+# Regular cleanup (run weekly)
+docker system prune -f
+
+# Deep cleanup (run monthly)
+docker system prune -a -f --volumes
+
+# Update all images (with caution)
+docker images --format "table {{.Repository}}:{{.Tag}}" | grep -v REPOSITORY | xargs -I {} docker pull {}
+
+# Check for security vulnerabilities
+docker scan &lt;image_name&gt;
+
+# Monitor disk usage
+watch -n 30 'docker system df'
+
+# Backup important volumes
+docker run --rm -v volume_name:/data -v $(pwd):/backup ubuntu tar czf /backup/backup-$(date +%Y%m%d).tar.gz /data
+            </div>
+
+            <h3>Troubleshooting Checklist</h3>
+            <div class="info">
+                <h4>When encountering Docker issues, follow this checklist:</h4>
+                <ol>
+                    <li>Check Docker daemon status and logs</li>
+                    <li>Verify container logs for application errors</li>
+                    <li>Inspect container and image configurations</li>
+                    <li>Test network connectivity and port mappings</li>
+                    <li>Monitor resource usage (CPU, memory, disk)</li>
+                    <li>Verify volume mounts and permissions</li>
+                    <li>Check for conflicting containers or ports</li>
+                    <li>Review security settings and constraints</li>
+                    <li>Test with minimal example to isolate the issue</li>
+                    <li>Consult Docker documentation and community resources</li>
+                </ol>
+            </div>
+
+            <div class="warning">
+                <strong>Important:</strong> Always test troubleshooting steps in a development environment before applying them to production systems. Keep backups of important data and configurations.
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function showPlatform(platform) {
+            // Hide all platform content
+            const contents = document.querySelectorAll('.platform-content');
+            contents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.platform-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected platform content
+            document.getElementById(platform).classList.add('active');
+
+            // Add active class to selected tab
+            event.target.classList.add('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add copy functionality to code blocks
+        document.querySelectorAll('.command-block').forEach(block => {
+            block.style.position = 'relative';
+            block.style.cursor = 'pointer';
+            
+            block.addEventListener('click', function() {
+                const text = this.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    const original = this.style.backgroundColor;
+                    this.style.backgroundColor = '#27ae60';
+                    setTimeout(() => {
+                        this.style.backgroundColor = original;
+                    }, 200);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
