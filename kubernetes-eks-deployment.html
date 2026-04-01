@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS EKS Deployment Guide - Kubernetes on Amazon</title>
+    <style>
+        :root {
+            --primary-color: #ff9900;
+            --primary-dark: #e88b00;
+            --secondary-color: #232f3e;
+            --k8s-color: #326ce5;
+            --success-color: #00c853;
+            --warning-color: #ff6f00;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #ff9900 0%, #232f3e 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--k8s-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(255, 153, 0, 0.1) 0%, rgba(255, 153, 0, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffecb3;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-left: 4px solid var(--k8s-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid var(--success-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .step-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .step-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .step-card .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--surface);
+        }
+
+        .cost-table th,
+        .cost-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .cost-table th {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .cost-table tr:hover {
+            background: var(--background);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+            .step-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>☁️ AWS EKS Deployment Guide</h1>
+        <p>Complete guide to deploying and managing Kubernetes clusters on Amazon Elastic Kubernetes Service</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#overview">Overview</a>
+            <a href="#prerequisites">Prerequisites</a>
+            <a href="#setup">Setup</a>
+            <a href="#deployment">Deployment</a>
+            <a href="#management">Management</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="overview" class="section">
+            <h2>AWS EKS Overview</h2>
+            
+            <p>Amazon Elastic Kubernetes Service (EKS) is a fully managed Kubernetes service that makes it easy to run Kubernetes on AWS without needing to install and operate your own Kubernetes control plane.</p>
+
+            <h3>Key Benefits</h3>
+            <ul>
+                <li><strong>Fully Managed:</strong> AWS manages the Kubernetes control plane</li>
+                <li><strong>High Availability:</strong> Multi-AZ control plane deployment</li>
+                <li><strong>Security:</strong> Integrated with AWS IAM, VPC, and security groups</li>
+                <li><strong>Scalability:</strong> Auto-scaling worker nodes and pods</li>
+                <li><strong>Integration:</strong> Native integration with AWS services (ALB, EBS, EFS, ECR)</li>
+                <li><strong>Compliance:</strong> SOC, PCI, ISO, FedRAMP certifications</li>
+                <li><strong>Cost-Effective:</strong> Pay only for worker nodes, control plane is managed</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>EKS vs Self-Managed:</strong><br>
+                With EKS, you focus on your applications while AWS handles the complexity of running, updating, and securing the Kubernetes control plane.
+            </div>
+
+            <h3>EKS Architecture</h3>
+            <div class="code-block">
+                <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                        AWS Account                              │
+│                                                                 │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                    EKS Control Plane                      │  │
+│  │                   (Managed by AWS)                        │  │
+│  │                                                           │  │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐        │  │
+│  │  │ API Server  │ │ Scheduler   │ │Controller   │        │  │
+│  │  │             │ │             │ │Manager      │        │  │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘        │  │
+│  │                                                           │  │
+│  │  ┌─────────────────────────────────────────────────┐     │  │
+│  │  │                  etcd                           │     │  │
+│  │  └─────────────────────────────────────────────────┘     │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                              │                                  │
+│                              │ (Secure API)                     │
+│                              │                                  │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │                      Your VPC                             │  │
+│  │                                                           │  │
+│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐        │  │
+│  │  │   Worker    │ │   Worker    │ │   Worker    │        │  │
+│  │  │   Node 1    │ │   Node 2    │ │   Node 3    │        │  │
+│  │  │             │ │             │ │             │        │  │
+│  │  │ EC2/Fargate │ │ EC2/Fargate │ │ EC2/Fargate │        │  │
+│  │  └─────────────┘ └─────────────┘ └─────────────┘        │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+</pre>
+            </div>
+
+            <h3>EKS Pricing</h3>
+            <table class="cost-table">
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Cost</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>EKS Control Plane</td>
+                        <td>$0.10/hour per cluster</td>
+                        <td>~$72/month regardless of usage</td>
+                    </tr>
+                    <tr>
+                        <td>Worker Nodes (EC2)</td>
+                        <td>Standard EC2 pricing</td>
+                        <td>t3.medium ~$30/month</td>
+                    </tr>
+                    <tr>
+                        <td>Fargate Pods</td>
+                        <td>Per vCPU and memory</td>
+                        <td>More expensive but serverless</td>
+                    </tr>
+                    <tr>
+                        <td>Load Balancers</td>
+                        <td>ALB: $16-22/month</td>
+                        <td>For ingress traffic</td>
+                    </tr>
+                    <tr>
+                        <td>EBS Volumes</td>
+                        <td>$0.10/GB/month (gp2)</td>
+                        <td>For persistent storage</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="prerequisites" class="section">
+            <h2>Prerequisites</h2>
+
+            <h3>Required Tools</h3>
+            <div class="step-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>AWS CLI</h4>
+                    <p>Command-line interface for AWS services</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>kubectl</h4>
+                    <p>Kubernetes command-line tool</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>eksctl</h4>
+                    <p>Official CLI for Amazon EKS</p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>AWS IAM</h4>
+                    <p>Proper permissions for EKS operations</p>
+                </div>
+            </div>
+
+            <h3>Installation Commands</h3>
+            <div class="code-block">
+                <pre>
+# Install AWS CLI (macOS)
+brew install awscli
+
+# Install AWS CLI (Linux)
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Install kubectl (macOS)
+brew install kubectl
+
+# Install kubectl (Linux)
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Install eksctl (macOS)
+brew tap weaveworks/tap
+brew install weaveworks/tap/eksctl
+
+# Install eksctl (Linux)
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+
+# Verify installations
+aws --version
+kubectl version --client
+eksctl version
+</pre>
+            </div>
+
+            <h3>AWS Configuration</h3>
+            <div class="code-block">
+                <pre>
+# Configure AWS credentials
+aws configure
+# Enter:
+# AWS Access Key ID: YOUR_ACCESS_KEY
+# AWS Secret Access Key: YOUR_SECRET_KEY
+# Default region name: us-west-2
+# Default output format: json
+
+# Verify configuration
+aws sts get-caller-identity
+aws eks list-clusters --region us-west-2
+</pre>
+            </div>
+
+            <h3>Required IAM Permissions</h3>
+            <div class="info">
+                Your AWS user/role needs the following permissions:
+            </div>
+            <ul>
+                <li>AmazonEKSClusterPolicy</li>
+                <li>AmazonEKSWorkerNodePolicy</li>
+                <li>AmazonEKS_CNI_Policy</li>
+                <li>AmazonEC2ContainerRegistryReadOnly</li>
+                <li>EC2 permissions for VPC/subnet management</li>
+                <li>CloudFormation permissions (for eksctl)</li>
+            </ul>
+        </section>
+
+        <section id="setup" class="section">
+            <h2>EKS Cluster Setup</h2>
+
+            <h3>Method 1: Using eksctl (Recommended)</h3>
+            <p>eksctl is the easiest way to create and manage EKS clusters.</p>
+
+            <div class="code-block">
+                <pre>
+# Create a basic EKS cluster
+eksctl create cluster \
+  --name my-cluster \
+  --version 1.28 \
+  --region us-west-2 \
+  --nodegroup-name standard-workers \
+  --node-type t3.medium \
+  --nodes 3 \
+  --nodes-min 1 \
+  --nodes-max 4 \
+  --managed
+
+# This command will:
+# 1. Create a VPC with public and private subnets
+# 2. Create an EKS cluster with the control plane
+# 3. Create a managed node group with 3 EC2 instances
+# 4. Configure kubectl to connect to the cluster
+# 5. Takes about 15-20 minutes to complete
+</pre>
+            </div>
+
+            <div class="warning">
+                <strong>Cost Alert:</strong> This will create billable AWS resources. The cluster costs ~$72/month plus EC2 instance costs.
+            </div>
+
+            <h3>Advanced eksctl Configuration</h3>
+            <div class="code-block">
+                <pre>
+# Create cluster with custom configuration
+cat &lt;&lt; EOF &gt; cluster-config.yaml
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: production-cluster
+  region: us-west-2
+  version: "1.28"
+
+availabilityZones: ["us-west-2a", "us-west-2b", "us-west-2c"]
+
+managedNodeGroups:
+  - name: general-workers
+    instanceType: t3.medium
+    amiFamily: AmazonLinux2
+    minSize: 2
+    maxSize: 10
+    desiredCapacity: 3
+    volumeSize: 20
+    ssh:
+      enable: true
+    tags:
+      Environment: production
+      Team: platform
+
+  - name: spot-workers
+    instanceTypes: ["t3.medium", "t3.large"]
+    spot: true
+    minSize: 0
+    maxSize: 5
+    desiredCapacity: 2
+    tags:
+      Environment: production
+      NodeType: spot
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["*"]
+EOF
+
+# Create cluster with config file
+eksctl create cluster -f cluster-config.yaml
+</pre>
+            </div>
+
+            <h3>Method 2: Using AWS Console</h3>
+            <ol>
+                <li>Navigate to EKS in AWS Console</li>
+                <li>Click "Create cluster"</li>
+                <li>Configure cluster name, version, and role</li>
+                <li>Set up networking (VPC, subnets, security groups)</li>
+                <li>Configure logging and add-ons</li>
+                <li>Create worker node groups</li>
+                <li>Configure kubectl access</li>
+            </ol>
+
+            <h3>Verify Cluster Creation</h3>
+            <div class="code-block">
+                <pre>
+# Check cluster status
+eksctl get cluster
+aws eks list-clusters
+
+# Verify kubectl access
+kubectl get nodes
+kubectl get all --all-namespaces
+
+# Check cluster info
+kubectl cluster-info
+kubectl get componentstatuses
+</pre>
+            </div>
+        </section>
+
+        <section id="deployment" class="section">
+            <h2>Application Deployment</h2>
+
+            <h3>Deploy Sample Application</h3>
+            <div class="code-block">
+                <pre>
+# Create a simple nginx deployment
+kubectl create deployment nginx --image=nginx:1.21
+kubectl scale deployment nginx --replicas=3
+
+# Expose the deployment as a service
+kubectl expose deployment nginx --port=80 --type=LoadBalancer
+
+# Check the deployment
+kubectl get deployments
+kubectl get pods
+kubectl get services
+
+# Get the external URL (takes a few minutes to provision)
+kubectl get services nginx
+# Note the EXTERNAL-IP for accessing your app
+</pre>
+            </div>
+
+            <h3>Deploy with AWS Load Balancer Controller</h3>
+            <div class="code-block">
+                <pre>
+# Install AWS Load Balancer Controller
+curl -o iam_policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.5.4/docs/install/iam_policy.json
+
+# Create IAM policy
+aws iam create-policy \
+  --policy-name AWSLoadBalancerControllerIAMPolicy \
+  --policy-document file://iam_policy.json
+
+# Create service account
+eksctl create iamserviceaccount \
+  --cluster=my-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::ACCOUNT-ID:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+# Install the controller using Helm
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=my-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller
+</pre>
+            </div>
+
+            <h3>Deploy with Ingress</h3>
+            <div class="code-block">
+                <pre>
+# Create deployment and service
+cat &lt;&lt; EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+spec:
+  selector:
+    app: web-app
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-app-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: web-app-service
+            port:
+              number: 80
+EOF
+
+# Check the ingress
+kubectl get ingress
+kubectl describe ingress web-app-ingress
+</pre>
+            </div>
+
+            <h3>Using ECR for Container Images</h3>
+            <div class="code-block">
+                <pre>
+# Create ECR repository
+aws ecr create-repository --repository-name my-app --region us-west-2
+
+# Get login token
+aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin ACCOUNT-ID.dkr.ecr.us-west-2.amazonaws.com
+
+# Tag and push your image
+docker tag my-app:latest ACCOUNT-ID.dkr.ecr.us-west-2.amazonaws.com/my-app:latest
+docker push ACCOUNT-ID.dkr.ecr.us-west-2.amazonaws.com/my-app:latest
+
+# Deploy from ECR
+kubectl create deployment my-app --image=ACCOUNT-ID.dkr.ecr.us-west-2.amazonaws.com/my-app:latest
+</pre>
+            </div>
+        </section>
+
+        <section id="management" class="section">
+            <h2>Cluster Management</h2>
+
+            <h3>Monitoring and Logging</h3>
+            <div class="code-block">
+                <pre>
+# Install Metrics Server
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Check resource usage
+kubectl top nodes
+kubectl top pods
+
+# Enable CloudWatch Container Insights
+aws logs create-log-group --log-group-name /aws/containerinsights/my-cluster/application
+aws logs create-log-group --log-group-name /aws/containerinsights/my-cluster/host
+aws logs create-log-group --log-group-name /aws/containerinsights/my-cluster/dataplane
+
+# Deploy Fluent Bit
+kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml
+</pre>
+            </div>
+
+            <h3>Auto Scaling</h3>
+            <div class="code-block">
+                <pre>
+# Install Cluster Autoscaler
+curl -o cluster-autoscaler-autodiscover.yaml https://raw.githubusercontent.com/kubernetes/autoscaler/master/cluster-autoscaler/cloudprovider/aws/examples/cluster-autoscaler-autodiscover.yaml
+
+# Edit the file to add your cluster name and apply
+kubectl apply -f cluster-autoscaler-autodiscover.yaml
+
+# Annotate the deployment to prevent eviction
+kubectl -n kube-system annotate deployment.apps/cluster-autoscaler cluster-autoscaler.kubernetes.io/safe-to-evict="false"
+
+# Install Horizontal Pod Autoscaler
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Create HPA for your deployment
+kubectl autoscale deployment nginx --cpu-percent=50 --min=1 --max=10
+
+# Check HPA status
+kubectl get hpa
+</pre>
+            </div>
+
+            <h3>Security Best Practices</h3>
+            <div class="info">
+                <strong>Essential Security Measures:</strong>
+            </div>
+            <ul>
+                <li><strong>RBAC:</strong> Configure Role-Based Access Control</li>
+                <li><strong>Network Policies:</strong> Restrict pod-to-pod communication</li>
+                <li><strong>Pod Security Standards:</strong> Enforce security policies</li>
+                <li><strong>Secrets Management:</strong> Use AWS Secrets Manager or Parameter Store</li>
+                <li><strong>Image Scanning:</strong> Enable ECR image scanning</li>
+                <li><strong>Private Endpoints:</strong> Use VPC endpoints for API access</li>
+            </ul>
+
+            <div class="code-block">
+                <pre>
+# Enable private endpoint access
+aws eks update-cluster-config \
+  --name my-cluster \
+  --resources-vpc-config endpointPrivateAccess=true,endpointPublicAccess=false
+
+# Create RBAC for users
+kubectl create serviceaccount my-user
+kubectl create clusterrolebinding my-user-binding --clusterrole=view --serviceaccount=default:my-user
+</pre>
+            </div>
+
+            <h3>Backup and Disaster Recovery</h3>
+            <div class="code-block">
+                <pre>
+# Install Velero for backup
+wget https://github.com/vmware-tanzu/velero/releases/latest/download/velero-linux-amd64.tar.gz
+tar -xzf velero-linux-amd64.tar.gz
+sudo mv velero-*/velero /usr/local/bin/
+
+# Configure S3 bucket for backups
+aws s3 mb s3://my-cluster-backups-$(date +%s)
+
+# Install Velero on cluster
+velero install \
+  --provider aws \
+  --plugins velero/velero-plugin-for-aws:v1.7.0 \
+  --bucket my-cluster-backups \
+  --secret-file ./credentials-velero \
+  --backup-location-config region=us-west-2
+
+# Create backup
+velero backup create my-backup --include-namespaces default
+velero backup get
+</pre>
+            </div>
+
+            <h3>Cluster Maintenance</h3>
+            <div class="code-block">
+                <pre>
+# Update cluster version
+eksctl update cluster --name my-cluster --version 1.29
+
+# Update node groups
+eksctl update nodegroup --cluster my-cluster --name standard-workers
+
+# Drain nodes for maintenance
+kubectl drain NODE_NAME --ignore-daemonsets --force
+
+# Uncordon nodes after maintenance
+kubectl uncordon NODE_NAME
+
+# Clean up cluster
+eksctl delete cluster --name my-cluster
+</pre>
+            </div>
+
+            <div class="warning">
+                <strong>Cleanup Warning:</strong> Always delete your EKS cluster when done testing to avoid ongoing charges. Use `eksctl delete cluster --name my-cluster` to remove all resources.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Next Steps</h2>
+            <ul>
+                <li><a href="kubernetes-cicd.html">Implement CI/CD with EKS →</a></li>
+                <li><a href="kubernetes-security.html">Advanced EKS security →</a></li>
+                <li><a href="kubernetes-monitoring.html">Comprehensive monitoring →</a></li>
+                <li><a href="kubernetes-troubleshooting.html">Troubleshooting guide →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 AWS EKS Deployment Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -470,6 +470,7 @@
             <ul class="nav-links">
                 <li><a href="#introduction">Introduction</a></li>
                 <li><a href="#table-of-contents">Contents</a></li>
+                <li><a href="#docker-cli">CLI Commands</a></li>
                 <li><a href="#learning-path">Learning Path</a></li>
                 <li><a href="#getting-started">Get Started</a></li>
             </ul>
@@ -606,6 +607,13 @@
                     <p>Real-world applications, full-stack deployments, microservices, and industry-specific solutions.</p>
                     <a href="docker-examples.html">See Examples →</a>
                 </div>
+
+                <div class="toc-card">
+                    <span class="card-icon">☁️</span>
+                    <h3>14. EC2 Production Deployment</h3>
+                    <p>Complete guide to deploying Docker applications on AWS EC2 with FastAPI, Flask, Django, React, and Next.js.</p>
+                    <a href="docker-ec2-deployment.html">Deploy to AWS →</a>
+                </div>
             </div>
         </div>
     </section>
@@ -637,6 +645,188 @@
                     <span class="path-icon">🎓</span>
                     <h4>Expert Path</h4>
                     <p>Kubernetes integration → Custom solutions → Performance tuning → Enterprise patterns → Teaching others</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Docker CLI Commands -->
+    <section id="docker-cli" class="intro-section">
+        <div class="container">
+            <h2 class="section-title">Essential Docker CLI Commands</h2>
+            
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h3>Container Management</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--primary-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Run a container
+docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
+docker run -d nginx                    # Run nginx in background
+docker run -it ubuntu bash            # Interactive terminal
+docker run -p 8080:80 nginx          # Port mapping
+docker run --name myapp nginx        # Named container
+
+# List containers
+docker ps                             # Running containers
+docker ps -a                          # All containers
+docker ps -q                          # Container IDs only
+
+# Container operations
+docker start CONTAINER               # Start stopped container
+docker stop CONTAINER                # Stop running container
+docker restart CONTAINER             # Restart container
+docker pause CONTAINER               # Pause container
+docker unpause CONTAINER             # Unpause container
+docker kill CONTAINER                # Kill container
+docker rm CONTAINER                  # Remove container
+docker rm -f CONTAINER               # Force remove running container
+</pre>
+                    </div>
+
+                    <h3>Image Management</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--success-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Image operations
+docker images                         # List local images
+docker pull IMAGE                     # Download image
+docker push IMAGE                     # Upload image to registry
+docker build -t NAME:TAG .           # Build image from Dockerfile
+docker build -t myapp:v1.0 .         # Build with tag
+docker tag SOURCE TARGET             # Tag an image
+docker rmi IMAGE                      # Remove image
+docker rmi -f IMAGE                   # Force remove image
+
+# Image inspection
+docker inspect IMAGE                 # Detailed image info
+docker history IMAGE                 # Image layer history
+docker image prune                   # Remove unused images
+docker system prune                  # Remove all unused data
+</pre>
+                    </div>
+
+                    <h3>Container Information & Logs</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--warning-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Container inspection
+docker inspect CONTAINER             # Container details
+docker logs CONTAINER                # Container logs
+docker logs -f CONTAINER             # Follow log output
+docker logs --tail 100 CONTAINER     # Last 100 lines
+docker stats                         # Live resource usage
+docker stats CONTAINER               # Specific container stats
+docker top CONTAINER                 # Running processes
+docker port CONTAINER                # Port mappings
+
+# Execute commands in container
+docker exec -it CONTAINER bash       # Interactive shell
+docker exec CONTAINER ls -la         # Execute command
+docker cp FILE CONTAINER:/path       # Copy to container
+docker cp CONTAINER:/path FILE       # Copy from container
+</pre>
+                    </div>
+
+                    <h3>Docker Compose Commands</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--accent-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Compose operations
+docker-compose up                     # Start services
+docker-compose up -d                  # Start in background
+docker-compose up --build            # Build and start
+docker-compose down                   # Stop and remove
+docker-compose stop                   # Stop services
+docker-compose start                  # Start stopped services
+docker-compose restart               # Restart services
+docker-compose logs                   # View logs
+docker-compose logs -f SERVICE       # Follow service logs
+docker-compose exec SERVICE bash     # Execute in service
+docker-compose ps                     # List services
+docker-compose pull                   # Pull latest images
+</pre>
+                    </div>
+
+                    <h3>Network Management</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--primary-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Network operations
+docker network ls                     # List networks
+docker network create NETWORK        # Create network
+docker network create --driver bridge mynet  # Create bridge network
+docker network inspect NETWORK       # Network details
+docker network connect NETWORK CONTAINER     # Connect container to network
+docker network disconnect NETWORK CONTAINER  # Disconnect container
+docker network rm NETWORK            # Remove network
+docker network prune                 # Remove unused networks
+</pre>
+                    </div>
+
+                    <h3>Volume Management</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--success-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Volume operations
+docker volume ls                      # List volumes
+docker volume create VOLUME          # Create volume
+docker volume inspect VOLUME         # Volume details
+docker volume rm VOLUME              # Remove volume
+docker volume prune                  # Remove unused volumes
+
+# Using volumes
+docker run -v VOLUME:/path IMAGE     # Named volume
+docker run -v /host/path:/container/path IMAGE  # Bind mount
+docker run -v /container/path IMAGE  # Anonymous volume
+docker run --mount source=vol,target=/data IMAGE  # Mount syntax
+</pre>
+                    </div>
+
+                    <h3>Registry Operations</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--warning-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# Registry commands
+docker login                          # Login to Docker Hub
+docker login registry.example.com    # Login to private registry
+docker logout                        # Logout
+docker search IMAGE                  # Search Docker Hub
+docker pull ubuntu:20.04            # Pull specific tag
+docker push username/image:tag       # Push to registry
+docker tag local/image:tag username/image:tag  # Tag for push
+</pre>
+                    </div>
+
+                    <h3>System Information & Cleanup</h3>
+                    <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid var(--accent-color);">
+                        <pre style="margin: 0; font-family: 'Monaco', 'Menlo', monospace; overflow-x: auto;">
+# System commands
+docker version                       # Docker version info
+docker info                         # System information
+docker system df                    # Disk usage
+docker system events               # Real-time events
+docker system prune               # Remove all unused data
+docker system prune -a            # Remove all unused data including images
+
+# Cleanup commands
+docker container prune             # Remove stopped containers
+docker image prune                # Remove dangling images
+docker image prune -a             # Remove all unused images
+docker volume prune               # Remove unused volumes
+docker network prune              # Remove unused networks
+</pre>
+                    </div>
+                </div>
+                
+                <div class="intro-features">
+                    <h3>Quick Reference</h3>
+                    <ul class="feature-list">
+                        <li>Use `docker --help` for command help</li>
+                        <li>Add `-d` flag to run containers in background</li>
+                        <li>Use `-it` for interactive containers</li>
+                        <li>Map ports with `-p HOST:CONTAINER`</li>
+                        <li>Mount volumes with `-v` or `--mount`</li>
+                        <li>Set environment variables with `-e`</li>
+                        <li>Name containers with `--name`</li>
+                        <li>Use `docker-compose` for multi-container apps</li>
+                        <li>Regular cleanup prevents disk space issues</li>
+                        <li>Use `docker inspect` for detailed information</li>
+                    </ul>
                 </div>
             </div>
         </div>

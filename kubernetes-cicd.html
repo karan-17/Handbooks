@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes CI/CD & GitOps - Automated Deployment Pipelines</title>
+    <style>
+        :root {
+            --primary-color: #2196F3;
+            --primary-dark: #1976D2;
+            --secondary-color: #FF5722;
+            --accent-color: #4CAF50;
+            --warning-color: #FF9800;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffecb3;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .workflow-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .workflow-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .workflow-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        .workflow-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        .pipeline-diagram {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .pipeline-step {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .pipeline-arrow {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+            .workflow-grid { grid-template-columns: 1fr; }
+            .pipeline-step { display: block; margin: 0.5rem auto; }
+            .pipeline-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🚀 Kubernetes CI/CD & GitOps</h1>
+        <p>Complete guide to implementing automated deployment pipelines, GitOps workflows, and continuous delivery with Kubernetes</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#overview">Overview</a>
+            <a href="#tools">Tools</a>
+            <a href="#pipeline">Pipeline Setup</a>
+            <a href="#gitops">GitOps</a>
+            <a href="#examples">Examples</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="overview" class="section">
+            <h2>CI/CD & GitOps Overview</h2>
+            
+            <p>Continuous Integration and Continuous Deployment (CI/CD) with GitOps represents the modern approach to automating software delivery. GitOps treats Git as the single source of truth for declarative infrastructure and applications.</p>
+
+            <div class="pipeline-diagram">
+                <h3>Modern CI/CD Pipeline</h3>
+                <div style="margin: 2rem 0;">
+                    <div class="pipeline-step">Code Commit</div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">Build & Test</div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">Container Build</div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">Security Scan</div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">Deploy to K8s</div>
+                    <span class="pipeline-arrow">→</span>
+                    <div class="pipeline-step">Monitor</div>
+                </div>
+            </div>
+
+            <h3>Key Principles</h3>
+            <ul>
+                <li><strong>Declarative:</strong> Entire system described declaratively</li>
+                <li><strong>Versioned:</strong> Desired state versioned in Git</li>
+                <li><strong>Immutable:</strong> Configuration changes create new versions</li>
+                <li><strong>Pulled:</strong> Software agents automatically pull desired state</li>
+                <li><strong>Continuously Reconciled:</strong> Agents ensure convergence</li>
+            </ul>
+
+            <div class="workflow-grid">
+                <div class="workflow-card">
+                    <span class="icon">🔧</span>
+                    <h4>Build Pipeline</h4>
+                    <p>Automated building, testing, and security scanning of application code</p>
+                </div>
+                
+                <div class="workflow-card">
+                    <span class="icon">🚢</span>
+                    <h4>Deploy Pipeline</h4>
+                    <p>Automated deployment to Kubernetes clusters with validation and rollback</p>
+                </div>
+                
+                <div class="workflow-card">
+                    <span class="icon">🔄</span>
+                    <h4>GitOps Sync</h4>
+                    <p>Continuous synchronization between Git repository and cluster state</p>
+                </div>
+                
+                <div class="workflow-card">
+                    <span class="icon">📊</span>
+                    <h4>Observability</h4>
+                    <p>Monitoring, logging, and alerting throughout the deployment lifecycle</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tools" class="section">
+            <h2>CI/CD Tools for Kubernetes</h2>
+
+            <h3>Popular CI/CD Platforms</h3>
+            
+            <h4>GitHub Actions</h4>
+            <ul>
+                <li>Native Git integration</li>
+                <li>Extensive marketplace of actions</li>
+                <li>Built-in secrets management</li>
+                <li>Matrix builds and workflows</li>
+            </ul>
+
+            <h4>GitLab CI/CD</h4>
+            <ul>
+                <li>Integrated with GitLab repositories</li>
+                <li>Auto DevOps capabilities</li>
+                <li>Built-in container registry</li>
+                <li>Security scanning integration</li>
+            </ul>
+
+            <h4>Jenkins</h4>
+            <ul>
+                <li>Extensive plugin ecosystem</li>
+                <li>Pipeline as code with Jenkinsfile</li>
+                <li>Kubernetes plugin for dynamic agents</li>
+                <li>Enterprise features and support</li>
+            </ul>
+
+            <h4>Tekton</h4>
+            <ul>
+                <li>Kubernetes-native CI/CD</li>
+                <li>Cloud Native Computing Foundation project</li>
+                <li>Reusable tasks and pipelines</li>
+                <li>Event-driven execution</li>
+            </ul>
+
+            <h3>GitOps Tools</h3>
+            
+            <h4>ArgoCD</h4>
+            <ul>
+                <li>Declarative GitOps continuous delivery</li>
+                <li>Web UI for visualization</li>
+                <li>Multi-cluster deployments</li>
+                <li>RBAC and SSO integration</li>
+            </ul>
+
+            <h4>Flux</h4>
+            <ul>
+                <li>CNCF graduated project</li>
+                <li>Git repository watching</li>
+                <li>Helm integration</li>
+                <li>Image automation</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Recommended Stack:</strong><br>
+                GitHub Actions + ArgoCD provides excellent developer experience with powerful GitOps capabilities for Kubernetes deployments.
+            </div>
+        </section>
+
+        <section id="pipeline" class="section">
+            <h2>Setting Up CI/CD Pipelines</h2>
+
+            <h3>GitHub Actions Pipeline</h3>
+            <div class="code-block">
+                <pre>
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Run security audit
+      run: npm audit --audit-level moderate
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    
+    - name: Security scan
+      uses: aquasec/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Update deployment manifest
+      run: |
+        sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|" k8s/deployment.yaml
+    
+    - name: Commit updated manifest
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add k8s/deployment.yaml
+        git commit -m "Update image to ${{ github.sha }}" || exit 0
+        git push
+</pre>
+            </div>
+
+            <h3>GitLab CI Pipeline</h3>
+            <div class="code-block">
+                <pre>
+# .gitlab-ci.yml
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+stages:
+  - test
+  - build
+  - security
+  - deploy
+
+test:
+  stage: test
+  image: node:18
+  script:
+    - npm ci
+    - npm run test
+    - npm audit --audit-level moderate
+  coverage: '/Lines\s*:\s*(\d+\.\d+)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+build:
+  stage: build
+  script:
+    - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker build -t $IMAGE_TAG .
+    - docker push $IMAGE_TAG
+  only:
+    - main
+    - develop
+
+container_security:
+  stage: security
+  script:
+    - apk add --no-cache curl
+    - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+    - trivy image --exit-code 1 --severity HIGH,CRITICAL $IMAGE_TAG
+  only:
+    - main
+
+deploy_staging:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl config set-cluster k8s --server="$KUBE_URL" --certificate-authority="$KUBE_CA_PEM_FILE"
+    - kubectl config set-credentials admin --token="$KUBE_TOKEN"
+    - kubectl config set-context default --cluster=k8s --user=admin
+    - kubectl config use-context default
+    - sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml
+    - kubectl apply -f k8s/
+  environment:
+    name: staging
+    url: https://staging.example.com
+  only:
+    - develop
+
+deploy_production:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    - kubectl config set-cluster k8s --server="$KUBE_URL" --certificate-authority="$KUBE_CA_PEM_FILE"
+    - kubectl config set-credentials admin --token="$KUBE_TOKEN"
+    - kubectl config set-context default --cluster=k8s --user=admin
+    - kubectl config use-context default
+    - sed -i "s|IMAGE_TAG|$IMAGE_TAG|g" k8s/deployment.yaml
+    - kubectl apply -f k8s/
+  environment:
+    name: production
+    url: https://app.example.com
+  when: manual
+  only:
+    - main
+</pre>
+            </div>
+
+            <h3>Tekton Pipeline</h3>
+            <div class="code-block">
+                <pre>
+# tekton-pipeline.yaml
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: build-and-deploy
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: image-reference
+      type: string
+  workspaces:
+    - name: shared-data
+    - name: docker-credentials
+  tasks:
+    - name: fetch-source
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data
+      params:
+        - name: url
+          value: $(params.repo-url)
+    
+    - name: run-tests
+      runAfter: ["fetch-source"]
+      workspaces:
+        - name: source
+          workspace: shared-data
+      taskSpec:
+        workspaces:
+          - name: source
+        steps:
+          - name: test
+            image: node:18
+            workingDir: $(workspaces.source.path)
+            script: |
+              npm ci
+              npm test
+    
+    - name: build-push
+      runAfter: ["run-tests"]
+      taskRef:
+        name: buildah
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: dockerconfig
+          workspace: docker-credentials
+      params:
+        - name: IMAGE
+          value: $(params.image-reference)
+    
+    - name: deploy
+      runAfter: ["build-push"]
+      workspaces:
+        - name: source
+          workspace: shared-data
+      taskSpec:
+        workspaces:
+          - name: source
+        steps:
+          - name: deploy
+            image: bitnami/kubectl:latest
+            workingDir: $(workspaces.source.path)
+            script: |
+              kubectl apply -f k8s/
+</pre>
+            </div>
+        </section>
+
+        <section id="gitops" class="section">
+            <h2>GitOps Implementation</h2>
+
+            <h3>ArgoCD Setup</h3>
+            <div class="code-block">
+                <pre>
+# Install ArgoCD
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# Wait for deployment
+kubectl wait --for=condition=available --timeout=300s deployment/argocd-server -n argocd
+
+# Get initial admin password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+
+# Port forward to access UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+# Login with CLI
+argocd login localhost:8080 --username admin --password PASSWORD --insecure
+
+# Change password
+argocd account update-password
+</pre>
+            </div>
+
+            <h3>Create ArgoCD Application</h3>
+            <div class="code-block">
+                <pre>
+# application.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/username/my-app-config
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+# Apply the application
+kubectl apply -f application.yaml
+</pre>
+            </div>
+
+            <h3>Flux Setup</h3>
+            <div class="code-block">
+                <pre>
+# Install Flux CLI
+curl -s https://fluxcd.io/install.sh | sudo bash
+
+# Check prerequisites
+flux check --pre
+
+# Bootstrap Flux
+export GITHUB_TOKEN=YOUR_TOKEN
+export GITHUB_USER=YOUR_USERNAME
+export GITHUB_REPO=my-fleet-infra
+
+flux bootstrap github \
+  --owner=$GITHUB_USER \
+  --repository=$GITHUB_REPO \
+  --branch=main \
+  --path=./clusters/my-cluster \
+  --personal
+
+# Create a source for your app repository
+flux create source git my-app \
+  --url=https://github.com/$GITHUB_USER/my-app \
+  --branch=main \
+  --interval=1m \
+  --export > ./clusters/my-cluster/my-app-source.yaml
+
+# Create a kustomization
+flux create kustomization my-app \
+  --target-namespace=production \
+  --source=my-app \
+  --path="./k8s" \
+  --prune=true \
+  --wait=true \
+  --interval=30m \
+  --retry-interval=2m \
+  --health-check-timeout=3m \
+  --export > ./clusters/my-cluster/my-app-kustomization.yaml
+
+# Commit and push
+git add -A && git commit -m "Add my-app GitOps configuration"
+git push
+</pre>
+            </div>
+
+            <h3>Image Automation with Flux</h3>
+            <div class="code-block">
+                <pre>
+# Image repository
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  image: ghcr.io/username/my-app
+  interval: 1m
+
+---
+# Image policy
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImagePolicy
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: my-app
+  policy:
+    semver:
+      range: '>=1.0.0'
+
+---
+# Image update automation
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: my-app
+  namespace: flux-system
+spec:
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: my-app
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+      messageTemplate: |
+        Automated image update
+        
+        Automation name: {{ .AutomationObject }}
+        
+        Files:
+        {{ range $filename, $_ := .Updated.Files -}}
+        - {{ $filename }}
+        {{ end -}}
+        
+        Objects:
+        {{ range $resource, $_ := .Updated.Objects -}}
+        - {{ $resource.Kind }} {{ $resource.Name }}
+        {{ end -}}
+  update:
+    path: "./k8s"
+    strategy: Setters
+</pre>
+            </div>
+
+            <div class="info">
+                <strong>GitOps Benefits:</strong> GitOps provides declarative configuration management, audit trails, rollback capabilities, and security through Git's access controls and code review processes.
+            </div>
+        </section>
+
+        <section id="examples" class="section">
+            <h2>Complete Examples</h2>
+
+            <h3>Node.js Application with MongoDB</h3>
+            <div class="code-block">
+                <pre>
+# Dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+COPY . .
+EXPOSE 3000
+USER node
+CMD ["npm", "start"]
+
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app
+        image: ghcr.io/username/my-app:latest # {"$imagepolicy": "flux-system:my-app"}
+        ports:
+        - containerPort: 3000
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: uri
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-service
+spec:
+  selector:
+    app: my-app
+  ports:
+  - port: 80
+    targetPort: 3000
+  type: ClusterIP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+  - hosts:
+    - myapp.example.com
+    secretName: myapp-tls
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-app-service
+            port:
+              number: 80
+</pre>
+            </div>
+
+            <h3>Multi-Environment Configuration</h3>
+            <div class="code-block">
+                <pre>
+# base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- deployment.yaml
+- service.yaml
+- ingress.yaml
+
+# overlays/staging/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: staging
+
+resources:
+- ../../base
+
+patchesStrategicMerge:
+- deployment-patch.yaml
+
+images:
+- name: ghcr.io/username/my-app
+  newTag: staging-latest
+
+# overlays/staging/deployment-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: my-app
+        env:
+        - name: NODE_ENV
+          value: "staging"
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+
+# overlays/production/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: production
+
+resources:
+- ../../base
+
+patchesStrategicMerge:
+- deployment-patch.yaml
+
+images:
+- name: ghcr.io/username/my-app
+  newTag: latest
+
+# overlays/production/deployment-patch.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 5
+  template:
+    spec:
+      containers:
+      - name: my-app
+        env:
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+</pre>
+            </div>
+
+            <h3>Advanced Pipeline with Security</h3>
+            <div class="code-block">
+                <pre>
+# .github/workflows/secure-pipeline.yml
+name: Secure CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-checks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Secret Scanning
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+    
+    - name: SAST Analysis
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+    
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+
+  build-and-scan:
+    needs: security-checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build image
+      run: docker build -t ${{ github.repository }}:${{ github.sha }} .
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ github.repository }}:${{ github.sha }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+    
+    - name: Sign container image
+      uses: sigstore/cosign-installer@v3
+      with:
+        cosign-release: 'v2.1.1'
+    
+    - name: Sign the published Docker image
+      env:
+        COSIGN_EXPERIMENTAL: 1
+      run: |
+        echo "${{ secrets.COSIGN_PRIVATE_KEY }}" > cosign.key
+        cosign sign --key cosign.key ${{ github.repository }}:${{ github.sha }}
+    
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ github.repository }}:${{ github.sha }}
+        format: spdx-json
+        output-file: sbom.spdx.json
+    
+    - name: Upload SBOM
+      uses: actions/upload-artifact@v3
+      with:
+        name: sbom
+        path: sbom.spdx.json
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deploy to Kubernetes
+      run: |
+        # Update image in GitOps repository
+        # Trigger ArgoCD sync
+        curl -X POST "$ARGOCD_WEBHOOK_URL" \
+          -H "Authorization: Bearer $ARGOCD_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{"application": "my-app"}'
+</pre>
+            </div>
+
+            <div class="success">
+                <strong>Production Ready:</strong> This pipeline includes security scanning, dependency checking, container signing, SBOM generation, and automated deployment with proper approval gates.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices</h2>
+            <ul>
+                <li><strong>Separate repositories:</strong> Keep application code and configuration in different repos</li>
+                <li><strong>Environment promotion:</strong> Use Git branches or tags to promote through environments</li>
+                <li><strong>Secret management:</strong> Never store secrets in Git, use external secret management</li>
+                <li><strong>Automated testing:</strong> Include unit, integration, and security tests in pipelines</li>
+                <li><strong>Rollback strategy:</strong> Have clear rollback procedures and automated health checks</li>
+                <li><strong>Monitoring:</strong> Implement comprehensive monitoring and alerting</li>
+                <li><strong>Documentation:</strong> Document all processes and maintain runbooks</li>
+            </ul>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li><a href="kubernetes-security.html">Learn Kubernetes security →</a></li>
+                <li><a href="kubernetes-monitoring.html">Set up monitoring →</a></li>
+                <li><a href="kubernetes-troubleshooting.html">Troubleshooting guide →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 Kubernetes CI/CD & GitOps Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

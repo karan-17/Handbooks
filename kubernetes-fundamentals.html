@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Fundamentals - Container Orchestration Basics</title>
+    <style>
+        :root {
+            --primary-color: #326ce5;
+            --primary-dark: #1a4db3;
+            --secondary-color: #f1c40f;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #326ce5 0%, #1a4db3 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(50, 108, 229, 0.1) 0%, rgba(50, 108, 229, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffecb3;
+            border-left: 4px solid var(--secondary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #b8daff;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        ul {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .arch-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .arch-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .arch-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .arch-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>⚙️ Kubernetes Fundamentals</h1>
+        <p>Master the core concepts of Kubernetes container orchestration - from basic architecture to essential components</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#what-is-k8s">What is Kubernetes</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#components">Components</a>
+            <a href="#concepts">Core Concepts</a>
+            <a href="#getting-started">Getting Started</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="what-is-k8s" class="section">
+            <h2>What is Kubernetes?</h2>
+            
+            <p>Kubernetes (K8s) is an open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications. Originally developed by Google and now maintained by the Cloud Native Computing Foundation (CNCF).</p>
+
+            <h3>Key Benefits</h3>
+            <ul>
+                <li><strong>Automatic Scaling:</strong> Scales applications up/down based on demand</li>
+                <li><strong>Self-Healing:</strong> Automatically restarts failed containers</li>
+                <li><strong>Load Balancing:</strong> Distributes traffic across healthy containers</li>
+                <li><strong>Declarative Configuration:</strong> Define desired state, K8s maintains it</li>
+                <li><strong>Rolling Updates:</strong> Zero-downtime deployments</li>
+                <li><strong>Service Discovery:</strong> Automatic networking between services</li>
+                <li><strong>Storage Orchestration:</strong> Automatic mounting of storage systems</li>
+                <li><strong>Configuration Management:</strong> Manage secrets and configurations</li>
+            </ul>
+
+            <div class="highlight">
+                <strong>Why Kubernetes?</strong><br>
+                As applications grow from single containers to hundreds of microservices, manual management becomes impossible. Kubernetes provides the automation and abstractions needed to manage complex containerized applications at scale.
+            </div>
+        </section>
+
+        <section id="architecture" class="section">
+            <h2>Kubernetes Architecture</h2>
+            
+            <p>Kubernetes follows a master-worker architecture with a control plane managing multiple worker nodes.</p>
+
+            <div class="architecture-grid">
+                <div class="arch-card">
+                    <span class="icon">🎛️</span>
+                    <h4>Control Plane</h4>
+                    <p>The brain of the cluster that makes global decisions and responds to cluster events</p>
+                </div>
+                
+                <div class="arch-card">
+                    <span class="icon">🏭</span>
+                    <h4>Worker Nodes</h4>
+                    <p>Machines that run your application containers and provide the runtime environment</p>
+                </div>
+                
+                <div class="arch-card">
+                    <span class="icon">📦</span>
+                    <h4>Pods</h4>
+                    <p>Smallest deployable units containing one or more containers</p>
+                </div>
+                
+                <div class="arch-card">
+                    <span class="icon">🔄</span>
+                    <h4>Services</h4>
+                    <p>Stable network endpoints that expose applications to internal/external traffic</p>
+                </div>
+            </div>
+
+            <h3>Cluster Overview</h3>
+            <div class="code-block">
+                <pre>
+┌─────────────────────────────────────────────────────────┐
+│                    Control Plane                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐       │
+│  │ API Server  │ │ Scheduler   │ │Controller   │       │
+│  │             │ │             │ │Manager      │       │
+│  └─────────────┘ └─────────────┘ └─────────────┘       │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │                  etcd                           │   │
+│  │            (Cluster Store)                      │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+                           │
+                           │ (API calls)
+                           │
+┌─────────────────────────────────────────────────────────┐
+│                    Worker Nodes                         │
+│                                                         │
+│ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐        │
+│ │   Node 1    │ │   Node 2    │ │   Node 3    │        │
+│ │             │ │             │ │             │        │
+│ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │        │
+│ │ │  Pod    │ │ │ │  Pod    │ │ │ │  Pod    │ │        │
+│ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │        │
+│ │ ┌─────────┐ │ │ ┌─────────┐ │ │ ┌─────────┐ │        │
+│ │ │  Pod    │ │ │ │  Pod    │ │ │ │  Pod    │ │        │
+│ │ └─────────┘ │ │ └─────────┘ │ │ └─────────┘ │        │
+│ └─────────────┘ └─────────────┘ └─────────────┘        │
+└─────────────────────────────────────────────────────────┘
+</pre>
+            </div>
+        </section>
+
+        <section id="components" class="section">
+            <h2>Core Components</h2>
+
+            <h3>Control Plane Components</h3>
+            
+            <h4>API Server (kube-apiserver)</h4>
+            <ul>
+                <li>Frontend for the Kubernetes control plane</li>
+                <li>Exposes the Kubernetes REST API</li>
+                <li>All communication goes through the API server</li>
+                <li>Validates and processes API requests</li>
+            </ul>
+
+            <h4>Scheduler (kube-scheduler)</h4>
+            <ul>
+                <li>Assigns pods to worker nodes</li>
+                <li>Considers resource requirements and constraints</li>
+                <li>Factors in policies, affinity rules, and data locality</li>
+                <li>Makes optimal placement decisions</li>
+            </ul>
+
+            <h4>Controller Manager (kube-controller-manager)</h4>
+            <ul>
+                <li>Runs controller processes that regulate cluster state</li>
+                <li>Node Controller: monitors node health</li>
+                <li>Job Controller: manages one-off tasks</li>
+                <li>Endpoints Controller: populates service endpoints</li>
+                <li>Service Account & Token Controllers: manage accounts and API access tokens</li>
+            </ul>
+
+            <h4>etcd</h4>
+            <ul>
+                <li>Consistent and highly-available key-value store</li>
+                <li>Stores all cluster configuration data</li>
+                <li>Single source of truth for cluster state</li>
+                <li>Supports clustering for high availability</li>
+            </ul>
+
+            <h3>Worker Node Components</h3>
+
+            <h4>kubelet</h4>
+            <ul>
+                <li>Primary node agent running on each worker node</li>
+                <li>Communicates with the API server</li>
+                <li>Ensures containers are running in pods</li>
+                <li>Reports node and pod status</li>
+                <li>Manages container lifecycle</li>
+            </ul>
+
+            <h4>Container Runtime</h4>
+            <ul>
+                <li>Software responsible for running containers</li>
+                <li>Docker, containerd, CRI-O, or other CRI-compatible runtime</li>
+                <li>Pulls container images and runs containers</li>
+                <li>Manages container lifecycle and resources</li>
+            </ul>
+
+            <h4>kube-proxy</h4>
+            <ul>
+                <li>Network proxy running on each node</li>
+                <li>Maintains network rules for services</li>
+                <li>Enables communication between pods and services</li>
+                <li>Implements service load balancing</li>
+            </ul>
+
+            <div class="info">
+                <strong>Component Interaction:</strong> All components work together to maintain desired cluster state. The API server acts as the central hub, while controllers continuously monitor and adjust the actual state to match the desired state.
+            </div>
+        </section>
+
+        <section id="concepts" class="section">
+            <h2>Core Concepts</h2>
+
+            <h3>Pods</h3>
+            <p>The smallest deployable unit in Kubernetes. A pod represents a single instance of a running process.</p>
+            <ul>
+                <li>Contains one or more containers (usually one)</li>
+                <li>Containers share storage and network</li>
+                <li>Pods are ephemeral and replaceable</li>
+                <li>Each pod gets a unique IP address</li>
+            </ul>
+
+            <div class="code-block">
+                <pre>
+# Simple pod example
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.21
+    ports:
+    - containerPort: 80
+</pre>
+            </div>
+
+            <h3>Deployments</h3>
+            <p>Higher-level abstraction that manages a set of replica pods.</p>
+            <ul>
+                <li>Ensures desired number of pod replicas</li>
+                <li>Provides rolling updates and rollbacks</li>
+                <li>Self-healing: replaces failed pods</li>
+                <li>Declarative updates to pods and ReplicaSets</li>
+            </ul>
+
+            <div class="code-block">
+                <pre>
+# Deployment example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+</pre>
+            </div>
+
+            <h3>Services</h3>
+            <p>Stable network endpoint for accessing pods.</p>
+            <ul>
+                <li>Provides load balancing across pods</li>
+                <li>Stable IP and DNS name</li>
+                <li>Service discovery mechanism</li>
+                <li>Types: ClusterIP, NodePort, LoadBalancer, ExternalName</li>
+            </ul>
+
+            <div class="code-block">
+                <pre>
+# Service example
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+</pre>
+            </div>
+
+            <h3>Namespaces</h3>
+            <p>Virtual clusters within a physical cluster for resource isolation.</p>
+            <ul>
+                <li>Isolate resources and applications</li>
+                <li>Organize cluster resources</li>
+                <li>Apply policies and resource quotas</li>
+                <li>Multi-tenancy support</li>
+            </ul>
+
+            <h3>ConfigMaps and Secrets</h3>
+            <p><strong>ConfigMaps:</strong> Store non-confidential configuration data</p>
+            <p><strong>Secrets:</strong> Store sensitive information like passwords, tokens, and keys</p>
+
+            <div class="warning">
+                <strong>Important:</strong> Secrets are base64 encoded, not encrypted. Use additional security measures for production environments.
+            </div>
+        </section>
+
+        <section id="getting-started" class="section">
+            <h2>Getting Started</h2>
+
+            <h3>Learning Path</h3>
+            <ol>
+                <li><strong>Set up a local cluster</strong> using minikube or kind</li>
+                <li><strong>Learn kubectl</strong> basic commands</li>
+                <li><strong>Deploy your first pod</strong> and service</li>
+                <li><strong>Create deployments</strong> with multiple replicas</li>
+                <li><strong>Explore networking</strong> and service types</li>
+                <li><strong>Work with volumes</strong> and persistent storage</li>
+                <li><strong>Manage configurations</strong> with ConfigMaps and Secrets</li>
+                <li><strong>Implement monitoring</strong> and logging</li>
+            </ol>
+
+            <h3>Essential kubectl Commands</h3>
+            <div class="code-block">
+                <pre>
+# Cluster info
+kubectl cluster-info
+kubectl get nodes
+
+# Working with pods
+kubectl get pods
+kubectl describe pod POD_NAME
+kubectl logs POD_NAME
+kubectl exec -it POD_NAME -- /bin/bash
+
+# Working with deployments
+kubectl create deployment nginx --image=nginx
+kubectl get deployments
+kubectl scale deployment nginx --replicas=3
+kubectl rollout status deployment nginx
+
+# Working with services
+kubectl expose deployment nginx --port=80 --type=ClusterIP
+kubectl get services
+kubectl port-forward service/nginx 8080:80
+
+# Working with namespaces
+kubectl get namespaces
+kubectl create namespace my-namespace
+kubectl config set-context --current --namespace=my-namespace
+
+# Applying configurations
+kubectl apply -f deployment.yaml
+kubectl delete -f deployment.yaml
+</pre>
+            </div>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li><a href="kubernetes-eks-deployment.html">Learn AWS EKS deployment →</a></li>
+                <li><a href="kubernetes-microservices.html">Explore microservices patterns →</a></li>
+                <li><a href="kubernetes-cicd.html">Implement CI/CD with Kubernetes →</a></li>
+                <li><a href="kubernetes-security.html">Understand security best practices →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 Kubernetes Fundamentals Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
