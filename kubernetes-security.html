@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Security Guide - Comprehensive Security Practices</title>
+    <style>
+        :root {
+            --primary-color: #d32f2f;
+            --primary-dark: #b71c1c;
+            --secondary-color: #ff6f00;
+            --accent-color: #2e7d32;
+            --warning-color: #f57c00;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #d32f2f 0%, #ff6f00 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .security-warning {
+            background: #ffebee;
+            border: 1px solid #ffcdd2;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .security-tip {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .security-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .security-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .security-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--primary-color);
+        }
+
+        .security-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+            .security-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🔒 Kubernetes Security Guide</h1>
+        <p>Comprehensive security practices, RBAC, network policies, and compliance frameworks for production Kubernetes</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#overview">Overview</a>
+            <a href="#rbac">RBAC</a>
+            <a href="#network">Network Security</a>
+            <a href="#pod-security">Pod Security</a>
+            <a href="#secrets">Secrets</a>
+            <a href="#scanning">Scanning</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="overview" class="section">
+            <h2>Kubernetes Security Overview</h2>
+            
+            <p>Kubernetes security involves multiple layers of protection, from the cluster infrastructure to individual containers. A comprehensive security strategy addresses authentication, authorization, network isolation, and runtime protection.</p>
+
+            <div class="security-grid">
+                <div class="security-card">
+                    <span class="icon">🛡️</span>
+                    <h4>4C's of Cloud Native Security</h4>
+                    <p>Cloud → Cluster → Container → Code security layers</p>
+                </div>
+                
+                <div class="security-card">
+                    <span class="icon">🔐</span>
+                    <h4>Authentication & Authorization</h4>
+                    <p>RBAC, service accounts, and identity management</p>
+                </div>
+                
+                <div class="security-card">
+                    <span class="icon">🌐</span>
+                    <h4>Network Security</h4>
+                    <p>Network policies, service mesh, and encryption</p>
+                </div>
+                
+                <div class="security-card">
+                    <span class="icon">📦</span>
+                    <h4>Pod & Container Security</h4>
+                    <p>Security contexts, admission controllers, policies</p>
+                </div>
+                
+                <div class="security-card">
+                    <span class="icon">🔍</span>
+                    <h4>Runtime Security</h4>
+                    <p>Monitoring, scanning, and threat detection</p>
+                </div>
+                
+                <div class="security-card">
+                    <span class="icon">📋</span>
+                    <h4>Compliance</h4>
+                    <p>CIS benchmarks, SOC2, HIPAA compliance</p>
+                </div>
+            </div>
+
+            <div class="security-warning">
+                <strong>Security First Principle:</strong> Security should be designed into your Kubernetes infrastructure from the beginning, not added as an afterthought. Default deny, least privilege, and defense in depth are fundamental principles.
+            </div>
+        </section>
+
+        <section id="rbac" class="section">
+            <h2>Role-Based Access Control (RBAC)</h2>
+
+            <p>RBAC controls who can access the Kubernetes API and what actions they can perform on which resources.</p>
+
+            <h3>Basic RBAC Setup</h3>
+            <div class="code-block">
+                <pre>
+# Check if RBAC is enabled
+kubectl api-versions | grep rbac
+
+# Create a namespace for testing
+kubectl create namespace secure-app
+
+# Create a service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-service-account
+  namespace: secure-app
+
+---
+# Create a Role (namespace-scoped)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: secure-app
+  name: app-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services"]
+  verbs: ["get", "list", "create", "update", "delete"]
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create", "update", "delete", "patch"]
+
+---
+# Bind the role to the service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: app-role-binding
+  namespace: secure-app
+subjects:
+- kind: ServiceAccount
+  name: app-service-account
+  namespace: secure-app
+roleRef:
+  kind: Role
+  name: app-role
+  apiGroup: rbac.authorization.k8s.io
+
+# Test the permissions
+kubectl auth can-i create pods --as=system:serviceaccount:secure-app:app-service-account -n secure-app
+kubectl auth can-i delete nodes --as=system:serviceaccount:secure-app:app-service-account
+</pre>
+            </div>
+
+            <h3>ClusterRole and ClusterRoleBinding</h3>
+            <div class="code-block">
+                <pre>
+# ClusterRole for cluster-wide permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list"]
+
+---
+# Bind to a user across all namespaces
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-reader-binding
+subjects:
+- kind: User
+  name: jane@example.com
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Create a read-only role for developers
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: development
+  name: developer-role
+rules:
+- apiGroups: ["", "apps", "extensions"]
+  resources: ["*"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/exec", "pods/log"]
+  verbs: ["create"]
+
+---
+# Admin role for production namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: production
+  name: production-admin
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list"]  # Limited secret access
+</pre>
+            </div>
+
+            <h3>User and Group Management</h3>
+            <div class="code-block">
+                <pre>
+# Create certificate for a new user
+openssl genrsa -out john.key 2048
+openssl req -new -key john.key -out john.csr -subj "/CN=john/O=developers"
+
+# Sign the certificate (using cluster CA)
+openssl x509 -req -in john.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -out john.crt -days 365
+
+# Create kubeconfig for the user
+kubectl config set-cluster kubernetes --certificate-authority=/etc/kubernetes/pki/ca.crt --server=https://your-cluster-endpoint --kubeconfig=john.kubeconfig
+kubectl config set-credentials john --client-certificate=john.crt --client-key=john.key --kubeconfig=john.kubeconfig
+kubectl config set-context john@kubernetes --cluster=kubernetes --user=john --kubeconfig=john.kubeconfig
+kubectl config use-context john@kubernetes --kubeconfig=john.kubeconfig
+
+# Create RBAC for groups
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: developers-binding
+subjects:
+- kind: Group
+  name: developers
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: edit
+  apiGroup: rbac.authorization.k8s.io
+
+# Audit RBAC permissions
+kubectl auth can-i --list --as=john
+kubectl auth can-i create pods --as=john -n development
+</pre>
+            </div>
+        </section>
+
+        <section id="network" class="section">
+            <h2>Network Security</h2>
+
+            <h3>Network Policies</h3>
+            <div class="code-block">
+                <pre>
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: secure-app
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+# Default deny all egress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-egress
+  namespace: secure-app
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+
+---
+# Allow specific ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: secure-app
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+
+---
+# Allow DNS resolution
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+  namespace: secure-app
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+
+---
+# Allow egress to specific external services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-external-apis
+  namespace: secure-app
+spec:
+  podSelector:
+    matchLabels:
+      app: api-client
+  policyTypes:
+  - Egress
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: kube-system
+</pre>
+            </div>
+
+            <h3>Service Mesh Security (Istio)</h3>
+            <div class="code-block">
+                <pre>
+# Enable automatic mTLS
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: secure-app
+spec:
+  mtls:
+    mode: STRICT
+
+---
+# Require JWT authentication
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: secure-app
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  jwtRules:
+  - issuer: "https://auth.example.com"
+    jwksUri: "https://auth.example.com/.well-known/jwks.json"
+    audiences:
+    - "my-service"
+
+---
+# Authorization policies
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-policy
+  namespace: secure-app
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/secure-app/sa/frontend-sa"]
+  - to:
+    - operation:
+        methods: ["GET", "POST"]
+        paths: ["/api/*"]
+  - when:
+    - key: source.ip
+      values: ["10.0.0.0/8"]
+
+---
+# Deny all by default
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: secure-app
+spec: {}
+</pre>
+            </div>
+        </section>
+
+        <section id="pod-security" class="section">
+            <h2>Pod Security Standards</h2>
+
+            <h3>Pod Security Standards (PSS)</h3>
+            <div class="code-block">
+                <pre>
+# Apply Pod Security Standards to namespace
+kubectl label namespace secure-app \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/audit=restricted \
+  pod-security.kubernetes.io/warn=restricted
+
+# Check namespace labels
+kubectl get namespace secure-app --show-labels
+
+# Secure pod specification
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+  namespace: secure-app
+spec:
+  serviceAccountName: app-service-account
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: nginx:1.21-alpine
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 1000
+      capabilities:
+        drop:
+        - ALL
+        add:
+        - NET_BIND_SERVICE
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    volumeMounts:
+    - name: tmp-volume
+      mountPath: /tmp
+    - name: cache-volume
+      mountPath: /var/cache/nginx
+  volumes:
+  - name: tmp-volume
+    emptyDir: {}
+  - name: cache-volume
+    emptyDir: {}
+</pre>
+            </div>
+
+            <h3>OPA Gatekeeper Policies</h3>
+            <div class="code-block">
+                <pre>
+# Install OPA Gatekeeper
+kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/release-3.14/deploy/gatekeeper.yaml
+
+# Constraint Template - Require security context
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: requiredsecuritycontext
+spec:
+  crd:
+    spec:
+      names:
+        kind: RequiredSecurityContext
+      validation:
+        openAPIV3Schema:
+          type: object
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package requiredsecuritycontext
+      
+      violation[{"msg": msg}] {
+        container := input.review.object.spec.containers[_]
+        not container.securityContext.runAsNonRoot
+        msg := "Container must run as non-root user"
+      }
+      
+      violation[{"msg": msg}] {
+        container := input.review.object.spec.containers[_]
+        not container.securityContext.readOnlyRootFilesystem
+        msg := "Container must use read-only root filesystem"
+      }
+
+---
+# Apply the constraint
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: RequiredSecurityContext
+metadata:
+  name: must-run-as-nonroot
+spec:
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Pod"]
+    namespaces: ["secure-app"]
+
+---
+# Constraint Template - Disallow privileged containers
+apiVersion: templates.gatekeeper.sh/v1beta1
+kind: ConstraintTemplate
+metadata:
+  name: disallowprivileged
+spec:
+  crd:
+    spec:
+      names:
+        kind: DisallowPrivileged
+  targets:
+  - target: admission.k8s.gatekeeper.sh
+    rego: |
+      package disallowprivileged
+      
+      violation[{"msg": msg}] {
+        container := input.review.object.spec.containers[_]
+        container.securityContext.privileged
+        msg := "Privileged containers are not allowed"
+      }
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: DisallowPrivileged
+metadata:
+  name: no-privileged-containers
+spec:
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Pod"]
+</pre>
+            </div>
+        </section>
+
+        <section id="secrets" class="section">
+            <h2>Secrets Management</h2>
+
+            <h3>Kubernetes Secrets Best Practices</h3>
+            <div class="code-block">
+                <pre>
+# Create secret from command line
+kubectl create secret generic app-secrets \
+  --from-literal=database-password='super-secret-password' \
+  --from-literal=api-key='api-key-value' \
+  --namespace=secure-app
+
+# Create secret from file
+echo -n 'super-secret-password' > db-password.txt
+kubectl create secret generic db-secret \
+  --from-file=password=db-password.txt \
+  --namespace=secure-app
+
+# Secure secret manifest (base64 encoded)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-config
+  namespace: secure-app
+type: Opaque
+data:
+  username: YWRtaW4=  # admin
+  password: MWYyZDFlMmU2N2Rm  # 1f2d1e2e67df
+
+---
+# Use secrets in deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secure-app
+  namespace: secure-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secure-app
+  template:
+    metadata:
+      labels:
+        app: secure-app
+    spec:
+      serviceAccountName: app-service-account
+      containers:
+      - name: app
+        image: secure-app:v1.0
+        env:
+        - name: DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: app-config
+              key: username
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-config
+              key: password
+        volumeMounts:
+        - name: secret-volume
+          mountPath: /etc/secrets
+          readOnly: true
+      volumes:
+      - name: secret-volume
+        secret:
+          secretName: app-secrets
+          defaultMode: 0400
+</pre>
+            </div>
+
+            <h3>External Secrets Operator</h3>
+            <div class="code-block">
+                <pre>
+# Install External Secrets Operator
+helm repo add external-secrets https://charts.external-secrets.io
+helm install external-secrets external-secrets/external-secrets -n external-secrets-system --create-namespace
+
+# AWS Secrets Manager integration
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: aws-secret-store
+  namespace: secure-app
+spec:
+  provider:
+    aws:
+      service: SecretsManager
+      region: us-west-2
+      auth:
+        jwt:
+          serviceAccountRef:
+            name: external-secrets-sa
+
+---
+# External Secret
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: app-external-secret
+  namespace: secure-app
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secret-store
+    kind: SecretStore
+  target:
+    name: app-secret
+    creationPolicy: Owner
+  data:
+  - secretKey: database-password
+    remoteRef:
+      key: prod/database
+      property: password
+  - secretKey: api-key
+    remoteRef:
+      key: prod/api-keys
+      property: service-key
+
+---
+# HashiCorp Vault integration
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: vault-secret-store
+  namespace: secure-app
+spec:
+  provider:
+    vault:
+      server: "https://vault.example.com"
+      path: "secret"
+      version: "v2"
+      auth:
+        kubernetes:
+          mountPath: "kubernetes"
+          role: "external-secrets"
+          serviceAccountRef:
+            name: external-secrets-sa
+</pre>
+            </div>
+
+            <h3>Sealed Secrets</h3>
+            <div class="code-block">
+                <pre>
+# Install Sealed Secrets controller
+kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/controller.yaml
+
+# Install kubeseal CLI
+wget https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.24.0/kubeseal-0.24.0-linux-amd64.tar.gz
+tar -xzf kubeseal-0.24.0-linux-amd64.tar.gz
+sudo mv kubeseal /usr/local/bin/
+
+# Create a secret and seal it
+echo -n mypassword | kubectl create secret generic mysecret --dry-run=client --from-file=password=/dev/stdin -o yaml | kubeseal -o yaml > mysealedsecret.yaml
+
+# Apply sealed secret
+kubectl apply -f mysealedsecret.yaml
+
+# Sealed Secret example
+apiVersion: bitnami.com/v1alpha1
+kind: SealedSecret
+metadata:
+  name: sealed-app-secret
+  namespace: secure-app
+spec:
+  encryptedData:
+    password: AgBy3i4OJSWK+PiTySYZZA9rO43cGDEQAx...
+  template:
+    metadata:
+      name: app-secret
+      namespace: secure-app
+</pre>
+            </div>
+
+            <div class="security-tip">
+                <strong>Secret Security Tips:</strong><br>
+                • Never commit plain text secrets to Git<br>
+                • Use external secret management systems for production<br>
+                • Rotate secrets regularly<br>
+                • Limit secret access with RBAC<br>
+                • Enable audit logging for secret access
+            </div>
+        </section>
+
+        <section id="scanning" class="section">
+            <h2>Security Scanning & Monitoring</h2>
+
+            <h3>Image Vulnerability Scanning</h3>
+            <div class="code-block">
+                <pre>
+# Scan images with Trivy
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Scan container image
+trivy image nginx:1.21
+
+# Scan with specific severity
+trivy image --severity HIGH,CRITICAL nginx:1.21
+
+# Scan Kubernetes cluster
+trivy k8s cluster
+
+# Integration with CI/CD (GitHub Actions)
+name: Security Scan
+on:
+  push:
+    branches: [main]
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'myregistry/myimage:${{ github.sha }}'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+# Admission controller for vulnerability scanning
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-config
+  namespace: falco-system
+data:
+  falco.yaml: |
+    rules_file:
+      - /etc/falco/falco_rules.yaml
+      - /etc/falco/falco_rules.local.yaml
+    json_output: true
+    log_level: info
+</pre>
+            </div>
+
+            <h3>Runtime Security with Falco</h3>
+            <div class="code-block">
+                <pre>
+# Install Falco
+helm repo add falcosecurity https://falcosecurity.github.io/charts
+helm repo update
+helm install falco falcosecurity/falco \
+  --namespace falco-system \
+  --create-namespace \
+  --set falco.grpc.enabled=true \
+  --set falco.grpcOutput.enabled=true
+
+# Custom Falco rules
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: falco-rules
+  namespace: falco-system
+data:
+  custom_rules.yaml: |
+    - rule: Suspicious Process in Container
+      desc: Detect suspicious process execution
+      condition: >
+        spawned_process and
+        container and
+        proc.name in (nc, ncat, nmap, dig, nslookup, tcpdump)
+      output: >
+        Suspicious process (%proc.name) executed in container (%container.name)
+      priority: WARNING
+      tags: [process, container]
+    
+    - rule: Unexpected Network Connection
+      desc: Detect unexpected outbound connections
+      condition: >
+        outbound and
+        fd.sip != "127.0.0.1" and
+        not proc.name in (curl, wget, apt, yum)
+      output: >
+        Unexpected network connection (%fd.sip:%fd.sport -> %fd.dip:%fd.dport)
+        by process %proc.name in container %container.name
+      priority: WARNING
+    
+    - rule: Write below etc
+      desc: Detect writes below /etc directory
+      condition: >
+        open_write and
+        fd.name startswith /etc and
+        not proc.name in (dpkg, apt, yum, rpm)
+      output: >
+        File write below /etc (file=%fd.name proc=%proc.name container=%container.name)
+      priority: ERROR
+
+# Deploy Falcosidekick for alert routing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: falcosidekick
+  namespace: falco-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: falcosidekick
+  template:
+    metadata:
+      labels:
+        app: falcosidekick
+    spec:
+      containers:
+      - name: falcosidekick
+        image: falcosecurity/falcosidekick:latest
+        env:
+        - name: SLACK_WEBHOOKURL
+          value: "https://hooks.slack.com/services/..."
+        - name: SLACK_CHANNEL
+          value: "#security-alerts"
+        ports:
+        - containerPort: 2801
+</pre>
+            </div>
+
+            <h3>Compliance and Benchmarks</h3>
+            <div class="code-block">
+                <pre>
+# CIS Kubernetes Benchmark with kube-bench
+docker run --rm -v `pwd`:/host aquasec/kube-bench:latest run --targets node,master --benchmark cis-1.6
+
+# Install kube-bench as a job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: kube-bench
+spec:
+  template:
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - name: kube-bench
+        image: aquasec/kube-bench:latest
+        command: ["kube-bench", "run", "--targets", "node,master"]
+        volumeMounts:
+        - name: var-lib-etcd
+          mountPath: /var/lib/etcd
+          readOnly: true
+        - name: var-lib-kubelet
+          mountPath: /var/lib/kubelet
+          readOnly: true
+        - name: etc-systemd
+          mountPath: /etc/systemd
+          readOnly: true
+        - name: etc-kubernetes
+          mountPath: /etc/kubernetes
+          readOnly: true
+        - name: usr-bin
+          mountPath: /usr/local/mount-from-host/bin
+          readOnly: true
+      restartPolicy: Never
+      volumes:
+      - name: var-lib-etcd
+        hostPath:
+          path: "/var/lib/etcd"
+      - name: var-lib-kubelet
+        hostPath:
+          path: "/var/lib/kubelet"
+      - name: etc-systemd
+        hostPath:
+          path: "/etc/systemd"
+      - name: etc-kubernetes
+        hostPath:
+          path: "/etc/kubernetes"
+      - name: usr-bin
+        hostPath:
+          path: "/usr/bin"
+
+# Polaris for configuration validation
+helm repo add fairwinds-stable https://charts.fairwinds.com/stable
+helm install polaris fairwinds-stable/polaris \
+  --namespace polaris \
+  --create-namespace \
+  --set dashboard.enable=true
+
+# Access Polaris dashboard
+kubectl port-forward -n polaris svc/polaris-dashboard 8080:80
+</pre>
+            </div>
+
+            <div class="security-warning">
+                <strong>Continuous Security:</strong> Security is not a one-time setup. Implement continuous scanning, monitoring, and regular security assessments to maintain a strong security posture.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Security Checklist & Best Practices</h2>
+            
+            <h3>Essential Security Checklist</h3>
+            <ul>
+                <li>✅ Enable RBAC and implement least privilege access</li>
+                <li>✅ Use Pod Security Standards (restricted profile)</li>
+                <li>✅ Implement network policies (default deny)</li>
+                <li>✅ Secure container images (scan, no root, read-only filesystem)</li>
+                <li>✅ Encrypt data in transit and at rest</li>
+                <li>✅ Use external secret management</li>
+                <li>✅ Enable audit logging</li>
+                <li>✅ Implement admission controllers</li>
+                <li>✅ Regular security scanning and monitoring</li>
+                <li>✅ Keep Kubernetes and components updated</li>
+            </ul>
+
+            <h3>Security Monitoring</h3>
+            <ul>
+                <li>Deploy runtime security tools (Falco)</li>
+                <li>Monitor for CIS benchmark compliance</li>
+                <li>Set up security alerting and incident response</li>
+                <li>Regular penetration testing</li>
+                <li>Security audit trails and log analysis</li>
+            </ul>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li><a href="kubernetes-monitoring.html">Implement comprehensive monitoring →</a></li>
+                <li><a href="kubernetes-troubleshooting.html">Troubleshoot security issues →</a></li>
+                <li><a href="kubernetes-microservices.html">Secure microservices architecture →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 Kubernetes Security Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

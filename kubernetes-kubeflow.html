@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubeflow & ML Workflows - Machine Learning on Kubernetes</title>
+    <style>
+        :root {
+            --primary-color: #1976d2;
+            --primary-dark: #0d47a1;
+            --secondary-color: #ff6f00;
+            --accent-color: #4caf50;
+            --ml-color: #9c27b0;
+            --warning-color: #ff5722;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #1976d2 0%, #9c27b0 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--ml-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(25, 118, 210, 0.1) 0%, rgba(156, 39, 176, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+
+        .warning {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .component-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .component-card:hover {
+            border-color: var(--ml-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .component-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--ml-color);
+        }
+
+        .component-card h4 {
+            color: var(--ml-color);
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        .pipeline-flow {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .flow-step {
+            display: inline-block;
+            background: var(--ml-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .flow-arrow {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin: 0 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+            .component-grid { grid-template-columns: 1fr; }
+            .flow-step { display: block; margin: 0.5rem auto; }
+            .flow-arrow { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🤖 Kubeflow & ML Workflows</h1>
+        <p>Complete guide to machine learning pipelines, model training, serving, and MLOps practices with Kubernetes</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#overview">Overview</a>
+            <a href="#components">Components</a>
+            <a href="#pipelines">Pipelines</a>
+            <a href="#serving">Model Serving</a>
+            <a href="#examples">Examples</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="overview" class="section">
+            <h2>What is Kubeflow?</h2>
+            
+            <p>Kubeflow is an open-source machine learning toolkit for Kubernetes that makes deployments of machine learning workflows on Kubernetes simple, portable, and scalable. It provides a complete ML platform that enables data scientists and engineers to build and deploy ML models at scale.</p>
+
+            <h3>Key Benefits</h3>
+            <ul>
+                <li><strong>Cloud Native:</strong> Built specifically for Kubernetes environments</li>
+                <li><strong>Scalable:</strong> Leverage Kubernetes for horizontal scaling</li>
+                <li><strong>Portable:</strong> Run anywhere Kubernetes runs (cloud, on-premises, edge)</li>
+                <li><strong>Composable:</strong> Use individual components or the full platform</li>
+                <li><strong>Multi-Framework:</strong> Support for TensorFlow, PyTorch, XGBoost, and more</li>
+                <li><strong>End-to-End:</strong> Complete ML lifecycle from development to production</li>
+            </ul>
+
+            <div class="pipeline-flow">
+                <h3>ML Workflow Pipeline</h3>
+                <div style="margin: 2rem 0;">
+                    <div class="flow-step">Data Ingestion</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Data Processing</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Model Training</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Model Validation</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Model Serving</div>
+                    <span class="flow-arrow">→</span>
+                    <div class="flow-step">Monitoring</div>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Why Kubeflow?</strong><br>
+                Traditional ML development often involves fragmented tools and manual processes. Kubeflow provides a unified platform that standardizes ML workflows while leveraging Kubernetes for infrastructure management.
+            </div>
+        </section>
+
+        <section id="components" class="section">
+            <h2>Kubeflow Components</h2>
+
+            <div class="component-grid">
+                <div class="component-card">
+                    <span class="icon">📊</span>
+                    <h4>Kubeflow Pipelines</h4>
+                    <p>Workflow orchestration system for building and deploying portable ML workflows</p>
+                </div>
+                
+                <div class="component-card">
+                    <span class="icon">📓</span>
+                    <h4>Kubeflow Notebooks</h4>
+                    <p>JupyterHub-based service for interactive development with GPU support</p>
+                </div>
+                
+                <div class="component-card">
+                    <span class="icon">🎯</span>
+                    <h4>Katib</h4>
+                    <p>Hyperparameter tuning and automated machine learning (AutoML)</p>
+                </div>
+                
+                <div class="component-card">
+                    <span class="icon">🎓</span>
+                    <h4>Training Operators</h4>
+                    <p>Distributed training for TensorFlow, PyTorch, MPI, and XGBoost</p>
+                </div>
+                
+                <div class="component-card">
+                    <span class="icon">🚀</span>
+                    <h4>KServe</h4>
+                    <p>Serverless model serving with autoscaling and multi-framework support</p>
+                </div>
+                
+                <div class="component-card">
+                    <span class="icon">📋</span>
+                    <h4>Metadata Store</h4>
+                    <p>Track lineage, artifacts, and experiments across ML workflows</p>
+                </div>
+            </div>
+
+            <h3>Kubeflow Installation</h3>
+            <div class="code-block">
+                <pre>
+# Prerequisites: Kubernetes cluster with at least 4 CPUs and 8GB RAM
+
+# Install kustomize
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+sudo mv kustomize /usr/local/bin/
+
+# Clone Kubeflow manifests
+git clone https://github.com/kubeflow/manifests.git
+cd manifests
+
+# Install Kubeflow using kustomize
+while ! kustomize build example | kubectl apply -f -; do echo "Retrying to apply resources"; sleep 10; done
+
+# Wait for all pods to be ready (can take 10-15 minutes)
+kubectl get pods -n kubeflow
+
+# Port forward to access the dashboard
+kubectl port-forward svc/istio-ingressgateway -n istio-system 8080:80
+
+# Access Kubeflow at http://localhost:8080
+# Default credentials: user@example.com / 12341234
+</pre>
+            </div>
+
+            <div class="warning">
+                <strong>Resource Requirements:</strong> Kubeflow requires significant cluster resources. For production, allocate at least 8 CPUs and 16GB RAM per node.
+            </div>
+        </section>
+
+        <section id="pipelines" class="section">
+            <h2>Kubeflow Pipelines</h2>
+
+            <p>Kubeflow Pipelines is a platform for building and deploying portable, scalable machine learning workflows based on Docker containers.</p>
+
+            <h3>Creating Your First Pipeline</h3>
+            <div class="code-block">
+                <pre>
+# Install Kubeflow Pipelines SDK
+pip install kfp
+
+# Simple pipeline example
+import kfp
+from kfp import dsl
+
+def preprocess_op():
+    return dsl.ContainerOp(
+        name='Preprocess Data',
+        image='python:3.8',
+        command=['python', '-c'],
+        arguments=['''
+import pandas as pd
+import pickle
+
+# Load and preprocess data
+df = pd.read_csv('/data/raw/dataset.csv')
+df_processed = df.dropna().reset_index(drop=True)
+
+# Save processed data
+with open('/data/processed/data.pkl', 'wb') as f:
+    pickle.dump(df_processed, f)
+print("Data preprocessing completed")
+'''],
+        file_outputs={'processed_data': '/data/processed/data.pkl'}
+    )
+
+def train_op(processed_data):
+    return dsl.ContainerOp(
+        name='Train Model',
+        image='tensorflow/tensorflow:2.8.0',
+        command=['python', '-c'],
+        arguments=[f'''
+import pickle
+import tensorflow as tf
+from tensorflow import keras
+
+# Load processed data
+with open("{processed_data}", "rb") as f:
+    data = pickle.load(f)
+
+# Create and train model
+model = keras.Sequential([
+    keras.layers.Dense(64, activation='relu'),
+    keras.layers.Dense(32, activation='relu'),
+    keras.layers.Dense(1, activation='sigmoid')
+])
+
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+# Training logic here...
+
+# Save model
+model.save('/model/trained_model')
+print("Model training completed")
+'''],
+        file_outputs={'model': '/model/trained_model'}
+    )
+
+def deploy_op(model):
+    return dsl.ContainerOp(
+        name='Deploy Model',
+        image='kfserving/sklearnserver:latest',
+        command=['python', '-c'],
+        arguments=[f'''
+# Deploy model to KServe
+print("Model deployed successfully")
+''']
+    )
+
+@dsl.pipeline(
+    name='ML Training Pipeline',
+    description='A simple ML training pipeline'
+)
+def ml_pipeline():
+    preprocess_task = preprocess_op()
+    train_task = train_op(preprocess_task.outputs['processed_data'])
+    deploy_task = deploy_op(train_task.outputs['model'])
+
+# Compile and submit pipeline
+if __name__ == '__main__':
+    kfp.compiler.Compiler().compile(ml_pipeline, 'ml_pipeline.yaml')
+    
+    # Submit to Kubeflow Pipelines
+    client = kfp.Client(host='http://localhost:8080')
+    run = client.run_pipeline(
+        experiment_id='default',
+        job_name='ml-training-run',
+        pipeline_package_path='ml_pipeline.yaml'
+    )
+    print(f"Pipeline run created: {run.id}")
+</pre>
+            </div>
+
+            <h3>Advanced Pipeline Features</h3>
+            <div class="code-block">
+                <pre>
+# Pipeline with conditional execution
+@dsl.pipeline(name='Conditional Pipeline')
+def conditional_pipeline(accuracy_threshold: float = 0.8):
+    train_task = train_model_op()
+    
+    with dsl.Condition(train_task.outputs['accuracy'] > accuracy_threshold):
+        deploy_task = deploy_model_op(train_task.outputs['model'])
+        
+    with dsl.Condition(train_task.outputs['accuracy'] <= accuracy_threshold):
+        retrain_task = retrain_model_op(train_task.outputs['model'])
+
+# Pipeline with parallel execution
+@dsl.pipeline(name='Parallel Training Pipeline')
+def parallel_pipeline():
+    preprocess_task = preprocess_data_op()
+    
+    # Train multiple models in parallel
+    with dsl.ParallelFor([
+        {'model_type': 'tensorflow', 'params': '{"epochs": 100}'},
+        {'model_type': 'pytorch', 'params': '{"epochs": 50}'},
+        {'model_type': 'xgboost', 'params': '{"max_depth": 6}'}
+    ]) as item:
+        train_task = train_model_op(
+            preprocess_task.outputs['data'],
+            item.model_type,
+            item.params
+        )
+        
+        evaluate_task = evaluate_model_op(train_task.outputs['model'])
+    
+    # Select best model
+    select_task = select_best_model_op(evaluate_task.outputs['metrics'])
+    deploy_task = deploy_model_op(select_task.outputs['best_model'])
+</pre>
+            </div>
+
+            <h3>Pipeline Components</h3>
+            <div class="code-block">
+                <pre>
+# Reusable component definition
+from kfp import components
+
+@components.create_component_from_func
+def data_validation_op(
+    data_path: str,
+    validation_rules: str
+) -> str:
+    """Validates input data against predefined rules"""
+    import pandas as pd
+    import json
+    
+    df = pd.read_csv(data_path)
+    rules = json.loads(validation_rules)
+    
+    # Validation logic
+    for rule in rules:
+        if rule['type'] == 'not_null':
+            assert not df[rule['column']].isnull().any(), f"Null values found in {rule['column']}"
+        elif rule['type'] == 'range':
+            assert df[rule['column']].between(rule['min'], rule['max']).all(), f"Values out of range in {rule['column']}"
+    
+    return "validation_passed"
+
+# Component with custom base image
+@components.create_component_from_func
+def custom_training_op(
+    dataset_path: str,
+    model_config: str
+) -> str:
+    """Custom training component with specific dependencies"""
+    # Component implementation
+    return "model_trained"
+
+# Set custom base image
+custom_training_op.component_spec.implementation.container.image = 'my-registry/ml-trainer:v1.0'
+</pre>
+            </div>
+        </section>
+
+        <section id="serving" class="section">
+            <h2>Model Serving with KServe</h2>
+
+            <p>KServe (formerly KFServing) provides serverless model serving with features like autoscaling, canary deployments, and multi-framework support.</p>
+
+            <h3>Deploy TensorFlow Model</h3>
+            <div class="code-block">
+                <pre>
+# tensorflow-serving.yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: tensorflow-model
+  namespace: kubeflow-user-example-com
+spec:
+  predictor:
+    tensorflow:
+      storageUri: gs://my-bucket/tensorflow-model/
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+        requests:
+          cpu: 100m
+          memory: 512Mi
+      env:
+        - name: TF_CPP_MIN_LOG_LEVEL
+          value: "2"
+
+# Deploy the model
+kubectl apply -f tensorflow-serving.yaml
+
+# Check status
+kubectl get inferenceservice tensorflow-model -n kubeflow-user-example-com
+
+# Get service URL
+kubectl get inferenceservice tensorflow-model -n kubeflow-user-example-com -o jsonpath='{.status.url}'
+</pre>
+            </div>
+
+            <h3>Deploy PyTorch Model</h3>
+            <div class="code-block">
+                <pre>
+# pytorch-serving.yaml
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: pytorch-model
+  namespace: kubeflow-user-example-com
+spec:
+  predictor:
+    pytorch:
+      storageUri: gs://my-bucket/pytorch-model/
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 2Gi
+          nvidia.com/gpu: 1
+        requests:
+          cpu: 100m
+          memory: 512Mi
+      runtimeVersion: "1.12"
+
+# Deploy with canary deployment
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: pytorch-canary
+spec:
+  predictor:
+    pytorch:
+      storageUri: gs://my-bucket/pytorch-model-v1/
+  canaryTrafficPercent: 10
+  canary:
+    predictor:
+      pytorch:
+        storageUri: gs://my-bucket/pytorch-model-v2/
+</pre>
+            </div>
+
+            <h3>Custom Model Serving</h3>
+            <div class="code-block">
+                <pre>
+# Custom predictor with Python runtime
+import kserve
+import joblib
+import numpy as np
+from typing import Dict, List
+
+class CustomPredictor(kserve.Model):
+    def __init__(self, name: str):
+        super().__init__(name)
+        self.name = name
+        self.ready = False
+        
+    def load(self) -> bool:
+        # Load your custom model
+        self.model = joblib.load('/mnt/models/model.pkl')
+        self.ready = True
+        return self.ready
+    
+    def predict(self, payload: Dict, headers: Dict[str, str] = None) -> Dict:
+        inputs = np.array(payload["instances"])
+        predictions = self.model.predict(inputs)
+        return {"predictions": predictions.tolist()}
+
+if __name__ == "__main__":
+    model = CustomPredictor("custom-model")
+    model.load()
+    kserve.ModelServer().start(models=[model])
+
+# Dockerfile for custom predictor
+FROM python:3.8-slim
+
+RUN pip install kserve joblib scikit-learn
+
+COPY predictor.py /app/
+WORKDIR /app
+
+ENTRYPOINT ["python", "predictor.py"]
+
+# InferenceService for custom model
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: custom-model
+spec:
+  predictor:
+    containers:
+    - name: kserve-container
+      image: my-registry/custom-predictor:latest
+      env:
+      - name: STORAGE_URI
+        value: gs://my-bucket/custom-model/
+</pre>
+            </div>
+
+            <div class="info">
+                <strong>Model Testing:</strong> Always test your models locally before deploying to KServe. Use the KServe SDK to create test clients and validate model responses.
+            </div>
+        </section>
+
+        <section id="examples" class="section">
+            <h2>Complete MLOps Examples</h2>
+
+            <h3>End-to-End Image Classification Pipeline</h3>
+            <div class="code-block">
+                <pre>
+import kfp
+from kfp import dsl
+from kfp.components import InputPath, OutputPath, create_component_from_func
+
+@create_component_from_func
+def download_data_op(
+    dataset_url: str,
+    output_path: OutputPath(str)
+):
+    """Download and prepare image dataset"""
+    import os
+    import urllib.request
+    import zipfile
+    
+    # Download dataset
+    urllib.request.urlretrieve(dataset_url, '/tmp/dataset.zip')
+    
+    # Extract dataset
+    with zipfile.ZipFile('/tmp/dataset.zip', 'r') as zip_ref:
+        zip_ref.extractall(output_path)
+    
+    print(f"Dataset downloaded and extracted to {output_path}")
+
+@create_component_from_func
+def preprocess_images_op(
+    input_path: InputPath(str),
+    output_path: OutputPath(str),
+    image_size: int = 224
+):
+    """Preprocess images for training"""
+    import os
+    import cv2
+    import numpy as np
+    from tensorflow.keras.utils import to_categorical
+    
+    # Image preprocessing logic
+    X, y = [], []
+    class_names = sorted(os.listdir(input_path))
+    
+    for idx, class_name in enumerate(class_names):
+        class_dir = os.path.join(input_path, class_name)
+        for img_file in os.listdir(class_dir):
+            img_path = os.path.join(class_dir, img_file)
+            img = cv2.imread(img_path)
+            img = cv2.resize(img, (image_size, image_size))
+            img = img.astype(np.float32) / 255.0
+            X.append(img)
+            y.append(idx)
+    
+    X = np.array(X)
+    y = to_categorical(y, len(class_names))
+    
+    # Save preprocessed data
+    np.save(os.path.join(output_path, 'X.npy'), X)
+    np.save(os.path.join(output_path, 'y.npy'), y)
+    
+    with open(os.path.join(output_path, 'classes.txt'), 'w') as f:
+        f.write('\n'.join(class_names))
+    
+    print(f"Preprocessed {len(X)} images with {len(class_names)} classes")
+
+@create_component_from_func
+def train_model_op(
+    input_path: InputPath(str),
+    model_path: OutputPath(str),
+    epochs: int = 50,
+    batch_size: int = 32
+):
+    """Train CNN model"""
+    import os
+    import numpy as np
+    import tensorflow as tf
+    from tensorflow.keras import layers, models
+    
+    # Load preprocessed data
+    X = np.load(os.path.join(input_path, 'X.npy'))
+    y = np.load(os.path.join(input_path, 'y.npy'))
+    
+    # Split train/validation
+    split_idx = int(0.8 * len(X))
+    X_train, X_val = X[:split_idx], X[split_idx:]
+    y_train, y_val = y[:split_idx], y[split_idx:]
+    
+    # Build model
+    model = models.Sequential([
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=X.shape[1:]),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.Flatten(),
+        layers.Dense(64, activation='relu'),
+        layers.Dropout(0.5),
+        layers.Dense(y.shape[1], activation='softmax')
+    ])
+    
+    model.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
+    
+    # Train model
+    history = model.fit(
+        X_train, y_train,
+        epochs=epochs,
+        batch_size=batch_size,
+        validation_data=(X_val, y_val),
+        verbose=1
+    )
+    
+    # Save model
+    model.save(model_path)
+    print(f"Model training completed. Final accuracy: {history.history['val_accuracy'][-1]:.4f}")
+
+@create_component_from_func
+def evaluate_model_op(
+    model_path: InputPath(str),
+    test_data_path: InputPath(str)
+) -> float:
+    """Evaluate model performance"""
+    import os
+    import numpy as np
+    import tensorflow as tf
+    
+    # Load model and test data
+    model = tf.keras.models.load_model(model_path)
+    X_test = np.load(os.path.join(test_data_path, 'X.npy'))
+    y_test = np.load(os.path.join(test_data_path, 'y.npy'))
+    
+    # Evaluate
+    test_loss, test_accuracy = model.evaluate(X_test, y_test, verbose=0)
+    print(f"Test accuracy: {test_accuracy:.4f}")
+    
+    return test_accuracy
+
+@dsl.pipeline(
+    name='Image Classification Pipeline',
+    description='End-to-end image classification with CNN'
+)
+def image_classification_pipeline(
+    dataset_url: str = "https://example.com/dataset.zip",
+    epochs: int = 50,
+    batch_size: int = 32,
+    accuracy_threshold: float = 0.85
+):
+    # Download and preprocess data
+    download_task = download_data_op(dataset_url)
+    preprocess_task = preprocess_images_op(download_task.output)
+    
+    # Train model
+    train_task = train_model_op(
+        preprocess_task.output,
+        epochs=epochs,
+        batch_size=batch_size
+    )
+    
+    # Evaluate model
+    evaluate_task = evaluate_model_op(
+        train_task.output,
+        preprocess_task.output
+    )
+    
+    # Conditional deployment based on accuracy
+    with dsl.Condition(evaluate_task.output >= accuracy_threshold):
+        deploy_task = deploy_model_to_kserve_op(train_task.output)
+
+# Compile and run pipeline
+if __name__ == '__main__':
+    kfp.compiler.Compiler().compile(
+        image_classification_pipeline, 
+        'image_classification_pipeline.yaml'
+    )
+</pre>
+            </div>
+
+            <h3>Hyperparameter Tuning with Katib</h3>
+            <div class="code-block">
+                <pre>
+# katib-experiment.yaml
+apiVersion: kubeflow.org/v1beta1
+kind: Experiment
+metadata:
+  namespace: kubeflow
+  name: hyperparameter-tuning
+spec:
+  algorithm:
+    algorithmName: random
+  objective:
+    type: maximize
+    goal: 0.99
+    objectiveMetricName: Validation-accuracy
+    additionalMetricNames:
+      - Train-accuracy
+  parameters:
+    - name: lr
+      parameterType: double
+      feasibleSpace:
+        min: "0.001"
+        max: "0.1"
+    - name: batch-size
+      parameterType: int
+      feasibleSpace:
+        min: "16"
+        max: "128"
+    - name: epochs
+      parameterType: int
+      feasibleSpace:
+        min: "10"
+        max: "100"
+  trialTemplate:
+    primaryContainerName: training-container
+    trialParameters:
+      - name: learningRate
+        description: Learning rate for the training model
+        reference: lr
+      - name: batchSize
+        description: Batch size for training
+        reference: batch-size
+      - name: epochs
+        description: Number of training epochs
+        reference: epochs
+    trialSpec:
+      apiVersion: batch/v1
+      kind: Job
+      spec:
+        template:
+          spec:
+            containers:
+              - name: training-container
+                image: my-registry/ml-trainer:latest
+                command:
+                  - "python3"
+                  - "/opt/model.py"
+                  - "--lr=${trialParameters.learningRate}"
+                  - "--batch-size=${trialParameters.batchSize}"
+                  - "--epochs=${trialParameters.epochs}"
+            restartPolicy: Never
+
+# Apply the experiment
+kubectl apply -f katib-experiment.yaml
+
+# Monitor experiment progress
+kubectl get experiment hyperparameter-tuning -n kubeflow -w
+
+# Get best trial results
+kubectl get trials -n kubeflow -l experiment=hyperparameter-tuning --sort-by=.status.observation.metrics[0].max
+</pre>
+            </div>
+
+            <div class="highlight">
+                <strong>Production Tips:</strong><br>
+                • Use persistent volumes for model storage<br>
+                • Implement proper logging and monitoring<br>
+                • Set resource limits and requests<br>
+                • Use GPU nodes for training workloads<br>
+                • Implement model versioning and rollback strategies
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices & Next Steps</h2>
+            
+            <h3>MLOps Best Practices</h3>
+            <ul>
+                <li><strong>Version Control:</strong> Track code, data, and model versions</li>
+                <li><strong>Reproducibility:</strong> Use containerized environments and fixed dependencies</li>
+                <li><strong>Monitoring:</strong> Implement model performance and drift monitoring</li>
+                <li><strong>Testing:</strong> Include data validation, model testing, and integration tests</li>
+                <li><strong>Security:</strong> Secure model artifacts and implement proper access controls</li>
+                <li><strong>Scalability:</strong> Design for horizontal scaling and resource efficiency</li>
+            </ul>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li><a href="kubernetes-monitoring.html">Set up monitoring for ML workloads →</a></li>
+                <li><a href="kubernetes-security.html">Implement ML security practices →</a></li>
+                <li><a href="kubernetes-troubleshooting.html">Troubleshoot ML pipelines →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 Kubeflow & ML Workflows Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

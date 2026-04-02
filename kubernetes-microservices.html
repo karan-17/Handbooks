@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Microservices Architecture - Design and Implementation Guide</title>
+    <style>
+        :root {
+            --primary-color: #2e7d32;
+            --primary-dark: #1b5e20;
+            --secondary-color: #ff6f00;
+            --accent-color: #1976d2;
+            --service-color: #7b1fa2;
+            --warning-color: #f57c00;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, #2e7d32 0%, #1976d2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--background);
+        }
+
+        .header {
+            background: var(--gradient);
+            color: white;
+            text-align: center;
+            padding: 4rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .nav {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            margin-right: 2rem;
+            transition: opacity 0.3s;
+        }
+
+        .nav a:hover {
+            opacity: 0.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--text-primary);
+            font-size: 1.6rem;
+            margin: 2rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid var(--service-color);
+        }
+
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, rgba(46, 125, 50, 0.1) 0%, rgba(25, 118, 210, 0.05) 100%);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1.5rem 0;
+        }
+
+        .warning {
+            background: #fff8e1;
+            border: 1px solid #ffcc02;
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .info {
+            background: #e8f5e8;
+            border: 1px solid #c8e6c9;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .pattern-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .pattern-card:hover {
+            border-color: var(--service-color);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+        }
+
+        .pattern-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--service-color);
+        }
+
+        .pattern-card h4 {
+            color: var(--service-color);
+            margin-bottom: 1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: var(--gradient);
+            color: white;
+            padding: 0.8rem 2rem;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-link:hover {
+            transform: scale(1.05);
+        }
+
+        .architecture-diagram {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .service-box {
+            display: inline-block;
+            background: var(--service-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .mesh-connection {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin: 0 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2rem; }
+            .container { padding: 0 1rem; }
+            .section { padding: 1.5rem; }
+            .nav { padding: 1rem; }
+            .nav a { margin-right: 1rem; display: block; margin-bottom: 0.5rem; }
+            .pattern-grid { grid-template-columns: 1fr; }
+            .service-box { display: block; margin: 0.5rem auto; }
+            .mesh-connection { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🏗️ Kubernetes Microservices Architecture</h1>
+        <p>Complete guide to designing and deploying microservices with service mesh, observability, and resilience patterns</p>
+    </header>
+
+    <nav class="nav">
+        <div class="container">
+            <a href="kubernetes-complete-handbook.html">← Back to Main Handbook</a>
+            <a href="#overview">Overview</a>
+            <a href="#patterns">Patterns</a>
+            <a href="#service-mesh">Service Mesh</a>
+            <a href="#deployment">Deployment</a>
+            <a href="#examples">Examples</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <a href="kubernetes-complete-handbook.html" class="back-link">← Back to Kubernetes Handbook</a>
+
+        <section id="overview" class="section">
+            <h2>Microservices Architecture Overview</h2>
+            
+            <p>Microservices architecture decomposes applications into small, independently deployable services that communicate over well-defined APIs. Kubernetes provides the ideal platform for orchestrating these distributed systems.</p>
+
+            <h3>Benefits of Microservices</h3>
+            <ul>
+                <li><strong>Scalability:</strong> Scale individual services based on demand</li>
+                <li><strong>Technology Diversity:</strong> Use different technologies for different services</li>
+                <li><strong>Independent Deployment:</strong> Deploy and update services independently</li>
+                <li><strong>Fault Isolation:</strong> Failures in one service don't bring down the entire system</li>
+                <li><strong>Team Autonomy:</strong> Small teams can own and develop services independently</li>
+                <li><strong>Faster Development:</strong> Parallel development and shorter release cycles</li>
+            </ul>
+
+            <h3>Challenges</h3>
+            <ul>
+                <li><strong>Complexity:</strong> Distributed systems are inherently complex</li>
+                <li><strong>Network Latency:</strong> Inter-service communication overhead</li>
+                <li><strong>Data Consistency:</strong> Managing distributed transactions</li>
+                <li><strong>Service Discovery:</strong> Locating and connecting to services</li>
+                <li><strong>Monitoring:</strong> Observability across multiple services</li>
+                <li><strong>Security:</strong> Securing service-to-service communication</li>
+            </ul>
+
+            <div class="architecture-diagram">
+                <h3>Microservices Architecture on Kubernetes</h3>
+                <div style="margin: 2rem 0;">
+                    <div class="service-box">Frontend</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">API Gateway</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">Service Mesh</div>
+                    <br><br>
+                    <div class="service-box">User Service</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">Order Service</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">Payment Service</div>
+                    <br><br>
+                    <div class="service-box">Database</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">Message Queue</div>
+                    <span class="mesh-connection">↔</span>
+                    <div class="service-box">Cache</div>
+                </div>
+            </div>
+
+            <div class="highlight">
+                <strong>Kubernetes Advantages:</strong><br>
+                Kubernetes provides service discovery, load balancing, health checks, auto-scaling, and declarative configuration that make microservices management significantly easier.
+            </div>
+        </section>
+
+        <section id="patterns" class="section">
+            <h2>Microservices Design Patterns</h2>
+
+            <div class="pattern-grid">
+                <div class="pattern-card">
+                    <span class="icon">🚪</span>
+                    <h4>API Gateway</h4>
+                    <p>Single entry point for client requests, handling routing, authentication, and cross-cutting concerns</p>
+                </div>
+                
+                <div class="pattern-card">
+                    <span class="icon">🔄</span>
+                    <h4>Circuit Breaker</h4>
+                    <p>Prevents cascading failures by monitoring and isolating failing services</p>
+                </div>
+                
+                <div class="pattern-card">
+                    <span class="icon">💾</span>
+                    <h4>Database per Service</h4>
+                    <p>Each microservice has its own database to ensure loose coupling</p>
+                </div>
+                
+                <div class="pattern-card">
+                    <span class="icon">📊</span>
+                    <h4>Event Sourcing</h4>
+                    <p>Store events that led to the current state for audit and replay capabilities</p>
+                </div>
+                
+                <div class="pattern-card">
+                    <span class="icon">📮</span>
+                    <h4>Saga Pattern</h4>
+                    <p>Manage distributed transactions across multiple services</p>
+                </div>
+                
+                <div class="pattern-card">
+                    <span class="icon">🔍</span>
+                    <h4>Service Discovery</h4>
+                    <p>Automatic detection and registration of service instances</p>
+                </div>
+            </div>
+
+            <h3>API Gateway Implementation</h3>
+            <div class="code-block">
+                <pre>
+# Install NGINX Ingress Controller
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+
+# API Gateway configuration
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-gateway
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /users(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 80
+      - path: /orders(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: order-service
+            port:
+              number: 80
+      - path: /payments(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: payment-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - api.example.com
+    secretName: api-gateway-tls
+
+# Ambassador API Gateway (alternative)
+apiVersion: getambassador.io/v3alpha1
+kind: Mapping
+metadata:
+  name: user-service-mapping
+spec:
+  prefix: /users/
+  service: user-service:80
+  timeout_ms: 5000
+  retry_policy:
+    retry_on: "5xx"
+    num_retries: 3
+
+---
+apiVersion: getambassador.io/v3alpha1
+kind: RateLimitService
+metadata:
+  name: rate-limit
+spec:
+  service: "ratelimit:5000"
+</pre>
+            </div>
+
+            <h3>Circuit Breaker with Istio</h3>
+            <div class="code-block">
+                <pre>
+# Destination Rule with Circuit Breaker
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: payment-service-circuit-breaker
+spec:
+  host: payment-service
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 10
+      http:
+        http1MaxPendingRequests: 10
+        maxRequestsPerConnection: 2
+    outlierDetection:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+
+# Virtual Service for Fault Injection (testing)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: payment-service-fault
+spec:
+  hosts:
+  - payment-service
+  http:
+  - fault:
+      delay:
+        percentage:
+          value: 10.0
+        fixedDelay: 5s
+      abort:
+        percentage:
+          value: 5.0
+        httpStatus: 500
+    route:
+    - destination:
+        host: payment-service
+</pre>
+            </div>
+
+            <h3>Database per Service Pattern</h3>
+            <div class="code-block">
+                <pre>
+# User Service with PostgreSQL
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: user-service:v1.0
+        env:
+        - name: DATABASE_URL
+          value: "postgres://user:pass@user-db:5432/users"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-db
+  template:
+    metadata:
+      labels:
+        app: user-db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:13
+        env:
+        - name: POSTGRES_DB
+          value: users
+        - name: POSTGRES_USER
+          value: user
+        - name: POSTGRES_PASSWORD
+          value: pass
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: user-db-pvc
+
+---
+# Order Service with MongoDB
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - name: order-service
+        image: order-service:v1.0
+        env:
+        - name: MONGODB_URI
+          value: "mongodb://order-db:27017/orders"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-db
+  template:
+    metadata:
+      labels:
+        app: order-db
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongo-storage
+        persistentVolumeClaim:
+          claimName: order-db-pvc
+</pre>
+            </div>
+        </section>
+
+        <section id="service-mesh" class="section">
+            <h2>Service Mesh with Istio</h2>
+
+            <p>Service mesh provides a dedicated infrastructure layer for service-to-service communication, offering traffic management, security, and observability without changing application code.</p>
+
+            <h3>Install Istio</h3>
+            <div class="code-block">
+                <pre>
+# Download and install Istio
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-*
+export PATH=$PWD/bin:$PATH
+
+# Install Istio
+istioctl install --set values.defaultRevision=default
+
+# Enable sidecar injection for default namespace
+kubectl label namespace default istio-injection=enabled
+
+# Verify installation
+kubectl get pods -n istio-system
+istioctl verify-install
+
+# Install observability addons
+kubectl apply -f samples/addons
+kubectl rollout status deployment/kiali -n istio-system
+</pre>
+            </div>
+
+            <h3>Traffic Management</h3>
+            <div class="code-block">
+                <pre>
+# Gateway for external traffic
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: microservices-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - app.example.com
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: app-tls-secret
+    hosts:
+    - app.example.com
+
+# Virtual Service for routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: microservices-routes
+spec:
+  hosts:
+  - app.example.com
+  gateways:
+  - microservices-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/users
+    route:
+    - destination:
+        host: user-service
+        port:
+          number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+  - match:
+    - uri:
+        prefix: /api/orders
+    route:
+    - destination:
+        host: order-service
+        port:
+          number: 8080
+        subset: v1
+      weight: 90
+    - destination:
+        host: order-service
+        port:
+          number: 8080
+        subset: v2
+      weight: 10
+    timeout: 10s
+
+# Destination Rule for load balancing
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: order-service-destination
+spec:
+  host: order-service
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2
+    trafficPolicy:
+      connectionPool:
+        tcp:
+          maxConnections: 50
+</pre>
+            </div>
+
+            <h3>Security Policies</h3>
+            <div class="code-block">
+                <pre>
+# Enable strict mTLS for entire mesh
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+
+# Authorization policy - deny all by default
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: default
+spec: {}
+
+# Allow specific service communication
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-user-service
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/default/sa/frontend-service"]
+  - to:
+    - operation:
+        methods: ["GET", "POST"]
+
+# JWT authentication
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  jwtRules:
+  - issuer: "https://auth.example.com"
+    jwksUri: "https://auth.example.com/.well-known/jwks.json"
+
+# Require JWT for specific paths
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-jwt
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    to:
+    - operation:
+        paths: ["/api/users/profile"]
+</pre>
+            </div>
+
+            <h3>Observability</h3>
+            <div class="code-block">
+                <pre>
+# Enable telemetry collection
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: default
+  namespace: istio-system
+spec:
+  metrics:
+  - providers:
+    - name: prometheus
+  - overrides:
+    - match:
+        metric: ALL_METRICS
+      tagOverrides:
+        request_protocol:
+          value: "istio_request_protocol | 'unknown'"
+
+# Service Monitor for Prometheus
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: istio-mesh
+  namespace: istio-system
+spec:
+  selector:
+    matchLabels:
+      app: istiod
+  endpoints:
+  - port: http-monitoring
+    interval: 15s
+    path: /stats/prometheus
+
+# Access Kiali dashboard
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+
+# Access Jaeger tracing
+kubectl port-forward svc/tracing -n istio-system 16686:80
+
+# Access Grafana dashboards
+kubectl port-forward svc/grafana -n istio-system 3000:3000
+</pre>
+            </div>
+        </section>
+
+        <section id="deployment" class="section">
+            <h2>Deployment Strategies</h2>
+
+            <h3>Blue-Green Deployment</h3>
+            <div class="code-block">
+                <pre>
+# Blue deployment (current production)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-blue
+  labels:
+    app: user-service
+    version: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: user-service
+        version: blue
+    spec:
+      containers:
+      - name: user-service
+        image: user-service:v1.0
+        ports:
+        - containerPort: 8080
+
+---
+# Green deployment (new version)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service-green
+  labels:
+    app: user-service
+    version: green
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+      version: green
+  template:
+    metadata:
+      labels:
+        app: user-service
+        version: green
+    spec:
+      containers:
+      - name: user-service
+        image: user-service:v2.0
+        ports:
+        - containerPort: 8080
+
+---
+# Service pointing to blue initially
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+    version: blue  # Switch to 'green' after validation
+  ports:
+  - port: 80
+    targetPort: 8080
+
+# Script to switch traffic
+#!/bin/bash
+echo "Switching traffic to green deployment..."
+kubectl patch service user-service -p '{"spec":{"selector":{"version":"green"}}}'
+echo "Traffic switched to green. Monitor and rollback if needed:"
+echo "kubectl patch service user-service -p '{\"spec\":{\"selector\":{\"version\":\"blue\"}}}'"
+</pre>
+            </div>
+
+            <h3>Canary Deployment with Istio</h3>
+            <div class="code-block">
+                <pre>
+# Destination rule for canary
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: order-service-canary
+spec:
+  host: order-service
+  subsets:
+  - name: stable
+    labels:
+      version: v1
+  - name: canary
+    labels:
+      version: v2
+
+# Virtual service for traffic splitting
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-service-canary
+spec:
+  hosts:
+  - order-service
+  http:
+  - match:
+    - headers:
+        canary:
+          exact: "true"
+    route:
+    - destination:
+        host: order-service
+        subset: canary
+  - route:
+    - destination:
+        host: order-service
+        subset: stable
+      weight: 95
+    - destination:
+        host: order-service
+        subset: canary
+      weight: 5
+
+# Gradual rollout script
+#!/bin/bash
+WEIGHTS=(90 80 70 50 30 0)
+CANARY_WEIGHTS=(10 20 30 50 70 100)
+
+for i in ${!WEIGHTS[@]}; do
+    echo "Setting traffic: stable=${WEIGHTS[$i]}%, canary=${CANARY_WEIGHTS[$i]}%"
+    kubectl apply -f - <<EOF
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: order-service-canary
+spec:
+  hosts:
+  - order-service
+  http:
+  - route:
+    - destination:
+        host: order-service
+        subset: stable
+      weight: ${WEIGHTS[$i]}
+    - destination:
+        host: order-service
+        subset: canary
+      weight: ${CANARY_WEIGHTS[$i]}
+EOF
+    echo "Waiting 5 minutes before next step..."
+    sleep 300
+done
+</pre>
+            </div>
+
+            <h3>Rolling Updates with Health Checks</h3>
+            <div class="code-block">
+                <pre>
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+      - name: payment-service
+        image: payment-service:v2.0
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        env:
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: payment-db-secret
+              key: url
+
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: payment-service-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: payment-service
+</pre>
+            </div>
+        </section>
+
+        <section id="examples" class="section">
+            <h2>Complete Microservices Example</h2>
+
+            <h3>E-commerce Platform</h3>
+            <div class="code-block">
+                <pre>
+# Namespace for the application
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ecommerce
+  labels:
+    istio-injection: enabled
+
+---
+# Frontend Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: v1
+    spec:
+      serviceAccountName: frontend
+      containers:
+      - name: frontend
+        image: frontend:v1.0
+        ports:
+        - containerPort: 3000
+        env:
+        - name: USER_SERVICE_URL
+          value: "http://user-service:8080"
+        - name: PRODUCT_SERVICE_URL
+          value: "http://product-service:8080"
+        - name: ORDER_SERVICE_URL
+          value: "http://order-service:8080"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: ecommerce
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 3000
+
+---
+# User Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: ecommerce
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+        version: v1
+    spec:
+      serviceAccountName: user-service
+      containers:
+      - name: user-service
+        image: user-service:v1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: user-db-secret
+              key: url
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: user-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# Product Service with Redis Cache
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-service
+  namespace: ecommerce
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: product-service
+  template:
+    metadata:
+      labels:
+        app: product-service
+        version: v1
+    spec:
+      serviceAccountName: product-service
+      containers:
+      - name: product-service
+        image: product-service:v1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: product-db-secret
+              key: url
+        - name: REDIS_URL
+          value: "redis://redis:6379"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: product-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# Order Service with Message Queue
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+  namespace: ecommerce
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+        version: v1
+    spec:
+      serviceAccountName: order-service
+      containers:
+      - name: order-service
+        image: order-service:v1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: order-db-secret
+              key: url
+        - name: RABBITMQ_URL
+          value: "amqp://guest:guest@rabbitmq:5672/"
+        - name: USER_SERVICE_URL
+          value: "http://user-service:8080"
+        - name: PRODUCT_SERVICE_URL
+          value: "http://product-service:8080"
+        - name: PAYMENT_SERVICE_URL
+          value: "http://payment-service:8080"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: order-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# Payment Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: ecommerce
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+        version: v1
+    spec:
+      serviceAccountName: payment-service
+      containers:
+      - name: payment-service
+        image: payment-service:v1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: payment-db-secret
+              key: url
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: payment-secrets
+              key: stripe-key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+  namespace: ecommerce
+spec:
+  selector:
+    app: payment-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# Redis Cache
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: ecommerce
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+
+---
+# RabbitMQ Message Broker
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: ecommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management-alpine
+        ports:
+        - containerPort: 5672
+        - containerPort: 15672
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: ecommerce
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - name: amqp
+    port: 5672
+    targetPort: 5672
+  - name: management
+    port: 15672
+    targetPort: 15672
+</pre>
+            </div>
+
+            <h3>Service Accounts and RBAC</h3>
+            <div class="code-block">
+                <pre>
+# Service Accounts
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+  namespace: ecommerce
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: user-service
+  namespace: ecommerce
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: product-service
+  namespace: ecommerce
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: order-service
+  namespace: ecommerce
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: payment-service
+  namespace: ecommerce
+
+---
+# Network Policies
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ecommerce-network-policy
+  namespace: ecommerce
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 8080
+  egress:
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 53
+    - protocol: UDP
+      port: 53
+  - to:
+    - podSelector: {}
+
+---
+# HorizontalPodAutoscaler for services
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+  namespace: ecommerce
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+</pre>
+            </div>
+
+            <div class="info">
+                <strong>Complete Setup:</strong> This example includes service accounts, network policies, auto-scaling, caching, message queuing, and proper health checks for a production-ready microservices architecture.
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>Best Practices & Troubleshooting</h2>
+            
+            <h3>Design Best Practices</h3>
+            <ul>
+                <li><strong>Single Responsibility:</strong> Each service should have a single, well-defined responsibility</li>
+                <li><strong>Stateless Services:</strong> Design services to be stateless for better scalability</li>
+                <li><strong>API Versioning:</strong> Implement proper API versioning for backward compatibility</li>
+                <li><strong>Idempotency:</strong> Ensure operations are idempotent to handle retries safely</li>
+                <li><strong>Graceful Degradation:</strong> Implement fallback mechanisms when dependencies fail</li>
+                <li><strong>Observability:</strong> Include comprehensive logging, metrics, and tracing</li>
+            </ul>
+
+            <h3>Common Issues and Solutions</h3>
+            <ul>
+                <li><strong>Service Discovery Issues:</strong> Use Kubernetes DNS and health checks</li>
+                <li><strong>Cascading Failures:</strong> Implement circuit breakers and timeouts</li>
+                <li><strong>Data Consistency:</strong> Use event-driven architecture and saga patterns</li>
+                <li><strong>Performance:</strong> Optimize service communication and use caching</li>
+                <li><strong>Security:</strong> Implement mTLS and proper authentication/authorization</li>
+            </ul>
+
+            <h3>Next Steps</h3>
+            <ul>
+                <li><a href="kubernetes-monitoring.html">Implement comprehensive monitoring →</a></li>
+                <li><a href="kubernetes-security.html">Secure your microservices →</a></li>
+                <li><a href="kubernetes-troubleshooting.html">Troubleshoot distributed systems →</a></li>
+            </ul>
+        </section>
+    </div>
+
+    <footer style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+        <p>&copy; 2024 Kubernetes Microservices Architecture Guide. Part of the Complete Kubernetes Handbook.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
