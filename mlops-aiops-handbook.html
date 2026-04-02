@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLOps & AIOps Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8fafc;
+            color: #2d3748;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 280px);
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #2d3436;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+        }
+        
+        .code-block {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🤖 MLOps & AIOps</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#mlops-fundamentals">MLOps Fundamentals</a></li>
+                <li><a href="#ml-lifecycle">ML Lifecycle Management</a></li>
+                <li><a href="#model-versioning">Model Versioning & Tracking</a></li>
+                <li><a href="#cicd-ml">CI/CD for ML</a></li>
+                <li><a href="#feature-stores">Feature Stores</a></li>
+                <li><a href="#deployment-strategies">Deployment Strategies</a></li>
+                <li><a href="#monitoring-drift">Monitoring & Drift Detection</a></li>
+                <li><a href="#mlops-tools">MLOps Tools & Platforms</a></li>
+                <li><a href="#aiops-fundamentals">AIOps Fundamentals</a></li>
+                <li><a href="#intelligent-monitoring">Intelligent Monitoring</a></li>
+                <li><a href="#anomaly-detection">Anomaly Detection</a></li>
+                <li><a href="#predictive-analytics">Predictive Analytics</a></li>
+                <li><a href="#automated-response">Automated Response</a></li>
+                <li><a href="#log-analysis">Log Analysis & Correlation</a></li>
+                <li><a href="#aiops-platforms">AIOps Platforms</a></li>
+                <li><a href="#implementation">Implementation Best Practices</a></li>
+                <li><a href="#case-studies">Case Studies</a></li>
+                <li><a href="#future-trends">Future Trends</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="kubernetes-complete-handbook.html">📚 K8s Complete</a></li>
+                <li><a href="kubernetes-monitoring.html">📊 K8s Monitoring</a></li>
+                <li><a href="ai-ethics-handbook.html">⚖️ AI Ethics</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#ai-ml">AI & Machine Learning</a> > 
+                    <span>MLOps & AIOps Handbook</span>
+                </div>
+            </div>
+
+            <h1>MLOps & AIOps Handbook</h1>
+            <p><strong>Comprehensive Guide to Machine Learning Operations and AI-Driven IT Operations</strong></p>
+
+            <div class="highlight-box">
+                <h3>🚀 What You'll Learn</h3>
+                <p>This comprehensive handbook covers both MLOps (Machine Learning Operations) and AIOps (Artificial Intelligence for IT Operations), providing practical guidance for implementing automated, scalable, and efficient AI/ML workflows in enterprise environments.</p>
+            </div>
+
+            <!-- Introduction -->
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>The convergence of machine learning and operations has created two critical disciplines: MLOps for managing machine learning workflows and AIOps for automating IT operations. This handbook explores both areas, providing practical implementation guidance for 2025 and beyond.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔄 MLOps Focus</h4>
+                        <p>Automate and streamline machine learning workflows from development to production, ensuring reproducibility, scalability, and reliability.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🤖 AIOps Focus</h4>
+                        <p>Leverage AI and machine learning to automate IT operations, improve incident response, and optimize system performance.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🏢 Enterprise Ready</h4>
+                        <p>Practical implementation strategies for large-scale deployments with governance, compliance, and security considerations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📈 2025 Trends</h4>
+                        <p>Latest developments in LLMOps, agentic AIOps, and emerging platforms for modern AI/ML operations.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MLOps Fundamentals -->
+            <section id="mlops-fundamentals">
+                <h2>MLOps Fundamentals</h2>
+                
+                <h3>Definition and Core Concepts</h3>
+                <p>MLOps is a set of practices that automates and simplifies machine learning workflows and deployments, aiming to deploy and maintain machine learning models in production reliably and efficiently. It leverages three contributing disciplines: machine learning, software engineering (especially DevOps), and data engineering.</p>
+
+                <div class="info-box">
+                    <h4>Core MLOps Principles for 2025</h4>
+                    <ul>
+                        <li><strong>Automation and CI/CD:</strong> Systematic automation of the ML lifecycle and model deployment</li>
+                        <li><strong>Versioning and Reproducibility:</strong> Track changes in data, models, and code for reproducible results</li>
+                        <li><strong>Continuous Monitoring:</strong> Observability systems to track metrics and detect drift</li>
+                        <li><strong>Collaboration:</strong> Cross-functional teams including data scientists, ML engineers, and DevOps</li>
+                    </ul>
+                </div>
+
+                <h3>MLOps Maturity Levels</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Level 0: Manual Process</h4>
+                        <p>Manual processes, no automation, data science driven approach with limited collaboration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Level 1: ML Pipeline Automation</h4>
+                        <p>Automated ML pipelines, continuous training, and experimental-operational symmetry.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Level 2: CI/CD Pipeline Automation</h4>
+                        <p>Full CI/CD automation with continuous training, delivery, and deployment capabilities.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ML Lifecycle Management -->
+            <section id="ml-lifecycle">
+                <h2>ML Lifecycle Management</h2>
+                
+                <h3>Eight Core Components</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Data Collection and Ingestion</h4>
+                        <p>Automated data collection from various sources with quality validation and schema management.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Data Processing and Preparation</h4>
+                        <p>Data cleaning, transformation, and feature engineering with reproducible pipelines.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Feature Engineering</h4>
+                        <p>Automated feature creation, selection, and validation with feature store integration.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Data Labeling</h4>
+                        <p>Automated and semi-automated labeling processes with quality assurance.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Model Design and Selection</h4>
+                        <p>Automated model selection and hyperparameter tuning with experiment tracking.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h4>Model Training and Optimization</h4>
+                        <p>Distributed training with automatic resource management and optimization.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">7</div>
+                    <div class="step-content">
+                        <h4>Endpoint Deployment</h4>
+                        <p>Automated deployment with A/B testing and canary releases.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">8</div>
+                    <div class="step-content">
+                        <h4>Endpoint Monitoring</h4>
+                        <p>Continuous monitoring of model performance, data drift, and system health.</p>
+                    </div>
+                </div>
+
+                <h3>Three Broad Phases</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Design Phase</h4>
+                        <p>Business understanding, data understanding, and ML-powered application design with stakeholder alignment.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Experimentation Phase</h4>
+                        <p>ML development and experimentation with rapid iteration and hypothesis testing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Operations Phase</h4>
+                        <p>Production deployment and monitoring with continuous improvement and optimization.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model Versioning & Tracking -->
+            <section id="model-versioning">
+                <h2>Model Versioning & Experiment Tracking</h2>
+                
+                <h3>2025 Platform Landscape</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Strengths</th>
+                            <th>Best Use Case</th>
+                            <th>2025 Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MLflow</strong></td>
+                            <td>Open-source, comprehensive, enterprise-grade via Databricks</td>
+                            <td>Organizations wanting full control and customization</td>
+                            <td>Stable, widely adopted</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Weights & Biases</strong></td>
+                            <td>Developer-first UI/UX, real-time monitoring, collaboration</td>
+                            <td>Teams prioritizing user experience and collaboration</td>
+                            <td>Strong market position</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Neptune.ai</strong></td>
+                            <td>Enterprise-grade, infrastructure-agnostic, fast logging</td>
+                            <td>Enterprise environments with strict governance needs</td>
+                            <td>Being acquired by OpenAI, SaaS shutting down March 2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <h4>⚠️ Neptune.ai Transition Alert</h4>
+                    <p>Neptune.ai is being acquired by OpenAI and will shut down its SaaS platform in March 2026. Existing users should plan migration to alternative platforms or consider the on-premises version.</p>
+                </div>
+
+                <h3>Implementation Best Practices</h3>
+                <ul>
+                    <li>Implement comprehensive metadata tracking for all experiments</li>
+                    <li>Use recording rules for complex queries used in multiple dashboards</li>
+                    <li>Establish clear naming conventions for models and experiments</li>
+                    <li>Integrate with CI/CD pipelines for automated model registration</li>
+                    <li>Implement role-based access control for model governance</li>
+                </ul>
+            </section>
+
+            <!-- CI/CD for ML -->
+            <section id="cicd-ml">
+                <h2>CI/CD for Machine Learning</h2>
+                
+                <h3>Automated Testing Components</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Data Validation</h4>
+                        <p>Schema changes detection, missing values validation, and drift detection with automated alerts.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Feature Validation</h4>
+                        <p>Transformation consistency checks and feature distribution monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Model Training Automation</h4>
+                        <p>Automated training triggers based on data changes and performance degradation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Model Evaluation</h4>
+                        <p>Comprehensive testing for accuracy, precision, recall, fairness, and bias detection.</p>
+                    </div>
+                </div>
+
+                <h3>Multi-Stage Deployment Pipeline</h3>
+                <div class="code-block">
+                    <pre>
+Development Environment
+    ↓
+Data Validation & Testing
+    ↓
+Staging Environment
+    ↓
+Model Performance Validation
+    ↓
+Canary Deployment (5-10% traffic)
+    ↓
+Full Production Deployment
+                    </pre>
+                </div>
+
+                <h3>Infrastructure as Code Best Practices</h3>
+                <ul>
+                    <li>Use Terraform/CloudFormation for resource provisioning</li>
+                    <li>Containerize models with Docker for reproducible deployments</li>
+                    <li>Implement Kubernetes orchestration for auto-scaling and load balancing</li>
+                    <li>Use specialized serving frameworks (TensorFlow Serving, TorchServe, NVIDIA Triton)</li>
+                </ul>
+            </section>
+
+            <!-- Feature Stores -->
+            <section id="feature-stores">
+                <h2>Feature Stores and Data Management</h2>
+                
+                <h3>Leading Platforms Comparison</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Feast (Open Source)</h4>
+                        <ul>
+                            <li>Leading open-source feature store for 2025</li>
+                            <li>Decouples ML from data infrastructure</li>
+                            <li>Push model for online serving reduces latency</li>
+                            <li>Easy integration with Airflow/Prefect</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Tecton (Enterprise)</h4>
+                        <ul>
+                            <li>Gold standard of managed feature stores</li>
+                            <li>Built by creators of Uber's Michelangelo platform</li>
+                            <li>GitOps-style management with CLI tools</li>
+                            <li>Sub-second feature freshness for real-time apps</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Architecture Components</h3>
+                <div class="info-box">
+                    <h4>Feature Store Architecture</h4>
+                    <ul>
+                        <li><strong>Offline Storage:</strong> Delta Lake for historical datasets and training</li>
+                        <li><strong>Online Storage:</strong> Sub-second response times for real-time inference</li>
+                        <li><strong>Data Pipelines:</strong> Batch and streaming processing capabilities</li>
+                        <li><strong>Point-in-Time Correctness:</strong> Ensuring training/serving consistency</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Deployment Strategies -->
+            <section id="deployment-strategies">
+                <h2>Model Deployment Strategies</h2>
+                
+                <h3>Deployment Patterns</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Batch Deployment</h4>
+                        <p>Offline processing of large datasets with scheduled execution and result storage.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Real-time Deployment</h4>
+                        <p>Low-latency inference for live applications with auto-scaling and load balancing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Edge Deployment</h4>
+                        <p>Local processing with minimal latency for mobile and IoT applications.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Hybrid Approaches</h4>
+                        <p>Combining batch and streaming for different features with unified management.</p>
+                    </div>
+                </div>
+
+                <h3>Best Practices</h3>
+                <ul>
+                    <li>Implement containerization for environment consistency</li>
+                    <li>Set up comprehensive health checks and monitoring endpoints</li>
+                    <li>Use gradual rollouts with canary deployments</li>
+                    <li>Implement A/B testing capabilities for model comparison</li>
+                    <li>Establish automated rollback procedures for failed deployments</li>
+                </ul>
+            </section>
+
+            <!-- Monitoring & Drift Detection -->
+            <section id="monitoring-drift">
+                <h2>Model Monitoring and Drift Detection</h2>
+                
+                <h3>Key Monitoring Areas</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Performance Metrics</h4>
+                        <p>Accuracy, latency, throughput, error rates, and business KPIs with real-time dashboards.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Data Drift Detection</h4>
+                        <p>Statistical tests to identify distribution shifts in input features over time.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Concept Drift</h4>
+                        <p>Detecting when model predictions degrade due to changing relationships in data.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Feature Importance Tracking</h4>
+                        <p>Monitoring prediction rationale and model explainability over time.</p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <pre>
+# Example drift detection implementation
+import pandas as pd
+from scipy import stats
+from typing import Dict, Any
+
+class DriftDetector:
+    def __init__(self, reference_data: pd.DataFrame):
+        self.reference_stats = self._calculate_stats(reference_data)
+    
+    def _calculate_stats(self, data: pd.DataFrame) -> Dict[str, Any]:
+        return {
+            'mean': data.mean(),
+            'std': data.std(),
+            'quantiles': data.quantile([0.25, 0.5, 0.75])
+        }
+    
+    def detect_drift(self, new_data: pd.DataFrame, threshold: float = 0.05) -> Dict[str, bool]:
+        drift_results = {}
+        
+        for column in self.reference_stats['mean'].index:
+            # Kolmogorov-Smirnov test for distribution comparison
+            ks_stat, p_value = stats.ks_2samp(
+                self.reference_data[column], 
+                new_data[column]
+            )
+            drift_results[column] = p_value < threshold
+            
+        return drift_results
+                    </pre>
+                </div>
+            </section>
+
+            <!-- MLOps Tools & Platforms -->
+            <section id="mlops-tools">
+                <h2>MLOps Tools and Platforms</h2>
+                
+                <h3>Orchestration Tools Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Tool</th>
+                            <th>Key Features</th>
+                            <th>Best For</th>
+                            <th>Integration</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Apache Airflow</strong></td>
+                            <td>Python-native, production-ready monitoring, day-2 operations support</td>
+                            <td>Complex workflow orchestration with Python expertise</td>
+                            <td>Excellent with most MLOps tools</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Kubeflow</strong></td>
+                            <td>Kubernetes-native execution engine for scalable training and serving</td>
+                            <td>Cloud-native ML workflows on Kubernetes</td>
+                            <td>Deep Kubernetes integration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MLflow + Kubeflow + Airflow</strong></td>
+                            <td>Complete MLOps stack with metadata, execution, and orchestration</td>
+                            <td>Enterprise-grade comprehensive solution</td>
+                            <td>Best-in-class integration pattern</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <h4>Recommended Integration Pattern</h4>
+                    <ul>
+                        <li><strong>MLflow:</strong> Metadata management and experiment tracking</li>
+                        <li><strong>Kubeflow:</strong> Execution engine for training and serving</li>
+                        <li><strong>Airflow:</strong> Orchestration and workflow management</li>
+                        <li><strong>Result:</strong> Comprehensive audit trail across the entire pipeline</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- AIOps Fundamentals -->
+            <section id="aiops-fundamentals">
+                <h2>AIOps Fundamentals</h2>
+                
+                <h3>Definition and Core Concepts</h3>
+                <p>AIOps combines big data analytics, AI, and machine learning to automate, streamline, and optimize IT service management and operational workflows. It enables organizations to proactively detect, diagnose, and resolve issues more efficiently than traditional methods.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Data Collection and Normalization</h4>
+                        <p>Unified ingestion across logs, metrics, traces, and unstructured events with intelligent parsing.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Inference-First Pipelines</h4>
+                        <p>Classify, enrich, and correlate signals probabilistically using ML algorithms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Observability and Governance</h4>
+                        <p>Enable teams to trust AI outputs with explainable decisions and audit trails.</p>
+                    </div>
+                </div>
+
+                <h3>2025 Evolution - Agentic AIOps</h3>
+                <div class="highlight-box">
+                    <h4>Key Capabilities of Agentic AIOps</h4>
+                    <ul>
+                        <li>Autonomous evaluation of remediation strategies</li>
+                        <li>Effectiveness prediction and optimal solution selection</li>
+                        <li>AI-powered playbooks combining learned behaviors with predefined rules</li>
+                        <li>Proactive prediction and prevention of issues</li>
+                        <li>Autonomous fix execution without human intervention</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Intelligent Monitoring -->
+            <section id="intelligent-monitoring">
+                <h2>Intelligent Monitoring and Observability</h2>
+                
+                <h3>Enhanced Capabilities</h3>
+                <ul>
+                    <li>Unified view across disparate devices and data sources</li>
+                    <li>Real-time ingestion and analysis of massive information volumes</li>
+                    <li>Integration with existing observability tools</li>
+                    <li>Single-platform monitoring for applications, infrastructure, and network performance</li>
+                </ul>
+
+                <h3>Performance Monitoring Evolution</h3>
+                <div class="info-box">
+                    <h4>AI-Enhanced Performance Monitoring</h4>
+                    <ul>
+                        <li>Continuous telemetry data analysis from applications and infrastructure</li>
+                        <li>Analytics flagging slowdowns, bottlenecks, and resource saturation</li>
+                        <li>Machine learning models distinguishing normal changes from performance issues</li>
+                        <li>Predictive alerts before issues impact users</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Anomaly Detection -->
+            <section id="anomaly-detection">
+                <h2>Anomaly Detection and Root Cause Analysis</h2>
+                
+                <h3>Leading AIOps Platforms</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Moogsoft</h4>
+                        <ul>
+                            <li>Machine learning algorithms for anomaly identification</li>
+                            <li>Links events and streamlines incident management</li>
+                            <li>50% reduction in operating noise for financial institutions</li>
+                            <li>17% market share in AIOps space</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>BigPanda</h4>
+                        <ul>
+                            <li>AI-powered incident management and event correlation</li>
+                            <li>Transparent, customizable event correlation</li>
+                            <li>70-90% reduction in alert noise</li>
+                            <li>Surfaces probable root causes through data analysis</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Dynatrace</h4>
+                        <ul>
+                            <li>Davis® AI engine using causal artificial intelligence</li>
+                            <li>Deterministic causal analysis vs. correlation-based approaches</li>
+                            <li>Real-time processing of billions of dependencies</li>
+                            <li>Predictive AI for forecasting potential issues</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <pre>
+# Example anomaly detection with isolation forest
+from sklearn.ensemble import IsolationForest
+import pandas as pd
+import numpy as np
+
+class AnomalyDetector:
+    def __init__(self, contamination=0.1):
+        self.model = IsolationForest(contamination=contamination, random_state=42)
+        self.fitted = False
+    
+    def fit(self, normal_data):
+        """Train the model on normal operational data"""
+        self.model.fit(normal_data)
+        self.fitted = True
+    
+    def predict_anomalies(self, new_data):
+        """Predict anomalies in new data"""
+        if not self.fitted:
+            raise ValueError("Model must be fitted first")
+        
+        predictions = self.model.predict(new_data)
+        anomaly_scores = self.model.decision_function(new_data)
+        
+        return {
+            'is_anomaly': predictions == -1,
+            'anomaly_score': anomaly_scores
+        }
+                    </pre>
+                </div>
+            </section>
+
+            <!-- Predictive Analytics -->
+            <section id="predictive-analytics">
+                <h2>Predictive Analytics and Capacity Planning</h2>
+                
+                <h3>Predictive Capabilities</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Historical Analysis</h4>
+                        <p>Machine learning analysis of historical data to predict future outcomes and identify patterns.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Risk Identification</h4>
+                        <p>Pattern identification for potential risks and opportunities before they impact operations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Alert Prioritization</h4>
+                        <p>Continuous learning to prioritize urgent alerts and reduce noise in monitoring systems.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Proactive Detection</h4>
+                        <p>Issue identification before unplanned downtime through predictive modeling.</p>
+                    </div>
+                </div>
+
+                <h3>Capacity Planning Benefits</h3>
+                <ul>
+                    <li>Time-series forecasting and reinforcement learning for resource planning</li>
+                    <li>Automated resource scaling before bottlenecks occur</li>
+                    <li>Forward-looking capacity plans based on workload trends</li>
+                    <li>Up to 35% cost reduction through optimized resource allocation</li>
+                </ul>
+            </section>
+
+            <!-- Automated Response -->
+            <section id="automated-response">
+                <h2>Automated Incident Response and Remediation</h2>
+                
+                <div class="highlight-box">
+                    <h4>2025 Breakthrough: Edwin AI</h4>
+                    <p>LogicMonitor's Edwin AI represents the first AI agent specifically designed for IT operations, capable of autonomous evaluation and execution of remediation strategies with effectiveness prediction.</p>
+                </div>
+
+                <h3>Key Automation Capabilities</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Proactive Prediction</h4>
+                        <p>AI systems predict and prevent issues before they impact users or services.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Real-time Analysis</h4>
+                        <p>Continuous data analysis with intelligent noise filtering to identify genuine issues.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Automated Response</h4>
+                        <p>Intelligent incident response with root cause understanding and context awareness.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Autonomous Remediation</h4>
+                        <p>Automatic execution of fixes without human intervention, with safety guardrails.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Log Analysis -->
+            <section id="log-analysis">
+                <h2>Log Analysis and Correlation</h2>
+                
+                <h3>Event Correlation Benefits</h3>
+                <div class="info-box">
+                    <h4>Correlation Impact</h4>
+                    <ul>
+                        <li>Reduction from 5,000+ daily alerts to ~100 actionable items</li>
+                        <li>Over 97% alert reduction through effective clustering</li>
+                        <li>Focus shift from false positives to real problem resolution</li>
+                        <li>Grouping alerts by timing, affected components, and shared symptoms</li>
+                    </ul>
+                </div>
+
+                <h3>Advanced Log Processing</h3>
+                <ul>
+                    <li>Natural language processing for unstructured log data</li>
+                    <li>Pattern recognition and anomaly detection in log streams</li>
+                    <li>Automatic correlation of related events across multiple systems</li>
+                    <li>Intelligent log parsing and normalization</li>
+                </ul>
+            </section>
+
+            <!-- AIOps Platforms -->
+            <section id="aiops-platforms">
+                <h2>AIOps Platforms and Tools Integration</h2>
+                
+                <h3>Market Leaders</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Market Share</th>
+                            <th>Key Strengths</th>
+                            <th>Primary Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Moogsoft</strong></td>
+                            <td>17%</td>
+                            <td>ML-driven incident management, event correlation</td>
+                            <td>Large enterprises with complex infrastructures</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dynatrace</strong></td>
+                            <td>Leading enterprise</td>
+                            <td>Causal AI, comprehensive observability</td>
+                            <td>Enterprise applications with complex dependencies</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BigPanda</strong></td>
+                            <td>Growing</td>
+                            <td>Transparent event correlation, customizable</td>
+                            <td>Organizations needing explainable AI decisions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Splunk AI</strong></td>
+                            <td>Established</td>
+                            <td>Log analysis, machine learning integration</td>
+                            <td>Data-heavy environments with extensive logging</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Integration Capabilities</h3>
+                <ul>
+                    <li>Existing monitoring and ITSM tool compatibility</li>
+                    <li>API-based connectivity with enterprise systems</li>
+                    <li>Cloud-native and hybrid environment support</li>
+                    <li>Seamless integration with CI/CD pipelines</li>
+                </ul>
+            </section>
+
+            <!-- Implementation -->
+            <section id="implementation">
+                <h2>Implementation Best Practices</h2>
+                
+                <h3>Building MLOps and AIOps Teams</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>MLOps Team Structure</h4>
+                        <ul>
+                            <li>Data scientists and ML engineers</li>
+                            <li>DevOps and platform engineers</li>
+                            <li>Product owners and business stakeholders</li>
+                            <li>Cross-functional collaboration culture</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>AIOps Team Requirements</h4>
+                        <ul>
+                            <li>IT operations engineers</li>
+                            <li>Data scientists for model development</li>
+                            <li>Platform engineers for integration</li>
+                            <li>Business stakeholders for process alignment</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Implementation Timeline</h3>
+                <div class="warning-box">
+                    <h4>⏱️ Realistic Timeline Expectations</h4>
+                    <ul>
+                        <li><strong>3-6 months:</strong> Achievable wins with focused roadmap</li>
+                        <li><strong>Incremental Approach:</strong> Don't implement all practices simultaneously</li>
+                        <li><strong>Priority-based:</strong> Focus on current maturity and critical projects</li>
+                        <li><strong>Continuous Improvement:</strong> Iterative enhancement based on feedback</li>
+                    </ul>
+                </div>
+
+                <h3>Common Pitfalls and Solutions</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Challenge</th>
+                            <th>Root Cause</th>
+                            <th>Solution</th>
+                            <th>Prevention</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Lack of Collaboration</td>
+                            <td>Siloed teams and poor communication</td>
+                            <td>Cross-functional teams and clear communication</td>
+                            <td>Regular team meetings and shared goals</td>
+                        </tr>
+                        <tr>
+                            <td>Technical Debt</td>
+                            <td>Poor versioning and documentation</td>
+                            <td>Incremental refactoring and proper versioning</td>
+                            <td>Establish coding standards early</td>
+                        </tr>
+                        <tr>
+                            <td>Over-reliance on Automation</td>
+                            <td>Insufficient human oversight</td>
+                            <td>Maintain human oversight for critical decisions</td>
+                            <td>Define clear automation boundaries</td>
+                        </tr>
+                        <tr>
+                            <td>False Positives</td>
+                            <td>Poorly tuned ML models</td>
+                            <td>Continuously tune models and thresholds</td>
+                            <td>Regular model performance reviews</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Case Studies -->
+            <section id="case-studies">
+                <h2>Real-World Case Studies</h2>
+                
+                <h3>MLOps Success Stories</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Netflix - Scale Champion</h4>
+                        <ul>
+                            <li>300 model updates daily with automated validation</li>
+                            <li>Comprehensive A/B testing framework</li>
+                            <li>Microservices architecture for ML</li>
+                            <li>Custom tooling for recommendation systems</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Spotify - Pipeline Excellence</h4>
+                        <ul>
+                            <li>10,000 pipeline runs daily across 500 model types</li>
+                            <li>Advanced feature engineering platform</li>
+                            <li>Real-time and batch processing integration</li>
+                            <li>Extensive experiment tracking and analysis</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>AIOps Implementation Examples</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Telecom Provider</h4>
+                        <ul>
+                            <li>80% automated root cause analysis</li>
+                            <li>Resolution time: 2 hours → 15 minutes</li>
+                            <li>Proactive issue detection and prevention</li>
+                            <li>Integrated network monitoring and optimization</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>SaaS Startup</h4>
+                        <ul>
+                            <li>35% AWS cost reduction through AI-driven autoscaling</li>
+                            <li>Automated capacity planning</li>
+                            <li>Intelligent alert correlation</li>
+                            <li>Predictive performance optimization</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Enterprise Adoption Statistics</h3>
+                <div class="info-box">
+                    <h4>2025 Market Adoption</h4>
+                    <ul>
+                        <li><strong>64.3%</strong> of large enterprises using MLOps platforms</li>
+                        <li><strong>57%</strong> report cost reductions with OpenTelemetry adoption</li>
+                        <li><strong>60-80%</strong> faster model deployment with proper MLOps</li>
+                        <li><strong>70-90%</strong> reduction in downtime with AIOps implementation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Future Trends -->
+            <section id="future-trends">
+                <h2>Future Trends and Market Outlook</h2>
+                
+                <h3>MLOps Market Growth</h3>
+                <div class="highlight-box">
+                    <h4>📈 Market Projections</h4>
+                    <ul>
+                        <li><strong>2024:</strong> $1.58 billion market size</li>
+                        <li><strong>2025:</strong> $2.33 billion (35.5% CAGR)</li>
+                        <li><strong>2032:</strong> Projected $19.55 billion</li>
+                        <li><strong>Focus:</strong> Increasing emphasis on LLMOps and foundation model management</li>
+                    </ul>
+                </div>
+
+                <h3>Technology Evolution Trends</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>LLMOps Emergence</h4>
+                        <p>Specialized operations for large language models with unique challenges in training, fine-tuning, and deployment at scale.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Agentic AIOps</h4>
+                        <p>Autonomous AI agents capable of independent decision-making and action execution in IT operations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Causal AI Systems</h4>
+                        <p>Evolution from correlation-based to causal AI systems providing better explainability and decision-making.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Edge Computing Integration</h4>
+                        <p>MLOps and AIOps extending to edge environments with 5G/6G networks and IoT devices.</p>
+                    </div>
+                </div>
+
+                <h3>Investment Recommendations</h3>
+                <div class="info-box">
+                    <h4>Strategic Investment Areas</h4>
+                    <ol>
+                        <li><strong>MLOps and Governance Infrastructure:</strong> Focus on building robust pipelines and compliance frameworks</li>
+                        <li><strong>Team Training:</strong> Invest in comprehensive training for unified platform adoption</li>
+                        <li><strong>Observability Capabilities:</strong> Develop comprehensive monitoring and observability across all systems</li>
+                        <li><strong>Multi-Model Strategies:</strong> Plan for multi-model, multi-cloud deployment architectures</li>
+                    </ol>
+                </div>
+
+                <h3>Emerging Technologies Integration</h3>
+                <ul>
+                    <li>Quantum computing integration for optimization problems</li>
+                    <li>Neuromorphic computing for edge AI deployment</li>
+                    <li>Advanced explainable AI for regulatory compliance</li>
+                    <li>Federated learning for distributed model training</li>
+                </ul>
+            </section>
+
+            <div class="highlight-box">
+                <h3>🎯 Key Takeaways</h3>
+                <ul>
+                    <li>MLOps and AIOps are becoming essential for scalable AI/ML operations</li>
+                    <li>Start with clear use cases and build incrementally</li>
+                    <li>Invest in team training and cross-functional collaboration</li>
+                    <li>Choose tools based on organizational maturity and requirements</li>
+                    <li>Plan for the evolution toward autonomous AI operations</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

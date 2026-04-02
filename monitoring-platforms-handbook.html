@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Platforms Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8fafc;
+            color: #2d3748;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 280px);
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #4a5568;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #4a5568;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #4a5568;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(45, 55, 72, 0.3);
+        }
+        
+        .prometheus-box {
+            background: linear-gradient(135deg, #e6522c 0%, #ff6b3d 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(230, 82, 44, 0.3);
+        }
+        
+        .grafana-box {
+            background: linear-gradient(135deg, #f46800 0%, #ff8c00 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(244, 104, 0, 0.3);
+        }
+        
+        .datadog-box {
+            background: linear-gradient(135deg, #632ca6 0%, #8b5fbf 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(99, 44, 166, 0.3);
+        }
+        
+        .vantage-box {
+            background: linear-gradient(135deg, #0066cc 0%, #3399ff 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #2d3436;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+        }
+        
+        .code-block {
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #4a5568;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h4 {
+            color: #4a5568;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin: 1rem 0;
+            border-left: 4px solid #e6522c;
+        }
+        
+        .platform-card.grafana {
+            border-left-color: #f46800;
+        }
+        
+        .platform-card.datadog {
+            border-left-color: #632ca6;
+        }
+        
+        .platform-card.vantage {
+            border-left-color: #0066cc;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>📊 Monitoring Platforms</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#prometheus" class="main-link">Prometheus</a></li>
+                <li><a href="#prometheus-architecture">Architecture & Components</a></li>
+                <li><a href="#prometheus-data">Metrics & Data Model</a></li>
+                <li><a href="#promql">PromQL Query Language</a></li>
+                <li><a href="#prometheus-scaling">Scaling & Performance</a></li>
+                <li><a href="#grafana" class="main-link">Grafana</a></li>
+                <li><a href="#grafana-dashboards">Dashboards & Visualization</a></li>
+                <li><a href="#grafana-datasources">Data Sources</a></li>
+                <li><a href="#grafana-alerting">Alerting & Notifications</a></li>
+                <li><a href="#datadog" class="main-link">DataDog</a></li>
+                <li><a href="#datadog-deployment">Agent Deployment</a></li>
+                <li><a href="#datadog-monitoring">Infrastructure Monitoring</a></li>
+                <li><a href="#datadog-apm">APM & Observability</a></li>
+                <li><a href="#vantage" class="main-link">Vantage</a></li>
+                <li><a href="#vantage-visibility">Cost Visibility</a></li>
+                <li><a href="#vantage-optimization">Resource Optimization</a></li>
+                <li><a href="#integration" class="main-link">Integration Strategies</a></li>
+                <li><a href="#comparison">Platform Comparison</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#implementation">Implementation Guide</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="kubernetes-monitoring.html">📊 K8s Monitoring</a></li>
+                <li><a href="mlops-aiops-handbook.html">🤖 MLOps & AIOps</a></li>
+                <li><a href="aws-bedrock-sagemaker-handbook.html">☁️ AWS AI/ML</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#devops">DevOps & Cloud</a> > 
+                    <span>Monitoring Platforms Handbook</span>
+                </div>
+            </div>
+
+            <h1>Monitoring Platforms Handbook</h1>
+            <p><strong>Comprehensive Guide to Prometheus, Grafana, DataDog, and Vantage (2025)</strong></p>
+
+            <div class="highlight-box">
+                <h3>📈 What You'll Master</h3>
+                <p>This comprehensive handbook covers the leading monitoring platforms of 2025, providing practical guidance for implementing observability, metrics collection, visualization, and cost management across your infrastructure and applications.</p>
+            </div>
+
+            <!-- Introduction -->
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>The monitoring landscape in 2025 is dominated by specialized platforms that excel in different areas of observability. This handbook provides comprehensive coverage of four critical platforms: Prometheus for metrics collection, Grafana for visualization, DataDog for unified observability, and Vantage for cost management.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🔥 Prometheus</h4>
+                        <p>Open-source monitoring system with time-series database, perfect for Kubernetes and cloud-native environments.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Grafana</h4>
+                        <p>Leading visualization platform with 80+ data source integrations and enterprise-grade dashboarding capabilities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🐕 DataDog</h4>
+                        <p>Unified observability platform combining infrastructure monitoring, APM, logs, and synthetic monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💰 Vantage</h4>
+                        <p>Multi-cloud cost management platform with real-time visibility, optimization recommendations, and governance.</p>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>📊 2025 Market Trends</h4>
+                    <ul>
+                        <li>Observability market projected to reach $62.9 billion</li>
+                        <li>57% of organizations adopting OpenTelemetry for vendor flexibility</li>
+                        <li>AI-powered anomaly detection becoming standard</li>
+                        <li>Cost optimization pressure driving multi-platform strategies</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Prometheus -->
+            <section id="prometheus">
+                <h2>Prometheus Monitoring Platform</h2>
+                
+                <div class="prometheus-box">
+                    <h4>🔥 Prometheus Overview</h4>
+                    <p>Open-source monitoring system and time-series database designed for reliability and scalability. Originally developed at SoundCloud, now a CNCF graduated project powering monitoring for millions of services worldwide.</p>
+                </div>
+
+                <h3>Key Features for 2025</h3>
+                <ul>
+                    <li>Multi-dimensional data model with time series identified by metric name and key-value pairs</li>
+                    <li>PromQL for flexible query language and real-time alerting</li>
+                    <li>Pull-based collection via HTTP endpoints</li>
+                    <li>Service discovery for dynamic environments</li>
+                    <li>No dependency on distributed storage; autonomous single nodes</li>
+                </ul>
+            </section>
+
+            <!-- Prometheus Architecture -->
+            <section id="prometheus-architecture">
+                <h2>Prometheus Architecture & Core Components</h2>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Prometheus Server</h4>
+                        <p>Central component handling metric collection, storage, and querying with local time-series database and rule evaluation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Exporters</h4>
+                        <p>Bridge between systems and Prometheus, translating metrics into Prometheus format. 200+ official and community exporters available.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Alertmanager</h4>
+                        <p>Handles alerts sent by Prometheus server, managing deduplication, grouping, and routing to notification systems.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Push Gateway</h4>
+                        <p>Intermediary service for pushing metrics from short-lived jobs and batch processes that can't be scraped directly.</p>
+                    </div>
+                </div>
+
+                <h3>Popular Exporters</h3>
+                <div class="prometheus-box">
+                    <h4>Essential Exporters for 2025</h4>
+                    <ul>
+                        <li><strong>Node Exporter:</strong> Hardware and OS metrics (CPU, memory, disk, network)</li>
+                        <li><strong>Blackbox Exporter:</strong> Probing endpoints over HTTP, HTTPS, DNS, TCP, ICMP</li>
+                        <li><strong>PostgreSQL Exporter:</strong> Database performance and health metrics</li>
+                        <li><strong>Redis Exporter:</strong> Redis instance metrics and performance data</li>
+                        <li><strong>NGINX Exporter:</strong> Web server metrics and request statistics</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+                    <pre>
+# Example Prometheus configuration
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "first_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+    - role: pod
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+      action: keep
+      regex: true
+                    </pre>
+                </div>
+            </section>
+
+            <!-- Prometheus Data Model -->
+            <section id="prometheus-data">
+                <h2>Metrics & Data Model</h2>
+                
+                <h3>Time Series Structure</h3>
+                <p>Prometheus stores all data as time series - streams of timestamped values belonging to the same metric and set of labeled dimensions. Each time series is uniquely identified by its metric name and optional key-value pairs called labels.</p>
+
+                <h3>Metric Types</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Counter</h4>
+                        <p>Cumulative metrics that only increase (or reset to zero on restart). Examples: total requests, errors, completed tasks.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Gauge</h4>
+                        <p>Metrics that can go up and down. Examples: memory usage, active connections, queue size.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Histogram</h4>
+                        <p>Samples observations and counts them in configurable buckets. Useful for request durations and response sizes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Summary</h4>
+                        <p>Similar to histogram but calculates configurable quantiles over sliding time windows.</p>
+                    </div>
+                </div>
+
+                <h3>Data Storage and Retention</h3>
+                <div class="prometheus-box">
+                    <h4>Storage Configuration</h4>
+                    <ul>
+                        <li><strong>Default Retention:</strong> 15 days of local storage</li>
+                        <li><strong>Configurable Options:</strong> --storage.tsdb.retention.time and --storage.tsdb.retention.size</li>
+                        <li><strong>Long-term Storage:</strong> Thanos, Cortex, or VictoriaMetrics for unlimited retention</li>
+                        <li><strong>Performance:</strong> Optimized for write-heavy workloads with efficient compression</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- PromQL -->
+            <section id="promql">
+                <h2>PromQL Query Language</h2>
+                
+                <h3>Core Data Types</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Description</th>
+                            <th>Example Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Instant Vector</strong></td>
+                            <td>Set of time series with single sample at specific time</td>
+                            <td>up{job="prometheus"}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Range Vector</strong></td>
+                            <td>Set of time series with range of samples over time</td>
+                            <td>http_requests_total[5m]</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalar</strong></td>
+                            <td>Simple numeric floating-point value</td>
+                            <td>count(up == 1)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>String</strong></td>
+                            <td>Simple string value (limited use)</td>
+                            <td>Used in some functions and labels</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Essential PromQL Functions</h3>
+                <div class="code-block">
+                    <pre>
+# Rate calculation (requests per second)
+rate(http_requests_total[5m])
+
+# Increase over time period
+increase(http_requests_total[1h])
+
+# Average over time
+avg_over_time(cpu_usage[10m])
+
+# Quantile calculation
+histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))
+
+# Aggregation functions
+sum(rate(http_requests_total[5m])) by (status)
+avg(cpu_usage) by (instance)
+max(memory_usage) by (pod)
+
+# Filtering and selection
+http_requests_total{status="200"}
+up{job=~"prometheus.*"}
+cpu_usage > 0.8
+                    </pre>
+                </div>
+
+                <h3>2025 Best Practices</h3>
+                <ul>
+                    <li>Use appropriate time ranges (4x scrape interval minimum for rate calculations)</li>
+                    <li>Implement recording rules for complex queries used in multiple dashboards</li>
+                    <li>Handle counter resets with rate(), increase(), or delta() functions</li>
+                    <li>Manage label cardinality to avoid performance issues</li>
+                    <li>Use the experimental info() function for metadata enrichment</li>
+                </ul>
+            </section>
+
+            <!-- Prometheus Scaling -->
+            <section id="prometheus-scaling">
+                <h2>Scaling & Performance Optimization</h2>
+                
+                <h3>Vertical Scaling Strategies</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Memory Optimization</h4>
+                        <p>Increase memory allocation for larger datasets. Rule of thumb: 1-2 GB per million active time series.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Query Performance</h4>
+                        <p>Implement recording rules for complex queries and optimize scrape intervals based on requirements.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Storage Tuning</h4>
+                        <p>Configure retention policies, implement proper backup strategies, and consider SSD storage for better performance.</p>
+                    </div>
+                </div>
+
+                <h3>Horizontal Scaling Solutions</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Federation</h4>
+                        <p>Hierarchical setup with global Prometheus servers scraping aggregated metrics from local instances.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Thanos</h4>
+                        <p>Open-source solution for unlimited retention with object storage and global querying capabilities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cortex</h4>
+                        <p>Horizontally scalable, highly available Prometheus-as-a-Service with multi-tenancy support.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>VictoriaMetrics</h4>
+                        <p>High-performance alternative with better compression and faster queries for large-scale deployments.</p>
+                    </div>
+                </div>
+
+                <h3>High Availability Setup</h3>
+                <div class="prometheus-box">
+                    <h4>HA Configuration</h4>
+                    <ul>
+                        <li>Run multiple identical Prometheus instances</li>
+                        <li>Use external load balancing for query distribution</li>
+                        <li>Implement Thanos or Cortex for true HA with deduplication</li>
+                        <li>Configure external Alertmanager cluster for alert reliability</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Grafana -->
+            <section id="grafana">
+                <h2>Grafana Visualization Platform</h2>
+                
+                <div class="grafana-box">
+                    <h4>📊 Grafana 2025 Features</h4>
+                    <p>Leading open-source analytics and monitoring platform with enhanced template variable support, real-time collaboration features, and over 80 official data source plugins for comprehensive observability.</p>
+                </div>
+
+                <h3>Core Capabilities</h3>
+                <ul>
+                    <li>Rich visualization options with customizable dashboards</li>
+                    <li>Multi-data source correlation and unified alerting</li>
+                    <li>Enterprise-grade security with RBAC and SSO</li>
+                    <li>Extensive plugin ecosystem for custom functionality</li>
+                    <li>Advanced templating and variable support</li>
+                </ul>
+            </section>
+
+            <!-- Grafana Dashboards -->
+            <section id="grafana-dashboards">
+                <h2>Dashboards & Visualization</h2>
+                
+                <h3>Modern Panel Types (2025)</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Time Series</h4>
+                        <p>Advanced line charts with multiple Y-axes, thresholds, and statistical overlays for trend analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Stat Panels</h4>
+                        <p>Single value displays with thresholds, sparklines, and instant visual impact for KPIs.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Geomap</h4>
+                        <p>Geographic data visualization with multiple layer support for location-based monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Node Graph</h4>
+                        <p>Network topology and dependency mapping for complex system visualization.</p>
+                    </div>
+                </div>
+
+                <h3>Advanced Visualization Features</h3>
+                <div class="grafana-box">
+                    <h4>Enhanced Capabilities</h4>
+                    <ul>
+                        <li><strong>Candlestick Charts:</strong> Financial and trading data visualization</li>
+                        <li><strong>Histogram Panels:</strong> Distribution analysis with configurable buckets</li>
+                        <li><strong>Table Enhancements:</strong> Advanced sorting, filtering, and cell formatting</li>
+                        <li><strong>Heatmaps:</strong> Density-based visualizations for performance analysis</li>
+                    </ul>
+                </div>
+
+                <h3>Dashboard Best Practices</h3>
+                <ul>
+                    <li>Use consistent naming conventions and organize with folders</li>
+                    <li>Implement template dashboards for standardized monitoring</li>
+                    <li>Utilize dashboard tags for easy categorization and discovery</li>
+                    <li>Create drill-down capabilities with dashboard links</li>
+                    <li>Implement proper time range synchronization across panels</li>
+                </ul>
+
+                <div class="code-block">
+                    <pre>
+# Example dashboard JSON configuration
+{
+  "dashboard": {
+    "title": "Application Performance Dashboard",
+    "tags": ["application", "performance"],
+    "templating": {
+      "list": [
+        {
+          "name": "instance",
+          "type": "query",
+          "query": "label_values(up, instance)",
+          "datasource": "prometheus"
+        }
+      ]
+    },
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{instance=\"$instance\"}[5m])) by (status)",
+            "legendFormat": "{{status}}"
+          }
+        ]
+      }
+    ]
+  }
+}
+                    </pre>
+                </div>
+            </section>
+
+            <!-- Grafana Data Sources -->
+            <section id="grafana-datasources">
+                <h2>Data Source Integrations</h2>
+                
+                <h3>Core Data Sources</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Prometheus</h4>
+                        <p>Native PromQL support with syntax highlighting, template variables, and automatic metric discovery.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>InfluxDB</h4>
+                        <p>Time series data with Flux and InfluxQL query support and real-time streaming capabilities.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>CloudWatch</h4>
+                        <p>AWS metrics with cross-account monitoring, custom namespaces, and Log Insights integration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Elasticsearch</h4>
+                        <p>Log analysis with Lucene query syntax and advanced aggregations for log correlation.</p>
+                    </div>
+                </div>
+
+                <h3>2025 Data Source Enhancements</h3>
+                <div class="grafana-box">
+                    <h4>Advanced Integrations</h4>
+                    <ul>
+                        <li><strong>SQL Databases:</strong> Enhanced PostgreSQL, MySQL, MSSQL support with query builder</li>
+                        <li><strong>NoSQL:</strong> MongoDB and Elasticsearch with improved query interfaces</li>
+                        <li><strong>APM Tools:</strong> Jaeger, Zipkin, and Tempo for distributed tracing</li>
+                        <li><strong>Cloud Platforms:</strong> Native Azure Monitor and Google Cloud Monitoring integration</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Grafana Alerting -->
+            <section id="grafana-alerting">
+                <h2>Alerting & Notification Management</h2>
+                
+                <h3>Unified Alerting System (2025)</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Multi-Dimensional Alerting</h4>
+                        <p>Single alerting interface across all data sources with label-based routing and organization.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Alert Rule Grouping</h4>
+                        <p>Organize alerts by teams, applications, or severity with inheritance and shared configurations.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Silence Management</h4>
+                        <p>Time-based and label-based silence matching with scheduling and maintenance windows.</p>
+                    </div>
+                </div>
+
+                <h3>Notification Channels</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Features</th>
+                            <th>Best Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Slack/Teams</strong></td>
+                            <td>Rich formatting, threading, dashboard links</td>
+                            <td>Team collaboration and immediate response</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email</strong></td>
+                            <td>HTML formatting, image embedding, escalation</td>
+                            <td>Detailed notifications and documentation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>PagerDuty/Opsgenie</strong></td>
+                            <td>Escalation policies, incident management</td>
+                            <td>Critical alerts requiring immediate action</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Webhook</strong></td>
+                            <td>Custom integrations, automated responses</td>
+                            <td>Integration with existing ITSM systems</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block">
+                    <pre>
+# Example alert rule configuration
+{
+  "alert": {
+    "name": "High CPU Usage",
+    "message": "CPU usage is above 80% for more than 5 minutes",
+    "frequency": "10s",
+    "conditions": [
+      {
+        "query": {
+          "queryType": "A",
+          "refId": "A",
+          "expr": "avg(cpu_usage) by (instance) > 0.8"
+        },
+        "reducer": {
+          "type": "last",
+          "params": []
+        },
+        "evaluator": {
+          "params": [0.8],
+          "type": "gt"
+        }
+      }
+    ],
+    "executionErrorState": "alerting",
+    "noDataState": "no_data",
+    "for": "5m"
+  }
+}
+                    </pre>
+                </div>
+            </section>
+
+            <!-- DataDog -->
+            <section id="datadog">
+                <h2>DataDog Unified Observability Platform</h2>
+                
+                <div class="datadog-box">
+                    <h4>🐕 DataDog 2025 Evolution</h4>
+                    <p>Complete observability platform with Single Step Instrumentation (SSI) reducing onboarding time from days to minutes. Supports infrastructure monitoring, APM, logs, security monitoring, and synthetic testing in a unified platform.</p>
+                </div>
+
+                <h3>Core Platform Capabilities</h3>
+                <ul>
+                    <li>AI-powered anomaly detection and forecasting</li>
+                    <li>Real-time infrastructure mapping with automatic topology discovery</li>
+                    <li>Code-level distributed tracing with automatic instrumentation</li>
+                    <li>Comprehensive security monitoring with runtime protection</li>
+                    <li>Cost optimization with resource usage analytics</li>
+                </ul>
+            </section>
+
+            <!-- DataDog Deployment -->
+            <section id="datadog-deployment">
+                <h2>Agent Deployment & Configuration</h2>
+                
+                <h3>Single Step Instrumentation (SSI) - 2025</h3>
+                <div class="datadog-box">
+                    <h4>Revolutionary Onboarding</h4>
+                    <ul>
+                        <li><strong>Zero Configuration:</strong> Automatic SDK installation and instrumentation</li>
+                        <li><strong>Multi-Language Support:</strong> Java, .NET, Python, Ruby, Go, Node.js, PHP, C++</li>
+                        <li><strong>Automatic Trace Capture:</strong> No code changes required for basic monitoring</li>
+                        <li><strong>Time Reduction:</strong> Days to minutes deployment time</li>
+                    </ul>
+                </div>
+
+                <h3>Deployment Options</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Host-based Installation</h4>
+                        <p>Traditional agent installation on VMs and bare metal servers with comprehensive system monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Container Deployment</h4>
+                        <p>Docker and Kubernetes deployments with Datadog Operator and admission controller integration.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Serverless Integration</h4>
+                        <p>AWS Lambda, Azure Functions, Google Cloud Functions with automatic layer installation.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cloud-Native Services</h4>
+                        <p>Native integration with ECS, EKS, GKE, AKS with automatic service discovery.</p>
+                    </div>
+                </div>
+
+                <h3>Kubernetes Deployment Best Practices</h3>
+                <div class="code-block">
+                    <pre>
+# Datadog Operator configuration
+apiVersion: datadoghq.com/v2alpha1
+kind: DatadogAgent
+metadata:
+  name: datadog
+spec:
+  global:
+    site: datadoghq.com
+    credentials:
+      apiSecret:
+        secretName: datadog-secret
+        keyName: api-key
+  features:
+    apm:
+      enabled: true
+      unixDomainSocketConfig:
+        enabled: true
+    logs:
+      enabled: true
+    metrics:
+      enabled: true
+    cspm:
+      enabled: true
+    cws:
+      enabled: true
+  override:
+    nodeAgent:
+      containers:
+        agent:
+          env:
+            - name: DD_KUBELET_TLS_VERIFY
+              value: "false"
+                    </pre>
+                </div>
+            </section>
+
+            <!-- DataDog Monitoring -->
+            <section id="datadog-monitoring">
+                <h2>Infrastructure Monitoring</h2>
+                
+                <h3>2025 Enhanced Features</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Real-time Infrastructure Mapping</h4>
+                        <p>Automatic topology discovery with live dependency mapping and impact analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Container Monitoring</h4>
+                        <p>Advanced Kubernetes insights with pod-level metrics and cluster health monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Network Performance</h4>
+                        <p>eBPF-based network monitoring with flow analysis and security insights.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Custom Metrics</h4>
+                        <p>Application-specific metrics with 850+ integrations for comprehensive coverage.</p>
+                    </div>
+                </div>
+
+                <h3>Monitoring Scope</h3>
+                <div class="datadog-box">
+                    <h4>Comprehensive Coverage</h4>
+                    <ul>
+                        <li><strong>Compute:</strong> VMs, containers, serverless functions with resource utilization</li>
+                        <li><strong>Storage:</strong> Databases, file systems, object storage with performance metrics</li>
+                        <li><strong>Network:</strong> Load balancers, CDNs, API gateways with latency tracking</li>
+                        <li><strong>Security:</strong> Vulnerability scanning, compliance monitoring, threat detection</li>
+                    </ul>
+                </div>
+
+                <h3>Integration Examples</h3>
+                <div class="code-block">
+                    <pre>
+# Custom metric submission
+from datadog import initialize, statsd
+import time
+
+options = {
+    'api_key': 'your_api_key',
+    'app_key': 'your_app_key'
+}
+
+initialize(**options)
+
+# Submit custom metrics
+statsd.increment('custom.app.requests', tags=['env:prod', 'service:api'])
+statsd.histogram('custom.app.response_time', 0.234, tags=['endpoint:/api/users'])
+statsd.gauge('custom.app.queue_size', 42, tags=['queue:processing'])
+
+# Time function execution
+@statsd.timed('custom.app.function_duration', tags=['function:data_processing'])
+def process_data():
+    # Your function logic here
+    time.sleep(1)
+                    </pre>
+                </div>
+            </section>
+
+            <!-- DataDog APM -->
+            <section id="datadog-apm">
+                <h2>APM & Comprehensive Observability</h2>
+                
+                <h3>Application Performance Monitoring</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Distributed Tracing</h4>
+                        <p>AI-powered code-level tracing with automatic service discovery and dependency mapping.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Real User Monitoring</h4>
+                        <p>Browser and mobile application monitoring with Core Web Vitals and user journey analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Synthetic Monitoring</h4>
+                        <p>API testing with multi-step workflows and global test locations for proactive monitoring.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Log Management</h4>
+                        <p>Real-time log parsing with automatic PII detection and correlation with traces and metrics.</p>
+                    </div>
+                </div>
+
+                <h3>2025 AI-Powered Features</h3>
+                <div class="datadog-box">
+                    <h4>Machine Learning Integration</h4>
+                    <ul>
+                        <li><strong>Anomaly Detection:</strong> Automatic outlier detection with seasonal pattern recognition</li>
+                        <li><strong>Forecasting:</strong> Predictive analytics for capacity planning and resource optimization</li>
+                        <li><strong>Error Tracking:</strong> Intelligent error grouping with root cause analysis</li>
+                        <li><strong>Performance Insights:</strong> AI-suggested optimizations based on trace analysis</li>
+                    </ul>
+                </div>
+
+                <h3>Supported Technologies</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Technologies</th>
+                            <th>Auto-Instrumentation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Languages</strong></td>
+                            <td>Java, .NET, Python, Ruby, Go, Node.js, PHP, C++</td>
+                            <td>✅ Full support</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Frameworks</strong></td>
+                            <td>Spring Boot, Django, Rails, Express.js, Gin</td>
+                            <td>✅ Automatic detection</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Databases</strong></td>
+                            <td>PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch</td>
+                            <td>✅ Query-level tracing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Message Queues</strong></td>
+                            <td>RabbitMQ, Apache Kafka, AWS SQS, Azure Service Bus</td>
+                            <td>✅ Producer/consumer tracking</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Vantage -->
+            <section id="vantage">
+                <h2>Vantage Cloud Cost Management</h2>
+                
+                <div class="vantage-box">
+                    <h4>💰 Vantage 2025 Platform</h4>
+                    <p>Leading cloud cost management platform providing real-time visibility, optimization recommendations, and governance across AWS, Azure, and GCP with advanced automation and AI-powered insights.</p>
+                </div>
+
+                <h3>Core Value Propositions</h3>
+                <ul>
+                    <li>Real-time cost tracking with 15+ month historical retention</li>
+                    <li>Multi-cloud unified dashboard for comprehensive cost visibility</li>
+                    <li>AI-powered anomaly detection with automated alerting</li>
+                    <li>Resource-level cost attribution and analysis</li>
+                    <li>Automated optimization recommendations and governance</li>
+                </ul>
+            </section>
+
+            <!-- Vantage Visibility -->
+            <section id="vantage-visibility">
+                <h2>Cloud Cost Visibility & Reporting</h2>
+                
+                <h3>Multi-Cloud Support</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>AWS Integration</h4>
+                        <p>Cost and Usage Report (CUR) processing with Reserved Instance optimization and EC2, RDS, S3 analysis.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Google Cloud Platform</h4>
+                        <p>BigQuery export integration with Compute Engine analysis and Committed Use Contract optimization.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Microsoft Azure</h4>
+                        <p>Enterprise Agreement support with Virtual Machine analysis and Azure Hybrid Benefit optimization.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Unified Dashboard</h4>
+                        <p>Single pane of glass with cost trend analysis, forecasting, and drill-down capabilities.</p>
+                    </div>
+                </div>
+
+                <h3>Virtual Tagging System</h3>
+                <div class="vantage-box">
+                    <h4>Advanced Cost Allocation</h4>
+                    <ul>
+                        <li><strong>Tag Without Engineering:</strong> Virtual tags applied without modifying resources</li>
+                        <li><strong>Hierarchical Structures:</strong> Complex organizational cost allocation</li>
+                        <li><strong>Auto-Propagation:</strong> Automatic tag inheritance and distribution</li>
+                        <li><strong>Custom Allocation:</strong> Department and project-based chargeback systems</li>
+                    </ul>
+                </div>
+
+                <h3>Reporting Capabilities</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Executive Dashboards</h4>
+                        <p>High-level cost summaries with trend analysis and budget variance reporting.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Detailed Cost Allocation</h4>
+                        <p>Resource-level breakdowns with team and project attribution for accurate chargeback.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Custom Report Templates</h4>
+                        <p>Automated reporting with scheduled delivery and customizable formats.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vantage Optimization -->
+            <section id="vantage-optimization">
+                <h2>Resource Optimization & Automation</h2>
+                
+                <h3>2025 Optimization Engine</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Right-sizing Recommendations</h4>
+                        <p>AI-powered analysis for compute resources with utilization patterns and cost impact assessment.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Storage Optimization</h4>
+                        <p>Intelligent storage class recommendations and lifecycle policy suggestions for cost reduction.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Reserved Instance Planning</h4>
+                        <p>Optimal RI purchasing recommendations with commitment analysis and savings projections.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Idle Resource Detection</h4>
+                        <p>Automated identification of unused resources with cleanup recommendations and automation.</p>
+                    </div>
+                </div>
+
+                <h3>Budget Management</h3>
+                <div class="vantage-box">
+                    <h4>Advanced Budget Features</h4>
+                    <ul>
+                        <li><strong>Hierarchical Budgets:</strong> Nested budget structures for complex organizations</li>
+                        <li><strong>Multi-cloud Aggregation:</strong> Unified budgets across cloud providers</li>
+                        <li><strong>Forecasting:</strong> ML-based cost predictions with seasonal adjustments</li>
+                        <li><strong>Automated Alerts:</strong> Threshold-based notifications with escalation policies</li>
+                    </ul>
+                </div>
+
+                <h3>Automation and Governance</h3>
+                <div class="code-block">
+                    <pre>
+# Example Vantage API integration for automation
+import requests
+import json
+
+# Vantage API configuration
+VANTAGE_API_TOKEN = 'your_api_token'
+VANTAGE_BASE_URL = 'https://vantage.sh/api'
+
+headers = {
+    'Authorization': f'Bearer {VANTAGE_API_TOKEN}',
+    'Content-Type': 'application/json'
+}
+
+# Get cost recommendations
+def get_cost_recommendations():
+    response = requests.get(
+        f'{VANTAGE_BASE_URL}/v2/recommendations',
+        headers=headers
+    )
+    return response.json()
+
+# Create budget alert
+def create_budget_alert(budget_id, threshold_percentage):
+    alert_data = {
+        'budget_id': budget_id,
+        'threshold_percentage': threshold_percentage,
+        'alert_type': 'email',
+        'recipients': ['team@company.com']
+    }
+    
+    response = requests.post(
+        f'{VANTAGE_BASE_URL}/v2/budget_alerts',
+        headers=headers,
+        data=json.dumps(alert_data)
+    )
+    return response.json()
+                    </pre>
+                </div>
+            </section>
+
+            <!-- Integration Strategies -->
+            <section id="integration">
+                <h2>Multi-Platform Integration Strategies</h2>
+                
+                <h3>Integration Architecture Patterns</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Sidecar Pattern</h4>
+                        <p>Deploy monitoring agents as sidecars alongside applications for cross-cutting monitoring concerns.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Single Pane of Glass</h4>
+                        <p>Centralize monitoring data from multiple sources with unified dashboards and consistent alerting.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Service Mesh Integration</h4>
+                        <p>Leverage Istio or Linkerd for automatic metrics collection and distributed tracing.</p>
+                    </div>
+                </div>
+
+                <h3>Integration Recommendations</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Prometheus + Grafana</h4>
+                        <p>Open-source stack for Kubernetes-native environments with full control and cost optimization.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>DataDog All-in-One</h4>
+                        <p>Unified platform for rapid deployment with minimal configuration and enterprise support.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Hybrid Approach</h4>
+                        <p>Mix platforms based on specific requirements, compliance needs, and cost considerations.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Cost-Optimized Strategy</h4>
+                        <p>Vantage for cost management with Prometheus for metrics and Grafana for visualization.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Platform Comparison -->
+            <section id="comparison">
+                <h2>Platform Comparison & Selection Guide</h2>
+                
+                <h3>When to Choose Each Platform</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Best For</th>
+                            <th>Key Strengths</th>
+                            <th>Considerations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Prometheus</strong></td>
+                            <td>Cloud-native, Kubernetes environments</td>
+                            <td>Open-source, flexible, cost-effective</td>
+                            <td>Requires operational expertise</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grafana</strong></td>
+                            <td>Multi-data source visualization</td>
+                            <td>Rich dashboards, extensive integrations</td>
+                            <td>Requires data source setup</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DataDog</strong></td>
+                            <td>Comprehensive observability needs</td>
+                            <td>All-in-one, AI features, enterprise support</td>
+                            <td>Higher cost, vendor lock-in</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Vantage</strong></td>
+                            <td>Multi-cloud cost management</td>
+                            <td>Cost optimization, governance, automation</td>
+                            <td>Cost-focused, requires integration</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Organization Size Recommendations</h3>
+                <div class="warning-box">
+                    <h4>💡 Selection Guidelines</h4>
+                    <ul>
+                        <li><strong>Small Teams (5-50 people):</strong> Prometheus + Grafana for cost-effective monitoring</li>
+                        <li><strong>Mid-Market (50-500 people):</strong> DataDog for rapid deployment or hybrid approach</li>
+                        <li><strong>Enterprise (500+ people):</strong> Multi-platform strategy with specialized tools</li>
+                        <li><strong>Cost-Conscious:</strong> Open-source stack with Vantage for cost management</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices">
+                <h2>Implementation Best Practices</h2>
+                
+                <h3>Universal Best Practices</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Start Simple</h4>
+                        <p>Begin with core metrics and gradually expand coverage based on identified needs and pain points.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Standardize Naming</h4>
+                        <p>Implement consistent naming conventions for metrics, labels, and dashboards across all platforms.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Automate Everything</h4>
+                        <p>Use Infrastructure as Code for monitoring setup and automate alert rule management.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Monitor the Monitors</h4>
+                        <p>Implement health checks for your monitoring infrastructure and set up meta-monitoring.</p>
+                    </div>
+                </div>
+
+                <h3>Performance Optimization</h3>
+                <div class="highlight-box">
+                    <h4>Key Performance Indicators</h4>
+                    <ul>
+                        <li><strong>MTTD:</strong> Mean Time to Detection - average time to identify issues</li>
+                        <li><strong>MTTR:</strong> Mean Time to Resolution - average problem resolution time</li>
+                        <li><strong>Alert Accuracy:</strong> Percentage of actionable vs. false positive alerts</li>
+                        <li><strong>Query Performance:</strong> Dashboard load times and data retrieval speed</li>
+                    </ul>
+                </div>
+
+                <h3>Cost Management Strategies</h3>
+                <ul>
+                    <li>Implement data retention policies based on usefulness and compliance</li>
+                    <li>Use sampling for high-volume trace and log data</li>
+                    <li>Monitor cardinality to prevent cost explosion from high-cardinality metrics</li>
+                    <li>Regularly review and optimize alert rules to reduce noise</li>
+                    <li>Consider hybrid approaches to balance cost and functionality</li>
+                </ul>
+            </section>
+
+            <!-- Implementation Guide -->
+            <section id="implementation">
+                <h2>Implementation Roadmap</h2>
+                
+                <h3>Phase-Based Implementation</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Assessment (Weeks 1-4)</h4>
+                        <p>Current state analysis, requirements gathering, tool evaluation, and architecture planning.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Foundation (Weeks 5-8)</h4>
+                        <p>Core infrastructure deployment, basic configuration, initial dashboards, and alert setup.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Integration (Weeks 9-16)</h4>
+                        <p>Application instrumentation, service discovery, custom metrics, and log aggregation.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Advanced Features (Weeks 17-24)</h4>
+                        <p>Distributed tracing, advanced alerting, automation, and cost optimization.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h4>Optimization (Weeks 25-32)</h4>
+                        <p>Performance tuning, high availability, disaster recovery, and team training.</p>
+                    </div>
+                </div>
+
+                <h3>Success Metrics</h3>
+                <div class="highlight-box">
+                    <h4>📊 Implementation KPIs</h4>
+                    <ul>
+                        <li>60-80% reduction in incident detection time</li>
+                        <li>70-90% reduction in false positive alerts</li>
+                        <li>10-20x faster issue diagnosis and resolution</li>
+                        <li>Significant reduction in operational overhead</li>
+                        <li>Improved developer productivity and deployment velocity</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="highlight-box">
+                <h3>🎯 Key Takeaways</h3>
+                <ul>
+                    <li>Choose platforms based on organizational maturity and specific requirements</li>
+                    <li>Start with core metrics and expand gradually based on actual needs</li>
+                    <li>Implement cost management from day one to avoid surprises</li>
+                    <li>Consider hybrid approaches for optimal cost-functionality balance</li>
+                    <li>Invest in team training and establish monitoring champions</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
