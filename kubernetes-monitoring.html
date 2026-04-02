@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Monitoring Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Navigation Sidebar */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content */
+        .content {
+            margin-left: 320px;
+            padding: 2rem;
+            background: white;
+            min-height: 100vh;
+            width: calc(100% - 320px);
+        }
+        
+        /* Header Navigation */
+        .header-nav {
+            background: white;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Code Blocks */
+        pre {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #0d47a1;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+        
+        .alert-success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .scroll-top:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>📊 K8s Monitoring</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#fundamentals">Monitoring Fundamentals</a></li>
+                <li><a href="#architecture">Core Architecture</a></li>
+                <li><a href="#prometheus-grafana">Prometheus & Grafana</a></li>
+                <li><a href="#opentelemetry">OpenTelemetry</a></li>
+                <li><a href="#logging">Logging Strategies</a></li>
+                <li><a href="#service-mesh">Service Mesh</a></li>
+                <li><a href="#cloud-native">Cloud Solutions</a></li>
+                <li><a href="#multi-cluster">Multi-Cluster</a></li>
+                <li><a href="#performance">Performance</a></li>
+                <li><a href="#security">Security Monitoring</a></li>
+                <li><a href="#cost">Cost & FinOps</a></li>
+                <li><a href="#slo-sli">SLO/SLI Frameworks</a></li>
+                <li><a href="#ai-monitoring">AI-Driven Monitoring</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="kubernetes-complete-handbook.html">📚 K8s Complete</a></li>
+                <li><a href="kubernetes-troubleshooting.html">🔧 K8s Troubleshooting</a></li>
+                <li><a href="api-security.html">🔐 API Security</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="kubernetes-complete-handbook.html">Kubernetes</a> > 
+                    <span>Monitoring Handbook</span>
+                </div>
+            </div>
+
+            <h1>Kubernetes Monitoring Handbook</h1>
+            <p><strong>Comprehensive Guide to Observability and Performance Monitoring</strong></p>
+
+            <div class="action-buttons">
+                <a href="kubernetes-troubleshooting.html" class="btn btn-primary">🔧 Troubleshooting Guide</a>
+                <a href="kubernetes-complete-handbook.html" class="btn btn-secondary">📚 Complete K8s Handbook</a>
+            </div>
+
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>Kubernetes monitoring in 2025 has evolved from basic infrastructure metrics collection to comprehensive observability platforms that provide AI-driven insights, predictive analytics, and automated remediation. With over 96% of enterprises running Kubernetes in production, effective monitoring has become critical for maintaining service reliability, optimizing costs, and ensuring security compliance.</p>
+
+                <div class="alert alert-info">
+                    <strong>2025 Monitoring Reality:</strong> Organizations report 60-80% monitoring cost savings compared to traditional solutions while achieving 40-70% reduction in Mean Time To Resolution.
+                </div>
+
+                <h3>Current State of Kubernetes Monitoring (2025)</h3>
+                <ul>
+                    <li><strong>Observability Consolidation</strong>: The Prometheus + Grafana + OpenTelemetry stack has become the de facto standard</li>
+                    <li><strong>AI Integration</strong>: Machine learning-driven anomaly detection and predictive monitoring are now mainstream</li>
+                    <li><strong>Cost Optimization Focus</strong>: Organizations report 60-80% monitoring cost savings compared to traditional solutions</li>
+                    <li><strong>Multi-Cloud Reality</strong>: 75% of enterprises use multi-cloud strategies requiring unified monitoring approaches</li>
+                </ul>
+
+                <h3>Business Impact</h3>
+                <ul>
+                    <li><strong>MTTR Reduction</strong>: Modern observability platforms reduce Mean Time To Resolution by 40-70%</li>
+                    <li><strong>Resource Efficiency</strong>: Only 13% of requested CPU is used on average, highlighting the need for better monitoring</li>
+                    <li><strong>Cost Savings</strong>: Proper monitoring enables 30-50% infrastructure cost reduction through rightsizing</li>
+                    <li><strong>Security</strong>: Runtime threat detection cuts CVE noise by over 95% with behavioral monitoring</li>
+                </ul>
+            </section>
+
+            <section id="fundamentals">
+                <h2>Kubernetes Monitoring Fundamentals</h2>
+                
+                <h3>The Three Pillars of Observability</h3>
+                
+                <h4>Metrics</h4>
+                <p>Quantitative data about system performance and behavior:</p>
+                <ul>
+                    <li><strong>Infrastructure metrics</strong>: CPU, memory, disk, network utilization</li>
+                    <li><strong>Application metrics</strong>: Request rates, response times, error rates</li>
+                    <li><strong>Business metrics</strong>: User engagement, revenue impact, conversion rates</li>
+                </ul>
+
+                <h4>Logs</h4>
+                <p>Event records providing detailed information about system behavior:</p>
+                <ul>
+                    <li><strong>Structured logging</strong>: JSON format for better parsing and analysis</li>
+                    <li><strong>Centralized collection</strong>: Aggregation from all cluster components</li>
+                    <li><strong>Retention policies</strong>: Compliance-driven storage strategies</li>
+                </ul>
+
+                <h4>Traces</h4>
+                <p>Request journeys across distributed systems:</p>
+                <ul>
+                    <li><strong>Distributed tracing</strong>: End-to-end request visibility</li>
+                    <li><strong>Correlation</strong>: Linking traces with logs and metrics</li>
+                    <li><strong>Performance analysis</strong>: Identifying bottlenecks and optimization opportunities</li>
+                </ul>
+
+                <h3>Golden Signals for Kubernetes</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal</th>
+                            <th>Key Metrics</th>
+                            <th>Monitoring Focus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Latency</strong></td>
+                            <td>API server response times, Pod startup times, Application response times (P50, P95, P99)</td>
+                            <td>Network latency between services</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Traffic</strong></td>
+                            <td>API server requests per second, Ingress controller traffic</td>
+                            <td>Inter-service communication volume, Resource utilization patterns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Errors</strong></td>
+                            <td>Failed pod deployments, HTTP error rates (4xx, 5xx)</td>
+                            <td>Application-specific error metrics, Infrastructure failures</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Saturation</strong></td>
+                            <td>Node resource utilization, Pod density per node</td>
+                            <td>Storage capacity and IOPS, Network bandwidth utilization</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Monitoring Levels</h3>
+                
+                <h4>Cluster Level</h4>
+                <pre><code># Key cluster metrics
+- cluster_cpu_usage_rate
+- cluster_memory_usage_rate  
+- cluster_node_count
+- cluster_pod_count
+- etcd_server_health</code></pre>
+
+                <h4>Node Level</h4>
+                <pre><code># Node health indicators
+- node_cpu_utilization
+- node_memory_utilization
+- node_disk_utilization
+- node_network_receive_bytes
+- node_filesystem_avail</code></pre>
+
+                <h4>Pod Level</h4>
+                <pre><code># Pod performance metrics
+- pod_cpu_usage
+- pod_memory_usage
+- pod_restart_count
+- pod_ready_status
+- pod_phase</code></pre>
+
+                <h4>Container Level</h4>
+                <pre><code># Container resource metrics
+- container_cpu_usage_seconds_total
+- container_memory_usage_bytes
+- container_fs_usage_bytes
+- container_network_receive_bytes
+- container_spec_cpu_shares</code></pre>
+            </section>
+
+            <section id="architecture">
+                <h2>Core Monitoring Architecture</h2>
+                
+                <h3>2025 Standard Architecture</h3>
+                <p>The consensus architecture for 2025 combines multiple best-of-breed tools:</p>
+                
+                <div class="alert alert-success">
+                    <strong>Core Stack Components:</strong><br>
+                    <strong>Metrics Collection:</strong> Prometheus + kube-state-metrics + node-exporter<br>
+                    <strong>Log Collection:</strong> Fluent Bit → Loki/Elasticsearch<br>
+                    <strong>Trace Collection:</strong> OpenTelemetry Collector → Jaeger/Tempo<br>
+                    <strong>Visualization:</strong> Grafana with unified dashboards<br>
+                    <strong>Alerting:</strong> AlertManager + PagerDuty/Slack integration
+                </div>
+
+                <h3>Deployment Pattern</h3>
+                <pre><code>apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+# Prometheus Operator deployment
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: prometheus-operator
+  namespace: monitoring
+spec:
+  channel: stable
+  name: prometheus-operator
+  source: operatorhub.io
+  sourceNamespace: olm</code></pre>
+
+                <h3>Storage Strategy</h3>
+                
+                <h4>Short-term Storage (Hot)</h4>
+                <pre><code># Prometheus local storage
+prometheus:
+  prometheusSpec:
+    retention: 30d
+    retentionSize: "50GB"
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: fast-ssd
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 100Gi</code></pre>
+
+                <h4>Long-term Storage (Cold)</h4>
+                <pre><code># Thanos/Mimir configuration
+thanos:
+  objectStorageConfig:
+    bucket: "thanos-storage-bucket"
+    endpoint: "s3.amazonaws.com"
+  compactor:
+    retentionResolution5m: 30d
+    retentionResolution1h: 90d
+    retentionResolutionRaw: 7d</code></pre>
+
+                <h3>High Availability Configuration</h3>
+                <pre><code># Multi-replica Prometheus setup
+prometheus:
+  prometheusSpec:
+    replicas: 2
+    replicaExternalLabelName: "__replica__"
+    prometheusExternalLabelName: "prometheus"
+    shards: 3
+    retention: 6h  # Short retention for HA setup</code></pre>
+            </section>
+
+            <section id="prometheus-grafana">
+                <h2>Prometheus and Grafana Stack</h2>
+                
+                <h3>Prometheus Operator Installation</h3>
+                <pre><code># Install using Helm
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Install kube-prometheus-stack
+helm install kps prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  --values prometheus-values.yaml</code></pre>
+
+                <h3>Prometheus Configuration</h3>
+                <pre><code># prometheus-values.yaml
+prometheus:
+  prometheusSpec:
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    externalLabels:
+      cluster: "production-cluster"
+      region: "us-west-2"
+    
+    # Resource limits
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1000m
+      limits:
+        memory: 8Gi
+        cpu: 2000m
+    
+    # ServiceMonitor selector
+    serviceMonitorSelector:
+      matchLabels:
+        team: platform
+    
+    # Remote write for long-term storage
+    remoteWrite:
+    - url: "https://mimir.example.com/api/prom/push"
+      headers:
+        "X-Scope-OrgID": "tenant-1"</code></pre>
+
+                <h3>ServiceMonitor Examples</h3>
+                <pre><code># Application monitoring
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: app-metrics
+  labels:
+    team: platform
+spec:
+  selector:
+    matchLabels:
+      app: my-application
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+    honorLabels: true
+---
+# Infrastructure monitoring  
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: infrastructure-metrics
+spec:
+  selector:
+    matchLabels:
+      component: infrastructure
+  endpoints:
+  - port: metrics
+    interval: 15s
+    metricRelabelings:
+    - sourceLabels: [__name__]
+      regex: 'high_cardinality_metric_.*'
+      action: drop</code></pre>
+
+                <div class="alert alert-warning">
+                    <strong>Cardinality Management:</strong> Always implement metric relabeling to prevent high-cardinality metrics from overwhelming your monitoring system.
+                </div>
+
+                <h3>Recording Rules</h3>
+                <pre><code># Performance recording rules
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: performance-rules
+spec:
+  groups:
+  - name: kubernetes.rules
+    interval: 30s
+    rules:
+    - record: node:node_cpu_utilization:rate5m
+      expr: |
+        (
+          1 - rate(node_cpu_seconds_total{mode="idle"}[5m])
+        ) * 100
+    
+    - record: node:node_memory_utilization:ratio
+      expr: |
+        (
+          1 - (
+            node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes
+          )
+        ) * 100</code></pre>
+
+                <h3>Alerting Rules</h3>
+                <pre><code># Critical alerting rules
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: critical-alerts
+spec:
+  groups:
+  - name: kubernetes.alerts
+    rules:
+    - alert: KubePodCrashLooping
+      expr: |
+        max_over_time(kube_pod_container_status_restarts_total[15m]) 
+        - min_over_time(kube_pod_container_status_restarts_total[15m]) > 2
+      for: 15m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+        description: "Pod has restarted {{ $value }} times in the last 15 minutes"</code></pre>
+            </section>
+
+            <section id="best-practices">
+                <h2>Implementation Best Practices</h2>
+                
+                <div class="alert alert-info">
+                    <strong>Pro Tip:</strong> Implement monitoring as code using GitOps practices. Store all configurations in Git repositories and use tools like ArgoCD or Flux for deployment.
+                </div>
+                
+                <h3>Monitoring as Code</h3>
+                <pre><code># GitOps structure for monitoring
+monitoring-config/
+├── prometheus/
+│   ├── rules/
+│   │   ├── kubernetes.yaml
+│   │   ├── application.yaml
+│   │   └── slo.yaml
+│   ├── values.yaml
+│   └── kustomization.yaml
+├── grafana/
+│   ├── dashboards/
+│   │   ├── kubernetes-overview.json
+│   │   ├── application-metrics.json
+│   │   └── cost-optimization.json
+│   ├── datasources/
+│   │   └── prometheus.yaml
+│   └── values.yaml
+└── otel/
+    ├── collector-config.yaml
+    └── instrumentation.yaml</code></pre>
+
+                <h3>Cardinality Management</h3>
+                <pre><code># Cardinality limits configuration
+scrape_configs:
+- job_name: 'kubernetes-pods'
+  kubernetes_sd_configs:
+  - role: pod
+  
+  metric_relabel_configs:
+  # Drop high-cardinality metrics
+  - source_labels: [__name__]
+    regex: 'container_tasks_state|container_memory_failures_total'
+    action: drop
+  
+  # Limit label values
+  - source_labels: [__name__, user_id]
+    regex: 'http_requests_total;.*'
+    target_label: user_id
+    replacement: 'limited'
+    action: replace</code></pre>
+
+                <h3>Multi-Tenancy Configuration</h3>
+                <pre><code># Multi-tenant Prometheus configuration
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: tenant-prometheus
+  namespace: tenant-monitoring
+spec:
+  replicas: 2
+  serviceAccountName: prometheus-tenant
+  
+  # Tenant-specific configuration
+  ruleNamespaceSelector:
+    matchLabels:
+      tenant: "tenant-a"
+  
+  # Resource isolation
+  resources:
+    requests:
+      memory: 1Gi
+      cpu: 500m
+    limits:
+      memory: 2Gi
+      cpu: 1000m</code></pre>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting and Incident Response</h2>
+                
+                <div class="action-buttons">
+                    <a href="kubernetes-troubleshooting.html" class="btn btn-primary">📖 Detailed Troubleshooting Guide</a>
+                </div>
+
+                <h3>Common Monitoring Issues</h3>
+                
+                <h4>Prometheus Issues</h4>
+                <pre><code># Check Prometheus targets
+kubectl port-forward svc/prometheus-kps-prometheus 9090:9090 -n monitoring
+# Visit http://localhost:9090/targets
+
+# Check Prometheus configuration
+kubectl exec -n monitoring prometheus-kps-prometheus-0 -- \
+  promtool check config /etc/prometheus/config_out/prometheus.env.yaml
+
+# Validate recording rules
+kubectl exec -n monitoring prometheus-kps-prometheus-0 -- \
+  promtool check rules /etc/prometheus/rules/prometheus-kps-prometheus-rulefiles-0/*.yaml</code></pre>
+
+                <h4>High Cardinality Debug</h4>
+                <pre><code># Find high cardinality metrics
+kubectl exec -n monitoring prometheus-kps-prometheus-0 -- \
+  promtool query instant 'topk(10, count by (__name__)({__name__=~".+"}))'
+
+# Check series count
+kubectl exec -n monitoring prometheus-kps-prometheus-0 -- \
+  promtool query instant 'prometheus_tsdb_head_series'</code></pre>
+
+                <h3>Incident Response Runbooks</h3>
+                
+                <h4>High Memory Usage Alert</h4>
+                <div class="alert alert-warning">
+                    <strong>Alert:</strong> NodeHighMemoryUsage<br>
+                    <strong>Severity:</strong> Warning<br>
+                    <strong>Threshold:</strong> Memory usage > 85%
+                </div>
+
+                <pre><code># Investigation Steps
+
+# 1. Identify Affected Nodes
+kubectl top nodes
+kubectl get nodes -o wide
+
+# 2. Check Pod Memory Usage  
+kubectl top pods --all-namespaces --sort-by=memory
+kubectl describe node &lt;node-name&gt;
+
+# 3. Check for OOMKilled pods
+kubectl get events --field-selector reason=OOMKilling --all-namespaces</code></pre>
+            </section>
+
+            <!-- Navigation to other handbooks -->
+            <section style="margin-top: 4rem; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+                <h2>Related Handbooks</h2>
+                <div class="action-buttons">
+                    <a href="kubernetes-complete-handbook.html" class="btn btn-primary">📚 Complete Kubernetes Handbook</a>
+                    <a href="kubernetes-troubleshooting.html" class="btn btn-primary">🔧 Troubleshooting Guide</a>
+                    <a href="api-security.html" class="btn btn-secondary">🔐 API Security</a>
+                    <a href="index.html" class="btn btn-secondary">🏠 Back to Home</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="window.scrollTo(0, 0)">↑</button>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.display = 'block';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

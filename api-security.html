@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Security Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Navigation Sidebar */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content */
+        .content {
+            margin-left: 320px;
+            padding: 2rem;
+            background: white;
+            min-height: 100vh;
+            width: calc(100% - 320px);
+        }
+        
+        /* Header Navigation */
+        .header-nav {
+            background: white;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #2c3e50;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #2c3e50;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Code Blocks */
+        pre {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-left: 4px solid #2c3e50;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #2c3e50;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #0d47a1;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+        
+        .alert-success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        
+        .alert-danger {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        
+        /* Security Highlight Boxes */
+        .security-highlight {
+            background: linear-gradient(135deg, #c62828 0%, #d32f2f 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .security-highlight h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .best-practice {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .best-practice h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        /* Vulnerability Box */
+        .vulnerability {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .vulnerability-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .vulnerability-icon {
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .vulnerability-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #c62828;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Architecture Diagram */
+        .architecture-diagram {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .scroll-top:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🔐 API Security</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#fundamentals">Security Fundamentals</a></li>
+                <li><a href="#architectures">API Architectures</a></li>
+                <li><a href="#authentication">Authentication</a></li>
+                <li><a href="#encryption">SSL/TLS & Encryption</a></li>
+                <li><a href="#security-by-arch">Security by Architecture</a></li>
+                <li><a href="#cloud-security">Cloud Environment</a></li>
+                <li><a href="#gateway-patterns">Gateway Patterns</a></li>
+                <li><a href="#testing">Security Testing</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#compliance">Compliance</a></li>
+                <li><a href="#future-proofing">Future Proofing</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="kubernetes-complete-handbook.html">📚 K8s Complete</a></li>
+                <li><a href="kubernetes-monitoring.html">📊 K8s Monitoring</a></li>
+                <li><a href="kubernetes-troubleshooting.html">🔧 K8s Troubleshooting</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <span>API Security Handbook</span>
+                </div>
+            </div>
+
+            <h1>API Security Handbook</h1>
+            <p><strong>Comprehensive Guide to Securing APIs in Modern Architectures</strong></p>
+
+            <div class="action-buttons">
+                <a href="kubernetes-complete-handbook.html" class="btn btn-primary">📚 Kubernetes Handbook</a>
+                <a href="#testing" class="btn btn-secondary">🧪 Security Testing</a>
+            </div>
+
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>APIs (Application Programming Interfaces) have become the backbone of the modern digital economy, with over 40% of large organizations using at least 250 APIs and API-related revenue driving significant business growth. However, this proliferation has created substantial security risks, with APIs representing 29% of all web attacks in 2025 and the average API breach resulting in 10 times more leaked data than traditional security breaches.</p>
+
+                <div class="security-highlight">
+                    <h3>🚨 Critical Security Statistics (2025)</h3>
+                    <ul>
+                        <li><strong>29%</strong> of all web attacks target APIs</li>
+                        <li><strong>10x</strong> more data leaked in API breaches vs traditional breaches</li>
+                        <li><strong>95%</strong> of API attacks come from authenticated sessions</li>
+                        <li><strong>1,205%</strong> increase in AI-driven API vulnerabilities</li>
+                    </ul>
+                </div>
+
+                <h3>Business Impact of API Security</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Area</th>
+                            <th>Impact</th>
+                            <th>Statistics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Revenue Generation</strong></td>
+                            <td>APIs as revenue drivers</td>
+                            <td>Salesforce: 50% revenue through APIs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Business Growth</strong></td>
+                            <td>Digital transformation enabler</td>
+                            <td>Expedia: 90% revenue through APIs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Security Risk</strong></td>
+                            <td>Primary attack vector</td>
+                            <td>167% increase in API counts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Compliance</strong></td>
+                            <td>Regulatory requirements</td>
+                            <td>GDPR, PCI DSS, HIPAA mandates</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Critical Security Imperative</h3>
+                <p>APIs trigger payments, expose customer information, enable partner integrations, automate critical business decisions, and power entire product offerings, making them one of the most significant sources of business risk in the digital economy. The interconnected nature of modern applications means that a single API vulnerability can have cascading effects across entire business ecosystems.</p>
+            </section>
+
+            <section id="fundamentals">
+                <h2>API Security Fundamentals</h2>
+                
+                <h3>Core Security Pillars</h3>
+                
+                <div class="best-practice">
+                    <h3>🛡️ Authentication</h3>
+                    <p>Verifies the identity of users or systems making API requests. Modern approaches include:</p>
+                    <ul>
+                        <li><strong>OAuth 2.1 with OpenID Connect</strong> (industry standard)</li>
+                        <li><strong>JSON Web Tokens (JWT)</strong> for stateless authentication</li>
+                        <li><strong>API keys</strong> for service-to-service communication</li>
+                        <li><strong>Mutual TLS (mTLS)</strong> for enhanced security</li>
+                    </ul>
+                </div>
+
+                <div class="best-practice">
+                    <h3>🔐 Authorization</h3>
+                    <p>Determines what authenticated entities can access and perform:</p>
+                    <ul>
+                        <li><strong>Role-Based Access Control (RBAC)</strong></li>
+                        <li><strong>Attribute-Based Access Control (ABAC)</strong></li>
+                        <li><strong>Resource-Based Access Control (ReBAC)</strong></li>
+                        <li><strong>Principle of least privilege enforcement</strong></li>
+                    </ul>
+                </div>
+
+                <div class="best-practice">
+                    <h3>🔒 Encryption</h3>
+                    <p>Protects data confidentiality and integrity:</p>
+                    <ul>
+                        <li><strong>TLS 1.2+</strong> for data in transit</li>
+                        <li><strong>AES-256 encryption</strong> for data at rest</li>
+                        <li><strong>End-to-end encryption</strong> for sensitive communications</li>
+                    </ul>
+                </div>
+
+                <h3>OWASP API Security Top 10 (2025)</h3>
+                
+                <div class="vulnerability">
+                    <div class="vulnerability-header">
+                        <div class="vulnerability-icon">1</div>
+                        <div class="vulnerability-title">API01:2025 - Broken Object Level Authorization (BOLA)</div>
+                    </div>
+                    <ul>
+                        <li>Present in ~40% of API attacks</li>
+                        <li>Allows unauthorized access to sensitive data objects</li>
+                        <li>Results from inadequate access controls on API endpoints</li>
+                    </ul>
+                </div>
+
+                <div class="vulnerability">
+                    <div class="vulnerability-header">
+                        <div class="vulnerability-icon">2</div>
+                        <div class="vulnerability-title">API02:2025 - Broken Authentication</div>
+                    </div>
+                    <ul>
+                        <li>Enables credential stuffing, token theft, brute force attacks</li>
+                        <li>Often caused by weak authentication mechanisms</li>
+                        <li>Poor session management vulnerabilities</li>
+                    </ul>
+                </div>
+
+                <div class="vulnerability">
+                    <div class="vulnerability-header">
+                        <div class="vulnerability-icon">3</div>
+                        <div class="vulnerability-title">API03:2025 - Broken Object Property Level Authorization</div>
+                    </div>
+                    <ul>
+                        <li>Combines excessive data exposure and mass assignment vulnerabilities</li>
+                        <li>Allows unauthorized access to sensitive object properties</li>
+                    </ul>
+                </div>
+
+                <h3>Zero Trust Architecture for APIs</h3>
+                <p>NIST SP 800-228 emphasizes applying zero trust principles to API security. Five essential controls must apply to every API communication:</p>
+
+                <div class="architecture-diagram">
+                    <h4>Zero Trust API Security Model</h4>
+                    <pre><code>┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   API Client    │────│   API Gateway    │────│   Backend API   │
+│                 │    │                  │    │                 │
+│ 1. Encryption   │    │ 2. Authentication│    │ 5. Logging &    │
+│    in Transit   │    │ 3. Authorization │    │    Monitoring   │
+│                 │    │ 4. User Auth     │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘</code></pre>
+                </div>
+
+                <ol>
+                    <li><strong>Encryption in transit</strong> to ensure message authenticity and prevent eavesdropping</li>
+                    <li><strong>Service authentication</strong> to verify calling software identity</li>
+                    <li><strong>Service authorization</strong> to ensure calling software permissions</li>
+                    <li><strong>End-user authentication</strong> to verify initiating person/system identity</li>
+                    <li><strong>Comprehensive logging and monitoring</strong></li>
+                </ol>
+
+                <h3>Defense in Depth Strategy</h3>
+                <p>Modern API security requires multiple layered controls:</p>
+                <ul>
+                    <li><strong>Perimeter Security</strong>: API gateways, firewalls, DDoS protection</li>
+                    <li><strong>Application Layer</strong>: Input validation, output encoding, business logic controls</li>
+                    <li><strong>Data Layer</strong>: Encryption, access controls, data loss prevention</li>
+                    <li><strong>Infrastructure</strong>: Secure configurations, patch management, monitoring</li>
+                </ul>
+            </section>
+
+            <section id="architectures">
+                <h2>API Architecture Types and Security</h2>
+                
+                <h3>REST APIs Security</h3>
+                <div class="alert alert-info">
+                    <strong>Security Focus:</strong> Stateless communication enables horizontal scaling but requires careful token management and HTTPS enforcement.
+                </div>
+
+                <h4>Security Characteristics</h4>
+                <ul>
+                    <li><strong>Stateless communication</strong> enables horizontal scaling</li>
+                    <li><strong>Cacheable responses</strong> improve performance</li>
+                    <li><strong>Simple authentication</strong> integration with headers</li>
+                    <li><strong>Wide tooling support</strong> for security testing</li>
+                </ul>
+
+                <h4>Common Vulnerabilities</h4>
+                <ul>
+                    <li>Over-fetching/under-fetching of data</li>
+                    <li>Multiple round trips for related data</li>
+                    <li>Limited real-time capabilities</li>
+                    <li>Potential for injection attacks through URL parameters</li>
+                </ul>
+
+                <h3>GraphQL Security</h3>
+                <div class="alert alert-warning">
+                    <strong>Security Challenge:</strong> Query complexity can impact performance without proper limits. Authorization must be implemented at the resolver level.
+                </div>
+
+                <h4>Security Implementation</h4>
+                <pre><code>const depthLimit = require('graphql-depth-limit');
+const costAnalysis = require('graphql-cost-analysis');
+
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  validationRules: [
+    depthLimit(10),
+    costAnalysis({
+      maximumCost: 1000,
+      createError: (max, actual) => 
+        new Error(`Query cost ${actual} exceeds maximum cost ${max}`)
+    })
+  ]
+});</code></pre>
+
+                <h3>gRPC Security</h3>
+                <div class="best-practice">
+                    <h3>🔒 Built-in Security Features</h3>
+                    <ul>
+                        <li>Built-in authentication and authorization</li>
+                        <li>TLS encryption mandatory with HTTP/2</li>
+                        <li>Binary format prevents many injection attacks</li>
+                        <li>Strong typing with code generation</li>
+                    </ul>
+                </div>
+
+                <h4>Performance & Security Benefits</h4>
+                <ul>
+                    <li><strong>40-50% faster latency</strong> compared to REST</li>
+                    <li><strong>7 bytes (protobuf) vs 22 bytes (JSON)</strong> for equivalent data</li>
+                    <li><strong>HTTP/2 multiplexing</strong> reduces connection overhead</li>
+                </ul>
+            </section>
+
+            <section id="authentication">
+                <h2>Authentication and Authorization Mechanisms</h2>
+                
+                <h3>OAuth 2.1 Security Improvements (2025)</h3>
+                
+                <div class="security-highlight">
+                    <h3>🔄 Key Changes from OAuth 2.0</h3>
+                    <ul>
+                        <li><strong>Deprecated Flows Removed</strong>: Implicit flow and Resource Owner Password Credentials grant removed</li>
+                        <li><strong>PKCE Mandatory</strong>: Required for all clients using Authorization Code flow</li>
+                        <li><strong>Strict Redirect URI Matching</strong>: Exact matching required</li>
+                        <li><strong>Enhanced Security Practices</strong>: Incorporates RFC 9700</li>
+                    </ul>
+                </div>
+
+                <h4>Authorization Code Flow with PKCE</h4>
+                <pre><code>1. Client generates code_verifier and code_challenge
+2. User redirected to authorization server with code_challenge
+3. User authenticates and consents
+4. Authorization code returned to client
+5. Client exchanges code + code_verifier for tokens
+6. Access and refresh tokens issued</code></pre>
+
+                <h3>JSON Web Tokens (JWT)</h3>
+                
+                <h4>Structure</h4>
+                <p>JWTs consist of three Base64URL-encoded parts:</p>
+                <pre><code>header.payload.signature
+
+# Example:
+# Header: {"alg":"HS256","typ":"JWT"}
+# Payload: {"sub":"1234567890","name":"John Doe","iat":1516239022}
+# Signature: SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+
+                <h4>Recommended Algorithms</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Type</th>
+                            <th>Use Case</th>
+                            <th>Security Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RS256</strong></td>
+                            <td>Asymmetric RSA</td>
+                            <td>Distributed systems</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ES256</strong></td>
+                            <td>Asymmetric ECDSA</td>
+                            <td>More efficient</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HS256</strong></td>
+                            <td>Symmetric HMAC</td>
+                            <td>Simple scenarios</td>
+                            <td>Medium</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>API Key Security</h3>
+                
+                <h4>Generation and Storage</h4>
+                <pre><code># Secure key generation
+import secrets
+api_key = secrets.token_urlsafe(32)  # 256-bit key</code></pre>
+
+                <h4>Lifecycle Management</h4>
+                <pre><code>High-privilege keys: Weekly or daily rotation
+Medium-privilege keys: Monthly rotation
+Low-privilege keys: Quarterly rotation</code></pre>
+
+                <h4>Security Controls</h4>
+                <ul>
+                    <li><strong>Scope limitations</strong> (principle of least privilege)</li>
+                    <li><strong>IP restrictions</strong></li>
+                    <li><strong>Rate limiting</strong></li>
+                    <li><strong>Expiration dates</strong></li>
+                    <li><strong>HTTPS-only transmission</strong></li>
+                </ul>
+
+                <h3>Authorization Patterns</h3>
+                
+                <h4>Role-Based Access Control (RBAC)</h4>
+                <pre><code>Users → Roles → Permissions → Resources
+
+Example:
+- User: john.doe@company.com
+- Roles: [developer, api-user]
+- Permissions: [read:code, write:code, read:api]
+- Resources: [/api/v1/users, /api/v1/data]</code></pre>
+
+                <h4>Attribute-Based Access Control (ABAC)</h4>
+                <pre><code>{
+  "policy": {
+    "subject": {"department": "engineering", "clearance_level": "secret"},
+    "resource": {"classification": "confidential", "owner": "engineering"},
+    "environment": {"time": "business_hours", "location": "corporate_network"},
+    "action": "read"
+  }
+}</code></pre>
+            </section>
+
+            <section id="encryption">
+                <h2>SSL/TLS and Encryption Best Practices</h2>
+                
+                <h3>Current Protocol Standards (2025)</h3>
+                
+                <div class="alert alert-success">
+                    <strong>Protocol Requirements:</strong><br>
+                    <strong>TLS 1.3:</strong> Mandatory for new implementations<br>
+                    <strong>TLS 1.2:</strong> Still widely deployed but migrating to 1.3<br>
+                    <strong>TLS 1.0/1.1:</strong> Complete phase-out by August 31, 2025
+                </div>
+
+                <h4>Certificate Management</h4>
+                <ul>
+                    <li><strong>Certificate Lifespan</strong>: Reducing to 47 days by 2029</li>
+                    <li><strong>Automation</strong>: ACME protocol for automated enrollment</li>
+                    <li><strong>Storage</strong>: HSMs or secure vaults like HashiCorp Vault</li>
+                    <li><strong>Monitoring</strong>: Certificate Transparency logs</li>
+                </ul>
+
+                <h3>Encryption Standards</h3>
+                
+                <h4>Symmetric Encryption</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Use Case</th>
+                            <th>Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>AES-256-GCM</strong></td>
+                            <td>Primary choice for data encryption</td>
+                            <td>Hardware accelerated</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ChaCha20-Poly1305</strong></td>
+                            <td>Alternative for non-AES environments</td>
+                            <td>Software optimized</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Asymmetric Encryption</h4>
+                <ul>
+                    <li><strong>RSA-2048</strong>: Minimum key size</li>
+                    <li><strong>RSA-3072</strong>: Recommended for high-security applications</li>
+                    <li><strong>ECDSA P-256/P-384</strong>: Preferred for new implementations</li>
+                    <li><strong>Ed25519</strong>: Emerging preference for digital signatures</li>
+                </ul>
+
+                <h3>TLS Configuration Best Practices</h3>
+                
+                <h4>Recommended Cipher Suites (2025)</h4>
+                <pre><code>TLS_AES_256_GCM_SHA384 (TLS 1.3)
+TLS_CHACHA20_POLY1305_SHA256 (TLS 1.3)
+ECDHE-ECDSA-AES256-GCM-SHA384 (TLS 1.2)
+ECDHE-RSA-AES256-GCM-SHA384 (TLS 1.2)</code></pre>
+
+                <h4>Deprecated/Avoid</h4>
+                <div class="alert alert-danger">
+                    <strong>Never Use:</strong> RC4, 3DES, DES, CBC mode ciphers, Static RSA key exchange, Export-grade ciphers
+                </div>
+
+                <h3>Mutual TLS (mTLS) Implementation</h3>
+                
+                <h4>Use Cases</h4>
+                <ul>
+                    <li>Service-to-service communication</li>
+                    <li>Zero-trust networking</li>
+                    <li>High-security environments</li>
+                    <li>API gateway to backend services</li>
+                </ul>
+
+                <h4>Implementation Example</h4>
+                <pre><code># Nginx mTLS Configuration
+ssl_client_certificate /path/to/ca.crt;
+ssl_verify_client on;
+ssl_verify_depth 2;</code></pre>
+            </section>
+
+            <section id="testing">
+                <h2>Security Testing and Monitoring</h2>
+                
+                <h3>Automated Security Testing</h3>
+                
+                <h4>Static Analysis (SAST)</h4>
+                <pre><code># GitHub Actions workflow
+name: Security Scan
+on: [push, pull_request]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: auto</code></pre>
+
+                <h4>Dynamic Analysis (DAST)</h4>
+                <pre><code># OWASP ZAP API scan
+docker run -t owasp/zap2docker-stable zap-api-scan.py \
+  -t https://api.example.com/openapi.json \
+  -f openapi \
+  -r zap-report.html</code></pre>
+
+                <h3>Runtime Security Monitoring</h3>
+                
+                <h4>Anomaly Detection</h4>
+                <pre><code>import numpy as np
+from sklearn.ensemble import IsolationForest
+
+class APIAnomalyDetector:
+    def __init__(self):
+        self.model = IsolationForest(contamination=0.1)
+        self.trained = False
+    
+    def detect_anomaly(self, request_features):
+        if not self.trained:
+            return False
+        
+        prediction = self.model.predict([request_features])
+        return prediction[0] == -1  # -1 indicates anomaly</code></pre>
+
+                <h3>Security Metrics and Alerting</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Threshold</th>
+                            <th>Alert Level</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Authentication Failure Rate</td>
+                            <td>&lt; 5%</td>
+                            <td>Warning</td>
+                        </tr>
+                        <tr>
+                            <td>Failed Authentication Attempts</td>
+                            <td>&gt; 10 in 5 minutes</td>
+                            <td>Critical</td>
+                        </tr>
+                        <tr>
+                            <td>Geographic Anomaly</td>
+                            <td>Login from new country</td>
+                            <td>Warning</td>
+                        </tr>
+                        <tr>
+                            <td>Token Reuse</td>
+                            <td>Refresh token used multiple times</td>
+                            <td>Critical</td>
+                        </tr>
+                        <tr>
+                            <td>API Abuse</td>
+                            <td>&gt; 1000 requests in 1 minute</td>
+                            <td>Warning</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="compliance">
+                <h2>Compliance and Regulatory Considerations</h2>
+                
+                <h3>GDPR Compliance (2025 Updates)</h3>
+                
+                <h4>Data Protection Requirements</h4>
+                <ul>
+                    <li><strong>Encryption by Design</strong>: Mandatory encryption for personal data</li>
+                    <li><strong>Privacy by Default</strong>: Encryption enabled by default</li>
+                    <li><strong>Data Breach Notification</strong>: 72-hour notification requirement</li>
+                    <li><strong>Cross-Border Transfers</strong>: Adequate encryption for international data transfers</li>
+                </ul>
+
+                <h3>HIPAA Compliance</h3>
+                
+                <h4>Protected Health Information (PHI) Security</h4>
+                <pre><code>class HIPAACompliantAPI:
+    def __init__(self):
+        self.audit_trail = []
+    
+    def access_phi(self, user_id, requester_id, phi_data):
+        # Verify minimum necessary access
+        if not self.verify_minimum_necessary(requester_id, phi_data):
+            raise AccessDeniedError("Minimum necessary standard violation")
+        
+        # Log access attempt
+        self.audit_trail.append({
+            'timestamp': datetime.utcnow(),
+            'user_id': user_id,
+            'requester_id': requester_id,
+            'action': 'phi_access',
+            'data_accessed': list(phi_data.keys())
+        })</code></pre>
+
+                <h3>PCI DSS Requirements</h3>
+                
+                <div class="alert alert-warning">
+                    <strong>Data Security Standards:</strong><br>
+                    • TLS 1.2 minimum with strong cryptography<br>
+                    • Secure key management and rotation<br>
+                    • Role-based access implementation<br>
+                    • Comprehensive logging and monitoring
+                </div>
+
+                <h3>Industry Standards Implementation</h3>
+                
+                <h4>ISO 27001 Controls</h4>
+                <pre><code>Information Security Controls:
+  Access Control:
+    - A.9.1.1: Access control policy
+    - A.9.2.1: User registration and de-registration
+    - A.9.4.1: Information access restriction
+  
+  Cryptography:
+    - A.10.1.1: Policy on the use of cryptographic controls
+    - A.10.1.2: Key management
+  
+  Communications Security:
+    - A.13.1.1: Network controls
+    - A.13.2.1: Information transfer policies</code></pre>
+            </section>
+
+            <section id="future-proofing">
+                <h2>Future-Proofing: Quantum Computing and Post-Quantum Cryptography</h2>
+                
+                <h3>Current Quantum Threat Timeline</h3>
+                
+                <h4>NIST Standardized Algorithms (2025)</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Algorithm</th>
+                            <th>Type</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>CRYSTALS-Kyber</strong></td>
+                            <td>Key encapsulation mechanism</td>
+                            <td>Secure key exchange</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CRYSTALS-Dilithium</strong></td>
+                            <td>Digital signatures</td>
+                            <td>Authentication</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FALCON</strong></td>
+                            <td>Compact digital signatures</td>
+                            <td>Constrained environments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SPHINCS+</strong></td>
+                            <td>Hash-based signatures</td>
+                            <td>Long-term security</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Migration Strategy</h3>
+                
+                <h4>Implementation Timeline</h4>
+                <pre><code>2025-2026: Pilot implementations and testing
+  - Test quantum-safe algorithms in development environments
+  - Performance benchmarking and compatibility testing
+  - Staff training and documentation
+
+2027-2028: Gradual rollout for high-security applications
+  - Hybrid classical/quantum-safe implementations
+  - Critical system migrations
+  - Customer communication and documentation
+
+2029-2030: Widespread adoption as standards mature
+  - Full migration to quantum-safe algorithms
+  - Legacy system decommissioning
+  - Compliance with updated regulations</code></pre>
+
+                <h3>Crypto-Agility Framework</h3>
+                
+                <div class="best-practice">
+                    <h3>🔄 Design Principles</h3>
+                    <ul>
+                        <li><strong>Algorithm Independence</strong>: Design systems for easy algorithm updates</li>
+                        <li><strong>Hybrid Approaches</strong>: Combine classical and post-quantum algorithms</li>
+                        <li><strong>Automated Migration</strong>: Tools for seamless cryptographic updates</li>
+                        <li><strong>Future Flexibility</strong>: Architecture that adapts to new standards</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Navigation to other handbooks -->
+            <section style="margin-top: 4rem; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+                <h2>Related Handbooks</h2>
+                <div class="action-buttons">
+                    <a href="kubernetes-complete-handbook.html" class="btn btn-primary">📚 Complete Kubernetes Handbook</a>
+                    <a href="kubernetes-monitoring.html" class="btn btn-primary">📊 Monitoring Guide</a>
+                    <a href="kubernetes-troubleshooting.html" class="btn btn-secondary">🔧 Troubleshooting Guide</a>
+                    <a href="index.html" class="btn btn-secondary">🏠 Back to Home</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="window.scrollTo(0, 0)">↑</button>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.display = 'block';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

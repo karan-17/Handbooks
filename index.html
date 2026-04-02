@@ -3,132 +3,657 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Handbooks Navigation</title>
+    <title>Complete Handbooks Collection - DevOps, Cloud & AI</title>
     <style>
         :root {
-            --bg-primary: #f5f5f5;
+            --bg-primary: #f8f9fa;
             --bg-secondary: white;
-            --text-primary: #333;
-            --text-secondary: #666;
-            --link-bg: #007bff;
-            --link-bg-hover: #0056b3;
-            --link-text: white;
-            --shadow: rgba(0,0,0,0.1);
+            --bg-accent: #e9ecef;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --text-muted: #868e96;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.15);
         }
 
         [data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --link-bg: #0066cc;
-            --link-bg-hover: #004499;
-            --link-text: white;
-            --shadow: rgba(0,0,0,0.3);
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-accent: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #8a8a8a;
+            --primary-color: #4dabf7;
+            --primary-hover: #339af0;
+            --success-color: #51cf66;
+            --warning-color: #ffd43b;
+            --danger-color: #ff6b6b;
+            --info-color: #22b8cf;
+            --shadow: 0 2px 10px rgba(0,0,0,0.3);
+            --shadow-hover: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: var(--bg-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-accent) 100%);
             color: var(--text-primary);
-            transition: background-color 0.3s, color 0.3s;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            line-height: 1.6;
         }
+
         .container {
-            background-color: var(--bg-secondary);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px var(--shadow);
-            transition: background-color 0.3s, box-shadow 0.3s;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
             position: relative;
         }
+
         .theme-toggle {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: 2px solid var(--text-primary);
-            color: var(--text-primary);
+            top: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
             border-radius: 50px;
-            padding: 8px 16px;
+            padding: 0.5rem 1rem;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
         }
+
         .theme-toggle:hover {
-            background-color: var(--text-primary);
-            color: var(--bg-secondary);
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
         }
+
         h1 {
-            color: var(--text-primary);
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
             text-align: center;
-            margin-bottom: 30px;
-            transition: color 0.3s;
+            min-width: 120px;
         }
-        .handbook-list {
-            list-style: none;
-            padding: 0;
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
         }
-        .handbook-list li {
-            margin: 15px 0;
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .handbook-list a {
-            display: block;
-            padding: 15px 20px;
-            background-color: var(--link-bg);
-            color: var(--link-text);
+
+        .search-bar {
+            max-width: 500px;
+            margin: 0 auto 3rem auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border: 2px solid var(--bg-accent);
+            border-radius: 50px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--bg-accent);
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .category-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .kubernetes { background: linear-gradient(135deg, #326ce5, #1a4d8b); }
+        .ai-ml { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .devops { background: linear-gradient(135deg, #4ecdc4, #44a08d); }
+        .cloud { background: linear-gradient(135deg, #a8edea, #fed6e3); }
+        .security { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .data { background: linear-gradient(135deg, #f093fb, #f5576c); }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .category-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .handbook-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .handbook-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-accent);
+            border-radius: 8px;
             text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
         }
-        .handbook-list a:hover {
-            background-color: var(--link-bg-hover);
+
+        .handbook-link:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .handbook-icon {
+            font-size: 1.2rem;
+        }
+
+        .handbook-title {
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .handbook-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            background: var(--success-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .new-badge {
+            background: var(--danger-color);
+        }
+
+        .updated-badge {
+            background: var(--warning-color);
+            color: var(--text-primary);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 4rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .footer h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .footer p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .categories {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                gap: 1rem;
+            }
+
+            .theme-toggle {
+                position: fixed;
+                top: 1rem;
+                right: 1rem;
+                z-index: 1000;
+            }
+        }
+
+        /* Search functionality */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
-        <h1>Handbooks Navigation</h1>
-        <ul class="handbook-list">
-            <li><a href="ai-ethics-handbook.html">AI Ethics in Production and Industry Handbook</a></li>
-            <li><a href="backend-architecture-guide.html">Backend Architecture Guide</a></li>
-            <li><a href="cloud-devops-handbook.html">Cloud DevOps Handbook</a></li>
-            <li><a href="cloud-devops-handbook 2.html">Cloud DevOps Handbook 2</a></li>
-            <li><a href="cloud-devops-handbook 3.html">Cloud DevOps Handbook 3</a></li>
-            <li><a href="context-engineering-handbook.html">Context Engineering: From Basics to Advanced</a></li>
-            <li><a href="github-actions-devops-handbook.html">GitHub Actions & DevOps: Complete Implementation Guide</a></li>
-            <li><a href="introduction.html">RAG: Complete Introduction to Retrieval-Augmented Generation</a></li>
-            <li><a href="knowledge-graphs-handbook.html">Knowledge Graphs Handbook</a></li>
-            <li><a href="multi-agent-systems-handbook.html">Multi-Agent Systems Handbook</a></li>
-            <li><a href="rag_evaluation_guide.html">RAG Evaluation Guide</a></li>
-            <li><a href="rag-advanced-rag-handbook.html">RAG and Advanced RAG Handbook</a></li>
-            <li><a href="docker-complete-handbook.html">Complete Docker Handbook - Zero to Production</a></li>
-            <li><a href="kubernetes-complete-handbook.html">Complete Kubernetes Handbook - Container Orchestration</a></li>
-            <li><a href="talking-bi-research-handbook.html">Talking BI Project Research Handbook</a></li>
-        </ul>
+        <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+            <h1>Complete Handbooks Collection</h1>
+            <p class="subtitle">Your comprehensive guide to DevOps, Cloud, AI, and Modern Software Engineering</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-number">15+</div>
+                    <div class="stat-label">Handbooks</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Pages</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">2025</div>
+                    <div class="stat-label">Updated</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search handbooks..." id="searchInput">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="categories">
+            <!-- Kubernetes & Container Orchestration -->
+            <div class="category" data-category="kubernetes">
+                <div class="category-header">
+                    <div class="category-icon kubernetes">☸️</div>
+                    <div>
+                        <div class="category-title">Kubernetes & Containers</div>
+                        <div class="category-description">Complete container orchestration and monitoring guides</div>
+                    </div>
+                </div>
+                <div class="handbook-grid">
+                    <a href="kubernetes-complete-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">📚</span>
+                        <span class="handbook-title">Complete Kubernetes Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="kubernetes-monitoring.html" class="handbook-link">
+                        <span class="handbook-icon">📊</span>
+                        <span class="handbook-title">Kubernetes Monitoring Handbook</span>
+                        <span class="handbook-badge new-badge">New</span>
+                    </a>
+                    <a href="kubernetes-troubleshooting.html" class="handbook-link">
+                        <span class="handbook-icon">🔧</span>
+                        <span class="handbook-title">Kubernetes Troubleshooting Handbook</span>
+                        <span class="handbook-badge new-badge">New</span>
+                    </a>
+                    <a href="docker-complete-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">🐳</span>
+                        <span class="handbook-title">Complete Docker Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Security & API -->
+            <div class="category" data-category="security">
+                <div class="category-header">
+                    <div class="category-icon security">🔐</div>
+                    <div>
+                        <div class="category-title">Security & API</div>
+                        <div class="category-description">Modern security practices and API protection</div>
+                    </div>
+                </div>
+                <div class="handbook-grid">
+                    <a href="api-security.html" class="handbook-link">
+                        <span class="handbook-icon">🛡️</span>
+                        <span class="handbook-title">API Security Handbook</span>
+                        <span class="handbook-badge new-badge">New</span>
+                    </a>
+                    <a href="kubernetes-security.html" class="handbook-link">
+                        <span class="handbook-icon">🔒</span>
+                        <span class="handbook-title">Kubernetes Security Guide</span>
+                        <span class="handbook-badge">Coming Soon</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- AI & Machine Learning -->
+            <div class="category" data-category="ai">
+                <div class="category-header">
+                    <div class="category-icon ai-ml">🤖</div>
+                    <div>
+                        <div class="category-title">AI & Machine Learning</div>
+                        <div class="category-description">RAG, multi-agent systems, and AI ethics</div>
+                    </div>
+                </div>
+                <div class="handbook-grid">
+                    <a href="introduction.html" class="handbook-link">
+                        <span class="handbook-icon">📖</span>
+                        <span class="handbook-title">RAG: Complete Introduction</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="rag-advanced-rag-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">🚀</span>
+                        <span class="handbook-title">Advanced RAG Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="multi-agent-systems-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">👥</span>
+                        <span class="handbook-title">Multi-Agent Systems Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="ai-ethics-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">⚖️</span>
+                        <span class="handbook-title">AI Ethics in Production</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="context-engineering-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">🧠</span>
+                        <span class="handbook-title">Context Engineering</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- DevOps & Cloud -->
+            <div class="category" data-category="devops">
+                <div class="category-header">
+                    <div class="category-icon devops">⚙️</div>
+                    <div>
+                        <div class="category-title">DevOps & Cloud</div>
+                        <div class="category-description">Infrastructure, CI/CD, and cloud operations</div>
+                    </div>
+                </div>
+                <div class="handbook-grid">
+                    <a href="cloud-devops-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">☁️</span>
+                        <span class="handbook-title">Cloud DevOps Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="github-actions-devops-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">🔄</span>
+                        <span class="handbook-title">GitHub Actions & DevOps</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="backend-architecture-guide.html" class="handbook-link">
+                        <span class="handbook-icon">🏗️</span>
+                        <span class="handbook-title">Backend Architecture Guide</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Data & Knowledge -->
+            <div class="category" data-category="data">
+                <div class="category-header">
+                    <div class="category-icon data">📊</div>
+                    <div>
+                        <div class="category-title">Data & Knowledge</div>
+                        <div class="category-description">Knowledge graphs, evaluation, and data engineering</div>
+                    </div>
+                </div>
+                <div class="handbook-grid">
+                    <a href="knowledge-graphs-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">🕸️</span>
+                        <span class="handbook-title">Knowledge Graphs Handbook</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="rag_evaluation_guide.html" class="handbook-link">
+                        <span class="handbook-icon">📈</span>
+                        <span class="handbook-title">RAG Evaluation Guide</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                    <a href="talking-bi-research-handbook.html" class="handbook-link">
+                        <span class="handbook-icon">💬</span>
+                        <span class="handbook-title">Talking BI Research</span>
+                        <span class="handbook-badge">Complete</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>🚀 Start Your Learning Journey</h3>
+            <p>Choose any handbook above to begin exploring comprehensive guides covering modern software engineering, DevOps practices, and cutting-edge AI technologies.</p>
+            
+            <div class="social-links">
+                <a href="#" class="social-link">
+                    <span>📧</span>
+                    <span>Get Updates</span>
+                </a>
+                <a href="#" class="social-link">
+                    <span>🌟</span>
+                    <span>Star on GitHub</span>
+                </a>
+                <a href="#" class="social-link">
+                    <span>💬</span>
+                    <span>Join Community</span>
+                </a>
+            </div>
+        </div>
     </div>
+
     <script>
         function toggleTheme() {
             const body = document.body;
             const button = document.querySelector('.theme-toggle');
-            const currentTheme = body.getAttribute('data-theme');
+            const currentTheme = body.dataset.theme;
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
             
-            body.setAttribute('data-theme', newTheme);
+            body.dataset.theme = newTheme;
             button.textContent = newTheme === 'dark' ? '☀️' : '🌙';
             
             localStorage.setItem('theme', newTheme);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function initTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             const button = document.querySelector('.theme-toggle');
             
-            document.body.setAttribute('data-theme', savedTheme);
+            document.body.dataset.theme = savedTheme;
             button.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        function initSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const categories = document.querySelectorAll('.category');
+
+            searchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase().trim();
+                
+                if (query === '') {
+                    // Show all categories and handbooks
+                    categories.forEach(category => {
+                        category.classList.remove('hidden');
+                        const categoryHandbooks = category.querySelectorAll('.handbook-link');
+                        categoryHandbooks.forEach(handbook => {
+                            handbook.classList.remove('hidden');
+                        });
+                    });
+                    return;
+                }
+
+                // Search through handbooks
+                categories.forEach(category => {
+                    const categoryHandbooks = category.querySelectorAll('.handbook-link');
+                    let hasVisibleHandbooks = false;
+                    
+                    categoryHandbooks.forEach(handbook => {
+                        const title = handbook.querySelector('.handbook-title').textContent.toLowerCase();
+                        const categoryName = category.querySelector('.category-title').textContent.toLowerCase();
+                        const categoryDesc = category.querySelector('.category-description').textContent.toLowerCase();
+                        
+                        if (title.includes(query) || categoryName.includes(query) || categoryDesc.includes(query)) {
+                            handbook.classList.remove('hidden');
+                            hasVisibleHandbooks = true;
+                        } else {
+                            handbook.classList.add('hidden');
+                        }
+                    });
+                    
+                    // Show/hide category based on whether it has visible handbooks
+                    if (hasVisibleHandbooks) {
+                        category.classList.remove('hidden');
+                    } else {
+                        category.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        function initAnimations() {
+            // Add subtle animations to cards
+            const categories = document.querySelectorAll('.category');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            categories.forEach((category, index) => {
+                category.style.opacity = '0';
+                category.style.transform = 'translateY(30px)';
+                category.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+                observer.observe(category);
+            });
+        }
+
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            initSearch();
+            initAnimations();
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
         });
     </script>
 </body>

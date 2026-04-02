@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Troubleshooting Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Navigation Sidebar */
+        .sidebar {
+            width: 300px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content */
+        .content {
+            margin-left: 320px;
+            padding: 2rem;
+            background: white;
+            min-height: 100vh;
+            width: calc(100% - 320px);
+        }
+        
+        /* Header Navigation */
+        .header-nav {
+            background: white;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #ff6b6b;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #ff6b6b;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #ff6b6b;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 1rem 0 1rem 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Code Blocks */
+        pre {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-left: 4px solid #ff6b6b;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        code {
+            background: #f1f3f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f7fa;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #0d47a1;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            border-color: #ff9800;
+            color: #e65100;
+        }
+        
+        .alert-success {
+            background: #e8f5e8;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        
+        .alert-danger {
+            background: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        
+        /* Troubleshooting Steps */
+        .troubleshooting-step {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step-number {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            margin: 2rem 0;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #ff6b6b;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* Quick Reference Box */
+        .quick-ref {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+        
+        .quick-ref h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        
+        /* Scroll to top */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .scroll-top:hover {
+            background: #ee5a24;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🔧 K8s Troubleshooting</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#methodology">Troubleshooting Methodology</a></li>
+                <li><a href="#tools">Essential Tools</a></li>
+                <li><a href="#common-issues">Common Issues</a></li>
+                <li><a href="#pod-troubleshooting">Pod Troubleshooting</a></li>
+                <li><a href="#networking">Networking Issues</a></li>
+                <li><a href="#storage">Storage Problems</a></li>
+                <li><a href="#security">Security & RBAC</a></li>
+                <li><a href="#performance">Performance Analysis</a></li>
+                <li><a href="#multi-cluster">Multi-Cluster</a></li>
+                <li><a href="#service-mesh">Service Mesh</a></li>
+                <li><a href="#cloud-provider">Cloud Provider</a></li>
+                <li><a href="#ai-troubleshooting">AI-Assisted</a></li>
+                <li><a href="#incident-response">Incident Response</a></li>
+                <li><a href="#disaster-recovery">Disaster Recovery</a></li>
+                <li><a href="#automation">Automation</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="kubernetes-complete-handbook.html">📚 K8s Complete</a></li>
+                <li><a href="kubernetes-monitoring.html">📊 K8s Monitoring</a></li>
+                <li><a href="api-security.html">🔐 API Security</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="kubernetes-complete-handbook.html">Kubernetes</a> > 
+                    <span>Troubleshooting Handbook</span>
+                </div>
+            </div>
+
+            <h1>Kubernetes Troubleshooting Handbook</h1>
+            <p><strong>Comprehensive Guide to Debugging and Problem Resolution</strong></p>
+
+            <div class="action-buttons">
+                <a href="kubernetes-monitoring.html" class="btn btn-primary">📊 Monitoring Guide</a>
+                <a href="kubernetes-complete-handbook.html" class="btn btn-secondary">📚 Complete K8s Handbook</a>
+            </div>
+
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>Kubernetes troubleshooting has evolved significantly with the platform's maturity. In 2025, modern troubleshooting combines traditional debugging techniques with AI-assisted analysis, observability-driven investigation, and automated remediation. This handbook provides comprehensive guidance for diagnosing and resolving issues across all aspects of Kubernetes environments.</p>
+
+                <div class="alert alert-info">
+                    <strong>2025 Troubleshooting Reality:</strong> Nearly 80% of production outages trace back to system changes. AI SRE systems can autonomously investigate up to 80% of incidents, reducing MTTR by 40-70%.
+                </div>
+
+                <h3>Current State of Kubernetes Operations (2025)</h3>
+                <ul>
+                    <li><strong>Incident Complexity</strong>: Nearly 80% of production outages trace back to system changes</li>
+                    <li><strong>AI Integration</strong>: AI SRE systems can autonomously investigate up to 80% of incidents</li>
+                    <li><strong>Context Switching Overhead</strong>: Traditional coordination tax averages 10-15 minutes per incident</li>
+                    <li><strong>Observability-First</strong>: Modern approaches prioritize events-first investigation methodology</li>
+                </ul>
+
+                <h3>Business Impact</h3>
+                <ul>
+                    <li><strong>Mean Time To Resolution (MTTR)</strong>: Advanced platforms report 40-70% reduction</li>
+                    <li><strong>Incident Frequency</strong>: Proper troubleshooting processes reduce recurring issues by 60%</li>
+                    <li><strong>Operational Efficiency</strong>: Automated root cause analysis eliminates manual investigation overhead</li>
+                    <li><strong>Cost Impact</strong>: Faster resolution reduces downtime costs and operational overhead</li>
+                </ul>
+            </section>
+
+            <section id="methodology">
+                <h2>Systematic Troubleshooting Methodology</h2>
+                
+                <h3>Events-First Investigation (2025 Standard)</h3>
+                <p>Modern troubleshooting methodologies prioritize recent events and changes as primary investigation vectors:</p>
+
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Change Detection Timeline</div>
+                    </div>
+                    <pre><code># Check recent changes across the cluster
+kubectl get events --sort-by='.lastTimestamp' --all-namespaces | head -20
+
+# Identify deployment changes
+kubectl rollout history deployment --all-namespaces
+
+# Check for configuration changes
+kubectl get configmaps,secrets --all-namespaces -o custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,AGE:.metadata.creationTimestamp --sort-by='.metadata.creationTimestamp'</code></pre>
+                </div>
+
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Correlation Analysis Framework</div>
+                    </div>
+                    <pre><code>#!/bin/bash
+# correlation-analysis.sh - Correlate events with symptoms
+
+SYMPTOM_TIME=${1:-"5m"}
+NAMESPACE=${2:-"--all-namespaces"}
+
+echo "=== Correlation Analysis for Last $SYMPTOM_TIME ==="
+
+# Get events in time window
+echo "1. Recent Events:"
+kubectl get events $NAMESPACE --sort-by='.lastTimestamp' | \
+grep -E "$(date -d "$SYMPTOM_TIME ago" +%Y-%m-%d)" || echo "No recent events"
+
+# Check for resource changes
+echo "2. Recent Resource Changes:"
+kubectl get pods,deployments,services $NAMESPACE -o custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,AGE:.metadata.creationTimestamp | \
+grep -E "$(date -d "$SYMPTOM_TIME ago" +%Y-%m-%d)" || echo "No recent changes"
+
+# Analyze error patterns
+echo "3. Error Patterns:"
+kubectl get events $NAMESPACE --field-selector type=Warning | \
+grep -E "$(date -d "$SYMPTOM_TIME ago" +%Y-%m-%d)" || echo "No warnings"</code></pre>
+                </div>
+
+                <h3>Structured Investigation Framework</h3>
+                
+                <h4>Four-Stage Process</h4>
+                
+                <div class="quick-ref">
+                    <h3>Investigation Checklist</h3>
+                    <ul>
+                        <li>☐ Gather incident description and symptoms</li>
+                        <li>☐ Identify affected services and timeframe</li>
+                        <li>☐ Collect monitoring dashboard URLs</li>
+                        <li>☐ Verify access to cluster and monitoring tools</li>
+                        <li>☐ Assemble response team if needed</li>
+                    </ul>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stage</th>
+                            <th>Focus</th>
+                            <th>Key Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Preparation</strong></td>
+                            <td>Context Gathering</td>
+                            <td>Incident description, affected services, monitoring access</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Detection & Analysis</strong></td>
+                            <td>Health Assessment</td>
+                            <td>Quick cluster health check, component status verification</td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Containment</strong></td>
+                            <td>Isolate Issues</td>
+                            <td>Cordon nodes, scale down problematic deployments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Recovery</strong></td>
+                            <td>Resolution & Learning</td>
+                            <td>Document root cause, update runbooks, preventive measures</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="tools">
+                <h2>Essential Troubleshooting Tools</h2>
+                
+                <h3>kubectl Advanced Commands</h3>
+                
+                <h4>Essential Debug Commands</h4>
+                <pre><code># Enhanced pod inspection
+kubectl get pod &lt;pod-name&gt; -n &lt;namespace&gt; -o yaml
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; --previous --tail=100
+
+# Debug with ephemeral containers (Kubernetes 1.25+)
+kubectl debug &lt;pod-name&gt; -it --image=busybox --target=&lt;container-name&gt;
+kubectl debug &lt;pod-name&gt; -it --image=nicolaka/netshoot --share-processes --copy-to=debug-copy
+
+# Node-level debugging
+kubectl debug node/&lt;node-name&gt; -it --image=busybox
+kubectl get events --field-selector involvedObject.name=&lt;node-name&gt;</code></pre>
+
+                <h4>Resource Analysis Commands</h4>
+                <pre><code># Resource utilization analysis
+kubectl top nodes
+kubectl top pods --all-namespaces --sort-by=cpu
+kubectl top pods --all-namespaces --sort-by=memory
+
+# Capacity and allocation analysis
+kubectl describe nodes | grep -A 7 "Allocated resources"
+kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU:.status.allocatable.cpu,MEMORY:.status.allocatable.memory
+
+# PDB and disruption analysis
+kubectl get pdb --all-namespaces
+kubectl describe pdb &lt;pdb-name&gt; -n &lt;namespace&gt;</code></pre>
+
+                <h3>Container Runtime Debugging</h3>
+                
+                <h4>containerd (CRI-O similar patterns)</h4>
+                <pre><code># Configure crictl
+export RUNTIME_ENDPOINT=unix:///run/containerd/containerd.sock
+export IMAGE_ENDPOINT=unix:///run/containerd/containerd.sock
+
+# Essential crictl commands
+crictl ps | head -10               # List running containers
+crictl pods | head -10             # List pods
+crictl images | head -10           # List images
+
+# Deep container inspection
+crictl inspect &lt;container-id&gt;      # Detailed container information
+crictl logs &lt;container-id&gt; --tail=50  # Container logs
+crictl exec -it &lt;container-id&gt; sh     # Execute into container</code></pre>
+
+                <div class="alert alert-warning">
+                    <strong>Important:</strong> Always use crictl for container runtime debugging instead of docker commands in Kubernetes environments.
+                </div>
+
+                <h3>Network Troubleshooting Tools</h3>
+                
+                <h4>Advanced Network Debugging</h4>
+                <pre><code># Install network troubleshooting tools
+kubectl run netshoot --image=nicolaka/netshoot -it --rm -- bash
+
+# Within netshoot container:
+# DNS testing
+nslookup kubernetes.default.svc.cluster.local
+dig +short kubernetes.default.svc.cluster.local
+
+# Connectivity testing
+nc -zv &lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local &lt;port&gt;
+telnet &lt;service-ip&gt; &lt;port&gt;
+
+# Network interface analysis
+ip addr show
+ip route show
+ss -tuln</code></pre>
+            </section>
+
+            <section id="common-issues">
+                <h2>Common Kubernetes Issues and Solutions</h2>
+                
+                <h3>Pod Scheduling Issues</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">⚠️</div>
+                        <div class="step-title">Problem: Pods Stuck in Pending State</div>
+                    </div>
+                    
+                    <h4>Investigation Steps</h4>
+                    <pre><code># Investigation steps
+kubectl describe pod &lt;pending-pod&gt; -n &lt;namespace&gt;
+kubectl get events --field-selector involvedObject.name=&lt;pending-pod&gt; -n &lt;namespace&gt;</code></pre>
+                    
+                    <h4>Common Causes and Solutions</h4>
+                    
+                    <div class="alert alert-danger">
+                        <strong>1. Insufficient Resources</strong>
+                    </div>
+                    <pre><code>kubectl top nodes
+kubectl describe nodes | grep -A 10 "Allocated resources"
+
+# Solution: Add nodes or adjust resource requests
+kubectl patch deployment &lt;deployment&gt; -p='{"spec":{"template":{"spec":{"containers":[{"name":"&lt;container&gt;","resources":{"requests":{"cpu":"100m","memory":"128Mi"}}}]}}}}'</code></pre>
+
+                    <div class="alert alert-warning">
+                        <strong>2. Node Affinity/Anti-Affinity Issues</strong>
+                    </div>
+                    <pre><code>kubectl get nodes --show-labels
+kubectl get pod &lt;pod-name&gt; -o yaml | grep -A 10 affinity
+
+# Solution: Adjust affinity rules or add appropriate node labels
+kubectl label nodes &lt;node-name&gt; environment=production</code></pre>
+
+                    <div class="alert alert-info">
+                        <strong>3. Taints and Tolerations</strong>
+                    </div>
+                    <pre><code>kubectl describe nodes | grep -A 5 Taints
+kubectl get pod &lt;pod-name&gt; -o yaml | grep -A 5 tolerations
+
+# Solution: Add tolerations or remove taints
+kubectl patch deployment &lt;deployment&gt; -p='{"spec":{"template":{"spec":{"tolerations":[{"key":"node-role.kubernetes.io/master","operator":"Exists","effect":"NoSchedule"}]}}}}'</code></pre>
+                </div>
+
+                <h3>Image Pull Problems</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🖼️</div>
+                        <div class="step-title">Problem: ImagePullBackOff or ErrImagePull</div>
+                    </div>
+                    
+                    <pre><code># Detailed investigation
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl get events --field-selector involvedObject.name=&lt;pod-name&gt;
+
+# Check image availability
+crictl images | grep &lt;image-name&gt;
+docker pull &lt;image-name&gt;  # If using Docker
+
+# Registry authentication issues
+kubectl get secrets -n &lt;namespace&gt; | grep regcred
+kubectl describe secret &lt;registry-secret&gt; -n &lt;namespace&gt;</code></pre>
+
+                    <h4>Solutions</h4>
+                    <pre><code># 1. Create registry secret
+kubectl create secret docker-registry regcred \
+  --docker-server=&lt;registry-server&gt; \
+  --docker-username=&lt;username&gt; \
+  --docker-password=&lt;password&gt; \
+  --docker-email=&lt;email&gt; \
+  -n &lt;namespace&gt;
+
+# 2. Add imagePullSecrets to pod spec
+kubectl patch deployment &lt;deployment&gt; -p='{"spec":{"template":{"spec":{"imagePullSecrets":[{"name":"regcred"}]}}}}'</code></pre>
+                </div>
+            </section>
+
+            <section id="pod-troubleshooting">
+                <h2>Pod Troubleshooting</h2>
+                
+                <h3>Container Startup Failures</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🔄</div>
+                        <div class="step-title">Problem: CrashLoopBackOff</div>
+                    </div>
+                    
+                    <pre><code># Investigation process
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; --previous
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; -c &lt;container-name&gt; --tail=100
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;</code></pre>
+
+                    <h4>Common Causes</h4>
+                    
+                    <div class="alert alert-warning">
+                        <strong>1. Resource limits too low</strong>
+                    </div>
+                    <pre><code>kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt; | grep -A 10 Limits
+kubectl top pod &lt;pod-name&gt; -n &lt;namespace&gt; --containers
+
+# Solution: Increase resource limits
+kubectl patch deployment &lt;deployment&gt; -p='{"spec":{"template":{"spec":{"containers":[{"name":"&lt;container&gt;","resources":{"limits":{"cpu":"500m","memory":"512Mi"}}}]}}}}'</code></pre>
+
+                    <div class="alert alert-danger">
+                        <strong>2. Liveness probe failing</strong>
+                    </div>
+                    <pre><code>kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt; | grep -A 5 Liveness
+
+# Solution: Adjust probe configuration
+kubectl patch deployment &lt;deployment&gt; -p='{"spec":{"template":{"spec":{"containers":[{"name":"&lt;container&gt;","livenessProbe":{"initialDelaySeconds":30,"periodSeconds":10}}]}}}}'</code></pre>
+                </div>
+
+                <h3>Multi-Container Pod Issues</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🔧</div>
+                        <div class="step-title">Problem: Init Container Failures</div>
+                    </div>
+                    
+                    <pre><code># Check init container status
+kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl logs &lt;pod-name&gt; -n &lt;namespace&gt; -c &lt;init-container-name&gt;
+
+# Debug init container dependencies
+kubectl get services,endpoints -n &lt;namespace&gt;
+kubectl run debug --image=busybox -it --rm -- nslookup &lt;dependency-service&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="networking">
+                <h2>Networking and Service Discovery Issues</h2>
+                
+                <h3>DNS Resolution Problems</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🌐</div>
+                        <div class="step-title">Problem: Service Discovery Failures</div>
+                    </div>
+                    
+                    <pre><code># DNS debugging workflow
+kubectl run dnsutils --image=tutum/dnsutils -it --rm -- bash
+
+# Within dnsutils pod:
+nslookup kubernetes.default
+nslookup &lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local
+dig +short &lt;service-name&gt;.&lt;namespace&gt;.svc.cluster.local
+
+# Check CoreDNS health
+kubectl get pods -n kube-system | grep coredns
+kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50</code></pre>
+                </div>
+
+                <h3>Service Endpoint Issues</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🎯</div>
+                        <div class="step-title">Problem: Service Has No Endpoints</div>
+                    </div>
+                    
+                    <pre><code># Service and endpoint investigation
+kubectl get service &lt;service-name&gt; -n &lt;namespace&gt; -o yaml
+kubectl get endpoints &lt;service-name&gt; -n &lt;namespace&gt;
+kubectl describe service &lt;service-name&gt; -n &lt;namespace&gt;
+
+# Check selector matching
+kubectl get pods -n &lt;namespace&gt; --show-labels
+kubectl get service &lt;service-name&gt; -n &lt;namespace&gt; -o yaml | grep -A 5 selector</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>Solution:</strong> Fix selector mismatches by updating the service selector to match pod labels.
+                    </div>
+                </div>
+            </section>
+
+            <section id="ai-troubleshooting">
+                <h2>AI-Assisted Troubleshooting</h2>
+                
+                <div class="alert alert-info">
+                    <strong>2025 Innovation:</strong> AI-powered troubleshooting systems can autonomously investigate 80% of incidents, reducing manual effort and improving resolution times.
+                </div>
+
+                <h3>Autonomous Incident Investigation</h3>
+                <p>Modern Kubernetes environments increasingly leverage AI for automated troubleshooting and root cause analysis.</p>
+
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">🤖</div>
+                        <div class="step-title">AI-Powered Root Cause Analysis Setup</div>
+                    </div>
+                    
+                    <pre><code>#!/usr/bin/env python3
+"""
+AI-assisted Kubernetes troubleshooting system
+Integrates with monitoring data to provide intelligent incident analysis
+"""
+
+import openai
+import json
+import requests
+from datetime import datetime, timedelta
+import subprocess
+
+class KubernetesAITroubleshooter:
+    def __init__(self, prometheus_url, openai_api_key):
+        self.prometheus_url = prometheus_url
+        openai.api_key = openai_api_key
+        
+    def gather_symptoms(self, namespace=None, since_minutes=30):
+        """Gather cluster symptoms and metrics"""
+        symptoms = {}
+        
+        # Collect recent events
+        cmd = f"kubectl get events --sort-by=.lastTimestamp"
+        if namespace:
+            cmd += f" -n {namespace}"
+        cmd += f" | head -20"
+        
+        symptoms['recent_events'] = subprocess.check_output(cmd, shell=True).decode()
+        
+        # Collect pod status
+        cmd = f"kubectl get pods"
+        if namespace:
+            cmd += f" -n {namespace}"
+        cmd += " | grep -v Running | grep -v Completed"
+        
+        try:
+            symptoms['problematic_pods'] = subprocess.check_output(cmd, shell=True).decode()
+        except subprocess.CalledProcessError:
+            symptoms['problematic_pods'] = "No problematic pods found"
+        
+        return symptoms</code></pre>
+                </div>
+
+                <h3>Automated Remediation Framework</h3>
+                
+                <div class="troubleshooting-step">
+                    <div class="step-header">
+                        <div class="step-number">⚡</div>
+                        <div class="step-title">Common Auto-Remediation Actions</div>
+                    </div>
+                    
+                    <ul>
+                        <li><strong>Restart crash looping pods</strong> (Risk: Low)</li>
+                        <li><strong>Scale up on pending pods</strong> (Risk: Medium - requires approval)</li>
+                        <li><strong>Clean up failed pods</strong> (Risk: Low)</li>
+                        <li><strong>Increase memory for OOMKilled pods</strong> (Risk: Medium - requires approval)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="incident-response">
+                <h2>Incident Response and Post-Mortem</h2>
+                
+                <h3>Structured Incident Response</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Impact</th>
+                            <th>Response Time</th>
+                            <th>Escalation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SEV1 - Critical</strong></td>
+                            <td>Complete service outage or data loss</td>
+                            <td>&lt; 5 minutes</td>
+                            <td>Auto-page on-call + management</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SEV2 - High</strong></td>
+                            <td>Major functionality degraded</td>
+                            <td>&lt; 15 minutes</td>
+                            <td>Page on-call engineer</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SEV3 - Medium</strong></td>
+                            <td>Minor functionality affected</td>
+                            <td>&lt; 1 hour</td>
+                            <td>Next business day ticket</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SEV4 - Low</strong></td>
+                            <td>Cosmetic issues</td>
+                            <td>&lt; 4 hours</td>
+                            <td>Regular ticket queue</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Incident Response Script</h3>
+                <pre><code>#!/bin/bash
+# incident-response.sh - Structured incident response script
+
+INCIDENT_ID=${1:-"INC-$(date +%Y%m%d-%H%M%S)"}
+SEVERITY=${2:-"SEV3"}
+AFFECTED_SERVICE=${3:-"unknown"}
+
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "/tmp/$INCIDENT_ID-timeline.log"
+}
+
+assess_impact() {
+    log "Assessing incident impact"
+    
+    # Check service health
+    kubectl get services --all-namespaces | grep -i "$AFFECTED_SERVICE"
+    kubectl get pods --all-namespaces | grep -i "$AFFECTED_SERVICE"
+    
+    log "Impact assessment completed"
+}</code></pre>
+            </section>
+
+            <!-- Navigation to other handbooks -->
+            <section style="margin-top: 4rem; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+                <h2>Related Handbooks</h2>
+                <div class="action-buttons">
+                    <a href="kubernetes-complete-handbook.html" class="btn btn-primary">📚 Complete Kubernetes Handbook</a>
+                    <a href="kubernetes-monitoring.html" class="btn btn-primary">📊 Monitoring Guide</a>
+                    <a href="api-security.html" class="btn btn-secondary">🔐 API Security</a>
+                    <a href="index.html" class="btn btn-secondary">🏠 Back to Home</a>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top" onclick="window.scrollTo(0, 0)">↑</button>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Show/hide scroll to top button
+        window.addEventListener('scroll', function() {
+            const scrollTop = document.querySelector('.scroll-top');
+            if (window.pageYOffset > 300) {
+                scrollTop.style.display = 'block';
+            } else {
+                scrollTop.style.display = 'none';
+            }
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
