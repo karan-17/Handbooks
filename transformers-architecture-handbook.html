@@ -1,0 +1,3042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformers Architecture Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #2d3748;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            display: block;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0.6rem;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 300px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 300px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2.2rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin: 2.5rem 0 1rem 0;
+            font-size: 1.6rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        h4 {
+            color: #667eea;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.7rem;
+            line-height: 1.7;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .hero-section h3 {
+            color: white;
+            border: none;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.3);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3436;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(168, 237, 234, 0.3);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #2d3436;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(255, 234, 167, 0.3);
+        }
+        
+        .math-box {
+            background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);
+            color: #2d3436;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(210, 153, 194, 0.3);
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.2rem;
+        }
+        
+        .architecture-diagram {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 3px solid #667eea;
+        }
+        
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .component-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .component-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .component-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .component-card h4 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .timeline {
+            position: relative;
+            margin: 2rem 0;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-left: 2rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.75rem;
+            top: 1.5rem;
+            width: 15px;
+            height: 15px;
+            background: #667eea;
+            border-radius: 50%;
+            box-shadow: 0 0 0 3px white, 0 0 0 6px #667eea;
+        }
+        
+        .timeline-year {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.2rem;
+            text-align: left;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .comparison-table td {
+            padding: 1.2rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 1rem;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .code-snippet {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .attention-visual {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .content {
+                margin-left: 250px;
+                max-width: calc(100% - 250px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            
+            .component-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-section h3 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🔬 Transformers Architecture</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#history">History & Evolution</a></li>
+                <li><a href="#core-concepts" class="main-link">Core Concepts</a></li>
+                <li><a href="#attention">Attention Mechanism</a></li>
+                <li><a href="#multi-head">Multi-Head Attention</a></li>
+                <li><a href="#self-attention">Self-Attention</a></li>
+                <li><a href="#positional">Positional Encoding</a></li>
+                <li><a href="#architecture" class="main-link">Architecture Components</a></li>
+                <li><a href="#encoder">Encoder</a></li>
+                <li><a href="#decoder">Decoder</a></li>
+                <li><a href="#feed-forward">Feed-Forward Networks</a></li>
+                <li><a href="#layer-norm">Layer Normalization</a></li>
+                <li><a href="#embeddings">Input/Output Embeddings</a></li>
+                <li><a href="#model-types" class="main-link">Model Types</a></li>
+                <li><a href="#encoder-only">Encoder-Only (BERT)</a></li>
+                <li><a href="#decoder-only">Decoder-Only (GPT)</a></li>
+                <li><a href="#encoder-decoder">Encoder-Decoder (T5)</a></li>
+                <li><a href="#transfer-learning" class="main-link">Transfer Learning</a></li>
+                <li><a href="#fine-tuning">Fine-Tuning</a></li>
+                <li><a href="#advanced-topics" class="main-link">Advanced Topics</a></li>
+                <li><a href="#adapters">Adapters</a></li>
+                <li><a href="#gradient-flow">Gradient Flow</a></li>
+                <li><a href="#optimizer-states">Optimizer States</a></li>
+                <li><a href="#quantization" class="main-link">Quantization</a></li>
+                <li><a href="#16bit">16-bit Transformers</a></li>
+                <li><a href="#32bit">32-bit Transformers</a></li>
+                <li><a href="#4bit">4-bit Quantization</a></li>
+                <li><a href="#8bit">8-bit Quantization</a></li>
+                <li><a href="#memory-optimization" class="main-link">Memory & Performance</a></li>
+                <li><a href="#paging-flow">Paging Flow</a></li>
+                <li><a href="#flash-attention">FlashAttention</a></li>
+                <li><a href="#scaling">Scaling Strategies</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(102, 126, 234, 0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="fine-tuning-llama-handbook.html">🧠 Fine-Tuning</a></li>
+                <li><a href="mlops-aiops-handbook.html">🤖 MLOps & AIOps</a></li>
+                <li><a href="aws-bedrock-sagemaker-handbook.html">☁️ AWS AI/ML</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#ai-ml">AI & Machine Learning</a> > 
+                    <span>Transformers Architecture Handbook</span>
+                </div>
+            </div>
+
+            <h1>Transformers Architecture Handbook</h1>
+            
+            <div class="hero-section">
+                <h3>🎯 Master the Foundation of Modern AI</h3>
+                <p>Comprehensive guide to transformer architecture, from core concepts to advanced optimization techniques. Learn how attention mechanisms revolutionized natural language processing and enabled the era of large language models.</p>
+            </div>
+
+            <!-- Introduction -->
+            <section id="introduction">
+                <h2>Introduction</h2>
+                
+                <p>The Transformer architecture, introduced in the groundbreaking paper "Attention Is All You Need" (2017), revolutionized the field of natural language processing and became the foundation for modern AI systems. This comprehensive handbook explores every aspect of transformer architecture, from fundamental concepts to cutting-edge optimization techniques.</p>
+
+                <div class="info-box">
+                    <h4>🌟 Why Transformers Matter</h4>
+                    <p>Transformers have become the backbone of modern AI because they:</p>
+                    <ul>
+                        <li><strong>Parallel Processing:</strong> Unlike RNNs, transformers process sequences in parallel, enabling faster training</li>
+                        <li><strong>Long-Range Dependencies:</strong> Attention mechanisms capture relationships across entire sequences</li>
+                        <li><strong>Transfer Learning:</strong> Pre-trained models can be adapted to countless downstream tasks</li>
+                        <li><strong>Scalability:</strong> Architecture scales efficiently from millions to billions of parameters</li>
+                        <li><strong>Versatility:</strong> Applicable to text, images, audio, and multimodal tasks</li>
+                    </ul>
+                </div>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📚 What You'll Learn</h4>
+                        <ul>
+                            <li>Complete architecture breakdown</li>
+                            <li>Mathematical foundations</li>
+                            <li>Implementation details</li>
+                            <li>Model variants and applications</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <h4>🔧 Technical Coverage</h4>
+                        <ul>
+                            <li>Attention mechanisms</li>
+                            <li>Memory optimization</li>
+                            <li>Quantization techniques</li>
+                            <li>Advanced optimizations</li>
+                        </ul>
+                    </div>
+                    <div class="component-card">
+                        <h4>🚀 Modern Innovations</h4>
+                        <ul>
+                            <li>FlashAttention algorithms</li>
+                            <li>Adapter methods</li>
+                            <li>Gradient flow optimization</li>
+                            <li>Production deployment</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History and Evolution -->
+            <section id="history">
+                <h2>History and Evolution of Transformers</h2>
+                
+                <p>The development of transformer architecture represents one of the most significant breakthroughs in machine learning history. Understanding this evolution helps appreciate the design decisions and innovations that made modern AI possible.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">2014-2015</div>
+                        <h4>Attention Mechanisms in RNNs</h4>
+                        <p>Bahdanau et al. and Luong et al. introduce attention mechanisms for neural machine translation. These early attention mechanisms allowed RNNs to focus on relevant parts of input sequences, addressing the limitation of fixed-size context vectors.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2017</div>
+                        <h4>The Transformer Revolution</h4>
+                        <p><strong>"Attention Is All You Need"</strong> by Vaswani et al. introduces the transformer architecture. This paper eliminates recurrence entirely, relying solely on attention mechanisms. The paper has been cited over 173,000 times as of 2025, making it one of the most influential papers in AI history.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2018</div>
+                        <h4>BERT and GPT Emerge</h4>
+                        <p>Google's BERT (Bidirectional Encoder Representations from Transformers) and OpenAI's GPT (Generative Pre-trained Transformer) demonstrate the power of pre-trained transformer models. BERT uses encoder-only architecture, while GPT uses decoder-only architecture.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2019</div>
+                        <h4>T5 and Unified Framework</h4>
+                        <p>Google's T5 (Text-to-Text Transfer Transformer) introduces a unified framework treating every NLP task as text-to-text generation. This approach demonstrates the versatility of the transformer architecture.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2020-2021</div>
+                        <h4>Scaling Revolution</h4>
+                        <p>GPT-3 (175B parameters) demonstrates emergent capabilities at scale. Research focuses on scaling laws, showing that larger models with more data consistently improve performance. Parameter-efficient fine-tuning methods like LoRA are developed.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2022-2023</div>
+                        <h4>Optimization and Efficiency</h4>
+                        <p>FlashAttention revolutionizes attention computation efficiency. ChatGPT and GPT-4 bring transformers to mainstream applications. Quantization methods like QLoRA enable large model training on consumer hardware.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">2024-2025</div>
+                        <h4>Advanced Optimizations</h4>
+                        <p>FlashAttention-2 achieves 32% throughput improvements. Advanced memory techniques like PagedAttention enable long-context processing. RoPE and ALiBi improve positional encoding for longer sequences. Mixture of Experts (MoE) architectures scale to trillion parameters.</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🏆 Impact Statistics (2025)</h4>
+                    <ul>
+                        <li><strong>173,000+</strong> citations for "Attention Is All You Need"</li>
+                        <li><strong>Top 10</strong> most-cited papers of the 21st century</li>
+                        <li><strong>90%+</strong> of state-of-the-art NLP models use transformer architecture</li>
+                        <li><strong>Trillion+</strong> parameters in the largest transformer models</li>
+                        <li><strong>Multimodal</strong> applications in text, vision, audio, and robotics</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Core Concepts -->
+            <section id="core-concepts">
+                <h2>Core Concepts</h2>
+                
+                <p>Understanding the fundamental concepts behind transformers is crucial for grasping how these architectures achieve their remarkable performance. The key insight is that attention mechanisms can capture long-range dependencies more effectively than sequential processing.</p>
+
+                <div class="info-box">
+                    <h4>🧠 Key Principles</h4>
+                    <ol>
+                        <li><strong>Attention Over Recurrence:</strong> Replace sequential processing with parallel attention computations</li>
+                        <li><strong>Self-Attention:</strong> Allow each position to attend to all positions in the same sequence</li>
+                        <li><strong>Multi-Head Attention:</strong> Learn different types of relationships through multiple attention heads</li>
+                        <li><strong>Positional Encoding:</strong> Inject sequence order information into parallel processing</li>
+                        <li><strong>Residual Connections:</strong> Enable training of very deep networks</li>
+                        <li><strong>Layer Normalization:</strong> Stabilize training dynamics</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Attention Mechanism -->
+            <section id="attention">
+                <h2>Attention Mechanism</h2>
+                
+                <p>The attention mechanism is the core innovation that makes transformers possible. It allows the model to dynamically focus on different parts of the input sequence when processing each element.</p>
+
+                <h3>Mathematical Foundation</h3>
+                <div class="math-box">
+                    <h4>Attention Formula</h4>
+                    <p><strong>Attention(Q, K, V) = softmax(QK<sup>T</sup>/√d<sub>k</sub>)V</strong></p>
+                    <br>
+                    <p>Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li><strong>Q</strong> = Queries matrix (what we're looking for)</li>
+                        <li><strong>K</strong> = Keys matrix (what we're looking at)</li>
+                        <li><strong>V</strong> = Values matrix (what we get if we pay attention)</li>
+                        <li><strong>d<sub>k</sub></strong> = Dimension of key vectors (for scaling)</li>
+                    </ul>
+                </div>
+
+                <h3>How Attention Works</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>1. Query-Key Matching</h4>
+                        <p>Each query is compared with all keys using dot product. Higher dot products indicate stronger relationships.</p>
+                        <div class="code-snippet">
+scores = query @ keys.T  # Dot product
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>2. Scaling and Softmax</h4>
+                        <p>Scores are scaled by √d<sub>k</sub> and passed through softmax to get attention weights.</p>
+                        <div class="code-snippet">
+scaled_scores = scores / sqrt(d_k)
+weights = softmax(scaled_scores)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>3. Value Aggregation</h4>
+                        <p>Attention weights are used to compute weighted average of values.</p>
+                        <div class="code-snippet">
+output = weights @ values  # Weighted sum
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>4. Result Integration</h4>
+                        <p>The attention output represents contextually relevant information for each position.</p>
+                        <div class="code-snippet">
+# Each output position contains information
+# from all input positions, weighted by relevance
+                        </div>
+                    </div>
+                </div>
+
+                <div class="attention-visual">
+                    <h4>Attention Visualization Example</h4>
+                    <p>Sentence: "The cat sat on the mat"</p>
+                    <pre>
+Query: "cat"
+Keys:   ["The", "cat", "sat", "on", "the", "mat"]
+Scores: [0.1,   0.9,   0.3,   0.1,  0.1,   0.2]
+Weights:[0.08,  0.42,  0.18,  0.08, 0.08,  0.16]
+
+Result: Weighted combination focusing on "cat" and related words
+                    </pre>
+                </div>
+            </section>
+
+            <!-- Multi-Head Attention -->
+            <section id="multi-head">
+                <h2>Multi-Head Attention</h2>
+                
+                <p>Multi-head attention allows the model to jointly attend to information from different representation subspaces. Instead of performing a single attention function, the model runs multiple attention heads in parallel, each learning different types of relationships.</p>
+
+                <div class="math-box">
+                    <h4>Multi-Head Attention Formula</h4>
+                    <p><strong>MultiHead(Q, K, V) = Concat(head₁, head₂, ..., head<sub>h</sub>)W<sup>O</sup></strong></p>
+                    <br>
+                    <p>Where: <strong>head<sub>i</sub> = Attention(QW<sub>i</sub><sup>Q</sup>, KW<sub>i</sub><sup>K</sup>, VW<sub>i</sub><sup>V</sup>)</strong></p>
+                </div>
+
+                <h3>Why Multiple Heads?</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔍 Syntactic Relationships</h4>
+                        <p>Some heads learn to focus on grammatical relationships like subject-verb dependencies, noun-adjective relationships, etc.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🧠 Semantic Relationships</h4>
+                        <p>Other heads capture semantic meanings, synonyms, antonyms, and conceptual relationships between words.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📍 Positional Patterns</h4>
+                        <p>Certain heads specialize in local vs. global patterns, learning to attend to nearby or distant tokens.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔗 Cross-Reference Patterns</h4>
+                        <p>Some heads learn to connect pronouns with their antecedents, or relate questions with relevant context.</p>
+                    </div>
+                </div>
+
+                <h3>Implementation Details</h3>
+                <div class="code-snippet">
+class MultiHeadAttention:
+    def __init__(self, d_model=512, num_heads=8):
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads  # 64 for 512/8
+        
+        # Linear projections for each head
+        self.W_q = Linear(d_model, d_model)  # Query projection
+        self.W_k = Linear(d_model, d_model)  # Key projection  
+        self.W_v = Linear(d_model, d_model)  # Value projection
+        self.W_o = Linear(d_model, d_model)  # Output projection
+        
+    def forward(self, query, key, value):
+        batch_size = query.size(0)
+        
+        # 1. Apply linear projections and split into heads
+        Q = self.W_q(query).view(batch_size, -1, self.num_heads, self.d_k)
+        K = self.W_k(key).view(batch_size, -1, self.num_heads, self.d_k)
+        V = self.W_v(value).view(batch_size, -1, self.num_heads, self.d_k)
+        
+        # 2. Transpose for attention computation
+        Q = Q.transpose(1, 2)  # (batch, heads, seq_len, d_k)
+        K = K.transpose(1, 2)
+        V = V.transpose(1, 2)
+        
+        # 3. Apply scaled dot-product attention
+        attention_output = self.scaled_dot_product_attention(Q, K, V)
+        
+        # 4. Concatenate heads and apply output projection
+        attention_output = attention_output.transpose(1, 2).contiguous()
+        attention_output = attention_output.view(batch_size, -1, self.d_model)
+        
+        return self.W_o(attention_output)
+</div>
+
+                <div class="warning-box">
+                    <h4>⚠️ 2025 Research Insight</h4>
+                    <p>Recent studies show that optimizing only the W<sub>v</sub> (value) matrix during fine-tuning yields significantly better performance than optimizing the W<sub>k</sub> (key) matrix. This finding has important implications for parameter-efficient fine-tuning methods.</p>
+                </div>
+            </section>
+
+            <!-- Self-Attention -->
+            <section id="self-attention">
+                <h2>Self-Attention</h2>
+                
+                <p>Self-attention is a special case where queries, keys, and values all come from the same input sequence. This allows each position to attend to all positions in the sequence, enabling the model to capture long-range dependencies effectively.</p>
+
+                <h3>Types of Self-Attention</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔄 Bidirectional Self-Attention</h4>
+                        <p>Used in BERT-style models. Each token can attend to all other tokens in both directions, enabling full context understanding.</p>
+                        <div class="code-snippet">
+# No masking - all positions visible
+attention_mask = torch.ones(seq_len, seq_len)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>➡️ Causal Self-Attention</h4>
+                        <p>Used in GPT-style models. Each token can only attend to previous tokens, maintaining the autoregressive property for generation.</p>
+                        <div class="code-snippet">
+# Lower triangular mask
+mask = torch.tril(torch.ones(seq_len, seq_len))
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Self-Attention vs. Traditional RNN Processing</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Self-Attention</th>
+                            <th>RNN</th>
+                            <th>CNN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Computational Complexity</strong></td>
+                            <td>O(n²·d)</td>
+                            <td>O(n·d²)</td>
+                            <td>O(k·n·d²)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Sequential Operations</strong></td>
+                            <td>O(1)</td>
+                            <td>O(n)</td>
+                            <td>O(1)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Maximum Path Length</strong></td>
+                            <td>O(1)</td>
+                            <td>O(n)</td>
+                            <td>O(log<sub>k</sub>(n))</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Parallelization</strong></td>
+                            <td>✅ Full</td>
+                            <td>❌ Sequential</td>
+                            <td>✅ Full</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Memory Usage</strong></td>
+                            <td>O(n²)</td>
+                            <td>O(n)</td>
+                            <td>O(k·n)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight-box">
+                    <h4>🚀 Self-Attention Advantages</h4>
+                    <ul>
+                        <li><strong>Parallel Processing:</strong> All positions computed simultaneously</li>
+                        <li><strong>Direct Dependencies:</strong> Direct connection between any two positions</li>
+                        <li><strong>Interpretability:</strong> Attention weights show which tokens the model focuses on</li>
+                        <li><strong>Variable Length:</strong> Handles sequences of different lengths naturally</li>
+                        <li><strong>Long-Range Modeling:</strong> Captures dependencies across entire sequence</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Positional Encoding -->
+            <section id="positional">
+                <h2>Positional Encoding</h2>
+                
+                <p>Since transformers process all positions in parallel, they lack inherent understanding of sequence order. Positional encoding injects information about token positions into the model, enabling it to understand sequence structure.</p>
+
+                <h3>Original Sinusoidal Positional Encoding</h3>
+                <div class="math-box">
+                    <h4>Sinusoidal Encoding Formula</h4>
+                    <p><strong>PE(pos, 2i) = sin(pos / 10000<sup>2i/d<sub>model</sub></sup>)</strong></p>
+                    <p><strong>PE(pos, 2i+1) = cos(pos / 10000<sup>2i/d<sub>model</sub></sup>)</strong></p>
+                    <br>
+                    <p>Where pos = position, i = dimension index</p>
+                </div>
+
+                <h3>Modern Positional Encoding Methods (2025)</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🌀 RoPE (Rotary Position Embedding)</h4>
+                        <p>Encodes position information through rotation matrices applied to query and key vectors. Provides better extrapolation to longer sequences than seen during training.</p>
+                        <div class="code-snippet">
+# RoPE rotates query and key vectors
+def apply_rope(x, position):
+    # Apply rotation matrix based on position
+    return rotate(x, position)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📏 ALiBi (Attention with Linear Biases)</h4>
+                        <p>Adds linear biases to attention scores based on distance. Simpler than sinusoidal encoding but provides excellent length extrapolation.</p>
+                        <div class="code-snippet">
+# ALiBi adds distance-based bias
+bias = -abs(i - j) * slope
+attention_scores += bias
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🎓 Learned Positional Embeddings</h4>
+                        <p>Train position embeddings as learnable parameters. Works well for fixed maximum lengths but doesn't extrapolate beyond training length.</p>
+                        <div class="code-snippet">
+# Learned embeddings
+pos_embedding = nn.Embedding(max_len, d_model)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔄 Relative Position Encoding</h4>
+                        <p>Encodes relative distances between tokens rather than absolute positions. Used in models like Transformer-XL and T5.</p>
+                        <div class="code-snippet">
+# Relative position bias
+relative_bias = relative_position_bias[i-j]
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Positional Encoding Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Length Extrapolation</th>
+                            <th>Performance</th>
+                            <th>Computational Cost</th>
+                            <th>Used In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Sinusoidal</strong></td>
+                            <td>Good</td>
+                            <td>Baseline</td>
+                            <td>Low</td>
+                            <td>Original Transformer</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RoPE</strong></td>
+                            <td>Excellent</td>
+                            <td>Superior</td>
+                            <td>Medium</td>
+                            <td>LLaMA, PaLM</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ALiBi</strong></td>
+                            <td>Excellent</td>
+                            <td>Good</td>
+                            <td>Low</td>
+                            <td>BLOOM, MPT</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Learned</strong></td>
+                            <td>Poor</td>
+                            <td>Good (fixed length)</td>
+                            <td>Low</td>
+                            <td>BERT, GPT-2</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <h4>📈 2025 Best Practices</h4>
+                    <ul>
+                        <li><strong>RoPE:</strong> Preferred for most new architectures due to excellent extrapolation</li>
+                        <li><strong>ALiBi:</strong> Good alternative when simplicity is valued</li>
+                        <li><strong>Hybrid Approaches:</strong> Some models combine multiple positional encoding methods</li>
+                        <li><strong>Training Strategy:</strong> Train on shorter sequences, deploy on longer ones</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Architecture Components -->
+            <section id="architecture">
+                <h2>Architecture Components</h2>
+                
+                <div class="architecture-diagram">
+                    <h4>📐 Complete Transformer Architecture</h4>
+                    <pre style="font-family: monospace; font-size: 0.9rem; line-height: 1.4; text-align: left;">
+                          OUTPUT
+                             ↑
+                    [Linear & Softmax]
+                             ↑
+                    ┌─────────────────────┐
+                    │      DECODER        │
+                    │ ┌─────────────────┐ │
+                    │ │  Masked         │ │
+                    │ │  Multi-Head     │ │  ×N layers
+                    │ │  Attention      │ │
+                    │ └─────────────────┘ │
+                    │ ┌─────────────────┐ │
+                    │ │  Cross          │ │
+                    │ │  Attention      │ │
+                    │ │  (Enc-Dec)      │ │
+                    │ └─────────────────┘ │
+                    │ ┌─────────────────┐ │
+                    │ │  Feed           │ │
+                    │ │  Forward        │ │
+                    │ └─────────────────┘ │
+                    └─────────────────────┘
+                             ↑
+                    ┌─────────────────────┐
+                    │      ENCODER        │
+                    │ ┌─────────────────┐ │
+                    │ │  Multi-Head     │ │  ×N layers
+                    │ │  Self-Attention │ │
+                    │ └─────────────────┘ │
+                    │ ┌─────────────────┐ │
+                    │ │  Feed           │ │
+                    │ │  Forward        │ │
+                    │ └─────────────────┘ │
+                    └─────────────────────┘
+                             ↑
+                    [Input Embeddings + Positional Encoding]
+                             ↑
+                           INPUT
+                    </pre>
+                </div>
+
+                <p>The transformer architecture consists of two main components: the encoder and the decoder. Each component is built from multiple identical layers, with each layer containing specific sub-modules connected through residual connections and layer normalization.</p>
+            </section>
+
+            <!-- Encoder -->
+            <section id="encoder">
+                <h2>Encoder</h2>
+                
+                <p>The encoder processes the input sequence and creates rich representations that capture both local and global context. It consists of a stack of identical layers, each containing two main sub-layers.</p>
+
+                <h3>Encoder Layer Components</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔍 Multi-Head Self-Attention</h4>
+                        <p>Allows each position to attend to all positions in the input sequence. Creates contextualized representations by combining information from different parts of the sequence.</p>
+                        <div class="code-snippet">
+class EncoderLayer:
+    def __init__(self, d_model, num_heads, d_ff):
+        self.self_attn = MultiHeadAttention(d_model, num_heads)
+        self.feed_forward = FeedForward(d_model, d_ff)
+        self.norm1 = LayerNorm(d_model)
+        self.norm2 = LayerNorm(d_model)
+        
+    def forward(self, x):
+        # Self-attention with residual connection
+        attn_output = self.self_attn(x, x, x)
+        x = self.norm1(x + attn_output)
+        
+        # Feed-forward with residual connection  
+        ff_output = self.feed_forward(x)
+        x = self.norm2(x + ff_output)
+        
+        return x
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🧠 Feed-Forward Network</h4>
+                        <p>Position-wise fully connected layers that process each position independently. Provides non-linear transformations and increases model expressiveness.</p>
+                        <div class="code-snippet">
+class FeedForward:
+    def __init__(self, d_model, d_ff):
+        self.linear1 = Linear(d_model, d_ff)
+        self.linear2 = Linear(d_ff, d_model)
+        self.activation = ReLU()
+        
+    def forward(self, x):
+        return self.linear2(
+            self.activation(self.linear1(x))
+        )
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Encoder Stack Properties</h3>
+                <div class="info-box">
+                    <h4>🏗️ Architecture Details</h4>
+                    <ul>
+                        <li><strong>Layer Count:</strong> Original transformer uses 6 layers; modern models use 12-96+ layers</li>
+                        <li><strong>Residual Connections:</strong> Enable training of very deep networks by addressing vanishing gradients</li>
+                        <li><strong>Layer Normalization:</strong> Applied after each sub-layer for training stability</li>
+                        <li><strong>Parallel Processing:</strong> All layers process the entire sequence simultaneously</li>
+                        <li><strong>Bidirectional Context:</strong> Each token can attend to all other tokens in both directions</li>
+                    </ul>
+                </div>
+
+                <h3>Encoder Applications</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📝 Text Classification</h4>
+                        <p>BERT-style models use encoder-only architecture for tasks like sentiment analysis, document classification, and natural language inference.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔍 Information Extraction</h4>
+                        <p>Named entity recognition, relation extraction, and question answering benefit from bidirectional context understanding.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🌐 Representation Learning</h4>
+                        <p>Pre-trained encoders create general-purpose text representations that transfer well to downstream tasks.</p>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔗 Cross-Modal Tasks</h4>
+                        <p>Vision transformers (ViTs) use encoder architecture to process image patches as sequences.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Decoder -->
+            <section id="decoder">
+                <h2>Decoder</h2>
+                
+                <p>The decoder generates output sequences autoregressively, predicting one token at a time based on previously generated tokens and encoder representations (in encoder-decoder models).</p>
+
+                <h3>Decoder Layer Components</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎭 Masked Self-Attention</h4>
+                        <p>Prevents the decoder from seeing future tokens during training. Uses causal masking to maintain autoregressive property.</p>
+                        <div class="code-snippet">
+# Causal mask for autoregressive generation
+def create_causal_mask(size):
+    mask = torch.tril(torch.ones(size, size))
+    mask = mask.masked_fill(mask == 0, float('-inf'))
+    return mask
+
+# Apply mask before softmax
+scores = scores + causal_mask
+attention_weights = softmax(scores)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔗 Cross-Attention</h4>
+                        <p>Allows decoder to attend to encoder representations. Queries come from decoder, keys and values from encoder.</p>
+                        <div class="code-snippet">
+class DecoderLayer:
+    def forward(self, x, encoder_output):
+        # 1. Masked self-attention
+        self_attn = self.masked_attention(x, x, x)
+        x = self.norm1(x + self_attn)
+        
+        # 2. Cross-attention to encoder
+        cross_attn = self.cross_attention(
+            query=x, 
+            key=encoder_output, 
+            value=encoder_output
+        )
+        x = self.norm2(x + cross_attn)
+        
+        # 3. Feed-forward
+        ff_output = self.feed_forward(x)
+        x = self.norm3(x + ff_output)
+        
+        return x
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Decoder Types</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Architecture</th>
+                            <th>Use Case</th>
+                            <th>Example Models</th>
+                            <th>Key Feature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Encoder-Decoder</strong></td>
+                            <td>Full transformer with cross-attention</td>
+                            <td>Translation, Summarization</td>
+                            <td>T5, BART, Pegasus</td>
+                            <td>Sequence-to-sequence tasks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Decoder-Only</strong></td>
+                            <td>Decoder without cross-attention</td>
+                            <td>Text Generation</td>
+                            <td>GPT, PaLM, LLaMA</td>
+                            <td>Autoregressive generation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prefix LM</strong></td>
+                            <td>Decoder with bidirectional prefix</td>
+                            <td>Conditional Generation</td>
+                            <td>PaLM, GLM</td>
+                            <td>Flexible attention patterns</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="warning-box">
+                    <h4>🎯 Autoregressive Generation Process</h4>
+                    <ol>
+                        <li><strong>Start Token:</strong> Begin with special [START] or [BOS] token</li>
+                        <li><strong>Predict Next:</strong> Generate probability distribution over vocabulary</li>
+                        <li><strong>Sample/Select:</strong> Choose next token (greedy, sampling, or beam search)</li>
+                        <li><strong>Update Context:</strong> Add chosen token to sequence</li>
+                        <li><strong>Repeat:</strong> Continue until [END] token or max length</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Feed-Forward Networks -->
+            <section id="feed-forward">
+                <h2>Feed-Forward Networks</h2>
+                
+                <p>The feed-forward network (FFN) is a crucial component that processes each position independently. Despite its simplicity, the FFN contains the majority of a transformer's parameters and plays a vital role in the model's expressiveness.</p>
+
+                <h3>FFN Architecture</h3>
+                <div class="math-box">
+                    <h4>Feed-Forward Formula</h4>
+                    <p><strong>FFN(x) = max(0, xW₁ + b₁)W₂ + b₂</strong></p>
+                    <br>
+                    <p>Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>W₁, W₂ = Weight matrices</li>
+                        <li>b₁, b₂ = Bias vectors</li>
+                        <li>max(0, ·) = ReLU activation</li>
+                        <li>Typical: d_ff = 4 × d_model</li>
+                    </ul>
+                </div>
+
+                <h3>Modern FFN Variants (2025)</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔄 SwiGLU Activation</h4>
+                        <p>Used in modern models like LLaMA and PaLM. Combines Swish activation with gating mechanism for better performance.</p>
+                        <div class="code-snippet">
+class SwiGLU:
+    def forward(self, x):
+        # Split input for gate and value
+        gate, value = x.chunk(2, dim=-1)
+        
+        # Apply SiLU (Swish) to gate
+        gate = F.silu(gate)
+        
+        # Element-wise multiplication
+        return gate * value
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🚀 Gated Linear Units (GLU)</h4>
+                        <p>Introduces gating mechanism that controls information flow, improving model expressiveness and training stability.</p>
+                        <div class="code-snippet">
+class GLU:
+    def forward(self, x):
+        # Project to 2 * d_ff dimensions
+        projected = self.linear(x)
+        
+        # Split into gate and value
+        gate, value = projected.chunk(2, dim=-1)
+        
+        # Apply sigmoid gating
+        return torch.sigmoid(gate) * value
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🧠 GeGLU Activation</h4>
+                        <p>Uses GELU activation instead of ReLU, providing smoother gradients and better performance in many tasks.</p>
+                        <div class="code-snippet">
+def gelu_gating(x):
+    gate, value = x.chunk(2, dim=-1)
+    gate = F.gelu(gate)
+    return gate * value
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>⚡ Fused Operations</h4>
+                        <p>Modern implementations combine multiple operations into single kernels for improved efficiency and reduced memory overhead.</p>
+                        <div class="code-snippet">
+# Fused FFN operation
+def fused_ffn(x):
+    # Single kernel for projection + activation
+    return fused_linear_gelu(x, W1, W2)
+                        </div>
+                    </div>
+                </div>
+
+                <h3>FFN Parameter Distribution</h3>
+                <div class="info-box">
+                    <h4>📊 Parameter Breakdown (7B Model Example)</h4>
+                    <ul>
+                        <li><strong>Attention Weights:</strong> ~25% of parameters (Q, K, V, O projections)</li>
+                        <li><strong>Feed-Forward:</strong> ~65% of parameters (W1, W2 matrices)</li>
+                        <li><strong>Embeddings:</strong> ~8% of parameters (input/output embeddings)</li>
+                        <li><strong>Layer Norms:</strong> ~2% of parameters (normalization layers)</li>
+                    </ul>
+                </div>
+
+                <h3>FFN Optimization Techniques</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Technique</th>
+                            <th>Method</th>
+                            <th>Memory Saving</th>
+                            <th>Speed Impact</th>
+                            <th>Quality Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Activation Checkpointing</strong></td>
+                            <td>Recompute activations during backprop</td>
+                            <td>50-70%</td>
+                            <td>15-25% slower</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Gradient Accumulation</strong></td>
+                            <td>Accumulate gradients over mini-batches</td>
+                            <td>Proportional to accumulation steps</td>
+                            <td>Minimal</td>
+                            <td>None</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mixed Precision</strong></td>
+                            <td>Use FP16 for forward, FP32 for gradients</td>
+                            <td>40-50%</td>
+                            <td>30-50% faster</td>
+                            <td>Minimal</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quantization</strong></td>
+                            <td>Reduce weight precision</td>
+                            <td>60-75%</td>
+                            <td>Varies</td>
+                            <td>Slight</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Layer Normalization -->
+            <section id="layer-norm">
+                <h2>Layer Normalization</h2>
+                
+                <p>Layer normalization is crucial for training stability in transformers. It normalizes the inputs across the feature dimension for each individual example, unlike batch normalization which normalizes across the batch dimension.</p>
+
+                <h3>Layer Norm vs Batch Norm</h3>
+                <div class="math-box">
+                    <h4>Layer Normalization Formula</h4>
+                    <p><strong>LayerNorm(x) = γ × (x - μ) / σ + β</strong></p>
+                    <br>
+                    <p>Where:</p>
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>μ = mean across feature dimension</li>
+                        <li>σ = standard deviation across feature dimension</li>
+                        <li>γ = learnable scale parameter</li>
+                        <li>β = learnable shift parameter</li>
+                    </ul>
+                </div>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 Layer Normalization Benefits</h4>
+                        <ul>
+                            <li>Independent of batch size</li>
+                            <li>Works well with variable sequence lengths</li>
+                            <li>Stable during both training and inference</li>
+                            <li>Reduces internal covariate shift</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📊 Comparison with Batch Norm</h4>
+                        <ul>
+                            <li><strong>Dimension:</strong> Normalizes across features vs. batch</li>
+                            <li><strong>Inference:</strong> No batch dependency</li>
+                            <li><strong>RNNs:</strong> Better suited for sequential models</li>
+                            <li><strong>Memory:</strong> No running statistics needed</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Layer Norm Placement Variants</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📝 Post-Norm (Original)</h4>
+                        <p>Layer norm applied after the sub-layer, used in the original transformer paper.</p>
+                        <div class="code-snippet">
+# Post-norm: Original transformer
+x = x + sublayer(x)
+x = layer_norm(x)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔄 Pre-Norm (Modern)</h4>
+                        <p>Layer norm applied before the sub-layer, provides better gradient flow and training stability for deep networks.</p>
+                        <div class="code-snippet">
+# Pre-norm: Better for deep networks
+x = x + sublayer(layer_norm(x))
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Advanced Normalization Techniques (2025)</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Description</th>
+                            <th>Advantages</th>
+                            <th>Used In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RMSNorm</strong></td>
+                            <td>Root mean square normalization without centering</td>
+                            <td>Simpler, faster, comparable performance</td>
+                            <td>LLaMA, T5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CosineNorm</strong></td>
+                            <td>Normalizes using cosine similarity</td>
+                            <td>Better gradient properties</td>
+                            <td>Research models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AdaLN</strong></td>
+                            <td>Adaptive layer normalization with learnable parameters</td>
+                            <td>Task-specific adaptation</td>
+                            <td>DiT, adaptive models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QK-Norm</strong></td>
+                            <td>Normalizes query and key vectors separately</td>
+                            <td>Stabilizes attention, prevents outliers</td>
+                            <td>Recent research</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight-box">
+                    <h4>🔬 2025 Research Insights</h4>
+                    <ul>
+                        <li><strong>RMSNorm:</strong> 15-20% faster than LayerNorm with comparable accuracy</li>
+                        <li><strong>Pre-Norm:</strong> Enables training of 1000+ layer models</li>
+                        <li><strong>QK-Norm:</strong> Prevents attention collapse in very large models</li>
+                        <li><strong>Adaptive Methods:</strong> Better handling of domain adaptation tasks</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Input/Output Embeddings -->
+            <section id="embeddings">
+                <h2>Input and Output Embeddings</h2>
+                
+                <p>Embeddings convert discrete tokens (words, subwords, or characters) into dense vector representations that the transformer can process. These learned representations capture semantic and syntactic relationships between tokens.</p>
+
+                <h3>Embedding Components</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📝 Token Embeddings</h4>
+                        <p>Map each token in the vocabulary to a dense vector. The embedding matrix is learned during training to capture semantic relationships.</p>
+                        <div class="code-snippet">
+class TokenEmbedding:
+    def __init__(self, vocab_size, d_model):
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.d_model = d_model
+    
+    def forward(self, tokens):
+        # Scale embeddings by sqrt(d_model)
+        return self.embedding(tokens) * math.sqrt(self.d_model)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📍 Positional Embeddings</h4>
+                        <p>Add positional information to token embeddings, enabling the model to understand sequence order and structure.</p>
+                        <div class="code-snippet">
+class PositionalEmbedding:
+    def __init__(self, max_len, d_model):
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len).unsqueeze(1).float()
+        
+        # Create sinusoidal patterns
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * 
+            -(math.log(10000.0) / d_model)
+        )
+        
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        
+        self.register_buffer('pe', pe.unsqueeze(0))
+    
+    def forward(self, x):
+        return x + self.pe[:, :x.size(1)]
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Modern Tokenization Approaches</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Vocabulary Size</th>
+                            <th>Advantages</th>
+                            <th>Disadvantages</th>
+                            <th>Used In</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Word-level</strong></td>
+                            <td>50K-100K</td>
+                            <td>Interpretable, direct mapping</td>
+                            <td>OOV problems, large vocab</td>
+                            <td>Early models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BPE</strong></td>
+                            <td>30K-50K</td>
+                            <td>Handles OOV, compression</td>
+                            <td>Language-dependent merging</td>
+                            <td>GPT, BERT</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SentencePiece</strong></td>
+                            <td>32K</td>
+                            <td>Language-agnostic, efficient</td>
+                            <td>Less interpretable units</td>
+                            <td>T5, mT5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Character-level</strong></td>
+                            <td>256</td>
+                            <td>No OOV, small vocab</td>
+                            <td>Long sequences, slow</td>
+                            <td>ByT5, CharBERT</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Embedding Optimization (2025)</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔗 Weight Tying</h4>
+                        <p>Share weights between input and output embeddings to reduce parameters and improve generalization.</p>
+                        <div class="code-snippet">
+# Tied embeddings
+self.token_embedding = nn.Embedding(vocab_size, d_model)
+self.output_projection = nn.Linear(d_model, vocab_size, bias=False)
+
+# Tie the weights
+self.output_projection.weight = self.token_embedding.weight
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📐 Adaptive Input</h4>
+                        <p>Use different embedding dimensions for different frequency bands of tokens, allocating more parameters to frequent words.</p>
+                        <div class="code-snippet">
+class AdaptiveInput:
+    def __init__(self, vocab_size, d_model):
+        # Frequent words: full dimension
+        # Rare words: reduced dimension + projection
+        self.frequent_embed = nn.Embedding(cutoff1, d_model)
+        self.rare_embed = nn.Embedding(vocab_size-cutoff1, d_model//4)
+        self.rare_proj = nn.Linear(d_model//4, d_model)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🌐 Multilingual Embeddings</h4>
+                        <p>Share embedding space across languages with language-specific adapters or language embeddings.</p>
+                        <div class="code-snippet">
+class MultilingualEmbedding:
+    def __init__(self, vocab_size, d_model, num_languages):
+        self.token_embed = nn.Embedding(vocab_size, d_model)
+        self.lang_embed = nn.Embedding(num_languages, d_model)
+    
+    def forward(self, tokens, lang_id):
+        return self.token_embed(tokens) + self.lang_embed(lang_id)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔍 Sparse Embeddings</h4>
+                        <p>Use sparse activation patterns to reduce embedding size and improve efficiency for large vocabularies.</p>
+                        <div class="code-snippet">
+# Sparse embedding with top-k activation
+def sparse_embedding(tokens, embedding_matrix, k=8):
+    # Only activate top-k dimensions per token
+    full_embed = embedding_matrix[tokens]
+    top_k_indices = torch.topk(full_embed.abs(), k, dim=-1).indices
+    sparse_embed = torch.zeros_like(full_embed)
+    sparse_embed.scatter_(-1, top_k_indices, 
+                         full_embed.gather(-1, top_k_indices))
+    return sparse_embed
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model Types -->
+            <section id="model-types">
+                <h2>Model Types</h2>
+                
+                <p>While the transformer architecture provides a general framework, different model types have emerged based on which components are used and how attention patterns are structured. Each type excels at different tasks.</p>
+
+                <div class="architecture-diagram">
+                    <h4>🏗️ Three Main Transformer Architectures</h4>
+                    <pre style="font-family: monospace; font-size: 0.8rem; line-height: 1.3;">
+    ENCODER-ONLY (BERT)     DECODER-ONLY (GPT)     ENCODER-DECODER (T5)
+    ═══════════════════     ═══════════════════     ═══════════════════════
+                                                    
+    [Classification Head]   [Language Model Head]   [Language Model Head]
+             ↑                       ↑                       ↑
+    ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+    │   Encoder ×N    │     │   Decoder ×N    │     │   Decoder ×N    │
+    │ ┌─────────────┐ │     │ ┌─────────────┐ │     │ ┌─────────────┐ │
+    │ │ Self-Attn   │ │     │ │ Masked      │ │     │ │ Masked      │ │
+    │ │(Bidirect.)  │ │     │ │ Self-Attn   │ │     │ │ Self-Attn   │ │
+    │ └─────────────┘ │     │ └─────────────┘ │     │ └─────────────┘ │
+    │ ┌─────────────┐ │     │ ┌─────────────┐ │     │ ┌─────────────┐ │
+    │ │   FFN       │ │     │ │   FFN       │ │     │ │ Cross-Attn  │ │
+    │ └─────────────┘ │     │ └─────────────┘ │     │ └─────────────┘ │
+    └─────────────────┘     └─────────────────┘     │ ┌─────────────┐ │
+             ↑                       ↑              │ │   FFN       │ │
+    [Input + Position]      [Input + Position]      │ └─────────────┘ │
+                                                    └─────────────────┘
+                                                             ↑
+                                                    ┌─────────────────┐
+                                                    │   Encoder ×N    │
+                                                    │ ┌─────────────┐ │
+                                                    │ │ Self-Attn   │ │
+                                                    │ │(Bidirect.)  │ │
+                                                    │ └─────────────┘ │
+                                                    │ ┌─────────────┐ │
+                                                    │ │   FFN       │ │
+                                                    │ └─────────────┘ │
+                                                    └─────────────────┘
+                                                             ↑
+                                                    [Input + Position]
+    </pre>
+                </div>
+            </section>
+
+            <!-- Encoder-Only Models -->
+            <section id="encoder-only">
+                <h2>Encoder-Only Models (BERT)</h2>
+                
+                <p>Encoder-only models like BERT use bidirectional attention to create rich contextual representations. They excel at understanding tasks but cannot generate text autoregressively.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎭 Masked Language Modeling</h4>
+                        <p>BERT's pre-training objective randomly masks 15% of tokens and predicts them using bidirectional context.</p>
+                        <div class="code-snippet">
+# BERT masking strategy
+def mask_tokens(tokens, mask_prob=0.15):
+    masked_tokens = tokens.clone()
+    mask_indices = torch.bernoulli(torch.full(tokens.shape, mask_prob)).bool()
+    
+    # 80% replace with [MASK]
+    masked_tokens[mask_indices] = MASK_TOKEN
+    
+    # 10% replace with random token
+    random_indices = torch.bernoulli(torch.full(tokens.shape, 0.1)).bool()
+    masked_tokens[mask_indices & random_indices] = random.choice(vocab)
+    
+    # 10% keep original (model must predict without [MASK])
+    return masked_tokens, mask_indices
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📊 Next Sentence Prediction</h4>
+                        <p>Secondary objective that helps BERT understand sentence relationships for tasks like question answering.</p>
+                        <div class="code-snippet">
+# NSP training data preparation
+def create_nsp_data(sentences):
+    pairs = []
+    for i in range(len(sentences)-1):
+        # 50% consecutive sentences (IsNext)
+        pairs.append((sentences[i], sentences[i+1], 1))
+        
+        # 50% random sentences (NotNext)
+        random_idx = random.choice(range(len(sentences)))
+        pairs.append((sentences[i], sentences[random_idx], 0))
+    
+    return pairs
+                        </div>
+                    </div>
+                </div>
+
+                <h3>BERT Variants and Improvements</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Key Innovation</th>
+                            <th>Parameters</th>
+                            <th>Performance Gain</th>
+                            <th>Use Cases</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>RoBERTa</strong></td>
+                            <td>Removes NSP, dynamic masking</td>
+                            <td>125M-355M</td>
+                            <td>2-5% on GLUE</td>
+                            <td>General NLU tasks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ALBERT</strong></td>
+                            <td>Parameter sharing, factorized embeddings</td>
+                            <td>12M-223M</td>
+                            <td>SOTA with fewer parameters</td>
+                            <td>Resource-constrained environments</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DeBERTa</strong></td>
+                            <td>Disentangled attention, enhanced mask decoder</td>
+                            <td>86M-1.5B</td>
+                            <td>Superior on SuperGLUE</td>
+                            <td>Complex reasoning tasks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>DistilBERT</strong></td>
+                            <td>Knowledge distillation</td>
+                            <td>66M</td>
+                            <td>97% performance, 60% size</td>
+                            <td>Edge deployment</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Decoder-Only Models -->
+            <section id="decoder-only">
+                <h2>Decoder-Only Models (GPT)</h2>
+                
+                <p>Decoder-only models like GPT use causal attention for autoregressive text generation. They excel at generation tasks and have shown remarkable emergent capabilities at scale.</p>
+
+                <h3>Causal Language Modeling</h3>
+                <div class="math-box">
+                    <h4>Autoregressive Objective</h4>
+                    <p><strong>P(x₁, x₂, ..., xₙ) = ∏ᵢ₌₁ⁿ P(xᵢ | x₁, x₂, ..., xᵢ₋₁)</strong></p>
+                    <br>
+                    <p>The model learns to predict each token given all previous tokens</p>
+                </div>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 Causal Masking</h4>
+                        <p>Lower triangular attention mask ensures each position can only attend to previous positions.</p>
+                        <div class="code-snippet">
+def create_causal_mask(seq_len):
+    # Create lower triangular matrix
+    mask = torch.tril(torch.ones(seq_len, seq_len))
+    
+    # Convert to attention mask (-inf for masked positions)
+    mask = mask.masked_fill(mask == 0, float('-inf'))
+    mask = mask.masked_fill(mask == 1, 0.0)
+    
+    return mask
+
+# Apply during attention computation
+scores = scores + causal_mask
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🎲 Sampling Strategies</h4>
+                        <p>Various methods for selecting the next token during generation, balancing quality and diversity.</p>
+                        <div class="code-snippet">
+def sample_next_token(logits, strategy="top_p", temperature=1.0):
+    if strategy == "greedy":
+        return torch.argmax(logits, dim=-1)
+    
+    elif strategy == "top_k":
+        top_k_logits, top_k_indices = torch.topk(logits, k=50)
+        probs = F.softmax(top_k_logits / temperature, dim=-1)
+        return top_k_indices[torch.multinomial(probs, 1)]
+    
+    elif strategy == "top_p":  # Nucleus sampling
+        sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+        cumulative_probs = torch.cumsum(F.softmax(sorted_logits / temperature, dim=-1), dim=-1)
+        
+        # Remove tokens with cumulative probability above threshold
+        sorted_indices_to_remove = cumulative_probs > 0.9
+        sorted_logits[sorted_indices_to_remove] = float('-inf')
+        
+        probs = F.softmax(sorted_logits / temperature, dim=-1)
+        return sorted_indices[torch.multinomial(probs, 1)]
+                        </div>
+                    </div>
+                </div>
+
+                <h3>GPT Evolution Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">GPT-1 (2018)</div>
+                        <h4>Foundation Architecture</h4>
+                        <p>117M parameters, demonstrated that unsupervised pre-training + supervised fine-tuning works well for NLP tasks.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">GPT-2 (2019)</div>
+                        <h4>Scale and Zero-Shot Learning</h4>
+                        <p>1.5B parameters, showed that larger models can perform tasks without task-specific fine-tuning.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">GPT-3 (2020)</div>
+                        <h4>Emergent Capabilities</h4>
+                        <p>175B parameters, demonstrated in-context learning and few-shot capabilities that surprised the research community.</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="timeline-year">GPT-4 (2023)</div>
+                        <h4>Multimodal and Reasoning</h4>
+                        <p>Estimated 1.7T parameters, multimodal capabilities, significant improvements in reasoning and factual accuracy.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Encoder-Decoder Models -->
+            <section id="encoder-decoder">
+                <h2>Encoder-Decoder Models (T5)</h2>
+                
+                <p>Encoder-decoder models combine the strengths of both architectures, using an encoder for understanding input and a decoder for generating output. T5's "Text-to-Text Transfer Transformer" unified many NLP tasks.</p>
+
+                <h3>Text-to-Text Framework</h3>
+                <div class="info-box">
+                    <h4>🔄 Everything as Text-to-Text</h4>
+                    <ul>
+                        <li><strong>Translation:</strong> "translate English to German: Hello world" → "Hallo Welt"</li>
+                        <li><strong>Summarization:</strong> "summarize: [article text]" → "[summary]"</li>
+                        <li><strong>Classification:</strong> "sentiment: I love this movie" → "positive"</li>
+                        <li><strong>QA:</strong> "question: What is AI? context: [text]" → "[answer]"</li>
+                    </ul>
+                </div>
+
+                <h3>T5 Architecture Innovations</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 Relative Position Bias</h4>
+                        <p>Instead of absolute position embeddings, T5 uses relative position bias added to attention scores.</p>
+                        <div class="code-snippet">
+class RelativePositionBias:
+    def __init__(self, num_heads, max_distance=128):
+        self.num_heads = num_heads
+        self.max_distance = max_distance
+        
+        # Learnable bias table
+        self.relative_attention_bias = nn.Embedding(
+            2 * max_distance + 1, num_heads
+        )
+    
+    def forward(self, seq_len):
+        # Create relative position matrix
+        position_ids = torch.arange(seq_len)
+        relative_positions = position_ids[:, None] - position_ids[None, :]
+        
+        # Clamp to max distance
+        relative_positions = torch.clamp(
+            relative_positions, -self.max_distance, self.max_distance
+        ) + self.max_distance
+        
+        # Get bias values
+        bias = self.relative_attention_bias(relative_positions)
+        return bias.permute(2, 0, 1)  # (num_heads, seq_len, seq_len)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔍 Span Corruption</h4>
+                        <p>T5's pre-training corrupts random spans of text and trains the model to reconstruct them.</p>
+                        <div class="code-snippet">
+def span_corruption(text, corruption_rate=0.15, mean_span_length=3):
+    tokens = text.split()
+    
+    # Calculate number of spans to corrupt
+    num_tokens_to_corrupt = int(len(tokens) * corruption_rate)
+    num_spans = max(1, num_tokens_to_corrupt // mean_span_length)
+    
+    # Randomly select span starts
+    span_starts = random.sample(range(len(tokens)), num_spans)
+    
+    corrupted_tokens = tokens.copy()
+    sentinel_id = 0
+    
+    for start in sorted(span_starts, reverse=True):
+        # Determine span length
+        span_length = min(
+            np.random.poisson(mean_span_length),
+            len(tokens) - start
+        )
+        
+        # Replace span with sentinel token
+        corrupted_tokens[start:start+span_length] = [f"<extra_id_{sentinel_id}>"]
+        sentinel_id += 1
+    
+    return " ".join(corrupted_tokens)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transfer Learning -->
+            <section id="transfer-learning">
+                <h2>Transfer Learning</h2>
+                
+                <p>Transfer learning enables leveraging knowledge from pre-trained transformer models for new tasks. This approach has revolutionized NLP by making state-of-the-art performance accessible with minimal task-specific data.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 Pre-training Phase</h4>
+                        <p>Models learn general language understanding from massive text corpora using self-supervised objectives.</p>
+                        <ul>
+                            <li>Massive datasets (trillions of tokens)</li>
+                            <li>Self-supervised learning objectives</li>
+                            <li>General language representations</li>
+                            <li>Computationally intensive</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔄 Fine-tuning Phase</h4>
+                        <p>Pre-trained models are adapted to specific tasks with task-specific data and objectives.</p>
+                        <ul>
+                            <li>Task-specific datasets (hundreds to thousands of examples)</li>
+                            <li>Supervised learning objectives</li>
+                            <li>Specialized task performance</li>
+                            <li>Computationally efficient</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fine-Tuning -->
+            <section id="fine-tuning">
+                <h2>Fine-Tuning Strategies</h2>
+                
+                <p>Fine-tuning transforms general-purpose models into task-specific systems. Different strategies balance performance, efficiency, and computational requirements.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔧 Full Fine-Tuning</h4>
+                        <p>Update all model parameters for maximum task adaptation.</p>
+                        <div class="code-snippet">
+# Full fine-tuning approach
+optimizer = AdamW(model.parameters(), lr=2e-5)
+
+for batch in dataloader:
+    outputs = model(**batch)
+    loss = outputs.loss
+    loss.backward()
+    optimizer.step()
+    optimizer.zero_grad()
+                        </div>
+                        <ul>
+                            <li><strong>Pros:</strong> Maximum performance, flexible adaptation</li>
+                            <li><strong>Cons:</strong> High memory usage, expensive training</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>❄️ Feature Extraction</h4>
+                        <p>Freeze pre-trained layers and only train task-specific heads.</p>
+                        <div class="code-snippet">
+# Feature extraction approach
+for param in model.base_model.parameters():
+    param.requires_grad = False
+
+# Only train classifier head
+optimizer = AdamW(model.classifier.parameters(), lr=1e-3)
+                        </div>
+                        <ul>
+                            <li><strong>Pros:</strong> Fast training, low memory</li>
+                            <li><strong>Cons:</strong> Limited adaptation capability</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Topics -->
+            <section id="advanced-topics">
+                <h2>Advanced Topics</h2>
+                
+                <p>Modern transformer architectures incorporate sophisticated techniques for efficiency, adaptation, and optimization. These advanced topics represent the cutting edge of transformer research and engineering.</p>
+            </section>
+
+            <!-- Adapters -->
+            <section id="adapters">
+                <h2>Adapters</h2>
+                
+                <p>Adapters are lightweight modules that enable parameter-efficient fine-tuning by inserting small bottleneck layers into pre-trained models. They allow task-specific adaptation while keeping most parameters frozen.</p>
+
+                <h3>Adapter Architecture</h3>
+                <div class="math-box">
+                    <h4>Adapter Transformation</h4>
+                    <p><strong>Adapter(x) = x + f(LayerNorm(x))</strong></p>
+                    <p><strong>f(x) = W_up(σ(W_down(x)))</strong></p>
+                    <br>
+                    <p>Where W_down reduces dimensionality and W_up restores it</p>
+                </div>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔗 Standard Adapters</h4>
+                        <p>Bottleneck architecture with down-projection, activation, and up-projection layers.</p>
+                        <div class="code-snippet">
+class Adapter(nn.Module):
+    def __init__(self, d_model, bottleneck_dim=64):
+        super().__init__()
+        self.layer_norm = nn.LayerNorm(d_model)
+        self.down_proj = nn.Linear(d_model, bottleneck_dim)
+        self.up_proj = nn.Linear(bottleneck_dim, d_model)
+        self.activation = nn.ReLU()
+        
+        # Initialize to near-identity
+        self.down_proj.weight.data.normal_(std=0.001)
+        self.up_proj.weight.data.normal_(std=0.001)
+        self.down_proj.bias.data.zero_()
+        self.up_proj.bias.data.zero_()
+    
+    def forward(self, x):
+        residual = x
+        x = self.layer_norm(x)
+        x = self.down_proj(x)
+        x = self.activation(x)
+        x = self.up_proj(x)
+        return x + residual
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔧 Parallel Adapters</h4>
+                        <p>Place adapters in parallel with feed-forward layers rather than sequentially.</p>
+                        <div class="code-snippet">
+class ParallelAdapter(nn.Module):
+    def __init__(self, d_model, bottleneck_dim=64, scaling=1.0):
+        super().__init__()
+        self.scaling = scaling
+        self.adapter = Adapter(d_model, bottleneck_dim)
+    
+    def forward(self, x, ffn_output):
+        # Parallel to FFN
+        adapter_output = self.adapter(x)
+        return ffn_output + self.scaling * adapter_output
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🎭 AdapterFusion</h4>
+                        <p>Combine multiple task-specific adapters with learned attention weights.</p>
+                        <div class="code-snippet">
+class AdapterFusion(nn.Module):
+    def __init__(self, d_model, num_adapters):
+        super().__init__()
+        self.num_adapters = num_adapters
+        self.attention = nn.MultiheadAttention(d_model, num_heads=8)
+        self.layer_norm = nn.LayerNorm(d_model)
+    
+    def forward(self, x, adapter_outputs):
+        # Stack adapter outputs
+        adapter_stack = torch.stack(adapter_outputs, dim=1)
+        
+        # Apply attention to combine adapters
+        query = self.layer_norm(x).unsqueeze(1)
+        fused, _ = self.attention(query, adapter_stack, adapter_stack)
+        
+        return x + fused.squeeze(1)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🚀 LoRA (Low-Rank Adaptation)</h4>
+                        <p>Decompose weight updates into low-rank matrices for extreme parameter efficiency.</p>
+                        <div class="code-snippet">
+class LoRALinear(nn.Module):
+    def __init__(self, in_features, out_features, rank=16, alpha=16, dropout=0.1):
+        super().__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.rank = rank
+        self.alpha = alpha
+        
+        # Frozen base layer
+        self.base_layer = nn.Linear(in_features, out_features, bias=False)
+        self.base_layer.weight.requires_grad = False
+        
+        # LoRA parameters
+        self.lora_A = nn.Parameter(torch.randn(rank, in_features))
+        self.lora_B = nn.Parameter(torch.zeros(out_features, rank))
+        self.dropout = nn.Dropout(dropout)
+        
+        # Initialize A with random values, B with zeros
+        nn.init.kaiming_uniform_(self.lora_A, a=math.sqrt(5))
+        
+    def forward(self, x):
+        base_output = self.base_layer(x)
+        
+        # LoRA path: x @ A.T @ B.T
+        lora_output = x @ self.lora_A.T
+        lora_output = self.dropout(lora_output)
+        lora_output = lora_output @ self.lora_B.T
+        
+        # Scale and combine
+        return base_output + (self.alpha / self.rank) * lora_output
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Adapter Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Parameters Added</th>
+                            <th>Inference Speed</th>
+                            <th>Memory Usage</th>
+                            <th>Performance</th>
+                            <th>Modularity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Standard Adapters</strong></td>
+                            <td>2-5%</td>
+                            <td>Slight overhead</td>
+                            <td>Low</td>
+                            <td>85-95%</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LoRA</strong></td>
+                            <td>0.1-0.5%</td>
+                            <td>No overhead (merged)</td>
+                            <td>Very low</td>
+                            <td>90-98%</td>
+                            <td>Medium</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Parallel Adapters</strong></td>
+                            <td>2-5%</td>
+                            <td>No overhead</td>
+                            <td>Low</td>
+                            <td>85-95%</td>
+                            <td>High</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AdapterFusion</strong></td>
+                            <td>3-8%</td>
+                            <td>Medium overhead</td>
+                            <td>Medium</td>
+                            <td>90-98%</td>
+                            <td>Very high</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Gradient Flow -->
+            <section id="gradient-flow">
+                <h2>Gradient Flow Optimization</h2>
+                
+                <p>Efficient gradient flow is crucial for training deep transformer networks. Modern techniques optimize memory usage, computation, and numerical stability during backpropagation.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔄 Gradient Checkpointing</h4>
+                        <p>Trade computation for memory by recomputing activations during backward pass.</p>
+                        <div class="code-snippet">
+# Gradient checkpointing implementation
+def gradient_checkpoint(function, *args):
+    """Save memory by recomputing activations"""
+    class CheckpointFunction(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, *args):
+            # Don't save activations, save inputs instead
+            ctx.save_for_backward(*args)
+            ctx.function = function
+            
+            with torch.no_grad():
+                outputs = function(*args)
+            return outputs
+        
+        @staticmethod
+        def backward(ctx, *grad_outputs):
+            # Recompute forward pass to get activations
+            inputs = ctx.saved_tensors
+            with torch.enable_grad():
+                # Recompute with gradients
+                for inp in inputs:
+                    inp.requires_grad_(True)
+                outputs = ctx.function(*inputs)
+            
+            # Now compute gradients normally
+            torch.autograd.backward(outputs, grad_outputs)
+            return tuple(inp.grad for inp in inputs)
+    
+    return CheckpointFunction.apply(*args)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>📊 Gradient Accumulation</h4>
+                        <p>Simulate larger batch sizes by accumulating gradients across multiple micro-batches.</p>
+                        <div class="code-snippet">
+# Gradient accumulation for effective large batch training
+accumulation_steps = 8
+effective_batch_size = batch_size * accumulation_steps
+
+optimizer.zero_grad()
+for i, batch in enumerate(dataloader):
+    # Scale loss by accumulation steps
+    loss = model(batch).loss / accumulation_steps
+    loss.backward()
+    
+    # Update every accumulation_steps
+    if (i + 1) % accumulation_steps == 0:
+        optimizer.step()
+        optimizer.zero_grad()
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Optimizer States -->
+            <section id="optimizer-states">
+                <h2>Optimizer States</h2>
+                
+                <p>Optimizer states consume significant memory in large model training. Advanced techniques reduce memory usage while maintaining optimization effectiveness.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🧮 AdamW Optimizer</h4>
+                        <p>Improved Adam with decoupled weight decay, standard for transformer training.</p>
+                        <div class="code-snippet">
+class AdamW:
+    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.01):
+        self.params = list(params)
+        self.lr = lr
+        self.beta1, self.beta2 = betas
+        self.eps = eps
+        self.weight_decay = weight_decay
+        
+        # Initialize optimizer states
+        self.state = {}
+        for param in self.params:
+            self.state[param] = {
+                'step': 0,
+                'exp_avg': torch.zeros_like(param),      # First moment
+                'exp_avg_sq': torch.zeros_like(param),   # Second moment
+            }
+    
+    def step(self):
+        for param in self.params:
+            if param.grad is None:
+                continue
+                
+            grad = param.grad
+            state = self.state[param]
+            
+            state['step'] += 1
+            
+            # Exponential moving averages
+            state['exp_avg'].mul_(self.beta1).add_(grad, alpha=1-self.beta1)
+            state['exp_avg_sq'].mul_(self.beta2).addcmul_(grad, grad, value=1-self.beta2)
+            
+            # Bias correction
+            bias_correction1 = 1 - self.beta1 ** state['step']
+            bias_correction2 = 1 - self.beta2 ** state['step']
+            
+            # Update parameters
+            denom = (state['exp_avg_sq'].sqrt() / math.sqrt(bias_correction2)).add_(self.eps)
+            step_size = self.lr / bias_correction1
+            
+            # Weight decay (decoupled)
+            param.data.mul_(1 - self.lr * self.weight_decay)
+            
+            # Parameter update
+            param.data.addcdiv_(state['exp_avg'], denom, value=-step_size)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>💾 ZeRO Optimizer</h4>
+                        <p>Zero Redundancy Optimizer that partitions optimizer states across devices.</p>
+                        <div class="code-snippet">
+# ZeRO Stage 2: Partition optimizer states and gradients
+class ZeROOptimizer:
+    def __init__(self, optimizer, model, world_size):
+        self.base_optimizer = optimizer
+        self.model = model
+        self.world_size = world_size
+        self.rank = torch.distributed.get_rank()
+        
+        # Partition parameters across ranks
+        self.partition_parameters()
+    
+    def partition_parameters(self):
+        """Partition parameters across devices"""
+        params = list(self.model.parameters())
+        params_per_rank = len(params) // self.world_size
+        
+        start_idx = self.rank * params_per_rank
+        end_idx = (self.rank + 1) * params_per_rank
+        if self.rank == self.world_size - 1:
+            end_idx = len(params)  # Handle remainder
+        
+        # Only this rank owns these parameters' optimizer states
+        self.owned_params = params[start_idx:end_idx]
+        self.local_optimizer = self.base_optimizer(self.owned_params)
+    
+    def step(self):
+        # Gather gradients for owned parameters
+        for param in self.owned_params:
+            if param.grad is not None:
+                # All-reduce gradient across ranks
+                torch.distributed.all_reduce(param.grad)
+                param.grad /= self.world_size
+        
+        # Update only owned parameters
+        self.local_optimizer.step()
+        
+        # All-gather updated parameters
+        for param in self.model.parameters():
+            torch.distributed.all_gather(param.data)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quantization -->
+            <section id="quantization">
+                <h2>Quantization Techniques</h2>
+                
+                <p>Quantization reduces the precision of model weights and activations to decrease memory usage and improve inference speed. Modern quantization techniques enable deployment of large models on resource-constrained devices.</p>
+
+                <!-- 32-bit Transformers -->
+                <section id="32bit">
+                    <h3>32-bit Transformers (FP32)</h3>
+                </section>
+                
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 32-bit (FP32)</h4>
+                        <p>Full precision floating point. Standard training format with maximum numerical stability.</p>
+                        <div class="code-snippet">
+# FP32: 1 sign + 8 exponent + 23 mantissa bits
+# Range: ±3.4 × 10^38
+# Memory: 4 bytes per parameter
+model = model.float()  # Ensure FP32
+                        </div>
+                        <ul>
+                            <li><strong>Memory:</strong> 4 bytes per parameter</li>
+                            <li><strong>Speed:</strong> Baseline</li>
+                            <li><strong>Accuracy:</strong> Highest</li>
+                            <li><strong>Use Case:</strong> Training, high-precision inference</li>
+                        </ul>
+                    </div>
+                    
+                </div>
+
+                <!-- 16-bit Transformers -->
+                <section id="16bit">
+                    <h3>16-bit Transformers (FP16/BF16)</h3>
+                </section>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>⚡ 16-bit (FP16/BF16)</h4>
+                        <p>Half precision formats that reduce memory by 50% while maintaining good accuracy.</p>
+                        <div class="code-snippet">
+# FP16: 1 sign + 5 exponent + 10 mantissa bits
+# BF16: 1 sign + 8 exponent + 7 mantissa bits
+# Memory: 2 bytes per parameter
+
+# Mixed precision training
+scaler = torch.cuda.amp.GradScaler()
+with torch.cuda.amp.autocast():
+    outputs = model(inputs)
+    loss = criterion(outputs, targets)
+
+scaler.scale(loss).backward()
+scaler.step(optimizer)
+scaler.update()
+                        </div>
+                        <ul>
+                            <li><strong>Memory:</strong> 2 bytes per parameter</li>
+                            <li><strong>Speed:</strong> 1.5-2x faster</li>
+                            <li><strong>Accuracy:</strong> 99%+ of FP32</li>
+                            <li><strong>Use Case:</strong> Training and inference</li>
+                        </ul>
+                    </div>
+                    
+                </div>
+
+                <!-- 8-bit Transformers -->
+                <section id="8bit">
+                    <h3>8-bit Transformers (INT8)</h3>
+                </section>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🔧 8-bit (INT8)</h4>
+                        <p>Integer quantization that reduces memory by 75% with minimal accuracy loss.</p>
+                        <div class="code-snippet">
+# Post-training quantization
+def quantize_weights(weights, bits=8):
+    # Calculate scale and zero point
+    min_val = weights.min()
+    max_val = weights.max()
+    
+    qmin = 0
+    qmax = (2 ** bits) - 1
+    
+    scale = (max_val - min_val) / (qmax - qmin)
+    zero_point = qmin - min_val / scale
+    
+    # Quantize
+    quantized = torch.round(weights / scale + zero_point)
+    quantized = torch.clamp(quantized, qmin, qmax)
+    
+    return quantized.to(torch.uint8), scale, zero_point
+
+# Dequantize for computation
+def dequantize(quantized, scale, zero_point):
+    return (quantized.float() - zero_point) * scale
+                        </div>
+                        <ul>
+                            <li><strong>Memory:</strong> 1 byte per parameter</li>
+                            <li><strong>Speed:</strong> 2-4x faster (with specialized hardware)</li>
+                            <li><strong>Accuracy:</strong> 95-99% of FP32</li>
+                            <li><strong>Use Case:</strong> Inference, edge deployment</li>
+                        </ul>
+                    </div>
+                    
+                </div>
+
+                <!-- 4-bit Transformers -->
+                <section id="4bit">
+                    <h3>4-bit Transformers (NF4/QLoRA)</h3>
+                </section>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🚀 4-bit (NF4/QLoRA)</h4>
+                        <p>Extreme quantization that enables running 65B models on single GPUs.</p>
+                        <div class="code-snippet">
+# NormalFloat4 (NF4) quantization
+def create_nf4_quantization():
+    # Information-theoretically optimal for normal distribution
+    quantization_levels = torch.tensor([
+        -1.0, -0.6961928009986877, -0.5250730514526367,
+        -0.39491748809814453, -0.28444138169288635,
+        -0.18477343022823334, -0.09105003625154495,
+        0.0, 0.07958029955625534, 0.16093020141124725,
+        0.24611230194568634, 0.33791524171829224,
+        0.44070982933044434, 0.5626170635223389,
+        0.7229568362236023, 1.0
+    ])
+    return quantization_levels
+
+# QLoRA implementation
+class QLoRALinear(nn.Module):
+    def __init__(self, base_layer, rank=16, alpha=16):
+        super().__init__()
+        
+        # Quantize base layer to 4-bit
+        self.quantized_weight, self.scale, self.zero_point = \
+            quantize_nf4(base_layer.weight)
+        
+        # Add LoRA adapters
+        self.lora_A = nn.Parameter(torch.randn(rank, base_layer.in_features))
+        self.lora_B = nn.Parameter(torch.zeros(base_layer.out_features, rank))
+        self.alpha = alpha
+        self.rank = rank
+        
+    def forward(self, x):
+        # Dequantize base weight for computation
+        base_weight = dequantize_nf4(
+            self.quantized_weight, self.scale, self.zero_point
+        )
+        
+        # Base computation
+        base_output = F.linear(x, base_weight)
+        
+        # LoRA computation
+        lora_output = x @ self.lora_A.T @ self.lora_B.T
+        
+        return base_output + (self.alpha / self.rank) * lora_output
+                        </div>
+                        <ul>
+                            <li><strong>Memory:</strong> 0.5 bytes per parameter</li>
+                            <li><strong>Speed:</strong> Varies (dequantization overhead)</li>
+                            <li><strong>Accuracy:</strong> 90-95% of FP32</li>
+                            <li><strong>Use Case:</strong> Fine-tuning large models</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Advanced Quantization Techniques (2025)</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🎯 GPTQ (Post-Training Quantization)</h4>
+                        <p>Optimal quantization using second-order information for minimal accuracy loss.</p>
+                        <div class="code-snippet">
+# GPTQ algorithm for layer-wise quantization
+def gptq_quantize_layer(layer, calibration_data, bits=4):
+    # Collect Hessian information
+    hessian = compute_hessian(layer, calibration_data)
+    
+    # Quantize weights one by one using optimal rounding
+    quantized_weights = layer.weight.clone()
+    
+    for i in range(layer.weight.size(0)):
+        for j in range(layer.weight.size(1)):
+            # Find optimal quantization value
+            original_weight = quantized_weights[i, j]
+            candidates = get_quantization_candidates(original_weight, bits)
+            
+            best_error = float('inf')
+            best_candidate = candidates[0]
+            
+            for candidate in candidates:
+                error = compute_quantization_error(
+                    original_weight, candidate, hessian[i, j]
+                )
+                if error < best_error:
+                    best_error = error
+                    best_candidate = candidate
+            
+            quantized_weights[i, j] = best_candidate
+    
+    return quantized_weights
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>⚙️ AWQ (Activation-aware Weight Quantization)</h4>
+                        <p>Protects salient weights based on activation magnitudes for better performance.</p>
+                        <div class="code-snippet">
+def awq_quantize(model, calibration_data):
+    activation_scales = {}
+    
+    # Step 1: Collect activation statistics
+    def hook_fn(module, input, output):
+        activation_scales[module] = input[0].abs().mean(dim=0)
+    
+    handles = []
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            handles.append(module.register_forward_hook(hook_fn))
+    
+    # Run calibration
+    model.eval()
+    with torch.no_grad():
+        for batch in calibration_data:
+            model(batch)
+    
+    # Remove hooks
+    for handle in handles:
+        handle.remove()
+    
+    # Step 2: Quantize with protection for salient weights
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            scales = activation_scales[module]
+            
+            # Protect top-k% most important weights
+            importance = scales.unsqueeze(0) @ module.weight.abs()
+            threshold = importance.quantile(0.95)  # Protect top 5%
+            
+            # Apply different quantization strategies
+            salient_mask = importance > threshold
+            
+            # Full precision for salient weights
+            quantized_weight = module.weight.clone()
+            quantized_weight[~salient_mask] = quantize_weights(
+                quantized_weight[~salient_mask], bits=4
+            )
+            
+            module.weight.data = quantized_weight
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Memory Optimization -->
+            <section id="memory-optimization">
+                <h2>Memory Optimization and Performance</h2>
+                
+                <p>Modern transformers require sophisticated memory management techniques to handle large models and long sequences efficiently. These optimizations are crucial for both training and inference.</p>
+            </section>
+
+            <!-- FlashAttention -->
+            <section id="flash-attention">
+                <h2>FlashAttention</h2>
+                
+                <p>FlashAttention revolutionizes attention computation by restructuring the algorithm to be IO-aware, dramatically reducing memory usage and improving speed for long sequences.</p>
+
+                <h3>The Memory Problem</h3>
+                <div class="warning-box">
+                    <h4>⚠️ Standard Attention Memory Bottleneck</h4>
+                    <p>Standard attention has O(N²) memory complexity:</p>
+                    <ul>
+                        <li><strong>Sequence length 1K:</strong> ~1M attention scores</li>
+                        <li><strong>Sequence length 4K:</strong> ~16M attention scores</li>
+                        <li><strong>Sequence length 16K:</strong> ~256M attention scores</li>
+                        <li><strong>With batch size and heads:</strong> Memory explodes quickly</li>
+                    </ul>
+                </div>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>🧠 FlashAttention Algorithm</h4>
+                        <p>Tile-based computation that never materializes the full attention matrix.</p>
+                        <div class="code-snippet">
+def flash_attention_forward(Q, K, V, block_size=128):
+    B, H, N, d = Q.shape
+    
+    # Initialize output and normalization
+    O = torch.zeros_like(Q)
+    l = torch.zeros((B, H, N))  # Normalization factor
+    m = torch.full((B, H, N), float('-inf'))  # Maximum value
+    
+    # Process in blocks
+    for i in range(0, N, block_size):
+        # Load Q block into SRAM
+        Qi = Q[:, :, i:i+block_size, :]
+        
+        for j in range(0, N, block_size):
+            # Load K, V blocks into SRAM
+            Kj = K[:, :, j:j+block_size, :]
+            Vj = V[:, :, j:j+block_size, :]
+            
+            # Compute attention scores for this block
+            Sij = torch.matmul(Qi, Kj.transpose(-2, -1)) / math.sqrt(d)
+            
+            # Apply causal mask if needed
+            if j > i:
+                Sij = torch.full_like(Sij, float('-inf'))
+            
+            # Online softmax computation
+            mij = torch.max(Sij, dim=-1, keepdim=True)[0]
+            Pij = torch.exp(Sij - mij)
+            lij = torch.sum(Pij, dim=-1, keepdim=True)
+            
+            # Update running statistics
+            mi_new = torch.max(m[:, :, i:i+block_size].unsqueeze(-1), mij)
+            li_new = torch.exp(m[:, :, i:i+block_size].unsqueeze(-1) - mi_new) * \
+                     l[:, :, i:i+block_size].unsqueeze(-1) + \
+                     torch.exp(mij - mi_new) * lij
+            
+            # Update output
+            O[:, :, i:i+block_size] = (
+                O[:, :, i:i+block_size] * 
+                torch.exp(m[:, :, i:i+block_size].unsqueeze(-1) - mi_new) * 
+                l[:, :, i:i+block_size].unsqueeze(-1) +
+                torch.matmul(Pij, Vj) * torch.exp(mij - mi_new)
+            ) / li_new
+            
+            # Update statistics
+            m[:, :, i:i+block_size] = mi_new.squeeze(-1)
+            l[:, :, i:i+block_size] = li_new.squeeze(-1)
+    
+    return O
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>⚡ FlashAttention-2 Improvements</h4>
+                        <p>2025 version with 32% throughput improvements through better parallelization.</p>
+                        <div class="code-snippet">
+# FlashAttention-2 key improvements:
+# 1. Better work partitioning across thread blocks
+# 2. Reduced shared memory usage
+# 3. Optimized attention computation ordering
+
+def flash_attention_v2_config():
+    return {
+        'block_size_q': 128,      # Query block size
+        'block_size_kv': 64,      # Key/Value block size  
+        'num_stages': 2,          # Pipeline stages
+        'causal_mask_mode': 'efficient',  # Optimized masking
+        'dropout_mode': 'fused',  # Fused dropout
+        'precision': 'mixed'      # Mixed precision support
+    }
+
+# Performance gains (measured on A100):
+# - 32% higher throughput vs FlashAttention-1
+# - 50% lower memory usage vs standard attention
+# - Scales to 128K+ sequence lengths
+                        </div>
+                    </div>
+                </div>
+
+                <h3>FlashAttention Benefits</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Sequence Length</th>
+                            <th>Standard Attention Memory</th>
+                            <th>FlashAttention Memory</th>
+                            <th>Speed Improvement</th>
+                            <th>Memory Reduction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>512</strong></td>
+                            <td>2 GB</td>
+                            <td>0.5 GB</td>
+                            <td>1.2x</td>
+                            <td>75%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>2048</strong></td>
+                            <td>32 GB</td>
+                            <td>2 GB</td>
+                            <td>2.1x</td>
+                            <td>94%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>8192</strong></td>
+                            <td>512 GB</td>
+                            <td>8 GB</td>
+                            <td>3.8x</td>
+                            <td>98%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>32768</strong></td>
+                            <td>OOM</td>
+                            <td>32 GB</td>
+                            <td>N/A</td>
+                            <td>Enables processing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Paging Flow -->
+            <section id="paging-flow">
+                <h2>Paging Flow and Memory Management</h2>
+                
+                <p>PagedAttention and advanced memory management techniques enable efficient processing of variable-length sequences and dynamic batching for inference systems.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📄 PagedAttention</h4>
+                        <p>Inspired by virtual memory systems, PagedAttention eliminates memory fragmentation by storing attention keys and values in non-contiguous memory pages.</p>
+                        <div class="code-snippet">
+class PagedAttention:
+    def __init__(self, page_size=16, max_pages=1000):
+        self.page_size = page_size  # Tokens per page
+        self.max_pages = max_pages
+        
+        # Page table mapping logical to physical pages
+        self.page_table = {}
+        self.physical_pages = torch.zeros(
+            max_pages, page_size, hidden_size
+        )
+        self.free_pages = list(range(max_pages))
+    
+    def allocate_sequence(self, seq_id, seq_len):
+        """Allocate pages for a new sequence"""
+        num_pages_needed = (seq_len + self.page_size - 1) // self.page_size
+        
+        if len(self.free_pages) < num_pages_needed:
+            raise MemoryError("Not enough free pages")
+        
+        # Allocate physical pages
+        allocated_pages = []
+        for _ in range(num_pages_needed):
+            page_id = self.free_pages.pop(0)
+            allocated_pages.append(page_id)
+        
+        self.page_table[seq_id] = allocated_pages
+        return allocated_pages
+    
+    def get_kv_cache(self, seq_id, position):
+        """Retrieve KV cache for a position"""
+        pages = self.page_table[seq_id]
+        page_idx = position // self.page_size
+        page_offset = position % self.page_size
+        
+        physical_page = pages[page_idx]
+        return self.physical_pages[physical_page, page_offset]
+    
+    def extend_sequence(self, seq_id, new_tokens):
+        """Dynamically extend sequence with new tokens"""
+        current_pages = self.page_table[seq_id]
+        current_capacity = len(current_pages) * self.page_size
+        
+        total_length = current_capacity + len(new_tokens)
+        needed_pages = (total_length + self.page_size - 1) // self.page_size
+        
+        if needed_pages > len(current_pages):
+            # Allocate additional pages
+            additional_pages_needed = needed_pages - len(current_pages)
+            for _ in range(additional_pages_needed):
+                if not self.free_pages:
+                    raise MemoryError("Cannot extend sequence")
+                new_page = self.free_pages.pop(0)
+                current_pages.append(new_page)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔄 Dynamic Batching</h4>
+                        <p>Continuous batching that processes sequences of different lengths efficiently without padding waste.</p>
+                        <div class="code-snippet">
+class ContinuousBatching:
+    def __init__(self, max_batch_size=32, max_sequence_length=2048):
+        self.max_batch_size = max_batch_size
+        self.max_sequence_length = max_sequence_length
+        self.active_sequences = {}
+        self.completion_queue = []
+    
+    def add_request(self, request_id, prompt, max_new_tokens):
+        """Add a new generation request"""
+        if len(self.active_sequences) >= self.max_batch_size:
+            return False  # Batch full
+        
+        self.active_sequences[request_id] = {
+            'tokens': tokenize(prompt),
+            'max_new_tokens': max_new_tokens,
+            'generated_tokens': 0,
+            'finished': False
+        }
+        return True
+    
+    def prepare_batch(self):
+        """Prepare batch for next forward pass"""
+        if not self.active_sequences:
+            return None
+        
+        # Collect current token positions for each sequence
+        input_ids = []
+        attention_masks = []
+        position_ids = []
+        
+        for req_id, seq_data in self.active_sequences.items():
+            tokens = seq_data['tokens']
+            
+            # For continuing generation, only process the last token
+            if seq_data['generated_tokens'] > 0:
+                input_ids.append([tokens[-1]])
+                position_ids.append([len(tokens) - 1])
+            else:
+                input_ids.append(tokens)
+                position_ids.append(list(range(len(tokens))))
+            
+            # Create attention mask (can attend to all previous tokens)
+            attention_masks.append([1] * len(tokens))
+        
+        # Pack into tensors (with variable lengths)
+        return {
+            'input_ids': input_ids,
+            'attention_masks': attention_masks, 
+            'position_ids': position_ids
+        }
+    
+    def update_sequences(self, next_tokens):
+        """Update sequences with newly generated tokens"""
+        completed = []
+        
+        for i, (req_id, seq_data) in enumerate(self.active_sequences.items()):
+            new_token = next_tokens[i]
+            
+            # Add new token
+            seq_data['tokens'].append(new_token)
+            seq_data['generated_tokens'] += 1
+            
+            # Check completion conditions
+            if (new_token == EOS_TOKEN or 
+                seq_data['generated_tokens'] >= seq_data['max_new_tokens'] or
+                len(seq_data['tokens']) >= self.max_sequence_length):
+                
+                seq_data['finished'] = True
+                completed.append(req_id)
+        
+        # Remove completed sequences
+        for req_id in completed:
+            completed_seq = self.active_sequences.pop(req_id)
+            self.completion_queue.append((req_id, completed_seq))
+        
+        return len(completed)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scaling Strategies -->
+            <section id="scaling">
+                <h2>Scaling Strategies</h2>
+                
+                <p>Scaling transformer models to billions and trillions of parameters requires sophisticated distributed training and inference strategies. Modern scaling techniques enable training and deployment of massive models across multiple devices.</p>
+
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>📊 Data Parallelism</h4>
+                        <p>Distribute training data across multiple devices while replicating the model.</p>
+                        <div class="code-snippet">
+# Data parallelism with DistributedDataParallel
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+# Initialize distributed training
+dist.init_process_group(backend='nccl')
+local_rank = int(os.environ['LOCAL_RANK'])
+torch.cuda.set_device(local_rank)
+
+# Wrap model with DDP
+model = model.to(local_rank)
+model = DDP(model, device_ids=[local_rank])
+
+# Create distributed sampler
+train_sampler = torch.utils.data.distributed.DistributedSampler(dataset)
+dataloader = DataLoader(dataset, sampler=train_sampler, batch_size=batch_size)
+                        </div>
+                    </div>
+                    
+                    <div class="component-card">
+                        <h4>🔗 Model Parallelism</h4>
+                        <p>Distribute model layers across multiple devices when models are too large for single device memory.</p>
+                        <div class="code-snippet">
+# Pipeline parallelism example
+class PipelineParallelTransformer(nn.Module):
+    def __init__(self, num_layers=24, devices=['cuda:0', 'cuda:1', 'cuda:2', 'cuda:3']):
+        super().__init__()
+        self.devices = devices
+        self.layers_per_device = num_layers // len(devices)
+        
+        # Distribute layers across devices
+        self.layer_groups = nn.ModuleList()
+        for i, device in enumerate(devices):
+            start_layer = i * self.layers_per_device
+            end_layer = (i + 1) * self.layers_per_device
+            
+            layers = nn.ModuleList([
+                TransformerLayer() for _ in range(start_layer, end_layer)
+            ]).to(device)
+            
+            self.layer_groups.append(layers)
+    
+    def forward(self, x):
+        for device_layers, device in zip(self.layer_groups, self.devices):
+            x = x.to(device)
+            for layer in device_layers:
+                x = layer(x)
+        return x
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Conclusion -->
+            <section id="conclusion">
+                <div class="highlight-box">
+                    <h3>🎯 Key Takeaways</h3>
+                    <ul>
+                        <li><strong>Architecture Mastery:</strong> Understanding attention mechanisms is fundamental to working with modern AI</li>
+                        <li><strong>Efficiency Innovations:</strong> FlashAttention, quantization, and adapters enable practical deployment</li>
+                        <li><strong>Scaling Strategies:</strong> Memory optimization techniques are crucial for large models</li>
+                        <li><strong>Continuous Evolution:</strong> The field continues advancing with new architectures and optimizations</li>
+                        <li><strong>Practical Impact:</strong> These techniques enable AI applications from mobile devices to data centers</li>
+                    </ul>
+                </div>
+
+                <div class="info-box">
+                    <h4>🚀 Future Directions</h4>
+                    <p>The transformer architecture continues evolving with:</p>
+                    <ul>
+                        <li><strong>Linear Attention:</strong> O(N) complexity alternatives to standard attention</li>
+                        <li><strong>Mixture of Experts:</strong> Sparse models with trillion-parameter capacity</li>
+                        <li><strong>Multimodal Integration:</strong> Unified architectures for text, vision, and audio</li>
+                        <li><strong>Efficient Training:</strong> New methods for faster convergence and stability</li>
+                        <li><strong>Hardware Co-design:</strong> Custom chips optimized for transformer operations</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    link.style.color = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        link.style.color = 'white';
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav(); // Initial call
+        });
+    </script>
+</body>
+</html>

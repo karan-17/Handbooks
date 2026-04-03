@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine-Tuning LLaMA Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8fafc;
+            color: #2d3748;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 280px);
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+            line-height: 1.7;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .info-box {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            color: #2d3436;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(255, 234, 167, 0.3);
+        }
+        
+        .notebook-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3436;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(168, 237, 234, 0.3);
+        }
+        
+        .code-block {
+            background-color: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: "Code";
+            position: absolute;
+            top: 0.5rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .code-comment {
+            color: #9ca3af;
+            font-style: italic;
+        }
+        
+        .code-string {
+            color: #fbbf24;
+        }
+        
+        .code-keyword {
+            color: #8b5cf6;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .comparison-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+        
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .step-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            margin: 0 0 0.5rem 0;
+            color: #2c3e50;
+        }
+        
+        .cell-output {
+            background: #f1f5f9;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .cell-output::before {
+            content: "Output";
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🧠 Fine-Tuning LLaMA</h2>
+            <ul class="nav-links">
+                <li><a href="#introduction" class="main-link">Introduction</a></li>
+                <li><a href="#fundamentals">Fine-Tuning Fundamentals</a></li>
+                <li><a href="#types">Types of Fine-Tuning</a></li>
+                <li><a href="#lora">LoRA & QLoRA</a></li>
+                <li><a href="#techniques">Fine-Tuning Techniques</a></li>
+                <li><a href="#notebook-walkthrough" class="main-link">Notebook Walkthrough</a></li>
+                <li><a href="#setup">Environment Setup</a></li>
+                <li><a href="#model-config">Model Configuration</a></li>
+                <li><a href="#quantization">Quantization Setup</a></li>
+                <li><a href="#training-process">Training Process</a></li>
+                <li><a href="#evaluation">Model Evaluation</a></li>
+                <li><a href="#deployment">Model Deployment</a></li>
+                <li><a href="#advanced" class="main-link">Advanced Topics</a></li>
+                <li><a href="#optimization">Memory Optimization</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#best-practices">Best Practices</a></li>
+                <li><a href="#resources">Resources</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="mlops-aiops-handbook.html">🤖 MLOps & AIOps</a></li>
+                <li><a href="aws-bedrock-sagemaker-handbook.html">☁️ AWS AI/ML</a></li>
+                <li><a href="ai-ethics-handbook.html">⚖️ AI Ethics</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#ai-ml">AI & Machine Learning</a> > 
+                    <span>Fine-Tuning LLaMA Handbook</span>
+                </div>
+            </div>
+
+            <h1>Fine-Tuning LLaMA Handbook</h1>
+            <p><strong>Complete Guide to Fine-Tuning Large Language Models with Practical Implementation</strong></p>
+
+            <div class="highlight-box">
+                <h3>🎯 What You'll Learn</h3>
+                <p>This comprehensive handbook covers fine-tuning fundamentals, QLoRA implementation, and provides a complete walkthrough of the fine_tuning_llama_2.ipynb notebook with detailed explanations of every code snippet and technique used.</p>
+            </div>
+
+            <!-- Introduction -->
+            <section id="introduction">
+                <h2>Introduction</h2>
+                <p>Fine-tuning large language models has become essential for creating specialized AI applications. This handbook provides a complete guide to understanding and implementing fine-tuning techniques, with a detailed walkthrough of a practical LLaMA-2 fine-tuning notebook.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🧠 Theory & Practice</h4>
+                        <p>Comprehensive coverage of fine-tuning fundamentals combined with hands-on implementation using real code examples.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>💾 Memory Efficient</h4>
+                        <p>Learn QLoRA techniques that enable fine-tuning 7B models on consumer GPUs with just 12-16GB memory.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Step-by-Step</h4>
+                        <p>Complete notebook walkthrough with explanations for every code cell and configuration parameter.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🚀 Production Ready</h4>
+                        <p>From training to deployment, including model sharing and optimization techniques for real-world applications.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Fine-Tuning Fundamentals -->
+            <section id="fundamentals">
+                <h2>Fine-Tuning Fundamentals</h2>
+                
+                <h3>What is Fine-Tuning?</h3>
+                <p>Fine-tuning is the process of taking a pre-trained model and adapting it to a specific task or domain by training it on a smaller, specialized dataset. This approach leverages the knowledge already learned during pre-training while specializing the model for your particular use case.</p>
+
+                <div class="info-box">
+                    <h4>Key Benefits of Fine-Tuning</h4>
+                    <ul>
+                        <li><strong>Efficiency:</strong> Requires significantly less data and computation than training from scratch</li>
+                        <li><strong>Performance:</strong> Achieves 80-95% of custom model quality with fraction of the resources</li>
+                        <li><strong>Speed:</strong> Training completed in hours instead of days or weeks</li>
+                        <li><strong>Accessibility:</strong> Modern techniques enable fine-tuning on consumer hardware</li>
+                    </ul>
+                </div>
+
+                <h3>Fine-Tuning vs Other Training Approaches</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Approach</th>
+                            <th>Data Requirements</th>
+                            <th>Compute Needs</th>
+                            <th>Time to Train</th>
+                            <th>Best Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pre-training</strong></td>
+                            <td>Trillions of tokens</td>
+                            <td>Thousands of GPUs</td>
+                            <td>Weeks/Months</td>
+                            <td>Building foundation models</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fine-tuning</strong></td>
+                            <td>500-10,000+ examples</td>
+                            <td>1-8 GPUs</td>
+                            <td>Hours/Days</td>
+                            <td>Domain specialization</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transfer Learning</strong></td>
+                            <td>100-1,000 examples</td>
+                            <td>Single GPU</td>
+                            <td>Minutes/Hours</td>
+                            <td>Similar domain adaptation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>In-Context Learning</strong></td>
+                            <td>Few examples</td>
+                            <td>Inference only</td>
+                            <td>Immediate</td>
+                            <td>Quick prototyping</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>When to Use Fine-Tuning</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>✅ Use Fine-Tuning When</h4>
+                        <ul>
+                            <li>You have 500+ high-quality examples</li>
+                            <li>Need consistent specialized behavior</li>
+                            <li>Domain expertise beyond general knowledge</li>
+                            <li>Quality requirements justify compute costs</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>❌ Avoid Fine-Tuning When</h4>
+                        <ul>
+                            <li>Dataset is too small (&lt;100 examples)</li>
+                            <li>Task can be solved with prompting</li>
+                            <li>Limited computational resources</li>
+                            <li>Need frequent model updates</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Types of Fine-Tuning -->
+            <section id="types">
+                <h2>Types of Fine-Tuning</h2>
+                
+                <h3>Full Fine-Tuning vs Parameter-Efficient Fine-Tuning (PEFT)</h3>
+                
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Full Fine-Tuning</h4>
+                        <p>Updates all model parameters. Provides maximum quality but requires enormous memory (16 bytes per parameter).</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Parameter-Efficient Fine-Tuning (PEFT)</h4>
+                        <p>Updates only a small subset of parameters (0.1-3%). Reduces memory by 10-20x while maintaining 80-95% quality.</p>
+                    </div>
+                </div>
+
+                <h3>PEFT Methods Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Parameters Updated</th>
+                            <th>Memory Reduction</th>
+                            <th>Quality Retention</th>
+                            <th>Inference Speed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>LoRA</strong></td>
+                            <td>0.2-0.3%</td>
+                            <td>10-20x</td>
+                            <td>90-95%</td>
+                            <td>No overhead after merge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>QLoRA</strong></td>
+                            <td>0.2-0.3%</td>
+                            <td>20-30x</td>
+                            <td>85-90%</td>
+                            <td>No overhead after merge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Adapters</strong></td>
+                            <td>1-5%</td>
+                            <td>5-10x</td>
+                            <td>85-95%</td>
+                            <td>Slight overhead</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prefix Tuning</strong></td>
+                            <td>&lt;0.1%</td>
+                            <td>100x+</td>
+                            <td>70-85%</td>
+                            <td>Minimal overhead</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- LoRA & QLoRA -->
+            <section id="lora">
+                <h2>LoRA & QLoRA Deep Dive</h2>
+                
+                <h3>LoRA (Low-Rank Adaptation)</h3>
+                <p>LoRA decomposes weight updates into low-rank matrices, dramatically reducing the number of trainable parameters while maintaining model quality.</p>
+
+                <div class="info-box">
+                    <h4>LoRA Mathematical Foundation</h4>
+                    <p>Instead of updating the full weight matrix W, LoRA approximates the update as:</p>
+                    <p><strong>W' = W + α(BA)</strong></p>
+                    <p>Where B and A are low-rank matrices (r << d), and α is a scaling factor.</p>
+                </div>
+
+                <h3>Key LoRA Parameters</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Rank (r)</h4>
+                        <p>Controls the number of trainable parameters. Higher rank = more parameters but better adaptation capability. Typical values: 8, 16, 32, 64.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Alpha (α)</h4>
+                        <p>Scaling factor for LoRA updates. Usually set to rank value or slightly higher. Controls how much the adaptation affects the model.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Dropout</h4>
+                        <p>Regularization to prevent overfitting. Typical values: 0.05-0.1 for small datasets, 0.1-0.2 for larger datasets.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Target Modules</h4>
+                        <p>Which layers to apply LoRA to. Common choices: query/value projections, all linear layers, or attention layers only.</p>
+                    </div>
+                </div>
+
+                <h3>QLoRA (Quantized LoRA)</h3>
+                <p>QLoRA combines LoRA with 4-bit quantization, enabling fine-tuning of massive models on consumer hardware.</p>
+
+                <div class="warning-box">
+                    <h4>QLoRA Innovations</h4>
+                    <ul>
+                        <li><strong>4-bit Quantization:</strong> Reduces base model memory by 75%</li>
+                        <li><strong>Double Quantization:</strong> Quantizes quantization constants for additional savings</li>
+                        <li><strong>Paged Optimizers:</strong> Handles memory spikes by paging to CPU memory</li>
+                        <li><strong>NormalFloat4 (NF4):</strong> Information-theoretically optimal for normally distributed weights</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Fine-Tuning Techniques -->
+            <section id="techniques">
+                <h2>Fine-Tuning Techniques</h2>
+                
+                <h3>Data Preparation Best Practices</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Dataset Collection</h4>
+                        <p>Gather high-quality, diverse examples. Quality matters more than quantity - 1,000 good examples beat 10,000 poor ones.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Data Cleaning</h4>
+                        <p>Remove noise, duplicates, and irrelevant content. Ensure consistency in formatting and style.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Format Standardization</h4>
+                        <p>Convert data to consistent format (instruction-response, conversational, or completion style).</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Train-Validation Split</h4>
+                        <p>Reserve 10-20% for validation. Ensure splits maintain distribution balance.</p>
+                    </div>
+                </div>
+
+                <h3>Hyperparameter Optimization</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Typical Range</th>
+                            <th>Impact</th>
+                            <th>Tuning Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Learning Rate</strong></td>
+                            <td>1e-5 to 5e-4</td>
+                            <td>Training stability and speed</td>
+                            <td>Start with 2e-4, reduce if unstable</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Batch Size</strong></td>
+                            <td>1-16</td>
+                            <td>Memory usage and convergence</td>
+                            <td>Max that fits in memory</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LoRA Rank</strong></td>
+                            <td>8-128</td>
+                            <td>Model capacity vs efficiency</td>
+                            <td>Start with 64, adjust based on complexity</td>
+                        </tr>
+                        <tr>
+                            <td><strong>LoRA Alpha</strong></td>
+                            <td>16-128</td>
+                            <td>Adaptation strength</td>
+                            <td>Usually 1x to 2x the rank</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Notebook Walkthrough -->
+            <section id="notebook-walkthrough">
+                <h2>Complete Notebook Walkthrough</h2>
+                
+                <div class="notebook-box">
+                    <h4>📓 Notebook Overview</h4>
+                    <p>The fine_tuning_llama_2.ipynb notebook demonstrates QLoRA fine-tuning of LLaMA-2 7B on the Guanaco dataset. We'll walk through each cell with detailed explanations.</p>
+                </div>
+
+                <h3>Notebook Structure</h3>
+                <ul>
+                    <li><strong>Cells 0-3:</strong> Setup and configuration</li>
+                    <li><strong>Cells 4-8:</strong> Model and data preparation</li>
+                    <li><strong>Cells 9-12:</strong> Training execution and saving</li>
+                    <li><strong>Cells 13-17:</strong> Testing and validation</li>
+                    <li><strong>Cells 18-20:</strong> Model deployment and sharing</li>
+                </ul>
+            </section>
+
+            <!-- Environment Setup -->
+            <section id="setup">
+                <h2>Environment Setup</h2>
+                
+                <h3>Cell 0: Package Installation</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Install required packages for fine-tuning</span>
+<span class="code-keyword">%pip install</span> <span class="code-string">accelerate peft bitsandbytes transformers trl</span>
+
+<span class="code-comment"># Package descriptions:</span>
+<span class="code-comment"># - accelerate: Distributed training utilities</span>
+<span class="code-comment"># - peft: Parameter-Efficient Fine-Tuning methods</span>
+<span class="code-comment"># - bitsandbytes: 8-bit and 4-bit quantization</span>
+<span class="code-comment"># - transformers: Hugging Face model library</span>
+<span class="code-comment"># - trl: Transformer Reinforcement Learning</span></pre>
+                </div>
+
+                <h3>Cell 1: Library Imports</h3>
+                <div class="code-block">
+<pre><span class="code-keyword">import</span> torch
+<span class="code-keyword">from</span> transformers <span class="code-keyword">import</span> (
+    AutoModelForCausalLM,      <span class="code-comment"># For language models</span>
+    AutoTokenizer,             <span class="code-comment"># For text tokenization</span>
+    BitsAndBytesConfig,        <span class="code-comment"># For quantization config</span>
+    TrainingArguments,         <span class="code-comment"># Training parameters</span>
+    pipeline,                  <span class="code-comment"># Inference pipeline</span>
+    logging,                   <span class="code-comment"># Logging utilities</span>
+)
+<span class="code-keyword">from</span> peft <span class="code-keyword">import</span> LoraConfig, PeftModel  <span class="code-comment"># LoRA configuration</span>
+<span class="code-keyword">from</span> trl <span class="code-keyword">import</span> SFTTrainer             <span class="code-comment"># Supervised Fine-Tuning</span>
+<span class="code-keyword">from</span> datasets <span class="code-keyword">import</span> load_dataset         <span class="code-comment"># Dataset loading</span>
+
+<span class="code-comment"># Set logging level to reduce noise</span>
+logging.set_verbosity(logging.CRITICAL)</pre>
+                </div>
+
+                <div class="info-box">
+                    <h4>💡 Library Explanation</h4>
+                    <ul>
+                        <li><strong>transformers:</strong> Provides pre-trained models and training utilities</li>
+                        <li><strong>peft:</strong> Enables parameter-efficient fine-tuning methods like LoRA</li>
+                        <li><strong>bitsandbytes:</strong> Implements quantization for memory efficiency</li>
+                        <li><strong>trl:</strong> Specialized trainer for supervised fine-tuning of language models</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Model Configuration -->
+            <section id="model-config">
+                <h2>Model Configuration</h2>
+                
+                <h3>Cell 3: Configuration Parameters</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Model and dataset configuration</span>
+<span class="code-keyword">base_model</span> = <span class="code-string">"NousResearch/Llama-2-7b-chat-hf"</span>    <span class="code-comment"># Base LLaMA model</span>
+<span class="code-keyword">guanaco_dataset</span> = <span class="code-string">"mlabonne/guanaco-llama2-1k"</span>        <span class="code-comment"># Training dataset</span>
+<span class="code-keyword">new_model</span> = <span class="code-string">"llama-2-7b-chat-guanaco"</span>             <span class="code-comment"># Output model name</span>
+
+<span class="code-comment"># Configuration explanation:</span>
+<span class="code-comment"># - Using pre-trained LLaMA-2 7B chat model</span>
+<span class="code-comment"># - Guanaco dataset: 1k high-quality instruction-response pairs</span>
+<span class="code-comment"># - Output will be saved with descriptive name</span></pre>
+                </div>
+
+                <h3>Cell 4: Dataset Loading</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Load the Guanaco dataset for instruction tuning</span>
+<span class="code-keyword">dataset</span> = load_dataset(guanaco_dataset, split=<span class="code-string">"train"</span>)
+
+<span class="code-comment"># Dataset characteristics:</span>
+<span class="code-comment"># - 1,000 high-quality instruction-response pairs</span>
+<span class="code-comment"># - Covers diverse topics and conversation styles</span>
+<span class="code-comment"># - Pre-formatted for instruction tuning</span>
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Dataset size: {len(dataset)} examples"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"Sample entry: {dataset[0]}"</span>)</pre>
+                </div>
+
+                <div class="cell-output">
+                    <pre>Dataset size: 1000 examples
+Sample entry: {'text': '### Human: What is the capital of France?### Assistant: The capital of France is Paris...'}</pre>
+                </div>
+            </section>
+
+            <!-- Quantization Setup -->
+            <section id="quantization">
+                <h2>Quantization Setup</h2>
+                
+                <h3>Cell 5: Quantization Configuration</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Configure 4-bit quantization for memory efficiency</span>
+<span class="code-keyword">quant_config</span> = BitsAndBytesConfig(
+    load_in_4bit=<span class="code-keyword">True</span>,                      <span class="code-comment"># Enable 4-bit loading</span>
+    bnb_4bit_quant_type=<span class="code-string">"nf4"</span>,              <span class="code-comment"># Use NormalFloat4</span>
+    bnb_4bit_compute_dtype=torch.float16,   <span class="code-comment"># Compute in FP16</span>
+    bnb_4bit_use_double_quant=<span class="code-keyword">False</span>,        <span class="code-comment"># Disable nested quantization</span>
+)
+
+<span class="code-comment"># Benefits of this configuration:</span>
+<span class="code-comment"># - Reduces memory usage by ~75%</span>
+<span class="code-comment"># - NF4 is optimal for normally distributed weights</span>
+<span class="code-comment"># - FP16 compute maintains training stability</span></pre>
+                </div>
+
+                <h3>Cell 6: Model Loading with Quantization</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Load base model with quantization applied</span>
+<span class="code-keyword">model</span> = AutoModelForCausalLM.from_pretrained(
+    base_model,                          <span class="code-comment"># Model identifier</span>
+    quantization_config=quant_config,    <span class="code-comment"># Apply quantization</span>
+    device_map={<span class="code-string">""</span>: <span class="code-keyword">0</span>}                   <span class="code-comment"># Use first GPU</span>
+)
+
+<span class="code-comment"># Disable gradient computation for base model</span>
+model.config.use_cache = <span class="code-keyword">False</span>
+model.config.pretraining_tp = <span class="code-keyword">1</span>
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Model loaded on device: {next(model.parameters()).device}"</span>)</pre>
+                </div>
+
+                <h3>Cell 7: Tokenizer Setup</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Load and configure tokenizer</span>
+<span class="code-keyword">tokenizer</span> = AutoTokenizer.from_pretrained(base_model, trust_remote_code=<span class="code-keyword">True</span>)
+
+<span class="code-comment"># Configure padding token (required for batch training)</span>
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.padding_side = <span class="code-string">"right"</span>
+
+<span class="code-comment"># Tokenizer configuration importance:</span>
+<span class="code-comment"># - Pad token enables batch processing</span>
+<span class="code-comment"># - Right padding is standard for causal LM</span>
+<span class="code-comment"># - Ensures proper sequence handling</span></pre>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Important: Tokenizer Padding</h4>
+                    <p>Setting the pad_token is crucial for batch training. Without it, the trainer cannot properly batch sequences of different lengths, leading to training errors.</p>
+                </div>
+            </section>
+
+            <!-- Training Process -->
+            <section id="training-process">
+                <h2>Training Process</h2>
+                
+                <h3>Cell 8: LoRA Configuration</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Configure LoRA for parameter-efficient fine-tuning</span>
+<span class="code-keyword">peft_args</span> = LoraConfig(
+    lora_alpha=<span class="code-keyword">16</span>,              <span class="code-comment"># Scaling factor for LoRA updates</span>
+    lora_dropout=<span class="code-keyword">0.1</span>,           <span class="code-comment"># Dropout for regularization</span>
+    r=<span class="code-keyword">64</span>,                      <span class="code-comment"># Rank of LoRA matrices</span>
+    bias=<span class="code-string">"none"</span>,               <span class="code-comment"># Don't adapt bias terms</span>
+    task_type=<span class="code-string">"CAUSAL_LM"</span>,      <span class="code-comment"># Language modeling task</span>
+)
+
+<span class="code-comment"># Parameter explanation:</span>
+<span class="code-comment"># - r=64: Creates ~0.6% trainable parameters</span>
+<span class="code-comment"># - alpha=16: Moderate scaling for stable training</span>
+<span class="code-comment"># - dropout=0.1: Prevents overfitting on small dataset</span></pre>
+                </div>
+
+                <h3>Cell 9: Training Arguments</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Configure training hyperparameters</span>
+<span class="code-keyword">training_params</span> = TrainingArguments(
+    output_dir=<span class="code-string">"./results"</span>,              <span class="code-comment"># Output directory</span>
+    num_train_epochs=<span class="code-keyword">1</span>,               <span class="code-comment"># Number of epochs</span>
+    per_device_train_batch_size=<span class="code-keyword">4</span>,    <span class="code-comment"># Batch size per GPU</span>
+    gradient_accumulation_steps=<span class="code-keyword">1</span>,    <span class="code-comment"># Gradient accumulation</span>
+    optim=<span class="code-string">"paged_adamw_32bit"</span>,         <span class="code-comment"># Memory-efficient optimizer</span>
+    save_steps=<span class="code-keyword">25</span>,                   <span class="code-comment"># Checkpoint frequency</span>
+    logging_steps=<span class="code-keyword">25</span>,               <span class="code-comment"># Logging frequency</span>
+    learning_rate=<span class="code-keyword">2e-4</span>,             <span class="code-comment"># Learning rate</span>
+    weight_decay=<span class="code-keyword">0.001</span>,             <span class="code-comment"># L2 regularization</span>
+    fp16=<span class="code-keyword">False</span>,                     <span class="code-comment"># Mixed precision</span>
+    bf16=<span class="code-keyword">False</span>,                     <span class="code-comment"># BFloat16 precision</span>
+    max_grad_norm=<span class="code-keyword">0.3</span>,              <span class="code-comment"># Gradient clipping</span>
+    max_steps=<span class="code-keyword">-1</span>,                   <span class="code-comment"># Use epochs instead</span>
+    warmup_ratio=<span class="code-keyword">0.03</span>,              <span class="code-comment"># Learning rate warmup</span>
+    group_by_length=<span class="code-keyword">True</span>,           <span class="code-comment"># Group similar lengths</span>
+    lr_scheduler_type=<span class="code-string">"constant"</span>,     <span class="code-comment"># Constant learning rate</span>
+    report_to=<span class="code-string">"tensorboard"</span>           <span class="code-comment"># Logging backend</span>
+)</pre>
+                </div>
+
+                <h3>Cell 10: Trainer Initialization</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Initialize the SFT (Supervised Fine-Tuning) trainer</span>
+<span class="code-keyword">trainer</span> = SFTTrainer(
+    model=model,                         <span class="code-comment"># Quantized model</span>
+    train_dataset=dataset,               <span class="code-comment"># Training data</span>
+    peft_config=peft_args,               <span class="code-comment"># LoRA configuration</span>
+    dataset_text_field=<span class="code-string">"text"</span>,          <span class="code-comment"># Text column name</span>
+    max_seq_length=<span class="code-keyword">None</span>,              <span class="code-comment"># Auto-detect max length</span>
+    tokenizer=tokenizer,                 <span class="code-comment"># Configured tokenizer</span>
+    args=training_params,                <span class="code-comment"># Training arguments</span>
+    packing=<span class="code-keyword">False</span>,                    <span class="code-comment"># Don't pack sequences</span>
+)
+
+<span class="code-comment"># SFTTrainer handles:</span>
+<span class="code-comment"># - LoRA adapter initialization</span>
+<span class="code-comment"># - Gradient setup for trainable parameters</span>
+<span class="code-comment"># - Data loading and batching</span></pre>
+                </div>
+
+                <h3>Cell 11: Training Execution</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Start the training process</span>
+<span class="code-keyword">trainer.train()</span>
+
+<span class="code-comment"># Training will:</span>
+<span class="code-comment"># 1. Process 1000 examples in batches of 4</span>
+<span class="code-comment"># 2. Update only LoRA parameters (~4M out of 7B)</span>
+<span class="code-comment"># 3. Save checkpoints every 25 steps</span>
+<span class="code-comment"># 4. Log metrics to TensorBoard</span>
+<span class="code-comment"># 5. Complete 250 training steps (1000/4 = 250)</span></pre>
+                </div>
+
+                <div class="cell-output">
+                    <pre>TrainOutput(
+    global_step=250, 
+    training_loss=1.34725040435791, 
+    metrics={
+        'train_runtime': 5705.0492, 
+        'train_samples_per_second': 0.175, 
+        'train_steps_per_second': 0.044, 
+        'total_flos': 1.7086180642553856e+16, 
+        'train_loss': 1.34725040435791, 
+        'epoch': 1.0
+    }
+)
+</pre>
+                </div>
+
+                <h3>Cell 12: Model Saving</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Save the trained LoRA adapter</span>
+trainer.model.save_pretrained(new_model)
+
+<span class="code-comment"># What gets saved:</span>
+<span class="code-comment"># - LoRA adapter weights (~19MB)</span>
+<span class="code-comment"># - Configuration files</span>
+<span class="code-comment"># - Training metadata</span>
+<span class="code-comment"># - NOT the full model (base model remains unchanged)</span>
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Model saved to: {new_model}"</span>)</pre>
+                </div>
+            </section>
+
+            <!-- Model Evaluation -->
+            <section id="evaluation">
+                <h2>Model Evaluation</h2>
+                
+                <h3>Cell 15: TensorBoard Setup</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Launch TensorBoard for training visualization</span>
+<span class="code-keyword">%load_ext tensorboard</span>
+<span class="code-keyword">%tensorboard --logdir results/runs</span>
+
+<span class="code-comment"># TensorBoard shows:</span>
+<span class="code-comment"># - Training loss over time</span>
+<span class="code-comment"># - Learning rate schedule</span>
+<span class="code-comment"># - Hardware utilization</span>
+<span class="code-comment"># - Training speed metrics</span></pre>
+                </div>
+
+                <h3>Cell 16: First Inference Test</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Test the fine-tuned model with logging disabled</span>
+logging.set_verbosity(logging.CRITICAL)
+
+<span class="code-comment"># Create inference pipeline</span>
+<span class="code-keyword">pipe</span> = pipeline(
+    task=<span class="code-string">"text-generation"</span>,
+    model=model,
+    tokenizer=tokenizer,
+    max_length=<span class="code-keyword">200</span>
+)
+
+<span class="code-comment"># Test prompt</span>
+<span class="code-keyword">prompt</span> = <span class="code-string">"What is a large language model?"</span>
+
+<span class="code-comment"># Generate response</span>
+<span class="code-keyword">result</span> = pipe(f<span class="code-string">"<s>[INST] {prompt} [/INST]"</span>)
+<span class="code-keyword">print</span>(result[<span class="code-keyword">0</span>][<span class="code-string">'generated_text'</span>])</pre>
+                </div>
+
+                <div class="cell-output">
+                    <pre><s>[INST] What is a large language model? [/INST] A large language model (LLM) is a type of artificial intelligence system that has been trained on vast amounts of text data to understand and generate human-like language. These models use deep learning techniques, particularly neural networks, to learn patterns in language and can perform various tasks such as text generation, translation, summarization, and question-answering.</pre>
+                </div>
+
+                <h3>Cell 17: Second Inference Test</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Test with a different prompt</span>
+<span class="code-keyword">prompt</span> = <span class="code-string">"How to explain fine-tuning to a 5-year-old?"</span>
+
+<span class="code-comment"># Generate response</span>
+<span class="code-keyword">result</span> = pipe(f<span class="code-string">"<s>[INST] {prompt} [/INST]"</span>)
+<span class="code-keyword">print</span>(result[<span class="code-keyword">0</span>][<span class="code-string">'generated_text'</span>])</pre>
+                </div>
+
+                <div class="info-box">
+                    <h4>🔍 Evaluation Insights</h4>
+                    <ul>
+                        <li><strong>Response Quality:</strong> Check for coherence, relevance, and accuracy</li>
+                        <li><strong>Instruction Following:</strong> Verify the model follows the given format</li>
+                        <li><strong>Knowledge Integration:</strong> Assess if fine-tuning improved domain-specific responses</li>
+                        <li><strong>Consistency:</strong> Test multiple prompts to ensure stable behavior</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Model Deployment -->
+            <section id="deployment">
+                <h2>Model Deployment</h2>
+                
+                <h3>Cell 18: Hugging Face Authentication</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Login to Hugging Face Hub for model sharing</span>
+<span class="code-keyword">from</span> huggingface_hub <span class="code-keyword">import</span> login
+
+<span class="code-comment"># Authenticate with your HF token</span>
+login()
+
+<span class="code-comment"># This enables:</span>
+<span class="code-comment"># - Uploading models to your HF profile</span>
+<span class="code-comment"># - Sharing models with the community</span>
+<span class="code-comment"># - Version control for model iterations</span></pre>
+                </div>
+
+                <h3>Cell 19: Model Merging and Preparation</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Reload base model without quantization for merging</span>
+<span class="code-keyword">base_model_reload</span> = AutoModelForCausalLM.from_pretrained(
+    base_model,
+    low_cpu_mem_usage=<span class="code-keyword">True</span>,
+    return_dict=<span class="code-keyword">True</span>,
+    torch_dtype=torch.float16,
+    device_map={<span class="code-string">""</span>: <span class="code-keyword">0</span>}
+)
+
+<span class="code-comment"># Load the LoRA adapter</span>
+<span class="code-keyword">model_merged</span> = PeftModel.from_pretrained(base_model_reload, new_model)
+
+<span class="code-comment"># Merge LoRA weights into base model</span>
+<span class="code-keyword">model_merged</span> = model_merged.merge_and_unload()
+
+<span class="code-comment"># Merging benefits:</span>
+<span class="code-comment"># - Creates standalone model (no adapter dependency)</span>
+<span class="code-comment"># - Enables standard inference pipelines</span>
+<span class="code-comment"># - Maintains full model compatibility</span></pre>
+                </div>
+
+                <h3>Cell 20: Model Upload</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Upload merged model and tokenizer to Hugging Face Hub</span>
+
+<span class="code-comment"># Save tokenizer configuration</span>
+tokenizer.save_pretrained(new_model)
+
+<span class="code-comment"># Push model to Hub</span>
+model_merged.push_to_hub(new_model, use_temp_dir=<span class="code-keyword">False</span>)
+
+<span class="code-comment"># Push tokenizer to Hub</span>
+tokenizer.push_to_hub(new_model, use_temp_dir=<span class="code-keyword">False</span>)
+
+<span class="code-keyword">print</span>(f<span class="code-string">"Model uploaded to: https://huggingface.co/YOUR_USERNAME/{new_model}"</span>)</pre>
+                </div>
+
+                <div class="highlight-box">
+                    <h4>🚀 Deployment Complete!</h4>
+                    <p>Your fine-tuned model is now available on Hugging Face Hub and can be used by others or deployed in production environments. The model includes both the weights and tokenizer configuration needed for inference.</p>
+                </div>
+            </section>
+
+            <!-- Advanced Topics -->
+            <section id="advanced">
+                <h2>Advanced Topics</h2>
+                
+                <h3>Memory Optimization Techniques</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>Gradient Checkpointing</h4>
+                        <p>Trade computation for memory by recomputing activations during backprop. Enables training larger models with limited VRAM.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Gradient Accumulation</h4>
+                        <p>Simulate larger batch sizes by accumulating gradients over multiple forward passes before updating.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Mixed Precision</h4>
+                        <p>Use FP16/BF16 for forward pass and FP32 for gradient computation. Reduces memory by ~50%.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>CPU Offloading</h4>
+                        <p>Move optimizer states and inactive parameters to CPU memory, enabling training of larger models.</p>
+                    </div>
+                </div>
+
+                <h3>Advanced LoRA Configurations</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Advanced LoRA configuration example</span>
+<span class="code-keyword">advanced_lora_config</span> = LoraConfig(
+    r=<span class="code-keyword">64</span>,                              <span class="code-comment"># Rank (8, 16, 32, 64, 128)</span>
+    lora_alpha=<span class="code-keyword">16</span>,                     <span class="code-comment"># Alpha scaling factor</span>
+    target_modules=[                      <span class="code-comment"># Specific modules to adapt</span>
+        <span class="code-string">"q_proj"</span>, <span class="code-string">"k_proj"</span>, <span class="code-string">"v_proj"</span>, <span class="code-string">"o_proj"</span>,
+        <span class="code-string">"gate_proj"</span>, <span class="code-string">"up_proj"</span>, <span class="code-string">"down_proj"</span>
+    ],
+    lora_dropout=<span class="code-keyword">0.05</span>,                 <span class="code-comment"># Dropout rate</span>
+    bias=<span class="code-string">"none"</span>,                       <span class="code-comment"># Bias adaptation</span>
+    use_rslora=<span class="code-keyword">False</span>,                  <span class="code-comment"># Rank-stabilized LoRA</span>
+    task_type=<span class="code-string">"CAUSAL_LM"</span>               <span class="code-comment"># Task specification</span>
+)</pre>
+                </div>
+            </section>
+
+            <!-- Optimization -->
+            <section id="optimization">
+                <h2>Memory Optimization</h2>
+                
+                <h3>Hardware Requirements</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Model Size</th>
+                            <th>Full Fine-tuning</th>
+                            <th>LoRA</th>
+                            <th>QLoRA</th>
+                            <th>Recommended GPU</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>7B</strong></td>
+                            <td>112+ GB</td>
+                            <td>20-24 GB</td>
+                            <td>8-12 GB</td>
+                            <td>RTX 4090, RTX 3090</td>
+                        </tr>
+                        <tr>
+                            <td><strong>13B</strong></td>
+                            <td>208+ GB</td>
+                            <td>36-40 GB</td>
+                            <td>12-16 GB</td>
+                            <td>A6000, RTX 4090</td>
+                        </tr>
+                        <tr>
+                            <td><strong>70B</strong></td>
+                            <td>1.1+ TB</td>
+                            <td>200+ GB</td>
+                            <td>36-48 GB</td>
+                            <td>A100 80GB, H100</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Memory Optimization Code Example</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Memory-optimized training configuration</span>
+<span class="code-keyword">memory_optimized_args</span> = TrainingArguments(
+    output_dir=<span class="code-string">"./results"</span>,
+    per_device_train_batch_size=<span class="code-keyword">1</span>,        <span class="code-comment"># Smaller batch size</span>
+    gradient_accumulation_steps=<span class="code-keyword">16</span>,      <span class="code-comment"># Simulate larger batches</span>
+    gradient_checkpointing=<span class="code-keyword">True</span>,          <span class="code-comment"># Memory-compute tradeoff</span>
+    fp16=<span class="code-keyword">True</span>,                           <span class="code-comment"># Mixed precision</span>
+    optim=<span class="code-string">"paged_adamw_32bit"</span>,           <span class="code-comment"># Memory-efficient optimizer</span>
+    dataloader_num_workers=<span class="code-keyword">0</span>,            <span class="code-comment"># Reduce CPU memory usage</span>
+    remove_unused_columns=<span class="code-keyword">False</span>,         <span class="code-comment"># Prevent memory spikes</span>
+)</pre>
+                </div>
+            </section>
+
+            <!-- Troubleshooting -->
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+                
+                <h3>Common Issues and Solutions</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>CUDA Out of Memory</h4>
+                        <ul>
+                            <li>Reduce batch size to 1</li>
+                            <li>Enable gradient checkpointing</li>
+                            <li>Use gradient accumulation</li>
+                            <li>Switch to QLoRA if using LoRA</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Tokenizer Warnings</h4>
+                        <ul>
+                            <li>Set tokenizer.pad_token = tokenizer.eos_token</li>
+                            <li>Configure padding_side = "right"</li>
+                            <li>Update transformers library</li>
+                            <li>Check trust_remote_code=True</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Slow Training Speed</h4>
+                        <ul>
+                            <li>Enable mixed precision (fp16/bf16)</li>
+                            <li>Use compiled model (torch.compile)</li>
+                            <li>Optimize batch size for your GPU</li>
+                            <li>Enable group_by_length</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Model Quality Issues</h4>
+                        <ul>
+                            <li>Check dataset quality and formatting</li>
+                            <li>Increase LoRA rank (r parameter)</li>
+                            <li>Adjust learning rate</li>
+                            <li>Add more training epochs</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Debugging Code Snippets</h3>
+                <div class="code-block">
+<pre><span class="code-comment"># Check GPU memory usage</span>
+<span class="code-keyword">import</span> torch
+<span class="code-keyword">print</span>(f<span class="code-string">"GPU memory allocated: {torch.cuda.memory_allocated() / 1e9:.2f} GB"</span>)
+<span class="code-keyword">print</span>(f<span class="code-string">"GPU memory cached: {torch.cuda.memory_reserved() / 1e9:.2f} GB"</span>)
+
+<span class="code-comment"># Check trainable parameters</span>
+<span class="code-keyword">trainable_params</span> = sum(p.numel() <span class="code-keyword">for</span> p <span class="code-keyword">in</span> model.parameters() <span class="code-keyword">if</span> p.requires_grad)
+<span class="code-keyword">all_params</span> = sum(p.numel() <span class="code-keyword">for</span> p <span class="code-keyword">in</span> model.parameters())
+<span class="code-keyword">print</span>(f<span class="code-string">"Trainable: {trainable_params:,} ({100*trainable_params/all_params:.2f}%)"</span>)
+
+<span class="code-comment"># Clear GPU cache</span>
+torch.cuda.empty_cache()</pre>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices">
+                <h2>Best Practices</h2>
+                
+                <h3>Data Quality Guidelines</h3>
+                <div class="warning-box">
+                    <h4>📊 Data Quality Checklist</h4>
+                    <ul>
+                        <li><strong>Diversity:</strong> Include varied examples covering different scenarios</li>
+                        <li><strong>Quality over Quantity:</strong> 1,000 high-quality examples > 10,000 poor ones</li>
+                        <li><strong>Consistent Formatting:</strong> Standardize instruction-response format</li>
+                        <li><strong>Length Distribution:</strong> Mix of short and long examples</li>
+                        <li><strong>Domain Relevance:</strong> Ensure examples match your use case</li>
+                    </ul>
+                </div>
+
+                <h3>Training Best Practices</h3>
+                <div class="step-indicator">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Start Conservative</h4>
+                        <p>Begin with lower learning rates (1e-5) and increase if training is stable.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Monitor Overfitting</h4>
+                        <p>Use validation sets and early stopping to prevent overfitting on small datasets.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Experiment Incrementally</h4>
+                        <p>Change one parameter at a time to understand impact on model performance.</p>
+                    </div>
+                </div>
+
+                <div class="step-indicator">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Save Checkpoints</h4>
+                        <p>Regular checkpointing enables recovery from failures and comparison of different stages.</p>
+                    </div>
+                </div>
+
+                <h3>Production Deployment Tips</h3>
+                <ul>
+                    <li><strong>Model Merging:</strong> Merge LoRA weights for faster inference</li>
+                    <li><strong>Quantization:</strong> Apply post-training quantization for deployment</li>
+                    <li><strong>Batch Processing:</strong> Group similar-length sequences for efficiency</li>
+                    <li><strong>Caching:</strong> Implement KV-cache for faster autoregressive generation</li>
+                    <li><strong>Monitoring:</strong> Track inference latency, throughput, and quality metrics</li>
+                </ul>
+            </section>
+
+            <!-- Resources -->
+            <section id="resources">
+                <h2>Resources and Further Learning</h2>
+                
+                <h3>Essential Libraries and Tools</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🤗 Hugging Face Ecosystem</h4>
+                        <ul>
+                            <li>transformers: Model library</li>
+                            <li>peft: Parameter-efficient fine-tuning</li>
+                            <li>trl: Training utilities</li>
+                            <li>datasets: Data loading and processing</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>⚡ Optimization Libraries</h4>
+                        <ul>
+                            <li>bitsandbytes: Quantization</li>
+                            <li>accelerate: Distributed training</li>
+                            <li>deepspeed: Advanced optimization</li>
+                            <li>flash-attn: Efficient attention</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>📊 Monitoring and Visualization</h4>
+                        <ul>
+                            <li>tensorboard: Training visualization</li>
+                            <li>wandb: Experiment tracking</li>
+                            <li>mlflow: Model versioning</li>
+                            <li>neptune: Advanced monitoring</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h4>🚀 Deployment Frameworks</h4>
+                        <ul>
+                            <li>vllm: Fast inference</li>
+                            <li>text-generation-inference: HF serving</li>
+                            <li>triton: NVIDIA inference server</li>
+                            <li>fastapi: API development</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Recommended Reading</h3>
+                <ul>
+                    <li><strong>LoRA Paper:</strong> "LoRA: Low-Rank Adaptation of Large Language Models" (Hu et al., 2021)</li>
+                    <li><strong>QLoRA Paper:</strong> "QLoRA: Efficient Finetuning of Quantized LLMs" (Dettmers et al., 2023)</li>
+                    <li><strong>LLaMA Paper:</strong> "LLaMA: Open and Efficient Foundation Language Models" (Touvron et al., 2023)</li>
+                    <li><strong>DataCamp Tutorial:</strong> Fine-tuning LLaMA-2 comprehensive guide</li>
+                </ul>
+
+                <h3>Community and Support</h3>
+                <ul>
+                    <li><strong>Hugging Face Forums:</strong> Community discussions and troubleshooting</li>
+                    <li><strong>Reddit r/MachineLearning:</strong> Latest research and discussions</li>
+                    <li><strong>Discord Communities:</strong> Real-time help and collaboration</li>
+                    <li><strong>GitHub Issues:</strong> Library-specific support and bug reports</li>
+                </ul>
+            </section>
+
+            <div class="highlight-box">
+                <h3>🎯 Key Takeaways</h3>
+                <ul>
+                    <li>QLoRA enables fine-tuning large models on consumer hardware</li>
+                    <li>Data quality matters more than quantity for successful fine-tuning</li>
+                    <li>Parameter-efficient methods achieve 85-95% of full fine-tuning quality</li>
+                    <li>Proper configuration and monitoring are essential for successful training</li>
+                    <li>The notebook provides a complete end-to-end fine-tuning workflow</li>
+                </ul>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.backgroundColor = 'rgba(255,255,255,0.2)';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
