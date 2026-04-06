@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Learning Resources Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #2d3748;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            display: block;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .nav-links a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0.6rem;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 280px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2.2rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin: 2.5rem 0 1rem 0;
+            font-size: 1.6rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        h4 {
+            color: #667eea;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.7rem;
+            line-height: 1.7;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .hero-section h3 {
+            color: white;
+            border: none;
+            margin: 0 0 1rem 0;
+            font-size: 2rem;
+        }
+        
+        .resource-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .resource-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .resource-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .resource-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .resource-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .resource-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .resource-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        
+        .tag {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .resource-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .category-section {
+            margin: 3rem 0;
+        }
+        
+        .category-header {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3436;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .category-header h3 {
+            color: #2d3436;
+            border: none;
+            margin: 0;
+            font-size: 2rem;
+        }
+        
+        .search-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 3px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .content {
+                margin-left: 250px;
+                max-width: calc(100% - 250px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            .hero-section h3 {
+                font-size: 1.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>🔗 ML Resources Hub</h2>
+            <ul class="nav-links">
+                <li><a href="#overview" class="main-link">Overview</a></li>
+                <li><a href="#search">Search Resources</a></li>
+                <li><a href="#github-repos" class="main-link">GitHub Repositories</a></li>
+                <li><a href="#xbeat-ml">Cross Beat ML Hub</a></li>
+                <li><a href="#tutorials" class="main-link">Tutorials & Courses</a></li>
+                <li><a href="#documentation" class="main-link">Documentation</a></li>
+                <li><a href="#tools" class="main-link">Tools & Frameworks</a></li>
+                <li><a href="#datasets" class="main-link">Datasets</a></li>
+                <li><a href="#papers" class="main-link">Research Papers</a></li>
+                <li><a href="#blogs" class="main-link">Blogs & Articles</a></li>
+                <li><a href="#communities" class="main-link">Communities</a></li>
+                <li><a href="#contribute" class="main-link">Contribute</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(102, 126, 234, 0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="transformers-architecture-handbook.html">🔬 Transformers</a></li>
+                <li><a href="fine-tuning-llama-handbook.html">🧠 Fine-Tuning</a></li>
+                <li><a href="mlops-aiops-handbook.html">🤖 MLOps & AIOps</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#ai-ml">AI & Machine Learning</a> > 
+                    <span>ML Resources Hub</span>
+                </div>
+            </div>
+
+            <h1>Machine Learning Resources Hub</h1>
+            
+            <div class="hero-section">
+                <h3>🚀 Your Gateway to ML Excellence</h3>
+                <p>Curated collection of the best machine learning resources, tutorials, tools, and communities. From beginner guides to cutting-edge research, find everything you need to advance your ML journey.</p>
+            </div>
+
+            <!-- Overview -->
+            <section id="overview">
+                <h2>Overview</h2>
+                
+                <p>Welcome to the Machine Learning Resources Hub - a comprehensive collection of carefully curated resources for machine learning practitioners, researchers, and enthusiasts. This hub is designed to be your one-stop destination for discovering valuable ML content across various domains.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">100+</div>
+                        <div class="stat-label">Curated Resources</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">GitHub Repositories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">25+</div>
+                        <div class="stat-label">Learning Platforms</div>
+                    </div>
+                </div>
+
+                <h3>What You'll Find Here</h3>
+                <ul>
+                    <li><strong>GitHub Repositories:</strong> Essential open-source ML projects and libraries</li>
+                    <li><strong>Tutorials & Courses:</strong> Step-by-step learning resources for all skill levels</li>
+                    <li><strong>Documentation:</strong> Official docs for popular ML frameworks and tools</li>
+                    <li><strong>Research Papers:</strong> Latest academic publications and breakthrough studies</li>
+                    <li><strong>Datasets:</strong> High-quality datasets for various ML applications</li>
+                    <li><strong>Communities:</strong> Active forums, Discord servers, and professional networks</li>
+                    <li><strong>Tools & Frameworks:</strong> Essential software for ML development</li>
+                    <li><strong>Blogs & Articles:</strong> Expert insights and industry analysis</li>
+                </ul>
+            </section>
+
+            <!-- Search Resources -->
+            <section id="search">
+                <h2>Search Resources</h2>
+                
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="🔍 Search resources by name, category, or technology..." id="resourceSearch">
+                    <p style="margin-top: 0.5rem; color: #6b7280; font-size: 0.9rem;">Search through all curated resources to find exactly what you're looking for.</p>
+                </div>
+            </section>
+
+            <!-- GitHub Repositories -->
+            <section id="github-repos" class="category-section">
+                <div class="category-header">
+                    <h3>🐙 GitHub Repositories</h3>
+                    <p>Essential open-source machine learning projects and libraries</p>
+                </div>
+
+                <!-- Cross Beat ML Hub -->
+                <div id="xbeat-ml" class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">🎯</div>
+                        <div class="resource-title">Cross Beat Machine Learning Hub</div>
+                    </div>
+                    
+                    <p><strong>Your hub for Python, machine learning and AI tutorials.</strong> Cross Beat (xbe.at) provides comprehensive educational content and practical examples for machine learning enthusiasts and practitioners.</p>
+                    
+                    <h4>Repository Content Overview:</h4>
+                    <ul>
+                        <li><strong>XGBoost Regression Tutorial:</strong> Complete guide to Extreme Gradient Boosting for regression tasks, covering implementation, regularization, parameter tuning, and cross-validation techniques</li>
+                        <li><strong>NeuralForecast Guide:</strong> Time series forecasting with neural networks, including practical Python implementations and best practices</li>
+                        <li><strong>Python ML Tutorials:</strong> Step-by-step guides with code examples for various machine learning algorithms</li>
+                        <li><strong>AI Insights:</strong> Educational content covering artificial intelligence concepts and applications</li>
+                        <li><strong>Practical Examples:</strong> Hands-on projects demonstrating real-world ML implementations</li>
+                    </ul>
+
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li>📚 Educational focus with clear explanations</li>
+                        <li>💻 Practical code examples and implementations</li>
+                        <li>🧮 Coverage of advanced algorithms like XGBoost</li>
+                        <li>📈 Time series forecasting techniques</li>
+                        <li>🐍 Python-centric approach</li>
+                        <li>🎓 Suitable for learners at different levels</li>
+                    </ul>
+                    
+                    <div class="tags">
+                        <span class="tag">Python</span>
+                        <span class="tag">Machine Learning</span>
+                        <span class="tag">XGBoost</span>
+                        <span class="tag">Time Series</span>
+                        <span class="tag">Neural Networks</span>
+                        <span class="tag">Tutorials</span>
+                        <span class="tag">Educational</span>
+                    </div>
+                    
+                    <a href="https://github.com/xbeat/Machine-Learning" class="resource-link" target="_blank">
+                        🚀 Explore Repository
+                    </a>
+                    
+                    <div class="resource-meta">
+                        <div class="meta-item">
+                            <span>📂</span>
+                            <span>Category: Educational Repository</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>🔧</span>
+                            <span>Tech: Python, Jupyter</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>📊</span>
+                            <span>Level: Beginner to Advanced</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Placeholder for additional GitHub repositories -->
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">📊</div>
+                        <div class="resource-title">More Repositories Coming Soon</div>
+                    </div>
+                    
+                    <p>This section will be expanded with additional high-quality machine learning repositories covering:</p>
+                    
+                    <ul>
+                        <li><strong>Core ML Libraries:</strong> scikit-learn, TensorFlow, PyTorch repositories</li>
+                        <li><strong>Deep Learning:</strong> Specialized neural network architectures</li>
+                        <li><strong>NLP:</strong> Natural language processing tools and models</li>
+                        <li><strong>Computer Vision:</strong> Image processing and computer vision libraries</li>
+                        <li><strong>MLOps:</strong> Production-ready machine learning infrastructure</li>
+                        <li><strong>Research:</strong> Implementations of latest research papers</li>
+                    </ul>
+                    
+                    <div class="tags">
+                        <span class="tag">Coming Soon</span>
+                        <span class="tag">Curated Selection</span>
+                        <span class="tag">Open Source</span>
+                    </div>
+                    
+                    <div class="resource-meta">
+                        <div class="meta-item">
+                            <span>⏰</span>
+                            <span>Status: In Development</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>🎯</span>
+                            <span>Focus: Quality over Quantity</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tutorials & Courses -->
+            <section id="tutorials" class="category-section">
+                <div class="category-header">
+                    <h3>📚 Tutorials & Courses</h3>
+                    <p>Comprehensive learning resources for all skill levels</p>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">🎓</div>
+                        <div class="resource-title">Tutorial Collection (Expanding Soon)</div>
+                    </div>
+                    
+                    <p>This section will feature carefully curated tutorials and courses from top platforms and educators:</p>
+                    
+                    <ul>
+                        <li><strong>Online Courses:</strong> Coursera, edX, Udacity specializations</li>
+                        <li><strong>Free Resources:</strong> YouTube playlists, blog series, documentation</li>
+                        <li><strong>Interactive Platforms:</strong> Kaggle Learn, Google Colab tutorials</li>
+                        <li><strong>University Content:</strong> MIT, Stanford, CMU open courseware</li>
+                        <li><strong>Industry Training:</strong> Company blogs, technical talks, webinars</li>
+                    </ul>
+                    
+                    <div class="tags">
+                        <span class="tag">Coming Soon</span>
+                        <span class="tag">All Levels</span>
+                        <span class="tag">Interactive</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Documentation -->
+            <section id="documentation" class="category-section">
+                <div class="category-header">
+                    <h3>📖 Documentation</h3>
+                    <p>Official documentation for ML frameworks and tools</p>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">📋</div>
+                        <div class="resource-title">Framework Documentation (Coming Soon)</div>
+                    </div>
+                    
+                    <p>Direct links to essential documentation for major ML frameworks and libraries.</p>
+                    
+                    <div class="tags">
+                        <span class="tag">Official Docs</span>
+                        <span class="tag">Reference</span>
+                        <span class="tag">Up-to-date</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools & Frameworks -->
+            <section id="tools" class="category-section">
+                <div class="category-header">
+                    <h3>🛠️ Tools & Frameworks</h3>
+                    <p>Essential software for ML development and deployment</p>
+                </div>
+
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">⚙️</div>
+                        <div class="resource-title">ML Tools Ecosystem (Expanding)</div>
+                    </div>
+                    
+                    <p>Comprehensive collection of tools for the entire ML pipeline.</p>
+                    
+                    <div class="tags">
+                        <span class="tag">Development</span>
+                        <span class="tag">Production</span>
+                        <span class="tag">MLOps</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Other Sections Placeholders -->
+            <section id="datasets" class="category-section">
+                <div class="category-header">
+                    <h3>📊 Datasets</h3>
+                    <p>High-quality datasets for various ML applications - Coming Soon</p>
+                </div>
+            </section>
+
+            <section id="papers" class="category-section">
+                <div class="category-header">
+                    <h3>📄 Research Papers</h3>
+                    <p>Latest academic publications and breakthrough studies - Coming Soon</p>
+                </div>
+            </section>
+
+            <section id="blogs" class="category-section">
+                <div class="category-header">
+                    <h3>✍️ Blogs & Articles</h3>
+                    <p>Expert insights and industry analysis - Coming Soon</p>
+                </div>
+            </section>
+
+            <section id="communities" class="category-section">
+                <div class="category-header">
+                    <h3>👥 Communities</h3>
+                    <p>Active forums, Discord servers, and professional networks - Coming Soon</p>
+                </div>
+            </section>
+
+            <!-- Contribute Section -->
+            <section id="contribute">
+                <h2>Contribute to the Hub</h2>
+                
+                <div class="resource-card">
+                    <div class="resource-header">
+                        <div class="resource-icon">🤝</div>
+                        <div class="resource-title">Help Expand This Resource Hub</div>
+                    </div>
+                    
+                    <p>This resource hub is designed to grow with community contributions. We welcome suggestions for:</p>
+                    
+                    <ul>
+                        <li><strong>High-quality GitHub repositories</strong> with educational value</li>
+                        <li><strong>Comprehensive tutorials and courses</strong> for different skill levels</li>
+                        <li><strong>Essential tools and frameworks</strong> for ML development</li>
+                        <li><strong>Valuable datasets</strong> for research and learning</li>
+                        <li><strong>Important research papers</strong> and breakthrough studies</li>
+                        <li><strong>Active communities</strong> and professional networks</li>
+                    </ul>
+                    
+                    <h4>Contribution Guidelines:</h4>
+                    <ul>
+                        <li>Resources should be of high quality and actively maintained</li>
+                        <li>Include clear descriptions and categorization</li>
+                        <li>Provide context for why the resource is valuable</li>
+                        <li>Ensure links are working and content is accessible</li>
+                    </ul>
+                    
+                    <div class="tags">
+                        <span class="tag">Community-driven</span>
+                        <span class="tag">Quality Focused</span>
+                        <span class="tag">Growing Collection</span>
+                    </div>
+                </div>
+            </section>
+
+            <div class="hero-section">
+                <h3>🎯 Growing Resource Collection</h3>
+                <p>This hub is continuously expanding with new resources, tutorials, and tools. Bookmark this page and check back regularly for updates!</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('resourceSearch');
+            const resourceCards = document.querySelectorAll('.resource-card');
+            
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                resourceCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    const isVisible = text.includes(searchTerm) || searchTerm === '';
+                    card.style.display = isVisible ? 'block' : 'none';
+                });
+            });
+
+            // Smooth scrolling for navigation links
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    link.style.color = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        link.style.color = 'white';
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav(); // Initial call
+        });
+    </script>
+</body>
+</html>
