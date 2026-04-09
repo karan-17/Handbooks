@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Technology (ST) - Complete Syllabus Handbook</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #2d3748;
+            min-height: 100vh;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #2d3748;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+            position: fixed;
+            height: 100vh;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar h2 {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 1rem;
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-bottom: 0.3rem;
+        }
+        
+        .nav-links a {
+            color: #4a5568;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 0.8rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .nav-links a:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-links .main-link {
+            font-weight: bold;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(102, 126, 234, 0.3);
+            background: rgba(102, 126, 234, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .nav-links .main-link:first-child {
+            margin-top: 0;
+            padding-top: 0.5rem;
+            border-top: none;
+        }
+        
+        /* Main Content Styling */
+        .content {
+            margin-left: 320px;
+            padding: 2rem;
+            flex: 1;
+            max-width: calc(100% - 320px);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            min-height: 100vh;
+        }
+        
+        .header-nav {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Content Styling */
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin: 3rem 0 1.5rem 0;
+            font-size: 2rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+        
+        h3 {
+            color: #34495e;
+            margin: 2rem 0 1rem 0;
+            font-size: 1.5rem;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        h4 {
+            color: #667eea;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.2rem;
+        }
+        
+        p {
+            margin-bottom: 1.2rem;
+            text-align: justify;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+        
+        ul, ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        li {
+            margin-bottom: 0.6rem;
+            line-height: 1.7;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin: 2rem 0;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        
+        .hero-section h3 {
+            color: white;
+            border: none;
+            margin: 0 0 1rem 0;
+            font-size: 1.8rem;
+        }
+        
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        
+        .module-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .module-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .module-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .module-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: auto;
+        }
+        
+        .syllabus-image {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            margin: 2rem auto;
+            display: block;
+            border: 3px solid #667eea;
+        }
+        
+        .research-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .research-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .research-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .research-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .research-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+            word-break: break-all;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .research-link:hover {
+            text-decoration: underline;
+        }
+        
+        .research-description {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+        
+        .category-badge {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-top: 4px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .topic-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 3px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .topic-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        
+        .topic-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+        
+        .topic-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .topic-list li {
+            padding: 0.3rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .topic-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .topic-list li::before {
+            content: "▸";
+            color: #667eea;
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .sidebar {
+                width: 280px;
+            }
+            
+            .content {
+                margin-left: 280px;
+                max-width: calc(100% - 280px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: static;
+                height: auto;
+            }
+            
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+            }
+            
+            .hero-section h3 {
+                font-size: 1.4rem;
+            }
+            
+            .research-grid,
+            .topic-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <h2>📚 ST Syllabus Handbook</h2>
+            <ul class="nav-links">
+                <li><a href="#overview" class="main-link">Course Overview</a></li>
+                <li><a href="#syllabus-images">Syllabus Images</a></li>
+                <li><a href="#ai-foundations" class="main-link">AI Foundations</a></li>
+                <li><a href="#deep-dive-llms">Deep Dive into LLMs</a></li>
+                <li><a href="#ai-tools">AI Tools & LLMs</a></li>
+                <li><a href="#agentic-ai" class="main-link">Agentic AI</a></li>
+                <li><a href="#advanced-agentic">Advanced Agentic AI</a></li>
+                <li><a href="#model-context">Model Context Protocol</a></li>
+                <li><a href="#scaling-agents">Scaling Agents</a></li>
+                <li><a href="#system-design" class="main-link">System Design</a></li>
+                <li><a href="#mlops-aiops">MLOps & AIOps</a></li>
+                <li><a href="#cloud-computing" class="main-link">Cloud Computing</a></li>
+                <li><a href="#devops">DevOps</a></li>
+                <li><a href="#deployment">Deployment & Monitoring</a></li>
+                <li><a href="#optimization">Optimization</a></li>
+                <li><a href="#evolution-impact" class="main-link">Evolution & Impact</a></li>
+                <li><a href="#generative-ai">Generative AI</a></li>
+                <li><a href="#llm-ecosystem">LLM Ecosystem</a></li>
+                <li><a href="#prompt-engineering">Prompt Engineering</a></li>
+                <li><a href="#research-resources" class="main-link">Research Resources</a></li>
+                <li><a href="#gen-ai-papers">Gen AI Papers</a></li>
+                <li><a href="#agentic-ai-papers">Agentic AI Papers</a></li>
+                <li style="margin-top: 2rem; border-top: 1px solid rgba(102, 126, 234, 0.3); padding-top: 1rem;">
+                    <a href="index.html" class="main-link">🏠 Home</a>
+                </li>
+                <li><a href="transformers-architecture-handbook.html">🔬 Transformers</a></li>
+                <li><a href="ml-resources-handbook.html">🔗 ML Resources</a></li>
+                <li><a href="mlops-aiops-handbook.html">🤖 MLOps & AIOps</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Header Navigation -->
+            <div class="header-nav">
+                <div class="breadcrumb">
+                    <a href="index.html">Home</a> > 
+                    <a href="#education">Education</a> > 
+                    <span>Software Technology Syllabus</span>
+                </div>
+            </div>
+
+            <h1>Software Technology (ST) - Complete Syllabus Handbook</h1>
+            
+            <div class="hero-section">
+                <h3>🎓 Comprehensive AI & Software Technology Curriculum</h3>
+                <p>Master AI fundamentals, agentic systems, cloud computing, and modern software development practices. From machine learning basics to advanced AI agent architectures and production deployment.</p>
+            </div>
+
+            <!-- Course Overview -->
+            <section id="overview">
+                <h2>Course Overview</h2>
+                
+                <p>This comprehensive Software Technology course covers the complete spectrum of modern AI and software development, from foundational concepts to advanced implementation and deployment. The curriculum is designed to provide both theoretical understanding and practical skills for building production-ready AI systems.</p>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">14</div>
+                        <div class="stat-label">Core Modules</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Key Topics</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">25</div>
+                        <div class="stat-label">Research Papers</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Hands-on Projects</div>
+                    </div>
+                </div>
+
+                <h3>Learning Objectives</h3>
+                <ul>
+                    <li><strong>AI Foundations:</strong> Understand machine learning fundamentals and neural network architectures</li>
+                    <li><strong>LLM Mastery:</strong> Deep knowledge of transformer models, attention mechanisms, and modern LLMs</li>
+                    <li><strong>Agentic AI:</strong> Design and implement intelligent agents and multi-agent systems</li>
+                    <li><strong>System Design:</strong> Architect scalable AI systems for production environments</li>
+                    <li><strong>Cloud & DevOps:</strong> Deploy and manage AI applications using modern cloud platforms</li>
+                    <li><strong>Production Skills:</strong> MLOps, monitoring, optimization, and best practices</li>
+                </ul>
+            </section>
+
+            <!-- Syllabus Images -->
+            <section id="syllabus-images">
+                <h2>Official Syllabus</h2>
+                
+                <p>Below are the official syllabus images showing the complete course structure and detailed topic breakdown:</p>
+
+                <h3>Part 1: Core Curriculum Overview</h3>
+                <img src="ST Syllabus/Screenshot 2026-04-08 at 8.16.24 PM.png" alt="ST Syllabus Part 1" class="syllabus-image">
+
+                <h3>Part 2: Advanced Topics & Specializations</h3>
+                <img src="ST Syllabus/Screenshot 2026-04-08 at 8.17.54 PM.png" alt="ST Syllabus Part 2" class="syllabus-image">
+            </section>
+
+            <!-- AI Foundations -->
+            <section id="ai-foundations">
+                <h2>AI Foundations</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🧠</div>
+                        <div class="module-title">Course Overview & Machine Learning Fundamentals</div>
+                        <div class="module-number">Module 1</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to AI</div>
+                            <ul class="topic-list">
+                                <li>History and evolution of artificial intelligence</li>
+                                <li>Types of AI: Narrow, General, Super AI</li>
+                                <li>Machine learning paradigms</li>
+                                <li>AI applications across industries</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to LLMs</div>
+                            <ul class="topic-list">
+                                <li>Language model fundamentals</li>
+                                <li>Neural language generation</li>
+                                <li>Pre-training and fine-tuning</li>
+                                <li>Model capabilities and limitations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to Agentic AI</div>
+                            <ul class="topic-list">
+                                <li>Agent-based systems overview</li>
+                                <li>Autonomous decision making</li>
+                                <li>Goal-oriented behavior</li>
+                                <li>Agent communication protocols</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Industrial Use Cases</div>
+                            <ul class="topic-list">
+                                <li>Healthcare AI applications</li>
+                                <li>Financial services automation</li>
+                                <li>Manufacturing and supply chain</li>
+                                <li>Customer service and support</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">AI vs GenAI</div>
+                            <ul class="topic-list">
+                                <li>Traditional AI vs Generative AI</li>
+                                <li>Content creation capabilities</li>
+                                <li>Creative and analytical tasks</li>
+                                <li>Use case comparisons</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Model Context Protocol (MCP)</div>
+                            <ul class="topic-list">
+                                <li>Context management in AI systems</li>
+                                <li>Memory and state handling</li>
+                                <li>Protocol specifications</li>
+                                <li>Implementation patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Deep Dive into LLMs -->
+            <section id="deep-dive-llms">
+                <h2>Deep Dive into LLMs</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔬</div>
+                        <div class="module-title">Understanding LLMs from the Inside</div>
+                        <div class="module-number">Module 2</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Transformers Architecture</div>
+                            <ul class="topic-list">
+                                <li>Self-attention mechanisms</li>
+                                <li>Multi-head attention</li>
+                                <li>Encoder-decoder architecture</li>
+                                <li>Position encoding</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Working of Transformers</div>
+                            <ul class="topic-list">
+                                <li>Forward pass computation</li>
+                                <li>Backpropagation training</li>
+                                <li>Gradient flow optimization</li>
+                                <li>Memory and computational complexity</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Bi-gram Models</div>
+                            <ul class="topic-list">
+                                <li>N-gram language models</li>
+                                <li>Statistical language modeling</li>
+                                <li>Smoothing techniques</li>
+                                <li>Limitations and improvements</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to BERT</div>
+                            <ul class="topic-list">
+                                <li>Bidirectional encoder representations</li>
+                                <li>Masked language modeling</li>
+                                <li>Next sentence prediction</li>
+                                <li>Fine-tuning for downstream tasks</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Attention Mechanism</div>
+                            <ul class="topic-list">
+                                <li>Query-key-value paradigm</li>
+                                <li>Scaled dot-product attention</li>
+                                <li>Attention visualization</li>
+                                <li>Computational optimizations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Tools & LLMs -->
+            <section id="ai-tools">
+                <h2>Introduction to AI Tools & LLMs</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🛠️</div>
+                        <div class="module-title">Practical AI Tools and Frameworks</div>
+                        <div class="module-number">Module 3</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">N8N Workflow Automation</div>
+                            <ul class="topic-list">
+                                <li>Visual workflow builder</li>
+                                <li>API integrations</li>
+                                <li>Trigger and action nodes</li>
+                                <li>Automation best practices</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">CrewAI Framework</div>
+                            <ul class="topic-list">
+                                <li>Multi-agent orchestration</li>
+                                <li>Role-based agent design</li>
+                                <li>Collaborative AI systems</li>
+                                <li>Task delegation patterns</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Hugging Face Ecosystem</div>
+                            <ul class="topic-list">
+                                <li>Model hub and datasets</li>
+                                <li>Transformers library</li>
+                                <li>Model fine-tuning</li>
+                                <li>Deployment and serving</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Ollama Local LLMs</div>
+                            <ul class="topic-list">
+                                <li>Local model deployment</li>
+                                <li>Model quantization</li>
+                                <li>Resource optimization</li>
+                                <li>Privacy and security</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">AutoGen Framework</div>
+                            <ul class="topic-list">
+                                <li>Automated agent generation</li>
+                                <li>Conversational AI patterns</li>
+                                <li>Code generation agents</li>
+                                <li>Human-in-the-loop systems</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Agentic AI -->
+            <section id="agentic-ai">
+                <h2>Introduction to Agentic AI</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🤖</div>
+                        <div class="module-title">Agent Foundations and Architectures</div>
+                        <div class="module-number">Module 4</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to Agents</div>
+                            <ul class="topic-list">
+                                <li>Agent definition and characteristics</li>
+                                <li>Autonomy and adaptation</li>
+                                <li>Environment interaction</li>
+                                <li>Goal-oriented behavior</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to Workflows</div>
+                            <ul class="topic-list">
+                                <li>Workflow design patterns</li>
+                                <li>Sequential and parallel execution</li>
+                                <li>Conditional logic</li>
+                                <li>Error handling and recovery</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Agents vs Workflows vs Agentic Workflows</div>
+                            <ul class="topic-list">
+                                <li>Comparison matrix</li>
+                                <li>Use case scenarios</li>
+                                <li>Hybrid approaches</li>
+                                <li>Design considerations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Types of Agents</div>
+                            <ul class="topic-list">
+                                <li>Multi-step agents</li>
+                                <li>ReAct (Reasoning + Acting)</li>
+                                <li>Self-reflective agents</li>
+                                <li>Supervisor agents</li>
+                                <li>Aggregator & routing agents</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Multi-Agent Systems (MAS)</div>
+                            <ul class="topic-list">
+                                <li>Agent coordination protocols</li>
+                                <li>Communication patterns</li>
+                                <li>Consensus mechanisms</li>
+                                <li>Distributed decision making</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advanced Agentic AI -->
+            <section id="advanced-agentic">
+                <h2>Advanced Exploration of Agentic AI</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🧬</div>
+                        <div class="module-title">Advanced Agent Architectures and Memory</div>
+                        <div class="module-number">Module 5</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Agent Architectures</div>
+                            <ul class="topic-list">
+                                <li>Reactive architectures</li>
+                                <li>Deliberative architectures</li>
+                                <li>Hybrid architectures</li>
+                                <li>Layered approaches</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Memory States</div>
+                            <ul class="topic-list">
+                                <li>Working memory management</li>
+                                <li>Long-term memory storage</li>
+                                <li>Memory retrieval strategies</li>
+                                <li>Forgetting mechanisms</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Types of Memories in Agents</div>
+                            <ul class="topic-list">
+                                <li>Episodic memory</li>
+                                <li>Persistent memory</li>
+                                <li>Temporary memory</li>
+                                <li>Shared memory</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Using Mem0 for Memory Space</div>
+                            <ul class="topic-list">
+                                <li>Mem0 framework overview</li>
+                                <li>Memory space configuration</li>
+                                <li>Vector-based storage</li>
+                                <li>Memory optimization</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Building First AI Agent</div>
+                            <ul class="topic-list">
+                                <li>Agent design principles</li>
+                                <li>Implementation patterns</li>
+                                <li>Testing and validation</li>
+                                <li>Performance optimization</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Model Context Protocol -->
+            <section id="model-context">
+                <h2>Model Context Protocol (MCP)</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔗</div>
+                        <div class="module-title">Context Management and Protocol Implementation</div>
+                        <div class="module-number">Module 6</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to MCP</div>
+                            <ul class="topic-list">
+                                <li>Protocol specifications</li>
+                                <li>Context window management</li>
+                                <li>Message formatting</li>
+                                <li>State persistence</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Tool Calling vs Function Calling</div>
+                            <ul class="topic-list">
+                                <li>API call patterns</li>
+                                <li>Parameter validation</li>
+                                <li>Response handling</li>
+                                <li>Error management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Building MCP Server</div>
+                            <ul class="topic-list">
+                                <li>Server architecture</li>
+                                <li>Protocol implementation</li>
+                                <li>Resource management</li>
+                                <li>Security considerations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Consuming MCP Server</div>
+                            <ul class="topic-list">
+                                <li>Client implementation</li>
+                                <li>Connection management</li>
+                                <li>Message handling</li>
+                                <li>Integration patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scaling Agents & Workflows -->
+            <section id="scaling-agents">
+                <h2>Scaling Agents & Workflows</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">📈</div>
+                        <div class="module-title">Enterprise-Scale Agent Systems</div>
+                        <div class="module-number">Module 7</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Context Engineering</div>
+                            <ul class="topic-list">
+                                <li>Context window optimization</li>
+                                <li>Information prioritization</li>
+                                <li>Context compression</li>
+                                <li>Dynamic context management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Prompt Engineering</div>
+                            <ul class="topic-list">
+                                <li>Zero-shot prompting</li>
+                                <li>Few-shot learning</li>
+                                <li>Chain-of-thought reasoning</li>
+                                <li>Prompt optimization techniques</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Knowledge Graphs (KG) as Knowledge Base</div>
+                            <ul class="topic-list">
+                                <li>Graph-based knowledge representation</li>
+                                <li>Entity relationship modeling</li>
+                                <li>SPARQL queries</li>
+                                <li>Knowledge graph construction</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Vectorless DB (PageIndex)</div>
+                            <ul class="topic-list">
+                                <li>Non-vector storage approaches</li>
+                                <li>Page-based indexing</li>
+                                <li>Retrieval optimization</li>
+                                <li>Hybrid storage systems</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Logging</div>
+                            <ul class="topic-list">
+                                <li>Agent behavior tracking</li>
+                                <li>Performance monitoring</li>
+                                <li>Error logging and analysis</li>
+                                <li>Audit trail management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Design for Agents -->
+            <section id="system-design">
+                <h2>System Design for Agents</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🏗️</div>
+                        <div class="module-title">Scalable Agent System Architecture</div>
+                        <div class="module-number">Module 8</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to System Design</div>
+                            <ul class="topic-list">
+                                <li>Design principles and patterns</li>
+                                <li>Scalability considerations</li>
+                                <li>Performance requirements</li>
+                                <li>Reliability and availability</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Scaling Approaches</div>
+                            <ul class="topic-list">
+                                <li>Horizontal scaling</li>
+                                <li>Vertical scaling</li>
+                                <li>Load balancing</li>
+                                <li>Auto-scaling strategies</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Caching Strategies</div>
+                            <ul class="topic-list">
+                                <li>Context caching</li>
+                                <li>Query result caching</li>
+                                <li>Response caching</li>
+                                <li>Cache invalidation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MLOps & AIOps -->
+            <section id="mlops-aiops">
+                <h2>Operations in ML and AI (MLOps & AIOps)</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">⚙️</div>
+                        <div class="module-title">Production AI Operations</div>
+                        <div class="module-number">Module 9</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to MLOps</div>
+                            <ul class="topic-list">
+                                <li>ML pipeline automation</li>
+                                <li>Model versioning</li>
+                                <li>Continuous training</li>
+                                <li>Model governance</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Introduction to AIOps</div>
+                            <ul class="topic-list">
+                                <li>AI-powered operations</li>
+                                <li>Anomaly detection</li>
+                                <li>Predictive maintenance</li>
+                                <li>Automated remediation</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Linux Environment</div>
+                            <ul class="topic-list">
+                                <li>Command line proficiency</li>
+                                <li>Shell scripting</li>
+                                <li>Process management</li>
+                                <li>System administration</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Cloud & DevOps Integration</div>
+                            <ul class="topic-list">
+                                <li>Infrastructure as code</li>
+                                <li>CI/CD for ML models</li>
+                                <li>Container orchestration</li>
+                                <li>Service mesh architecture</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Cloud Computing -->
+            <section id="cloud-computing">
+                <h2>Cloud Computing – A Deep Dive</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">☁️</div>
+                        <div class="module-title">Enterprise Cloud Platforms</div>
+                        <div class="module-number">Module 10</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Cloud Platforms</div>
+                            <ul class="topic-list">
+                                <li>AWS ecosystem</li>
+                                <li>Microsoft Azure</li>
+                                <li>Google Cloud Platform</li>
+                                <li>Multi-cloud strategies</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">AWS Core Services</div>
+                            <ul class="topic-list">
+                                <li>EC2 compute instances</li>
+                                <li>Bedrock foundation models</li>
+                                <li>IAM security management</li>
+                                <li>Security Groups & VPC</li>
+                                <li>RDS database services</li>
+                                <li>Aurora serverless</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">AWS Advanced Services</div>
+                            <ul class="topic-list">
+                                <li>Lambda serverless</li>
+                                <li>Elastic Load Balancer</li>
+                                <li>Elastic Kubernetes Service</li>
+                                <li>SageMaker ML platform</li>
+                                <li>S3 object storage</li>
+                                <li>KMS key management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">GCP Services</div>
+                            <ul class="topic-list">
+                                <li>Google Cloud Run</li>
+                                <li>Google Cloud Engine</li>
+                                <li>Vertex AI platform</li>
+                                <li>Cloud Labs</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DevOps -->
+            <section id="devops">
+                <h2>DevOps – A Deep Dive</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🔄</div>
+                        <div class="module-title">Modern DevOps Practices</div>
+                        <div class="module-number">Module 11</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Containerization</div>
+                            <ul class="topic-list">
+                                <li>Docker fundamentals</li>
+                                <li>Docker Compose</li>
+                                <li>Container optimization</li>
+                                <li>Image security</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">YAML & Configuration</div>
+                            <ul class="topic-list">
+                                <li>YAML syntax and structure</li>
+                                <li>Configuration management</li>
+                                <li>Environment variables</li>
+                                <li>Secret management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Kubernetes (K8S)</div>
+                            <ul class="topic-list">
+                                <li>Container orchestration</li>
+                                <li>Pod and service management</li>
+                                <li>Deployment strategies</li>
+                                <li>Scaling and networking</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">CI/CD Automation</div>
+                            <ul class="topic-list">
+                                <li>Jenkins pipelines</li>
+                                <li>Terraform infrastructure</li>
+                                <li>DevOps workflows</li>
+                                <li>GitHub Actions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Deployment & Monitoring -->
+            <section id="deployment">
+                <h2>Deployment & Monitoring</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🚀</div>
+                        <div class="module-title">Production Deployment and Operations</div>
+                        <div class="module-number">Module 12</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Multi-Modal RAG Chatbot</div>
+                            <ul class="topic-list">
+                                <li>RAG architecture design</li>
+                                <li>Multi-modal processing</li>
+                                <li>Vector database integration</li>
+                                <li>Response generation</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">FireReach Deployment</div>
+                            <ul class="topic-list">
+                                <li>AWS container deployment</li>
+                                <li>Docker containerization</li>
+                                <li>Service configuration</li>
+                                <li>Load balancing setup</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Monitoring Stack</div>
+                            <ul class="topic-list">
+                                <li>Prometheus metrics</li>
+                                <li>Grafana dashboards</li>
+                                <li>Vantage cost monitoring</li>
+                                <li>DataDog observability</li>
+                                <li>LangSmith tracing</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Optimization -->
+            <section id="optimization">
+                <h2>Optimization</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">⚡</div>
+                        <div class="module-title">Performance and Cost Optimization</div>
+                        <div class="module-number">Module 13</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Cost Optimization</div>
+                            <ul class="topic-list">
+                                <li>Resource utilization analysis</li>
+                                <li>Reserved instance planning</li>
+                                <li>Spot instance strategies</li>
+                                <li>Cost monitoring and alerts</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Query Optimization</div>
+                            <ul class="topic-list">
+                                <li>Database query tuning</li>
+                                <li>Index optimization</li>
+                                <li>Vector search optimization</li>
+                                <li>Caching strategies</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Storage & Compute Optimization</div>
+                            <ul class="topic-list">
+                                <li>Storage tier optimization</li>
+                                <li>Compute resource scaling</li>
+                                <li>Memory optimization</li>
+                                <li>Network performance</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Latency Optimization</div>
+                            <ul class="topic-list">
+                                <li>Response time analysis</li>
+                                <li>CDN implementation</li>
+                                <li>Edge computing</li>
+                                <li>Connection pooling</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Evolution & Impact of AI -->
+            <section id="evolution-impact">
+                <h2>Evolution & Impact of AI</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🌟</div>
+                        <div class="module-title">AI Historical Context and Future Impact</div>
+                        <div class="module-number">Module 14</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">History of AI</div>
+                            <ul class="topic-list">
+                                <li>Early AI development</li>
+                                <li>Machine learning evolution</li>
+                                <li>Deep learning revolution</li>
+                                <li>Modern AI breakthroughs</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Early ML & NLP</div>
+                            <ul class="topic-list">
+                                <li>Sentiment analysis systems</li>
+                                <li>Text classification methods</li>
+                                <li>Feature engineering approaches</li>
+                                <li>Statistical learning models</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Recommendation Systems</div>
+                            <ul class="topic-list">
+                                <li>Netflix recommendation engine</li>
+                                <li>Advertisement targeting</li>
+                                <li>Credit card fraud detection</li>
+                                <li>Collaborative filtering</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">The 7 Wonders of AI</div>
+                            <ul class="topic-list">
+                                <li>Computer vision advances</li>
+                                <li>Natural language processing</li>
+                                <li>Robotics and automation</li>
+                                <li>Game-playing AI systems</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Rise of GPT & Generative AI</div>
+                            <ul class="topic-list">
+                                <li>GPT model evolution</li>
+                                <li>Large language models</li>
+                                <li>Generative capabilities</li>
+                                <li>Industry transformation</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Multimodal AI</div>
+                            <ul class="topic-list">
+                                <li>Text and image processing</li>
+                                <li>Audio integration</li>
+                                <li>Cross-modal learning</li>
+                                <li>Unified model architectures</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Additional Specialized Topics -->
+            <section id="generative-ai">
+                <h2>Generative AI Fundamentals</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🎨</div>
+                        <div class="module-title">Advanced Generative AI Concepts</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Vectorization & Probability</div>
+                            <ul class="topic-list">
+                                <li>Vector space models</li>
+                                <li>Probability distributions</li>
+                                <li>Sampling techniques</li>
+                                <li>Statistical foundations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Next-Token Prediction</div>
+                            <ul class="topic-list">
+                                <li>Autoregressive generation</li>
+                                <li>Context window management</li>
+                                <li>Temperature and sampling</li>
+                                <li>Beam search strategies</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">End-to-End LLM Pipeline</div>
+                            <ul class="topic-list">
+                                <li>Data preprocessing</li>
+                                <li>Model training</li>
+                                <li>Fine-tuning processes</li>
+                                <li>Deployment workflows</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Generative Models</div>
+                            <ul class="topic-list">
+                                <li>Transformer architectures</li>
+                                <li>Generative Adversarial Networks</li>
+                                <li>Variational Autoencoders</li>
+                                <li>Diffusion models</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="llm-ecosystem">
+                <h2>LLM Ecosystem & Foundations</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">🌐</div>
+                        <div class="module-title">Modern LLM Ecosystem</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">GPT, Claude, LLaMA Overview</div>
+                            <ul class="topic-list">
+                                <li>Model comparisons</li>
+                                <li>Capability assessments</li>
+                                <li>Use case optimization</li>
+                                <li>Cost considerations</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Mistral & LLM Architecture</div>
+                            <ul class="topic-list">
+                                <li>European AI innovation</li>
+                                <li>Architecture optimizations</li>
+                                <li>Performance characteristics</li>
+                                <li>Deployment strategies</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Pre-training & Fine-tuning</div>
+                            <ul class="topic-list">
+                                <li>Large-scale pre-training</li>
+                                <li>Task-specific fine-tuning</li>
+                                <li>Parameter-efficient methods</li>
+                                <li>Evaluation metrics</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Limitations & Challenges</div>
+                            <ul class="topic-list">
+                                <li>Hallucinations and bias</li>
+                                <li>Context limitations</li>
+                                <li>Computational requirements</li>
+                                <li>Ethical considerations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="prompt-engineering">
+                <h2>Prompt Engineering Fundamentals</h2>
+                
+                <div class="module-card">
+                    <div class="module-header">
+                        <div class="module-icon">💬</div>
+                        <div class="module-title">Advanced Prompt Engineering</div>
+                    </div>
+                    
+                    <div class="topic-grid">
+                        <div class="topic-card">
+                            <div class="topic-title">Prompt Engineering Basics</div>
+                            <ul class="topic-list">
+                                <li>Prompt structure design</li>
+                                <li>Context setting</li>
+                                <li>Output formatting</li>
+                                <li>Error handling</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Shot Learning Strategies</div>
+                            <ul class="topic-list">
+                                <li>Zero-shot prompting</li>
+                                <li>One-shot examples</li>
+                                <li>Few-shot learning</li>
+                                <li>Example selection</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Tool Variability</div>
+                            <ul class="topic-list">
+                                <li>ChatGPT optimization</li>
+                                <li>Perplexity strategies</li>
+                                <li>Cursor IDE integration</li>
+                                <li>Platform-specific techniques</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="topic-card">
+                            <div class="topic-title">Business Case Studies</div>
+                            <ul class="topic-list">
+                                <li>Uber dynamic prompts</li>
+                                <li>Netflix personalization</li>
+                                <li>Enterprise applications</li>
+                                <li>ROI measurement</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Research Resources -->
+            <section id="research-resources">
+                <h2>Research Papers & Resources</h2>
+                
+                <p>Comprehensive collection of cutting-edge research papers and resources covering Generative AI and Agentic AI systems. These resources provide deep theoretical foundations and practical insights for advanced AI development.</p>
+
+                <!-- Generative AI Research Papers -->
+                <section id="gen-ai-papers">
+                    <h3>Research Papers/Handbooks for Generative AI</h3>
+                    
+                    <div class="research-grid">
+                        <div class="research-card">
+                            <div class="research-title">The Illustrated Transformer</div>
+                            <a href="https://jalammar.github.io/illustrated-transformer/" class="research-link" target="_blank">https://jalammar.github.io/illustrated-transformer/</a>
+                            <div class="research-description">Comprehensive visual guide to understanding transformer architecture with intuitive illustrations and explanations.</div>
+                            <div class="category-badge">Educational</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">LLM Visualization</div>
+                            <a href="https://bbycroft.net/llm" class="research-link" target="_blank">https://bbycroft.net/llm</a>
+                            <div class="research-description">Interactive visualization of large language models showing internal mechanisms and data flow.</div>
+                            <div class="category-badge">Visualization</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">TensorFlow Projector</div>
+                            <a href="https://projector.tensorflow.org/" class="research-link" target="_blank">https://projector.tensorflow.org/</a>
+                            <div class="research-description">Tool for interactive visualization of high-dimensional data and embeddings in machine learning.</div>
+                            <div class="category-badge">Tool</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Microsoft Generative AI for Beginners</div>
+                            <a href="https://github.com/microsoft/generative-ai-for-beginners" class="research-link" target="_blank">https://github.com/microsoft/generative-ai-for-beginners</a>
+                            <div class="research-description">Comprehensive course covering generative AI fundamentals with practical examples and hands-on exercises.</div>
+                            <div class="category-badge">Course</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Attention Is All You Need</div>
+                            <a href="https://arxiv.org/pdf/1706.03762" class="research-link" target="_blank">https://arxiv.org/pdf/1706.03762</a>
+                            <div class="research-description">Foundational paper introducing the Transformer architecture that revolutionized natural language processing.</div>
+                            <div class="category-badge">Foundational</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Constitutional AI: Harmlessness from AI Feedback</div>
+                            <a href="https://arxiv.org/pdf/2112.04359" class="research-link" target="_blank">https://arxiv.org/pdf/2112.04359</a>
+                            <div class="research-description">Anthropic's approach to training AI systems to be helpful, harmless, and honest through constitutional methods.</div>
+                            <div class="category-badge">AI Safety</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Toolformer: Language Models Can Teach Themselves to Use Tools</div>
+                            <a href="https://arxiv.org/pdf/2310.11511" class="research-link" target="_blank">https://arxiv.org/pdf/2310.11511</a>
+                            <div class="research-description">Research on enabling language models to learn tool usage through self-supervised learning methods.</div>
+                            <div class="category-badge">Tool Learning</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Llama 2: Open Foundation and Fine-Tuned Chat Models</div>
+                            <a href="https://arxiv.org/pdf/2307.07924v3" class="research-link" target="_blank">https://arxiv.org/pdf/2307.07924v3</a>
+                            <div class="research-description">Meta's comprehensive paper on LLaMA 2 architecture, training methodology, and performance evaluation.</div>
+                            <div class="category-badge">Model Architecture</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">LLaMA: Open and Efficient Foundation Language Models</div>
+                            <a href="https://arxiv.org/pdf/2307.03172" class="research-link" target="_blank">https://arxiv.org/pdf/2307.03172</a>
+                            <div class="research-description">Original LLaMA paper detailing the architecture and training of efficient foundation language models.</div>
+                            <div class="category-badge">Foundation Models</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">MoE-LLaVA: Mixture of Experts for Large Vision-Language Models</div>
+                            <a href="https://arxiv.org/pdf/2401.08406" class="research-link" target="_blank">https://arxiv.org/pdf/2401.08406</a>
+                            <div class="research-description">Advanced multimodal model combining mixture of experts with large vision-language capabilities.</div>
+                            <div class="category-badge">Multimodal</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Mixtral of Experts</div>
+                            <a href="https://arxiv.org/pdf/2312.11242" class="research-link" target="_blank">https://arxiv.org/pdf/2312.11242</a>
+                            <div class="research-description">Mistral's mixture of experts architecture achieving state-of-the-art performance with sparse models.</div>
+                            <div class="category-badge">Architecture</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Gemma: Open Models Based on Gemini Research and Technology</div>
+                            <a href="https://arxiv.org/pdf/2402.12875" class="research-link" target="_blank">https://arxiv.org/pdf/2402.12875</a>
+                            <div class="research-description">Google's open-source model family based on Gemini research, focusing on responsible AI development.</div>
+                            <div class="category-badge">Open Source</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AI/ML Handbooks Collection</div>
+                            <a href="https://aiml-handbooks.netlify.app" class="research-link" target="_blank">https://aiml-handbooks.netlify.app</a>
+                            <div class="research-description">Comprehensive collection of AI and machine learning handbooks covering various topics and implementations.</div>
+                            <div class="category-badge">Resource Hub</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Agentic AI Research Papers -->
+                <section id="agentic-ai-papers">
+                    <h3>Research Papers/Handbooks for Agentic AI</h3>
+                    
+                    <div class="research-grid">
+                        <div class="research-card">
+                            <div class="research-title">WebVoyager: Building End-to-End Web Agents</div>
+                            <a href="https://arxiv.org/pdf/2512.01939v1" class="research-link" target="_blank">https://arxiv.org/pdf/2512.01939v1</a>
+                            <div class="research-description">Framework for creating autonomous web agents capable of end-to-end task completion in web environments.</div>
+                            <div class="category-badge">Web Agents</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Agent AI: Surveying the Horizons of Multimodal Interaction</div>
+                            <a href="https://arxiv.org/pdf/2501.00881" class="research-link" target="_blank">https://arxiv.org/pdf/2501.00881</a>
+                            <div class="research-description">Comprehensive survey of multimodal agent systems and their interaction capabilities across different modalities.</div>
+                            <div class="category-badge">Survey</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AIAGENTBENCH: Evaluating LLMs' Ability to Follow Human Instructions</div>
+                            <a href="https://arxiv.org/pdf/2601.14192v1" class="research-link" target="_blank">https://arxiv.org/pdf/2601.14192v1</a>
+                            <div class="research-description">Benchmark for evaluating large language models' capacity to understand and execute human instructions effectively.</div>
+                            <div class="category-badge">Evaluation</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Computer Use: Planning, Tool Use, and Reflection</div>
+                            <a href="https://arxiv.org/pdf/2507.14819" class="research-link" target="_blank">https://arxiv.org/pdf/2507.14819</a>
+                            <div class="research-description">Research on AI agents' ability to use computers effectively through planning, tool utilization, and reflection mechanisms.</div>
+                            <div class="category-badge">Computer Use</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AIDER: A Memory-Efficient Program for Personal AI Assistants</div>
+                            <a href="https://arxiv.org/pdf/2602.05524" class="research-link" target="_blank">https://arxiv.org/pdf/2602.05524</a>
+                            <div class="research-description">Memory-efficient architecture for personal AI assistants focusing on resource optimization and performance.</div>
+                            <div class="category-badge">Personal AI</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">LangGraph: Multi-Agent Workflows in LangChain</div>
+                            <a href="https://arxiv.org/pdf/2602.05302" class="research-link" target="_blank">https://arxiv.org/pdf/2602.05302</a>
+                            <div class="research-description">Framework for building complex multi-agent workflows using graph-based orchestration in LangChain ecosystem.</div>
+                            <div class="category-badge">Framework</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AgentScope: A Flexible yet Robust Multi-Agent Platform</div>
+                            <a href="https://arxiv.org/pdf/2603.03565" class="research-link" target="_blank">https://arxiv.org/pdf/2603.03565</a>
+                            <div class="research-description">Comprehensive platform for developing and deploying multi-agent systems with flexibility and robustness.</div>
+                            <div class="category-badge">Platform</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">CrewAI: A Framework for Collaborative AI Agents</div>
+                            <a href="https://arxiv.org/pdf/2602.07371" class="research-link" target="_blank">https://arxiv.org/pdf/2602.07371</a>
+                            <div class="research-description">Framework enabling multiple AI agents to work together collaboratively on complex tasks through role-based coordination.</div>
+                            <div class="category-badge">Collaboration</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AgentGraph: Toward Universal Agent Systems</div>
+                            <a href="https://arxiv.org/pdf/2602.01952" class="research-link" target="_blank">https://arxiv.org/pdf/2602.01952</a>
+                            <div class="research-description">Graph-based approach to creating universal agent systems capable of handling diverse tasks and environments.</div>
+                            <div class="category-badge">Universal Systems</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">Magentic-One: A Generalist Multi-Agent System</div>
+                            <a href="https://arxiv.org/pdf/2511.22884" class="research-link" target="_blank">https://arxiv.org/pdf/2511.22884</a>
+                            <div class="research-description">Microsoft's generalist multi-agent system designed for solving complex tasks across various domains and environments.</div>
+                            <div class="category-badge">Generalist Agent</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AI/ML Handbooks - Agentic AI Section</div>
+                            <a href="https://aiml-handbooks.netlify.app" class="research-link" target="_blank">https://aiml-handbooks.netlify.app</a>
+                            <div class="research-description">Dedicated section covering agentic AI implementations, patterns, and best practices in the handbooks collection.</div>
+                            <div class="category-badge">Resource Hub</div>
+                        </div>
+                        
+                        <div class="research-card">
+                            <div class="research-title">AI Agent Papers Collection</div>
+                            <a href="https://github.com/masamasa59/ai-agent-papers" class="research-link" target="_blank">https://github.com/masamasa59/ai-agent-papers</a>
+                            <div class="research-description">Curated collection of research papers specifically focused on AI agent systems, architectures, and applications.</div>
+                            <div class="category-badge">Paper Collection</div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <div class="hero-section">
+                <h3>🎓 Master Modern AI & Software Technology</h3>
+                <p>This comprehensive syllabus provides the complete foundation for understanding and implementing modern AI systems, from theoretical foundations to production deployment. Each module builds upon previous knowledge to create a cohesive learning experience.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Highlight active section in navigation
+            const sections = document.querySelectorAll('section[id]');
+            const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
+
+            function updateActiveNav() {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinksAll.forEach(link => {
+                    link.style.backgroundColor = '';
+                    link.style.color = '';
+                    if (link.getAttribute('href') === '#' + current) {
+                        link.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        link.style.color = 'white';
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', updateActiveNav);
+            updateActiveNav(); // Initial call
+        });
+    </script>
+</body>
+</html>
